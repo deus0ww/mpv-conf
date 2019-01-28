@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-27
+-- deus0ww - 2019-01-28
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -31,7 +31,7 @@ local cmd = {
 local function apply_all()
 	cmd.clear()
 	for i = 1, #filter_list do
-		if filter_list[i].enabled then cmd.enable(filter_list[i]) else cmd.remove(filter_list[i]) end
+		if filter_list[i].enabled then cmd.enable(filter_list[i]) end
 	end
 end
 
