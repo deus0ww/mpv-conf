@@ -66,7 +66,7 @@ end
 
 
 
--- deus0ww - 2019-01-20
+-- deus0ww - 2019-01-31
 
 ------------
 -- tn_osc --
@@ -2262,8 +2262,8 @@ function osc_init()
             "absolute-percent", "exact") end
     ne.eventresponder["reset"] =
         function (element) element.state.lastseek = nil end
-    ne.eventresponder["mbtn_right_down"] = function (element) mp.commandv('script-message', 'thumbnailer-toggle-osc') end
-    ne.eventresponder["mbtn_right_dbl_press"] = function (element) mp.commandv('script-message', 'thumbnailer-double') end
+    ne.eventresponder["mbtn_right_down"] = function (element) mp.commandv('script-message', 'Thumbnailer-toggle-osc') end
+    ne.eventresponder["mbtn_right_dbl_press"] = function (element) mp.commandv('script-message', 'Thumbnailer-double') end
 
     -- tc_left (current pos)
     ne = new_element("tc_left", "button")
