@@ -180,6 +180,8 @@ end
 ------------
 -- TN OSC --
 ------------
+local mpv_cmd = {async = 'async', overlay_add = 'overlay-add', overlay_remove = 'overlay-remove', script_message = 'script-message', bgra = 'bgra',}
+
 local osc_reg = {
 	script_name = mp.get_script_name(),
 	osc_opts = {
@@ -187,7 +189,7 @@ local osc_reg = {
 		scalefullscreen = user_opts.scalefullscreen,
 	},
 }
-mp.commandv('script-message', message.osc.registration, format_json(osc_reg))
+mp.commandv(mpv_cmd.script_message, message.osc.registration, format_json(osc_reg))
 
 local tn_palette = {
 	black        = '000000',
@@ -340,7 +342,7 @@ local function find_closest(seek_index, round_up)
 	return nil, nil
 end
 
-local id, mpv_cmd = 0, {async = 'async', overlay_add = 'overlay-add', overlay_remove = 'overlay-remove', script_message = 'script-message', bgra = 'bgra',}
+local id = 0
 
 local function draw_thumbnail(x, y, path)
 	mp.commandv(mpv_cmd.async, mpv_cmd.overlay_add, id, x, y, path, 0, mpv_cmd.bgra, tn_state.width, tn_state.height, tn_state.width * 4)
