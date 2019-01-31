@@ -340,7 +340,7 @@ local function find_closest(seek_index, round_up)
 	return nil, nil
 end
 
-local id, mpv_cmd = 0, {async = 'async', overlay_add = 'overlay-add', overlay_remove = 'overlay-remove', bgra = 'bgra',}
+local id, mpv_cmd = 0, {async = 'async', overlay_add = 'overlay-add', overlay_remove = 'overlay-remove', script_message = 'script-message', bgra = 'bgra',}
 
 local function draw_thumbnail(x, y, path)
 	mp.commandv(mpv_cmd.async, mpv_cmd.overlay_add, id, x, y, path, 0, mpv_cmd.bgra, tn_state.width, tn_state.height, tn_state.width * 4)
@@ -461,9 +461,11 @@ end
 -- Listeners --
 ---------------
 mp.register_script_message(message.osc.reset, function()
-	reset_all()
 	hide_thumbnail()
+	reset_all()	
 end)
+
+local text_progress_format = { two_digits = '%.2d/%.2d', three_digits = '%.3d/%.3d' }
 
 mp.register_script_message(message.osc.update, function(json)
 	local new_data = parse_json(json)
@@ -480,8 +482,8 @@ mp.register_script_message(message.osc.update, function(json)
 			elseif tn_osc_options.show_progress == 1 then tn_osc.display_progress.current = tn_osc_stats.percent < 1
 			else                                          tn_osc.display_progress.current = true end
 		end
-		tn_style_format.text_progress = tn_osc_stats.total > 99 and '%.3d/%.3d' or '%.2d/%.2d'
-		if tn_osc_stats.percent >= 1 then mp.commandv('script-message', message.osc.finish) end
+		tn_style_format.text_progress = tn_osc_stats.total > 99 and text_progress_format.three_digits or text_progress_format.two_digits
+		if tn_osc_stats.percent >= 1 then mp.commandv(mpv_cmd.script_message, message.osc.finish) end
 	end
 	if new_data.thumbnails then
 		local index, ready
