@@ -9,9 +9,9 @@ local filter_list = {}
 
 insert(filter_list, {
 	name = 'Format',
-	default_on_load = true,
-	reset_on_load = false,
 	filter_type = 'audio',
+	default_on_load = true,
+	reset_on_load = true,
 	filters = {
 		'format=doublep',
 	},
@@ -20,10 +20,13 @@ insert(filter_list, {
 insert(filter_list, {
 	name = 'ExtraStereo',
 	filter_type = 'audio',
+	default_on_load = true,
+	reset_on_load = true,
 	filters = {
-		'extrastereo=m=1.5',
-		'extrastereo=m=2.0',
-		'extrastereo=m=2.5',
+		'extrastereo=m=1.25',
+		'extrastereo=m=1.50',
+		'extrastereo=m=2.00',
+		'extrastereo=m=2.50',
 	},
 })
 

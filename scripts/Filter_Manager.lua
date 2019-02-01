@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-28
+-- deus0ww - 2019-02-02
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -60,7 +60,7 @@ mp.observe_property('video-params', 'native', function()
 	for _, filter in ipairs(filter_list) do
 		if filter.reset_on_load then
 			filter.enabled = filter.default_on_load
-			filter.current_index = 1
+			filter.current_index = filter.default_index and filter.default_index or 1
 		end
 	end
 	apply_all()
