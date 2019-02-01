@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-20
+-- deus0ww - 2019-02-02
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -211,7 +211,7 @@ local user_opts = {
 	accurate_seek        = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
 	use_ffmpeg           = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
 	prefer_ffmpeg        = false,              -- Use FFMPEG when available
-	ffmpeg_threads       = 4,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
+	ffmpeg_threads       = 0,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
 	ffmpeg_scaler        = 'bicublin',         -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
 }
 
@@ -241,23 +241,14 @@ local function workers_reset()
 end
 
 local function worker_set_options()
-	local encoder, ffmpeg, mpv = nil, 'ffmpeg', 'mpv'
-	if state.is_remote then
-		encoder = mpv
-	elseif user_opts.use_ffmpeg and exec_exist(ffmpeg) and (user_opts.prefer_ffmpeg or not state.is_slow) then
-		encoder = ffmpeg
-	else
-		encoder = mpv
-	end
-	local worker_options = {
-		encoder        = encoder,
+	return {
+		encoder        = (not state.is_remote and (user_opts.use_ffmpeg and exec_exist('ffmpeg') and (user_opts.prefer_ffmpeg or not state.is_slow))) and 'ffmpeg' or 'mpv',
 		worker_timeout = user_opts.worker_timeout,
 		accurate_seek  = user_opts.accurate_seek,
 		use_ffmpeg     = user_opts.use_ffmpeg,
 		ffmpeg_threads = user_opts.ffmpeg_threads,
 		ffmpeg_scaler  = user_opts.ffmpeg_scaler,
 	}
-	return worker_options
 end
 
 local function workers_queue()
@@ -334,15 +325,14 @@ local function osc_reset()
 end
 
 local function osc_set_options(is_visible)
-	local osc_options = {
+	osc_visible = (is_visible == nil) and user_opts.auto_show or is_visible
+	return {
 		spacer        = user_opts.spacer,
 		show_progress = user_opts.show_progress,
 		scale         = state.scale,
 		centered      = user_opts.centered,
-		visible       = (is_visible == nil) and user_opts.auto_show or is_visible,
+		visible       = osc_visible,
 	}
-	osc_visible = osc_options.visible
-	return osc_options
 end
 
 local function osc_update(ustate, uoptions, uthumbnails)
@@ -445,14 +435,14 @@ local function create_ouput_dir(subpath, dimension, rotate)
 end
 
 local function is_slow_source(duration)
-	local cache, cache_size, file_size = mp.get_property_native('cache'), mp.get_property_native('cache-size'), mp.get_property_native('file-size')
+	local cache, cache_size, file_size = mp.get_property_native('cache', ''), mp.get_property_native('cache-size', 0), mp.get_property_native('file-size', 0)
 	local high_bitrate = (file_size / duration) >= (12 * 131072)               -- 12 Mbps
-	return (cache == 'auto' and cache_size and cache_size > 0) or high_bitrate -- Using MPV's logic for enabling the cache to detect slow sources.
+	return (cache == 'auto' and cache_size > 0) or high_bitrate -- Using MPV's logic for enabling the cache to detect slow sources.
 end
 
 local function calculate_timing(is_remote)
-	local duration = mp.get_property_native('duration')
-	if is_empty(duration) then return { duration = 0, delta = huge } end
+	local duration = mp.get_property_native('duration', 0)
+	if duration == 0 then return { duration = 0, delta = huge } end
 	local delta_target = (is_remote and user_opts.remote_delta_factor or 1) * (saved_state.delta_factor and saved_state.delta_factor or 1) * duration / (user_opts.thumbnail_count - 1)
 	local delta = max(user_opts.min_delta, min(user_opts.max_delta, delta_target))
 	return { duration = duration, delta = delta }
@@ -532,7 +522,7 @@ local function state_init()
 		osc_buffer      = osc_buffer,
 	}
 	stop_conditions = {
-		is_seekable = mp.get_property_native('seekable'),
+		is_seekable = mp.get_property_native('seekable', true),
 		has_video   = has_video(),
 	}
 	
@@ -542,28 +532,30 @@ local function state_init()
 end
 
 local function saved_state_init()
-	local rotate = mp.get_property_native('video-params/rotate')
+	local rotate = mp.get_property_native('video-params/rotate', 0)
 	saved_state = {
-		input_fullpath = mp.get_property_native('path'),
-		input_filename = mp.get_property_native('filename/no-ext'):sub(1, 64),
+		input_fullpath = mp.get_property_native('path', ''),
+		input_filename = mp.get_property_native('filename/no-ext', ''):sub(1, 64),
 		meta_rotated   = ((rotate % 180) ~= 0),
 		initial_rotate = (rotate and rotate or 0) % 360,
 		delta_factor   = 1.0,
 		size_factor    = 1.0,
-		fullscreen     = mp.get_property_native("fullscreen")
+		fullscreen     = mp.get_property_native("fullscreen", false)
 	}
 end
 
 local function is_thumbnailable()
 	-- Must catch all cases that's not thumbnail-able and anything else that may crash the OSC.
-	local state, stop_conditions = state, stop_conditions
-	if is_empty(state, stop_conditions) or is_empty(stop_conditions.has_video, stop_conditions.is_seekable, state.cache_dir, state.duration, state.width, state.height, state.scale, state.delta, state.is_rotated, state.is_remote)
-		or not initialized or state.delta == huge
-	then
-		msg.warn('Aborting Thumbnailer. Stop Codition Found.')
-		msg.warn('State:', utils.to_string(state))
-		msg.warn('Stop_Conditions', utils.to_string(stop_conditions))
-		return false
+	if not (state and stop_conditions) then return false end
+	for key, value in pairs(state) do
+		if key == 'rotate'        and value then goto continue end
+		if key == 'worker_buffer' and value then goto continue end
+		if key == 'osc_buffer'    and value then goto continue end
+		if is_empty(value) then return false end
+		::continue::
+	end
+	for key, value in pairs(stop_conditions) do
+		if not value then return false end
 	end
 	return true
 end
@@ -609,7 +601,7 @@ local function start(paused)
 end
 
 local function osc_set_visibility(is_visible)
-	if is_visible then start(true) end
+	if is_visible and not initialized then start(true) end
 	if osc_name then osc_update(nil, osc_set_options(is_visible), nil) end
 end
 
@@ -667,7 +659,7 @@ end)
 -- On Video Params Change
 mp.observe_property('video-params', 'native', function(_, video_params)
 	if not video_params or is_empty(video_params.dw, video_params.dh) then return end
-	if not saved_state or (saved_state.input_fullpath ~= mp.get_property_native('path')) then
+	if not saved_state or (saved_state.input_fullpath ~= mp.get_property_native('path', '')) then
 		reset_all()
 		saved_state.video_params   = video_params
 		start(not user_opts.auto_gen)
