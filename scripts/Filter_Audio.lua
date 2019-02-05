@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-22
+-- deus0ww - 2019-02-05
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -53,7 +53,7 @@ insert(filter_list, {
 	name = 'ScaleTempo',
 	filter_type = 'audio',
 	filters = {
-		'scaletempo=stride=9:overlap=0.9:search=8',
+		'scaletempo=stride=9:overlap=0.9:search=28',
 	},
 })
 

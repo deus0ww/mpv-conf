@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-22
+-- deus0ww - 2019-02-06
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -10,7 +10,7 @@ local utils   = require 'mp.utils'
 mp.register_script_message('ShowInFinder', function()
 	local filepath = mp.get_property('path')
 	if filepath ~= nil then
-		os.execute(string.format('open -R "%s"', string.gsub(string.gsub(filepath, 'edl://', ''), ';', '" "')))
+		os.execute( ('open -R "%s"'):format(string.gsub(string.gsub(filepath, 'edl://', ''), '; ', '"  "')) )
 	end
 end)
 
