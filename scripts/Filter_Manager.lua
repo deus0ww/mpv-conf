@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-02
+-- deus0ww - 2019-02-06
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -56,16 +56,6 @@ local function toggle_filter(filter, no_osd)
 	show_status(filter, no_osd)
 end
 
-mp.observe_property('video-params', 'native', function()
-	for _, filter in ipairs(filter_list) do
-		if filter.reset_on_load then
-			filter.enabled = filter.default_on_load
-			filter.current_index = filter.default_index and filter.default_index or 1
-		end
-	end
-	apply_all()
-end)
-
 local function enable_filter(filter, no_osd)
 	filter.enabled = true
 	apply_all()
@@ -92,6 +82,16 @@ local function register_filter(filter)
 	mp.register_script_message(filter.name .. '-disable', function(no_osd) disable_filter(filter,  no_osd == 'yes') end)
 	msg.info(filter.name, 'registered')
 end
+
+mp.register_event("file-loaded", function()
+	for _, filter in ipairs(filter_list) do
+		if filter.reset_on_load then
+			filter.enabled = filter.default_on_load
+			filter.current_index = filter.default_index and filter.default_index or 1
+		end
+	end
+	apply_all()
+end)
 
 mp.register_script_message('Filter_Registration', function(json)
 	if not json then return end
