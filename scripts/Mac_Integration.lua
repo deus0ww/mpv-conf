@@ -8,10 +8,8 @@ local utils   = require 'mp.utils'
 
 -- Show File in Finder
 mp.register_script_message('ShowInFinder', function()
-	local filepath = mp.get_property('path')
-	if filepath ~= nil then
-		os.execute( ('open -R "%s"'):format(string.gsub(string.gsub(filepath, 'edl://', ''), '; ', '"  "')) )
-	end
+	local path = mp.get_property('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
+	if path and path ~= '' then os.execute( ('open -R "%s"'):format(path) ) end
 end)
 
 
