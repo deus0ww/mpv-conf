@@ -3,7 +3,6 @@
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
 local opt     = require 'mp.options'
-local utils   = require 'mp.utils'
 
 local user_opts = {
 	reset_on_load = true,
@@ -100,7 +99,7 @@ mp.register_event("file-loaded", function()
 end)
 
 local function on_eq_set(eq, value)
-	msg.debug('EQ - Set:', eq, amount)
+	msg.debug('EQ - Set:', eq, value)
 	profiles[profiles.current_index][eq] = math.min(math.max(value, -100), 100)
 	local profile = profiles[profiles.current_index]
 	apply_profile(profile)
