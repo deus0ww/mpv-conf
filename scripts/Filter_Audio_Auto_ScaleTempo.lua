@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-22
+-- deus0ww - 2019-02-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -15,6 +15,7 @@ mp.register_script_message(filter_name .. '-disabled', function() show_status(fa
 local previous_speed = mp.get_property_native('speed')
 
 mp.observe_property('speed', 'number', function(_, speed)
+	msg.debug('AutoScaleTempo - Speed Changed')
 	if not speed or speed == previous_speed then return end
 	previous_speed = speed
 	mp.commandv('async', 'script-message', filter_name .. ((speed == 1) and '-disable' or '-enable'), 'yes')

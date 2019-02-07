@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-06
+-- deus0ww - 2019-02-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -36,6 +36,7 @@ local function apply_all()
 end
 
 local function cycle_filter_up(filter, no_osd)
+	msg.debug('Filter - Up:', filter.name)
 	if filter.current_index == 0 then filter.enabled = true end
 	filter.current_index = (filter.current_index % #filter.filters) + 1
 	apply_all()
@@ -43,6 +44,7 @@ local function cycle_filter_up(filter, no_osd)
 end
 
 local function cycle_filter_dn(filter, no_osd)
+	msg.debug('Filter - Down:', filter.name)
 	if filter.current_index == 0 then filter.enabled = true end
 	filter.current_index = ((filter.current_index - 2) % #filter.filters) + 1
 	apply_all()
@@ -50,6 +52,7 @@ local function cycle_filter_dn(filter, no_osd)
 end
 
 local function toggle_filter(filter, no_osd)
+	msg.debug('Filter - Toggling:', filter.name)
 	if filter.current_index == 0 then filter.current_index = 1 end
 	filter.enabled = not filter.enabled
 	apply_all()
@@ -57,12 +60,14 @@ local function toggle_filter(filter, no_osd)
 end
 
 local function enable_filter(filter, no_osd)
+	msg.debug('Filter - Enabling:', filter.name)
 	filter.enabled = true
 	apply_all()
 	show_status(filter, no_osd)
 end
 
 local function disable_filter(filter, no_osd)
+	msg.debug('Filter - Disabling:', filter.name)
 	filter.enabled = false
 	apply_all()
 	show_status(filter, no_osd)
@@ -84,6 +89,7 @@ local function register_filter(filter)
 end
 
 mp.register_event("file-loaded", function()
+	msg.debug('Setting Filters...')
 	for _, filter in ipairs(filter_list) do
 		if filter.reset_on_load then
 			filter.enabled = filter.default_on_load

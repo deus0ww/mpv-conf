@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-26
+-- deus0ww - 2019-02-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -49,6 +49,7 @@ local function apply_profile(profile, eq)
 end
 
 mp.register_script_message('Eq-cycle-', function()
+	msg.debug('EQ - Profile Down')
 	profiles.current_index = ((profiles.current_index - 2) % profiles.limit) + 1
 	local profile = profiles[profiles.current_index]
 	apply_profile(profile)
@@ -56,6 +57,7 @@ mp.register_script_message('Eq-cycle-', function()
 end)
 
 mp.register_script_message('Eq-cycle+', function()
+	msg.debug('EQ - Profile Up')
 	profiles.current_index = (profiles.current_index % profiles.limit) + 1
 	local profile = profiles[profiles.current_index]
 	apply_profile(profile)
@@ -63,6 +65,7 @@ mp.register_script_message('Eq-cycle+', function()
 end)
 
 mp.register_script_message('Eq-toggle', function()
+	msg.debug('EQ - Toggling')
 	if profiles.current_index ~= 0 then
 		profiles.last_index = profiles.current_index
 		profiles.current_index = 0
@@ -75,6 +78,7 @@ mp.register_script_message('Eq-toggle', function()
 end)
 
 mp.register_script_message('Eq-reset', function()
+	msg.debug('EQ - Reseting')
 	if profiles.current_index == 0 then profiles.current_index = profiles.last_index end
 	local profile = profiles[profiles.current_index]
 	reset_profile(profile)
@@ -84,16 +88,19 @@ end)
 
 mp.register_event("file-loaded", function()
 	local profile = profiles[profiles.current_index]
-	if user_opts.reset_on_load then 
+	if user_opts.reset_on_load then
+		msg.debug('EQ - Reseting on Load')
 		reset_all()
 		apply_profile(profile)
 	else
+		msg.debug('EQ - Reloading')
 		apply_profile(profile)
 		show_status(profile)
 	end
 end)
 
 local function on_eq_set(eq, value)
+	msg.debug('EQ - Set:', eq, amount)
 	profiles[profiles.current_index][eq] = math.min(math.max(value, -100), 100)
 	local profile = profiles[profiles.current_index]
 	apply_profile(profile)
@@ -101,7 +108,7 @@ local function on_eq_set(eq, value)
 end
 
 local function on_eq_change(eq, amount)
-	msg.info('eq:', eq, 'amount:', amount)
+	msg.debug('EQ - Change:', eq, amount)
 	if profiles.current_index == 0 then profiles.current_index = profiles.last_index end
 	on_eq_set(eq, profiles[profiles.current_index][eq] + amount)
 end

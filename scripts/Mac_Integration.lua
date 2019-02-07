@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-06
+-- deus0ww - 2019-02-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -9,6 +9,7 @@ local utils   = require 'mp.utils'
 -- Show File in Finder
 mp.register_script_message('ShowInFinder', function()
 	local path = mp.get_property('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
+	msg.debug('Show in Finder:', path)
 	if path and path ~= '' then os.execute( ('open -R "%s"'):format(path) ) end
 end)
 

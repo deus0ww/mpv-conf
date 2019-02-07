@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-06
+-- deus0ww - 2019-02-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -111,12 +111,12 @@ end
 local function set_default_tracks(processed_tracks)
 	local current_path = get_containg_path()
 	if saved.last_path ~= current_path then
-		msg.info('Directory Changed: Reseting previous selections.')
+		msg.debug('Directory Changed: Reseting previous selections.')
 		saved.last_path = current_path
 		saved.audio.lang_index = 0
 		saved.sub.lang_index   = 0
 	else
-		msg.info('Same Directory: Using previous selections.')
+		msg.debug('Same Directory: Using previous selections.')
 	end
 	processed_tracks.sub.current_index = processed_tracks.audio.current_index + saved.audio.lang_index
 	local audio_track = processed_tracks.audio[processed_tracks.audio.current_index]
@@ -131,20 +131,22 @@ local function set_default_tracks(processed_tracks)
 end
 
 mp.register_event('file-loaded', function()
+	msg.debug('Setting Languages...')
 	local track_list = mp.get_property_native('track-list')
 	if not track_list then return end
-	msg.info('Setting Languages...')
 	processed_tracks, language_first_index = filter_track_lang(track_list)
 	set_default_tracks(processed_tracks)
 end)
 
 for track_type, _ in pairs(track_types) do
 	mp.register_script_message(track_type .. '-track+', function()
+		msg.debug('Track Up:', track_type)
 		processed_tracks[track_type].current_index = (processed_tracks[track_type].current_index % #processed_tracks[track_type]) + 1
 		set_track(track_types[track_type], processed_tracks[track_type])
 		set_subtitle_visibility(true)
 	end)
 	mp.register_script_message(track_type .. '-track-', function()
+		msg.debug('Track Down:', track_type)
 		processed_tracks[track_type].current_index = ((processed_tracks[track_type].current_index - 2) % #processed_tracks[track_type]) + 1
 		set_track(track_types[track_type], processed_tracks[track_type])
 		set_subtitle_visibility(true)
