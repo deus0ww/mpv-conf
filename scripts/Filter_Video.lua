@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-22
+-- deus0ww - 2019-02-11
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -26,7 +26,7 @@ insert(filter_list, {
 	},
 })
 insert(filter_list, {
-	name = 'TemporalNoise',
+	name = 'PostProcessDenoise',
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
