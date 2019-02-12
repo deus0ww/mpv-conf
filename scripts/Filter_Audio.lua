@@ -25,8 +25,8 @@ insert(filter_list, {
 	filters = {
 		'extrastereo=m=1.25',
 		'extrastereo=m=1.50',
+		'extrastereo=m=1.75',
 		'extrastereo=m=2.00',
-		'extrastereo=m=2.50',
 	},
 })
 
@@ -34,10 +34,10 @@ insert(filter_list, {
 	name = 'Compressor',
 	filter_type = 'audio',
 	filters = {
-		'acompressor=threshold=-16dB:ratio=4:attack=25:release=250:makeup=5dB:knee=8dB',
-		'acompressor=threshold=-16dB:ratio=8:attack=25:release=250:makeup=5dB:knee=8dB',
-		'acompressor=threshold=-16dB:ratio=16:attack=25:release=250:makeup=5dB:knee=8dB',
-		'acompressor=threshold=-16dB:ratio=20:attack=25:release=250:makeup=5dB:knee=8dB',
+		'acompressor=threshold=-16dB:ratio=04:attack=24:release=240:makeup=2dB:knee=8dB',
+		'acompressor=threshold=-16dB:ratio=08:attack=24:release=240:makeup=2dB:knee=8dB',
+		'acompressor=threshold=-16dB:ratio=12:attack=24:release=240:makeup=2dB:knee=8dB',
+		'acompressor=threshold=-16dB:ratio=16:attack=24:release=240:makeup=2dB:knee=8dB',
 	},
 })
 

@@ -16,7 +16,8 @@ local defaults    = { default_on_load = false, reset_on_load = true }
 
 local function show_status(filter, no_osd)
 	if not no_osd then
-		local filter_string = filter.filters[filter.current_index]:gsub('=', ' [', 1):gsub(':', ' ') .. ']'
+		local filter_string = filter.filters[filter.current_index]
+		filter_string = filter_string:find('=') == nil and filter_string or filter_string:gsub('=', ' [', 1):gsub(':', ' ') .. ']'
 		local index_string  = #filter.filters > 1 and (' %s'):format(filter.current_index) or ''
 		mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '☑︎' or '☐'), filter.name, index_string, filter_string ) )
 	end

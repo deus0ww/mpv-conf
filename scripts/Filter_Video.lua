@@ -11,8 +11,9 @@ insert(filter_list, {
 	name = 'Deinterlace',
 	filter_type = 'video',
 	filters = {
-    	'bwdif=mode=send_frame:parity=tff:deint=all',
-    	'bwdif=mode=send_frame:parity=bff:deint=all',
+		'bwdif=parity=auto:deint=all',
+    	'bwdif=parity=tff:deint=all',
+    	'bwdif=parity=bff:deint=all',
 	},
 })
 
@@ -22,8 +23,7 @@ insert(filter_list, {
 	reset_on_load = false,
 	filters = {
 		'pp=ac',
-		'pp=ac/al',
-		'pp=ac/al|f',
+		'pp=ac/autolevels',
 	},
 })
 
@@ -32,11 +32,11 @@ insert(filter_list, {
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
-		'pp=tn|100|200|400',
-		'pp=tn|200|400|800',
-		'pp=tn|400|800|1600',
-		'pp=tn|800|1600|3200',
-		'pp=tn|1600|3200|6400',
+		'pp=tmpnoise|100|200|400',
+		'pp=tmpnoise|200|400|800',
+		'pp=tmpnoise|400|800|1600',
+		'pp=tmpnoise|800|1600|3200',
+		'pp=tmpnoise|1600|3200|6400',
 	},
 })
 
@@ -53,7 +53,6 @@ insert(filter_list, {
 		'hqdn3d=luma_spatial=1.00:chroma_spatial=0.75:luma_tmp=8.00:chroma_tmp=6.00',
 		'hqdn3d=luma_spatial=2.00:chroma_spatial=1.50:luma_tmp=8.00:chroma_tmp=6.00',
 		'hqdn3d=luma_spatial=4.00:chroma_spatial=3.00:luma_tmp=8.00:chroma_tmp=6.00',
-		'hqdn3d=luma_spatial=4.00:chroma_spatial=3.00:luma_tmp=8.00:chroma_tmp=6.00',
 	},
 })
 
@@ -61,13 +60,13 @@ insert(filter_list, {
 	name = 'Noise',
 	filter_type = 'video',
 	filters = {
-		'noise=c0s=04:allf=t+u',
-		'noise=c0s=06:allf=t+u',
-		'noise=c0s=08:allf=t+u',
-		'noise=c0s=12:allf=t+u',
-		'noise=c0s=16:allf=t+u',
-		'noise=c0s=24:allf=t+u',
-		'noise=c0s=32:allf=t+u',
+		'noise=c0_strength=04:all_flags=t',
+		'noise=c0_strength=06:all_flags=t',
+		'noise=c0_strength=08:all_flags=t',
+		'noise=c0_strength=12:all_flags=t',
+		'noise=c0_strength=16:all_flags=t',
+		'noise=c0_strength=24:all_flags=t',
+		'noise=c0_strength=32:all_flags=t',
 	},
 })
 
@@ -75,7 +74,7 @@ insert(filter_list, {
 	name = 'Invert',
 	filter_type = 'video',
 	filters = {
-    	'curves=preset=negative',
+    	'negate',
 	},
 })
 
