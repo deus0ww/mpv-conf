@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-07
+-- deus0ww - 2019-02-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -15,7 +15,11 @@ local type_map    = { video = 'vf', audio = 'af' }
 local defaults    = { default_on_load = false, reset_on_load = true }
 
 local function show_status(filter, no_osd)
-	if not no_osd then mp.osd_message(string.format('%s %s %i: %s',(filter.enabled and '☑︎' or '☐'), filter.name, filter.current_index, filter.filters[filter.current_index])) end
+	if not no_osd then
+		local filter_string = filter.filters[filter.current_index]:gsub('=', ' [', 1):gsub(':', ' ') .. ']'
+		local index_string  = #filter.filters > 1 and (' %s'):format(filter.current_index) or ''
+		mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '☑︎' or '☐'), filter.name, index_string, filter_string ) )
+	end
 	mp.commandv('async', 'script-message', filter.name .. (filter.enabled and '-enabled' or '-disabled'))
 end
 

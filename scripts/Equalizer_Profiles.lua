@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-07
+-- deus0ww - 2019-02-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -32,9 +32,9 @@ reset_all()
 
 local function show_status(profile, eq)
 	local id_string = ('%s EQ %d'):format(((profiles.current_index ~= 0) and '☑︎' or '☐'), profiles.current_index == 0 and profiles.last_index or profiles.current_index)
-	local eq_string = eq and ('%s %+.2d'):format(lables[eq], profile[eq])
-						 or  ('Brightness %+.2d, Contrast %+.2d, Gamma %+.2d, Hue %+.2d, Saturation %+.2d'):format(profile.brightness, profile.contrast, profile.gamma, profile.hue, profile.saturation)
-	mp.osd_message(('%s: %s'):format(id_string, eq_string))
+	local eq_string = eq and ('%s%+4.2d'):format(lables[eq], profile[eq])
+						 or  ('Brightness%+4.2d | Contrast%+4.2d | Gamma%+4.2d | Hue%+4.2d | Saturation%+4.2d'):format(profile.brightness, profile.contrast, profile.gamma, profile.hue, profile.saturation)
+	mp.osd_message(('%s:  %s'):format(id_string, eq_string))
 end
 
 local function apply_profile(profile, eq)

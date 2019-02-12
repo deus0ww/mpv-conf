@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-07
+-- deus0ww - 2019-02-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -83,7 +83,7 @@ local function set_track(track_type, subtracks, no_osd)
 	saved[track_type.t].lang_index = subtracks[subtracks.current_index].lang_index
 	mp.commandv('async', 'set', track_type.cmd, subtrack.id)
 	if not no_osd then
-		mp.osd_message(('%s %.2d/%.2d: %3s %s'):format(track_type.label, subtrack.id, subtracks.track_count, subtrack.lang:upper(), subtrack.title and subtrack.title or ''))
+		mp.osd_message(('%s %.2d/%.2d:  %3s %s'):format(track_type.label, subtrack.id, subtracks.track_count, subtrack.lang:upper(), subtrack.title and subtrack.title or ''))
 	end
 end
 

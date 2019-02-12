@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-11
+-- deus0ww - 2019-02-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -15,6 +15,7 @@ insert(filter_list, {
     	'bwdif=mode=send_frame:parity=bff:deint=all',
 	},
 })
+
 insert(filter_list, {
 	name = 'PostProcess',
 	filter_type = 'video',
@@ -25,6 +26,7 @@ insert(filter_list, {
 		'pp=ac/al|f',
 	},
 })
+
 insert(filter_list, {
 	name = 'PostProcessDenoise',
 	filter_type = 'video',
@@ -66,6 +68,14 @@ insert(filter_list, {
 		'noise=c0s=16:allf=t+u',
 		'noise=c0s=24:allf=t+u',
 		'noise=c0s=32:allf=t+u',
+	},
+})
+
+insert(filter_list, {
+	name = 'Invert',
+	filter_type = 'video',
+	filters = {
+    	'curves=preset=negative',
 	},
 })
 
