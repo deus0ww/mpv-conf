@@ -147,7 +147,7 @@ local function text_style()
     if o.custom_header and o.custom_header ~= "" then
         return set_ASS(true) .. o.custom_header
     else
-        return format("%s{\\r}{\\an7}{\\fs%d}{\\fn%s}{\\bord%f}{\\3c&H%s&}" ..
+        return format("%s{\\r}{\\an4}{\\fs%d}{\\fn%s}{\\bord%f}{\\3c&H%s&}" ..
                       "{\\1c&H%s&}{\\alpha&H%s&}{\\xshad%f}{\\yshad%f}{\\4c&H%s&}",
                       set_ASS(true), o.font_size, o.font, o.border_size,
                       o.border_color, o.font_color, o.alpha, o.shadow_x_offset,
