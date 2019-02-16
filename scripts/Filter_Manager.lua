@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-12
+-- deus0ww - 2019-02-15
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -35,8 +35,12 @@ local cmd = {
 
 local function apply_all()
 	cmd.clear()
+	filter_list.num_enabled = 0
 	for i = 1, #filter_list do
-		if filter_list[i].enabled then cmd.enable(filter_list[i]) end
+		if filter_list[i].enabled then
+			cmd.enable(filter_list[i])
+			filter_list.num_enabled = filter_list.num_enabled + 1
+		end
 	end
 end
 
@@ -90,11 +94,11 @@ local function register_filter(filter)
 	mp.register_script_message(filter.name .. '-toggle',  function(no_osd) toggle_filter(filter,   no_osd == 'yes') end)
 	mp.register_script_message(filter.name .. '-enable',  function(no_osd) enable_filter(filter,   no_osd == 'yes') end)
 	mp.register_script_message(filter.name .. '-disable', function(no_osd) disable_filter(filter,  no_osd == 'yes') end)
-	msg.info(filter.name, 'registered')
+	msg.debug('Filter Registration:', filter.name)
 end
 
-mp.register_event("file-loaded", function()
-	msg.debug('Setting Filters...')
+mp.register_event('file-loaded', function()
+	msg.debug('Setting Filters on File Load...')
 	for _, filter in ipairs(filter_list) do
 		if filter.reset_on_load then
 			filter.enabled = filter.default_on_load
@@ -102,6 +106,15 @@ mp.register_event("file-loaded", function()
 		end
 	end
 	apply_all()
+end)
+
+mp.register_event('playback-restart', function()
+	if filter_list.num_enabled ~= #mp.get_property_native('vf', {}) + #mp.get_property_native('af', {}) then 
+		msg.debug('Playback-Restart - Number of fitlers changed. Resetting...')
+		apply_all()
+	else
+		msg.debug('Playback-Restart - Filters are OK.')
+	end
 end)
 
 mp.register_script_message('Filter_Registration', function(json)
