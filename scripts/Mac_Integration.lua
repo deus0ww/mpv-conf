@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-11
+-- deus0ww - 2019-02-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -10,6 +10,15 @@ mp.register_script_message('ShowInFinder', function()
 	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
 	msg.debug('Show in Finder:', path)
 	if path and path ~= '' then os.execute( ('open -R "%s"'):format(path) ) end
+end)
+
+
+
+-- Move to Trash -- Requires: https://github.com/ali-rantakari/trash
+mp.register_script_message('MoveToTrash', function()
+	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
+	msg.debug('Moving to Trash:', path)
+	if path and path ~= '' then os.execute( ('trash -F "%s"'):format(path) ) end
 end)
 
 
