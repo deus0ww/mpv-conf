@@ -27,41 +27,33 @@ local tag_color = {
 
 local ass_start  = mp.get_property_osd('osd-ass-cc/0', '')
 local ass_stop   = mp.get_property_osd('osd-ass-cc/1', '')
-local ass_format = '{\\1c&%s&\\3c&%s&\\4c&000000&\\1a&H%s&\\3a&%s&\\4a&90&\\bord%s\\shad0.01\\fs72\\fsp-4}●'
+local ass_format = '{\\1c&%s&\\3c&%s&\\4c&000000&\\1a&H%s&\\3a&%s&\\4a&90&\\bord2\\shad0.01\\fs80}•'
 local function show_tags(tags)
-	local tag_string = '{\\an5}'
+	local tag_string, color = '{\\an8}', 'FFFFFF'
 	for _, tag in ipairs(tag_order) do
-		if tags[tag] then
-			tag_string = tag_string .. (ass_format):format(tag_color[tag], tag_color[tag], '20', '20', '2')
-		else
-			tag_string = tag_string .. (ass_format):format(tag_color[tag], tag_color[tag], 'D0', '90', '2')
-		end
+		color = tag_color[tag]
+		tag_string = tag_string .. ( tags[tag] and (ass_format):format(color, color, '20', '20') or (ass_format):format(color, color, 'D0', '90') )
 	end
 	mp.osd_message(ass_start .. tag_string .. ass_stop)
 end
 
 
 
-local function add_tag(path, tag)
-	local cmd = 'tag -a ' .. tag .. ' ' .. path
+local function run_tag(cmd)
 	msg.debug('Command:', cmd)
 	local result = io.popen(cmd)
 	if result then result:close() end
 end
 
-local function del_tag(path, tag)
-	local cmd = 'tag -r ' .. tag .. ' ' .. path
-	msg.debug('Command:', cmd)
-	local result = io.popen(cmd)
-	if result then result:close() end
-end
+local function add_tag(path, tag) run_tag('tag -a ' .. tag .. ' ' .. path) end
+local function del_tag(path, tag) run_tag('tag -r ' .. tag .. ' ' .. path) end
 
 local function read_tag(path)
 	local cmd = 'tag -l -N -g ' .. path
 	msg.debug('Command:', cmd)
 	local result = io.popen(cmd)
-	if not result then return {} end
 	local tags = {}
+	if not result then return tags end
 	for tag in result:lines() do
 		tags[tag] = true
 	end
