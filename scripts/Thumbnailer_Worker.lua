@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-20
+-- deus0ww - 2019-02-17
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -268,7 +268,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 	
 		local worker_options = worker_options
 		local header_fields_arg = nil
-		local header_fields = mp.get_property_native('http-header-fields')
+		local header_fields = mp.get_property_native('http-header-fields', {})
 		if #header_fields > 0 then
 			header_fields_arg = '--http-header-fields=' .. table.concat(header_fields, ',') -- We can't escape the headers, mpv won't parse '--http-header-fields='Name: value'' properly
 		end

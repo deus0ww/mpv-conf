@@ -150,7 +150,7 @@ end
 
 mp.register_event('file-loaded', function()
 	msg.debug('Setting Languages...')
-	local track_list = mp.get_property_native('track-list')
+	local track_list = mp.get_property_native('track-list', {})
 	if not track_list then return end
 	tracks, language_first_index = filter_track_lang(track_list)
 	set_default_tracks(tracks)

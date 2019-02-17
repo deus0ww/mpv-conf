@@ -33,7 +33,7 @@ mp.observe_property(PROP_PAUSE, 'native', function(_, pause)
 	msg.debug('Pause:', pause)
     if pause then
     	msg.debug('Paused - Disabling OnTop')
-		last_ontop = mp.get_property_native(PROP_ONTOP)
+		last_ontop = mp.get_property_native(PROP_ONTOP, false)
 		mp.set_property_native(PROP_ONTOP, false)
 	else
 		msg.debug('Unpaused - Restoring OnTop')

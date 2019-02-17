@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-02
+-- deus0ww - 2019-02-17
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -476,7 +476,7 @@ local function calculate_worker_limit(duration, delta, is_remote, is_slow)
 end
 
 local function has_video()
-	local track_list = mp.get_property_native('track-list')
+	local track_list = mp.get_property_native('track-list', {})
 	if is_empty(track_list) then return false end
 	for _, track in ipairs(track_list) do
 		if track.type == 'video' and not track.external and not track.albumart then return true end
@@ -767,9 +767,9 @@ mp.register_script_message(message.debug, function()
 	msg.info('============')
 	msg.info('Video Stats:')
 	msg.info('============')
-	msg.info('video-params', utils.to_string(mp.get_property_native('video-params')))
-	msg.info('video-dec-params', utils.to_string(mp.get_property_native('video-dec-params')))
-	msg.info('video-out-params', utils.to_string(mp.get_property_native('video-out-params')))
+	msg.info('video-params', utils.to_string(mp.get_property_native('video-params', {})))
+	msg.info('video-dec-params', utils.to_string(mp.get_property_native('video-dec-params', {})))
+	msg.info('video-out-params', utils.to_string(mp.get_property_native('video-out-params', {})))
 	
 	msg.info('============================')
 	msg.info('Thumbnailer Internal States:')

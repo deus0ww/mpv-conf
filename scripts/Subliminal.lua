@@ -1,4 +1,4 @@
--- deus0ww - 2019-01-22
+-- deus0ww - 2019-02-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -102,7 +102,7 @@ local function create_command()
 	add_args(args, '-l', user_opts.language_3)
 	add_args(args, user_opts.debug and '-v' or '')
 	-- Output
-	add_args(args, mp.get_property('path'))
+	add_args(args, mp.get_property('path', ''))
 	return args
 end
 
