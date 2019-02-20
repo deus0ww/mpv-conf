@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-17
+-- deus0ww - 2019-02-20
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -73,14 +73,10 @@ local function get_os()
 		else return OS_NIX end
 	end
 	if (package.config:sub(1,1) ~= '/') then return OS_WIN end
-	local success, res = pcall(io.popen, '')
-	if res then res:close() end
-	if not success then return OS_MAC end
-	local file, line = io.popen('uname -s'), nil
-	if file then
-		line = file:read('*l')
-		file:close()
-	end
+	local success, file = pcall(io.popen, 'uname -s')
+	if not (success and file) then return OS_MAC end
+	local line = file:read('*l')
+	file:close()
 	return (line and line:lower() ~= 'darwin') and OS_NIX or OS_MAC
 end
 local OPERATING_SYSTEM = get_os()
@@ -165,11 +161,9 @@ mp.commandv('script-message', message.worker.registration, format_json({name = s
 
 local function stop_file_exist()
 	local file = io.open(join_paths(state.cache_dir, 'stop'), 'r')
-	if file then
-		file:close()
-		return true
-	end
-	return false
+	if not file then return false end
+	file:close()
+	return true
 end
 
 local function check_existing(thumbnail_path)

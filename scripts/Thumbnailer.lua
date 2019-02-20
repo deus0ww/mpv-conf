@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-17
+-- deus0ww - 2019-02-20
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -60,14 +60,10 @@ local function get_os()
 		else return OS_NIX end
 	end
 	if (package.config:sub(1,1) ~= '/') then return OS_WIN end
-	local success, res = pcall(io.popen, '')
-	if res then res:close() end
-	if not success then return OS_MAC end
-	local file, line = io.popen('uname -s'), nil
-	if file then
-		line = file:read('*l')
-		file:close()
-	end
+	local success, file = pcall(io.popen, 'uname -s')
+	if not (success and file) then return OS_MAC end
+	local line = file:read('*l')
+	file:close()
 	return (line and line:lower() ~= 'darwin') and OS_NIX or OS_MAC
 end
 local OPERATING_SYSTEM = get_os()
@@ -136,7 +132,7 @@ end
 
 local function file_exists(path)
 	local file = io.open(path, 'rb')
-	if file == nil then return false end
+	if not file then return false end
 	local _, _, code = file:read(1)
 	file:close()
 	return code == nil
@@ -292,11 +288,9 @@ end
 local function workers_are_stopped()
 	if not initialized or not workers_started then return true end
 	local file = io.open(join_paths(state.cache_dir, 'stop'), 'r')
-	if file then
-		file:close()
-		return true
-	end
-	return false
+	if not file then return false end
+	file:close()
+	return true
 end
 
 
@@ -409,19 +403,15 @@ end
 
 local function hash_string(input)
 	if OPERATING_SYSTEM == OS_WIN then return input end
-	local success, res = pcall(io.popen, '')
-	if not success then return input end -- io.popen unavailable
-	res:close()
 	local command
 	if     exec_exist('shasum')     then command = 'shasum -a 256'
 	elseif exec_exist('gsha256sum') then command = 'gsha256sum'
 	elseif exec_exist('sha256sum')  then command = 'sha256sum' end
 	if not command then return input end -- checksum command unavailable
-	local file, line = io.popen('printf "%s" "' .. input .. '" | ' .. command), nil
-	if file then
-		line = file:read('*l')
-		file:close()
-	end
+	local success, file = pcall(io.popen, 'printf "%s" "' .. input .. '" | ' .. command)
+	if not (success and file) then return input end
+	local line = file:read('*l')
+	file:close()
 	return line and line:match('%w+') or input
 end
 

@@ -1,11 +1,9 @@
--- deus0ww - 2019-02-16
+-- deus0ww - 2019-02-20
 
 -- Requires:
 --   - macOS >= 10.9
 --   - Tag: https://github.com/jdberry/tag/
 --   - Lua io.popen support
-
-
 
 local mp      = require 'mp'
 local assdraw = require 'mp.assdraw'
@@ -13,7 +11,9 @@ local msg     = require 'mp.msg'
 local utils   = require 'mp.utils'
 
 
-
+--------------
+-- Tag Info --
+--------------
 local tag_order = { '1', '2', '3', '4', '5', '6', '7' }
 local tag_color = {
 	['1'] = '2521FB',
@@ -25,10 +25,15 @@ local tag_color = {
 	['7'] = '7F7B7B', 
 }
 
+
+-------------
+-- Display --
+-------------
 local ass_start  = mp.get_property_osd('osd-ass-cc/0', '')
 local ass_stop   = mp.get_property_osd('osd-ass-cc/1', '')
 local ass_format = '{\\1c&%s&\\3c&%s&\\4c&000000&\\1a&H%s&\\3a&%s&\\4a&90&\\bord2\\shad0.01\\fs80}•'
 local function show_tags(tags)
+	if not tags then return end
 	local tag_string, color = '{\\an8}', 'FFFFFF'
 	for _, tag in ipairs(tag_order) do
 		color = tag_color[tag]
@@ -38,36 +43,43 @@ local function show_tags(tags)
 end
 
 
-
-local function run_tag(cmd)
-	msg.debug('Command:', cmd)
-	local result = io.popen(cmd)
-	if result then result:close() end
+-----------------------
+-- Tag Cmd Execution --
+-----------------------
+local function file_exists(path)
+	local file = io.open(path, 'rb')
+	if not file then return false end
+	local _, _, code = file:read(1)
+	file:close()
+	return code == nil
 end
 
-local function add_tag(path, tag) run_tag('tag -a ' .. tag .. ' ' .. path) end
-local function del_tag(path, tag) run_tag('tag -r ' .. tag .. ' ' .. path) end
-
-local function read_tag(path)
-	local cmd = 'tag -l -N -g ' .. path
+local function run_tag(cmd, path)
+	if not file_exists(path) then return end
 	msg.debug('Command:', cmd)
-	local result = io.popen(cmd)
-	local tags = {}
-	if not result then return tags end
-	for tag in result:lines() do
-		tags[tag] = true
+	local success, result = pcall(io.popen, cmd)
+	local lines = {}
+	if not (success and result) then return lines end
+	for line in result:lines() do
+		lines[line] = true
 	end
 	result:close()
-	msg.debug('Read Tags:', utils.to_string(tags))
-	return tags
+	msg.debug('Command Result:', utils.to_string(lines))
+	return lines
 end
 
+local function add_tag(path, tag)  return run_tag('tag -a ' .. tag .. ' ' .. ('"%s"'):format(path), path) end
+local function del_tag(path, tag)  return run_tag('tag -r ' .. tag .. ' ' .. ('"%s"'):format(path), path) end
+local function read_tag(path, tag) return run_tag('tag -l -N -g '         .. ('"%s"'):format(path), path) end
 
 
+------------------
+-- MPV Triggers --
+------------------
 local path = ''
 mp.register_event('file-loaded', function()
-	msg.debug('Tag Add:', tag)
-	path = ('"%s"'):format(mp.get_property_native('path', ''))
+	path = mp.get_property_native('path', '')
+	msg.debug('Tagger Loaded:', path)
 end)
 
 mp.register_script_message('Tag-add', function(tag)
