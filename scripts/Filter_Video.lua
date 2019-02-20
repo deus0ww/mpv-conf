@@ -1,7 +1,6 @@
--- deus0ww - 2019-02-12
+-- deus0ww - 2019-02-20
 
 local mp      = require 'mp'
-local msg     = require 'mp.msg'
 local utils   = require 'mp.utils'
 local insert  = table.insert
 

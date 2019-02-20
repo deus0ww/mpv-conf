@@ -6,7 +6,6 @@
 --   - Lua io.popen support
 
 local mp      = require 'mp'
-local assdraw = require 'mp.assdraw'
 local msg     = require 'mp.msg'
 local utils   = require 'mp.utils'
 
@@ -70,7 +69,7 @@ end
 
 local function add_tag(path, tag)  return run_tag('tag -a ' .. tag .. ' ' .. ('"%s"'):format(path), path) end
 local function del_tag(path, tag)  return run_tag('tag -r ' .. tag .. ' ' .. ('"%s"'):format(path), path) end
-local function read_tag(path, tag) return run_tag('tag -l -N -g '         .. ('"%s"'):format(path), path) end
+local function read_tag(path)      return run_tag('tag -l -N -g '         .. ('"%s"'):format(path), path) end
 
 
 ------------------
@@ -107,6 +106,6 @@ mp.register_script_message('Tag-toggle', function(tag)
 end)
 
 mp.register_script_message('Tag-show', function()
-	msg.debug('Tag Show', tag)
+	msg.debug('Tag Show')
 	show_tags(read_tag(path))
 end)

@@ -544,7 +544,7 @@ local function is_thumbnailable()
 		if is_empty(value) then return false end
 		::continue::
 	end
-	for key, value in pairs(stop_conditions) do
+	for _, value in pairs(stop_conditions) do
 		if not value then return false end
 	end
 	return true

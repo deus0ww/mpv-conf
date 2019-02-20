@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-17
+-- deus0ww - 2019-02-20
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -86,7 +86,7 @@ local function set_track(track_type, subtracks, no_osd)
 end
 
 local set_track_active = {
-	video = function(active, no_osd) return end,
+	video = function() return end,
 	audio = function(active, no_osd)
 	            saved.audio.active = active
 	            mp.commandv('async', 'set', 'mute',           active and 'no' or 'yes')
@@ -118,7 +118,6 @@ end
 
 local function set_default_tracks(tracks)
 	local current_path = get_containing_path()
-	local sub_vis = false
 	if saved.last_path ~= current_path then
 		msg.debug('Directory Changed: Reseting previous selections.')
 		reset_saved(current_path)
