@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-20
+-- deus0ww - 2019-02-23
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -33,10 +33,10 @@ insert(filter_list, {
 	name = 'Compressor',
 	filter_type = 'audio',
 	filters = {
-		'acompressor=threshold=-16dB:ratio=04:attack=24:release=240:makeup=2dB:knee=8dB',
-		'acompressor=threshold=-16dB:ratio=08:attack=24:release=240:makeup=2dB:knee=8dB',
-		'acompressor=threshold=-16dB:ratio=12:attack=24:release=240:makeup=2dB:knee=8dB',
-		'acompressor=threshold=-16dB:ratio=16:attack=24:release=240:makeup=2dB:knee=8dB',
+		'acompressor=threshold=-25dB:ratio=02:attack=50:release=300:makeup=2dB:knee=10dB',
+		'acompressor=threshold=-25dB:ratio=04:attack=50:release=300:makeup=2dB:knee=10dB',
+		'acompressor=threshold=-25dB:ratio=08:attack=50:release=300:makeup=2dB:knee=10dB',
+		'acompressor=threshold=-25dB:ratio=16:attack=50:release=300:makeup=2dB:knee=10dB',
 	},
 })
 
