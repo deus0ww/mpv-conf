@@ -664,7 +664,7 @@ mp.observe_property('video-params', 'native', function(_, video_params)
 end)
 
 -- On Fullscreen Change
-mp.observe_property("fullscreen", "native", function(_, fullscreen)
+mp.observe_property('fullscreen', 'native', function(_, fullscreen)
 	if (fullscreen == nil) or
 	   (user_opts and user_opts.scale and user_opts.scale > 0) or
 	   (not osc_opts or osc_opts.scalewindowed == osc_opts.scalefullscreen) then return end
