@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-25
+-- deus0ww - 2019-02-26
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -56,7 +56,4 @@ local function show_cache_status()
 	mp.osd_message( cache_string .. demux_string  .. speed_string .. pause_string)
 end
 mp.register_script_message('Show-Cache', show_cache_status)
-mp.observe_property('cache-buffering-state', 'native', function(_, paused)
-	if not mp.get_property_native('paused-for-cache', false) then return end
-	show_cache_status() 
-end)
+mp.observe_property('cache-buffering-state', 'native', function() if mp.get_property_native('paused-for-cache', false) then show_cache_status() end end)
