@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-17
+-- deus0ww - 2019-02-27
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -7,9 +7,22 @@ local msg     = require 'mp.msg'
 
 -- Show File in Finder
 mp.register_script_message('ShowInFinder', function()
-	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
+	local path = mp.get_property_native('path', '')
 	msg.debug('Show in Finder:', path)
-	if path and path ~= '' then os.execute( ('open -R "%s"'):format(path) ) end
+	if path == '' then return end
+	local cmd
+	if path:find('http://') ~= nil or path:find('https://') ~= nil then
+		cmd = 'open "%s"'
+	elseif path:find('edl://') ~= nil then
+		cmd = 'open -R "%s"'
+		path = path:gsub('edl://', ''):gsub(';/', '" /"')
+	elseif path:find('file://') ~= nil then
+		cmd = 'open -R "%s"'
+		path = path:gsub('file://', '')
+	else
+		cmd = 'open -R "%s"'
+	end
+	os.execute( cmd:format(path) )
 end)
 
 
