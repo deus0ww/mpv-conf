@@ -513,7 +513,7 @@ local function state_init()
 	}
 	stop_conditions = {
 		is_seekable = mp.get_property_native('seekable', true),
-		has_video   = has_video(),
+		has_video   = has_video() and timing.duration > 1,
 	}
 	
 	if is_empty(worker_script_path) then worker_script_path = user_opts.worker_script_path end
@@ -690,9 +690,9 @@ mp.register_script_message(message.osc.registration, function(json)
 	if osc_reg and osc_reg.script_name and osc_reg.osc_opts and not (osc_name and osc_opts) then
 		osc_name = osc_reg.script_name
 		osc_opts = osc_reg.osc_opts
-		msg.info('OSC Registered:' , osc_reg)
+		msg.info('OSC Registered:', utils.to_string(osc_reg))
 	else
-		msg.warn('OSC Not Registered:' , osc_reg)
+		msg.warn('OSC Not Registered:', utils.to_string(osc_reg))
 	end
 end)
 
@@ -714,9 +714,9 @@ mp.register_script_message(message.worker.registration, function(new_reg)
 			create_workers()
 			msg.info('Worker Script Path Recieved:', worker_script_path)
 		end
-		msg.info('Worker Registered:' , worker_reg.name)
+		msg.info('Worker Registered:', worker_reg.name)
 	else
-		msg.warn('Worker Not Registered:' , worker_reg.name)
+		msg.warn('Worker Not Registered:', worker_reg.name)
 	end
 end)
 
