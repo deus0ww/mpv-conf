@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-20
+-- deus0ww - 2019-02-27
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -147,10 +147,25 @@ local function set_default_tracks(tracks)
 	set_track(track_types.sub,   tracks.sub,   true)
 end
 
+local track_count = -1
+mp.register_event('end-file', function()
+	msg.debug('Triggered: end-file')
+	msg.debug('Resetting track_count')
+	track_count = -1
+end)
 mp.register_event('file-loaded', function()
-	msg.debug('Setting Languages...')
+	msg.debug('Triggered: file-loaded')
 	local track_list = mp.get_property_native('track-list', {})
-	if not track_list then return end
+	track_count = #track_list
+	if track_count == 0 then return end
+	msg.debug('Setting Languages on file-loaded...')
+	tracks, language_first_index = filter_track_lang(track_list)
+	set_default_tracks(tracks)
+end)
+mp.observe_property('track-list', 'native', function(_, track_list)
+	msg.debug('Triggered: track-list changed')
+	if not track_list or #track_list == 0 or #track_list == track_count or track_count == -1 then return end
+	msg.debug('Setting Languages on track-list change...')
 	tracks, language_first_index = filter_track_lang(track_list)
 	set_default_tracks(tracks)
 end)
