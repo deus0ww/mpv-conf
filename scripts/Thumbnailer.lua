@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-20
+-- deus0ww - 2019-02-27
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -189,7 +189,7 @@ local user_opts = {
 
 	-- Thumbnail
 	dimension            = 320,                -- Max width and height before scaling
-	thumbnail_count      = 96,                 -- Try to create this many thumbnails within the delta limits below
+	thumbnail_count      = 192,                -- Try to create this many thumbnails within the delta limits below
 	min_delta            = 1,                  -- Minimum time between thumbnails (seconds)
 	max_delta            = 30,                 -- Maximum time between thumbnails (seconds)
 	remote_delta_factor  = 2.0,                -- Multiply delta by this for remote streams
