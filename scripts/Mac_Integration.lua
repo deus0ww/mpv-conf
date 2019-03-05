@@ -55,14 +55,14 @@ mp.observe_property(PROP_PAUSE, 'native', function(_, pause)
 end)
 
 -- Pause on Minimize
---	mp.observe_property('window-minimized', 'native', function(_, minimized)
---		msg.debug('Minimized:', minimized)
---		if minimized then
---			msg.debug('Minimized - Pausing')
---			last_pause = mp.get_property_native(PROP_PAUSE, false)
---			mp.set_property_native(PROP_PAUSE, true)
---		else
---			msg.debug('Unminimized - Restoring Pause')
---			mp.set_property_native(PROP_PAUSE, last_pause)
---		end
---	end)
+mp.observe_property('window-minimized', 'native', function(_, minimized)
+	msg.debug('Minimized:', minimized)
+	if minimized then
+		msg.debug('Minimized - Pausing')
+		last_pause = mp.get_property_native(PROP_PAUSE, false)
+		mp.set_property_native(PROP_PAUSE, true)
+	else
+		msg.debug('Unminimized - Restoring Pause')
+		mp.set_property_native(PROP_PAUSE, last_pause)
+	end
+end)
