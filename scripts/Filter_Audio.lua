@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-23
+-- deus0ww - 2019-03-07
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -12,7 +12,7 @@ insert(filter_list, {
 	default_on_load = true,
 	reset_on_load = true,
 	filters = {
-		'format=doublep',
+		'format=floatp:srate=96000:channels=stereo',
 	},
 })
 
