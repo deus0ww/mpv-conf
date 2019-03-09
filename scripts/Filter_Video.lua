@@ -40,11 +40,10 @@ insert(filter_list, {
 })
 
 insert(filter_list, {
-	name = 'Denoise',
+	name = 'DenoiseVideo',
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
-		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=0.01:chroma_tmp=0.01',
 		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=1.00:chroma_tmp=0.75',
 		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=2.00:chroma_tmp=1.50',
 		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=4.00:chroma_tmp=3.00',
