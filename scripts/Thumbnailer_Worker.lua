@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-20
+-- deus0ww - 2019-03-10
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -88,7 +88,7 @@ local function format_json(tab)
 end
 
 local function parse_json(json)
-	local tab, err, _ = utils.parse_json(json, true)
+	local tab, err = utils.parse_json(json, true)
 	if err then msg.error('Parsing JSON failed:', err) end
 	if tab then return tab else return {} end
 end

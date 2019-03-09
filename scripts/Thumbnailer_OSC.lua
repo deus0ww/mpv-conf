@@ -66,7 +66,7 @@ end
 
 
 
--- deus0ww - 2019-01-31
+-- deus0ww - 2019-03-10
 
 ------------
 -- tn_osc --
@@ -117,7 +117,7 @@ local function format_json(tab)
 end
 
 local function parse_json(json)
-	local tab, err, _ = utils.parse_json(json, true)
+	local tab, err = utils.parse_json(json, true)
 	if err then msg.error('Parsing JSON failed:', err) end
 	if tab then return tab else return {} end
 end
