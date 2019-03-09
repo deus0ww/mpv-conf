@@ -1,11 +1,11 @@
--- deus0ww - 2019-02-15
+-- deus0ww - 2019-03-10
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
 local utils   = require 'mp.utils'
 
 local function parse_json(json)
-	local tab, err, _ = utils.parse_json(json, true)
+	local tab, err = utils.parse_json(json, true)
 	if err then msg.error('Parsing JSON failed:', err) end
 	if tab then return tab else return {} end
 end
@@ -82,6 +82,11 @@ local function disable_filter(filter, no_osd)
 	show_status(filter, no_osd)
 end
 
+local function filter_status(filter, no_osd)
+	mp.commandv('async', 'script-message', filter.name .. '-state', filter.enabled and filter.filters[filter.current_index] or '')
+	show_status(filter, no_osd)
+end
+
 local function register_filter(filter)
 	if filter.default_on_load == nil then filter.default_on_load = defaults.default_on_load end
 	if filter.reset_on_load   == nil then filter.reset_on_load   = defaults.reset_on_load   end
@@ -94,6 +99,7 @@ local function register_filter(filter)
 	mp.register_script_message(filter.name .. '-toggle',  function(no_osd) toggle_filter(filter,   no_osd == 'yes') end)
 	mp.register_script_message(filter.name .. '-enable',  function(no_osd) enable_filter(filter,   no_osd == 'yes') end)
 	mp.register_script_message(filter.name .. '-disable', function(no_osd) disable_filter(filter,  no_osd == 'yes') end)
+	mp.register_script_message(filter.name .. '-status',  function(no_osd) filter_status(filter,   no_osd == 'yes') end)
 	msg.debug('Filter Registration:', filter.name)
 end
 

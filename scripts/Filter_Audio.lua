@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-07
+-- deus0ww - 2019-03-09
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -12,7 +12,40 @@ insert(filter_list, {
 	default_on_load = true,
 	reset_on_load = true,
 	filters = {
-		'format=floatp:srate=96000:channels=stereo',
+		'format=doublep:srate=96000:channels=stereo',
+	},
+})
+
+insert(filter_list, {
+	name = 'DenoiseAudio',
+	filter_type = 'audio',
+	reset_on_load = true,
+	filters = {
+		'afftdn=nr=12:nf=-42',
+		'afftdn=nr=18:nf=-36',
+		'afftdn=nr=24:nf=-30',
+	},
+})
+
+insert(filter_list, {
+	name = 'HighPass',
+	filter_type = 'audio',
+	reset_on_load = true,
+	filters = {
+		'highpass=f=100',
+		'highpass=f=200',
+		'highpass=f=300',
+	},
+})
+
+insert(filter_list, {
+	name = 'LowPass',
+	filter_type = 'audio',
+	reset_on_load = true,
+	filters = {
+		'lowpass=f=6000',
+		'lowpass=f=4500',
+		'lowpass=f=3000',
 	},
 })
 
