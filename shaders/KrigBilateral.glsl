@@ -43,7 +43,7 @@ vec4 hook() {
         float rel = (pos[axis] - LUMA_pos[axis])*CHROMA_size[axis] + offset[axis]*factor;
         float w = Kernel(rel);
 
-        vec4 y = textureLod(LUMA_raw, pos, 0.0).xxxx;
+        vec4 y = textureLod(LUMA_raw, pos, 0.0).xxxx * LUMA_mul;
         y.y *= y.y;
         avg += w * y;
         W += w;
@@ -82,7 +82,7 @@ vec4 hook() {
         float rel = (pos[axis] - LOWRES_Y_pos[axis])*CHROMA_size[axis] + offset[axis]*factor;
         float w = Kernel(rel);
 
-        vec4 y = textureLod(LOWRES_Y_raw, pos, 0.0).xxxx;
+        vec4 y = textureLod(LOWRES_Y_raw, pos, 0.0).xxxx * LOWRES_Y_mul;
         y.y *= y.y;
         avg += w * y;
         W += w;
@@ -101,7 +101,7 @@ vec4 hook() {
 //!WHEN CHROMA.w LUMA.w <
 //!DESC KrigBilateral Upscaling UV
 
-#define locality 4.0
+#define locality 5.0
 
 // -- Convenience --
 #define sqr(x)   dot(x,x)
@@ -150,7 +150,7 @@ vec4 hook() {
     }
     y /= (1.0 + 4.0/locality + 4.0/pow(locality, 2.0));
     total.xyz /= total.w;
-    float localVar = sqr(noise) + clamp(total.y - pow(total.x, 2.0), 0.0, 1.0) + total.z;
+    float localVar = sqr(noise) + abs(total.y - pow(total.x, 2.0)) + total.z;
     float radius = 1.0;
 
     float Mx[N*(N+1)/2];
