@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-26
+-- deus0ww - 2019-03-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -36,9 +36,6 @@ end)
 local mark = { auto = '☐', yes = '☑︎', no = '☒' }
 
 local function show_cache_status()
-	local cache            = mp.get_property('cache', '')
-	local cache_used       = math.floor( (mp.get_property_native('cache-used', 0) / 1024) + 0.5 )
-	local cache_size       = math.floor( (mp.get_property_native('cache-size', 0) / 1024) + 0.5 )
 	local cache_speed      = math.floor(  mp.get_property_native('cache-speed', 0) + 0.5 )
 	local demux_state      = mp.get_property_native('demuxer-cache-state', {})
 	local demux_fwd        = math.floor( ((demux_state and demux_state['fw-bytes'])    and demux_state['fw-bytes']    or 0) / 1048576 + 0.5 )
@@ -49,11 +46,8 @@ local function show_cache_status()
 	local paused_for_cache = mp.get_property_native('paused-for-cache', false)
 	local buffering_state  = math.floor( mp.get_property_native('cache-buffering-state', 0) + 0.5 )
 	
-	local cache_string     = cache_size > 0
-	                         and ('%s Cache: %.2d/%.2d MiB   '):format(mark[cache], cache_used, cache_size)
-	                         or  ('%s Cache   '):format(mark[cache])
 	local demux_string     = demux_ranges > 0
-	                         and ('Demuxer: %.2d/%.2d MiB (%dm%.2ds)   '):format(demux_fwd, demux_total, math.floor(demux_duration / 60), math.floor(demux_duration % 60))
+	                         and ('Cache: %.2d/%.2d MiB (%dm%.2ds)   '):format(demux_fwd, demux_total, math.floor(demux_duration / 60), math.floor(demux_duration % 60))
 	                         or  ''
 	local speed_string     = demux_network
 	                         and ((cache_speed < 1048576) 
@@ -64,7 +58,7 @@ local function show_cache_status()
 	                         and ('Paused for buffering... %d%%   '):format(buffering_state)
 	                         or  ''
 	
-	mp.osd_message( cache_string .. demux_string  .. speed_string .. pause_string)
+	mp.osd_message( demux_string  .. speed_string .. pause_string)
 end
 mp.register_script_message('Show-Cache', show_cache_status)
 mp.observe_property('cache-buffering-state', 'native', function() if mp.get_property_native('paused-for-cache', false) then show_cache_status() end end)
