@@ -47,8 +47,8 @@ local function show_cache_status()
 	local buffering_state  = math.floor( mp.get_property_native('cache-buffering-state', 0) + 0.5 )
 	
 	local demux_string     = demux_ranges > 0
-	                         and ('Cache: %.2d/%.2d MiB (%dm%.2ds)   '):format(demux_fwd, demux_total, math.floor(demux_duration / 60), math.floor(demux_duration % 60))
-	                         or  ''
+	                         and ('☑︎ Cache: %.2d/%.2d MiB (%dm%.2ds)   '):format(demux_fwd, demux_total, math.floor(demux_duration / 60), math.floor(demux_duration % 60))
+	                         or   '☐ Cache'
 	local speed_string     = demux_network
 	                         and ((cache_speed < 1048576) 
 	                             and ('Speed: %s KB/s   '):format(math.floor(cache_speed / 1024))
