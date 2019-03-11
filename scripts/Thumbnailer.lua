@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-10
+-- deus0ww - 2019-03-11
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -92,32 +92,39 @@ end
 -------------------------------------
 -- External Process and Filesystem --
 -------------------------------------
-local function run_subprocess(command, name, detached)
-	if is_empty(command) then return false end
-	local subprocess_name, subprocess = name and name or command[1], detached and utils.subprocess_detached or utils.subprocess
-	local timer_start, success, status = os.time(), false, ''
-	msg.info('Subprocess -', subprocess_name, '- Starting...')
-	local res = subprocess({args=command})
-	if is_empty(res) then
-		success, status  = true, '- Completed with Unknown Status or Was Detached'
-	elseif res.status < 0 then
-		success = false
-		if     res.error == 'killed' then status = res.killed_by_us and '- Killed by Us' or '- Killed, but Not by Us'
-		elseif res.error == 'init'   then status = '- Failed to Initialize'
-		else                              status = '- Failed' end
-		msg.info('Subprocess -', subprocess_name, '- Command:', utils.to_string(command))
-	elseif res.status > 0 then
-		success = false
-		if res.status == 124 or res.status == 137 or res.status == 143 then -- timer: timed-out(124), killed(128+9), or terminated(128+15)
-			 status  = '- Timed Out'
-		else status  = '- Completed Abnormally' end
-		msg.info('Subprocess -', subprocess_name, '- Command:', utils.to_string(command))
-	else
-		success, status  = true, '- Completed'
-	end
-	-- msg.info('Subprocess -', subprocess_name, '- Command:', utils.to_string(command))
-	if res.stdout and res.stdout ~= '' then msg.info('Subprocess', subprocess_name, '- Stdout:', res.stdout) end
-	msg.info('Subprocess -', subprocess_name, status, '- Status:', res.status, '- Time:', ('%ds'):format(os.difftime(os.time(), timer_start)))
+local function subprocess_result(sub_success, result, mpv_error)
+	local cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed
+	if result then cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed = result.status, result.stdout, result.stderr, result.error_string, result.killed_by_us end
+	
+	local cmd_status_success, cmd_status_string, cmd_err_success, cmd_err_string, success
+	
+	if     cmd_status == 0      then cmd_status_success, cmd_status_string = true,  'ok'
+	elseif is_empty(cmd_status) then cmd_status_success, cmd_status_string = true,  '_'
+	elseif cmd_status == 124 or cmd_status == 137 or cmd_status == 143 then -- timer: timed-out(124), killed(128+9), or terminated(128+15)
+	                                 cmd_status_success, cmd_status_string = false, 'timed out'
+	else                             cmd_status_success, cmd_status_string = false, ('%d'):format(cmd_status) end
+	
+	if     is_empty(cmd_error)   then cmd_err_success, cmd_err_string = true,  '_'
+	elseif cmd_error == 'init'   then cmd_err_success, cmd_err_string = false, 'failed to initialize'
+	elseif cmd_error == 'killed' then cmd_err_success, cmd_err_string = false, cmd_killed and 'killed by us' or 'killed, but not by us'
+	else                              cmd_err_success, cmd_err_string = false, cmd_error end
+	
+	if is_empty(cmd_stdout) then cmd_stdout = '_' end
+	if is_empty(cmd_stderr) then cmd_stderr = '_' end
+	
+	success = (sub_success == nil or sub_success) and is_empty(mpv_error) and cmd_status_success and cmd_err_success
+	return success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr
+end
+
+local function run_subprocess(command, name)
+	if not command then return false end
+	local subprocess_name, timer_start = name or command[1], os.time()
+	msg.debug('Subprocess', subprocess_name, 'Starting...')
+	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
+	local success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr = subprocess_result(nil, result, mpv_error)
+	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), timer_start)))
+	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
+	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr) end
 	return success
 end
 
