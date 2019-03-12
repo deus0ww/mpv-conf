@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-11
+-- deus0ww - 2019-03-12
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -299,6 +299,8 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		worker_extra.index_skip_idct  = concat_args(args, '--vd-lavc-skipidct=',       accurate_seek and 'nonref' or 'nonkey')
 		worker_extra.index_skip_frame = concat_args(args, '--vd-lavc-skipframe=',      accurate_seek and 'nonref' or 'nonkey')
 		concat_args(args, '--hwdec=no')
+		concat_args(args, '--hdr-compute-peak=no')
+		concat_args(args, '--vd-lavc-dr=no')
 		concat_args(args, '--aid=no')
 		concat_args(args, '--sid=no')
 		concat_args(args, '--sub-auto=no')
