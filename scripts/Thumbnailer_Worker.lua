@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-12
+-- deus0ww - 2019-03-14
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -291,7 +291,6 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, '--referrer=', mp.get_property_native('referrer'))
 		-- Input
 		concat_args(args, '--profile=low-latency')
-		concat_args(args, '--cache-secs=', max(sqrt(state.delta), 1))
 		concat_args(args, '--vd-lavc-threads=', worker_options.ffmpeg_threads)
 		concat_args(args, '--vd-lavc-fast')
 		worker_extra.index_accurate   = concat_args(args, '--hr-seek=',                accurate_seek and 'yes' or 'no')
