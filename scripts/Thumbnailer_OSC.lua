@@ -66,7 +66,7 @@ end
 
 
 
--- deus0ww - 2019-03-10
+-- deus0ww - 2019-03-14
 
 ------------
 -- tn_osc --
@@ -342,19 +342,19 @@ local function find_closest(seek_index, round_up)
 	return nil, nil
 end
 
-local id = 0
+local id = 9
+local cmd_async
 
 local function draw_thumbnail(x, y, path)
-	mp.commandv(mpv_cmd.async, mpv_cmd.overlay_add, id, x, y, path, 0, mpv_cmd.bgra, tn_state.width, tn_state.height, tn_state.width * 4)
-	id = id == 0 and 1 or 0
-	mp.commandv(mpv_cmd.async, mpv_cmd.overlay_remove, id)
+	if cmd_async then mp.abort_async_command(cmd_async) end
+	cmd_async = mp.command_native_async( { mpv_cmd.overlay_add, id, x, y, path, 0, mpv_cmd.bgra, tn_state.width, tn_state.height, tn_state.width * 4 }, function() end )
 	tn_osc.thumbnail.visible = true
 end
 
 local function hide_thumbnail()
 	if tn_osc and tn_osc.thumbnail and tn_osc.thumbnail.visible then
-		mp.commandv(mpv_cmd.async, mpv_cmd.overlay_remove, 0)
-		mp.commandv(mpv_cmd.async, mpv_cmd.overlay_remove, 1)
+		if cmd_async then mp.abort_async_command(cmd_async) end
+		cmd_async = mp.command_native_async( { mpv_cmd.overlay_remove, id }, function() end )
 		tn_osc.thumbnail.visible = false
 	end
 end
