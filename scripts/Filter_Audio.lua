@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-09
+-- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -91,5 +91,5 @@ insert(filter_list, {
 
 mp.register_script_message('Filter_Registration_Request', function(origin)
 	local filter_json, _ = utils.format_json(filter_list)
-	mp.commandv('async', 'script-message-to', origin, 'Filters_Registration', filter_json and filter_json or '')
+	mp.command_native_async({'script-message-to', origin, 'Filters_Registration', filter_json and filter_json or ''}, function() end)
 end)

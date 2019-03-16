@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-27
+-- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -79,7 +79,7 @@ local function set_track(track_type, subtracks, no_osd)
 	local subtrack = subtracks[subtracks.current_index]
 	if not (subtrack and subtrack.lang and subtrack.id) then return end
 	saved[track_type.t].current_index = subtracks.current_index
-	mp.commandv('async', 'set', track_type.cmd, subtrack.id)
+	mp.command_native_async({'set', track_type.cmd, tostring(subtrack.id)}, function() end)
 	if not no_osd then
 		mp.osd_message(('☑ %s %.2d/%.2d:  %3s %s'):format(track_type.label, subtrack.id, subtracks.track_count, subtrack.lang:upper(), subtrack.title and subtrack.title or ''))
 	end
@@ -89,12 +89,12 @@ local set_track_active = {
 	video = function() return end,
 	audio = function(active, no_osd)
 	            saved.audio.active = active
-	            mp.commandv('async', 'set', 'mute',           active and 'no' or 'yes')
+	            mp.command_native_async({'set', 'mute',           active and 'no' or 'yes'}, function() end)
 	            if not no_osd then mp.osd_message((active and '☑︎' or '☐') .. ' Audio') end
 	        end,
 	sub   = function(active, no_osd)
 	            saved.sub.active = active
-	            mp.commandv('async', 'set', 'sub-visibility', active and 'yes' or 'no')
+	            mp.command_native_async({'set', 'sub-visibility', active and 'yes' or 'no'}, function() end)
 	            if not no_osd then mp.osd_message((active and '☑︎' or '☐') .. ' Subtitle') end
 	        end,
 }

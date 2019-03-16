@@ -1,8 +1,6 @@
--- deus0ww - 2019-03-09
+-- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
-local msg     = require 'mp.msg'
-local utils   = require 'mp.utils'
 
 local filter_name, lowpass_name, highpass_name = 'VoicePass', 'LowPass', 'HighPass'
 
@@ -26,10 +24,10 @@ end
 local function register_script()
 	for _, cmd in ipairs({ '-cycle+', '-cycle-', '-toggle', '-enable', '-disable' }) do
 		mp.register_script_message(filter_name .. cmd,  function() 
-			mp.commandv('async', 'script-message', lowpass_name  .. cmd, 'yes')
-			mp.commandv('async', 'script-message', highpass_name .. cmd, 'yes')
-			mp.commandv('async', 'script-message', lowpass_name  .. '-status', 'yes')
-			mp.commandv('async', 'script-message', highpass_name .. '-status', 'yes')
+			mp.command_native({'script-message', lowpass_name  .. cmd, 'yes'})
+			mp.command_native({'script-message', lowpass_name  .. '-status', 'yes'})
+			mp.command_native({'script-message', highpass_name .. cmd, 'yes'})
+			mp.command_native({'script-message', highpass_name .. '-status', 'yes'})
 		end)
 	end
 	mp.register_script_message(lowpass_name  .. '-state', function(lowpass_string)  state.lowpass_string,  state.lowpass_new  = lowpass_string,  true end)

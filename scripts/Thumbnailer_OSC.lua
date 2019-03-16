@@ -66,7 +66,7 @@ end
 
 
 
--- deus0ww - 2019-03-14
+-- deus0ww - 2019-03-16
 
 ------------
 -- tn_osc --
@@ -98,14 +98,10 @@ local function get_os()
 		else return OS_NIX end
 	end
 	if (package.config:sub(1,1) ~= '/') then return OS_WIN end
-	local success, res = pcall(io.popen, '')
-	if res then res:close() end
-	if not success then return OS_MAC end
-	local file, line = io.popen('uname -s'), nil
-	if file then
-		line = file:read('*l')
-		file:close()
-	end
+	local success, file = pcall(io.popen, 'uname -s')
+	if not (success and file) then return OS_MAC end
+	local line = file:read('*l')
+	file:close()
 	return (line and line:lower() ~= 'darwin') and OS_NIX or OS_MAC
 end
 local OPERATING_SYSTEM = get_os()
@@ -189,7 +185,7 @@ local osc_reg = {
 		scalefullscreen = user_opts.scalefullscreen,
 	},
 }
-mp.commandv(mpv_cmd.script_message, message.osc.registration, format_json(osc_reg))
+mp.command_native_async({mpv_cmd.script_message, message.osc.registration, format_json(osc_reg)}, function() end)
 
 local tn_palette = {
 	black        = '000000',
@@ -485,7 +481,7 @@ mp.register_script_message(message.osc.update, function(json)
 			else                                          tn_osc.display_progress.current = true end
 		end
 		tn_style_format.text_progress = tn_osc_stats.total > 99 and text_progress_format.three_digits or text_progress_format.two_digits
-		if tn_osc_stats.percent >= 1 then mp.commandv(mpv_cmd.script_message, message.osc.finish) end
+		if tn_osc_stats.percent >= 1 then mp.command_native_async({mpv_cmd.script_message, message.osc.finish}, function() end) end
 	end
 	if new_data.thumbnails then
 		local index, ready

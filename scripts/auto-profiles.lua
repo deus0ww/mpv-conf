@@ -49,7 +49,7 @@ video-zoom=0
 
 --]]
 
-local utils = require 'mp.utils'
+local mp  = require 'mp'
 local msg = require 'mp.msg'
 
 local profiles = {}
@@ -79,7 +79,7 @@ local function evaluate(profile)
     end
     if res ~= profile.status and res == true then
         msg.info("Applying profile " .. profile.name)
-        mp.commandv("async", "apply-profile", profile.name)
+        mp.command_native_async({"apply-profile", profile.name}, function() end)
     end
     profile.status = res
     profile.dirty = false

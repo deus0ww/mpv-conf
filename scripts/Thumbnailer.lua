@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-11
+-- deus0ww - 2019-03-16
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -173,7 +173,7 @@ end
 local function delete_dir(path)
 	if is_empty(path) then return end
 	msg.warn('Deleting Dir:', path)
-	return 0 == os.execute( OPERATING_SYSTEM == OS_WIN and ('rd /S /Q ' .. path) or ('rm -r ' .. path) )
+	return mp.command_native( OPERATING_SYSTEM == OS_WIN and {'run', 'rd', '/S', '/Q', path} or {'run', 'rm', '-r', path} )
 end
 
 
@@ -239,7 +239,7 @@ local function workers_reset()
 	timer_start              = 0
 	timer_total              = 0
 	for _, worker in ipairs(workers_indexed) do
-		mp.commandv('script-message-to', worker, message.worker.reset)
+		mp.command_native_async({'script-message-to', worker, message.worker.reset}, function() end)
 	end
 end
 
@@ -268,7 +268,7 @@ local function workers_queue()
 		if i > worker_count then break end
 		worker_data.start_time_index = start_time_index
 		worker_data.delta_per_worker = (i == worker_count) and max_delta - start_time_index or delta_per_worker
-		mp.commandv('async', 'script-message-to', worker, message.worker.queue, format_json(worker_data))
+		mp.command_native_async({'script-message-to', worker, message.worker.queue, format_json(worker_data)}, function() end)
 		start_time_index = start_time_index + floor(delta_per_worker) + 1
 	end
 end
@@ -278,7 +278,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		mp.commandv('async', 'script-message-to', worker, message.worker.start)
+		mp.command_native_async({'script-message-to', worker, message.worker.start}, function() end)
 	end
 	workers_started = true
 end
@@ -322,7 +322,7 @@ end
 local function osc_reset()
 	osc_reset_stats()
 	osc_visible = nil
-	if osc_name then mp.commandv('script-message-to', osc_name, message.osc.reset) end
+	if osc_name then mp.command_native_async({'script-message-to', osc_name, message.osc.reset}, function() end) end
 end
 
 local function osc_set_options(is_visible)
@@ -350,7 +350,7 @@ local function osc_update(ustate, uoptions, uthumbnails)
 	else
 		osc_data.osc_stats = nil
 	end
-	mp.commandv('async', 'script-message-to', osc_name, message.osc.update, format_json(osc_data))
+	mp.command_native_async({'script-message-to', osc_name, message.osc.update, format_json(osc_data)}, function() end)
 end
 
 local function osc_delta_update(flush)
@@ -403,7 +403,7 @@ local function create_workers()
 	if missing_workers > 0 and worker_script_path ~= nil and worker_script_path ~= '' then
 		for _ = 1, missing_workers do
 			msg.info('Recruiting Worker...')
-			mp.commandv('load-script', worker_script_path)
+			mp.command_native_async({'load-script', worker_script_path}, function() end)
 		end
 	end
 end

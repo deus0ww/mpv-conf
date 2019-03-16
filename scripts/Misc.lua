@@ -1,8 +1,6 @@
--- deus0ww - 2019-03-12
+-- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
-local msg     = require 'mp.msg'
-local utils   = require 'mp.utils'
 
 
 
@@ -10,15 +8,15 @@ local utils   = require 'mp.utils'
 local osc_vis, alt_vis = 'auto', 'never'
 mp.register_script_message('OSC-vis-cycle', function()
 	osc_vis, alt_vis = alt_vis, osc_vis
-	mp.commandv('async', 'script-message', 'osc-visibility', osc_vis)
+	mp.command_native_async({'script-message', 'osc-visibility', osc_vis}, function() end)
 end)
 
 
 
 -- Property Changer
 local function change_prop(action, property, value)
-	mp.commandv('async', 'no-osd', action, property, value)
-	mp.commandv('async', 'show-text', ('%s:% 4d'):format(property:gsub('^%l', string.upper), mp.get_property_native(property, 0)))
+	mp.command_native_async({action, property, tostring(value)}, function() end)
+	mp.osd_message(('%s:% 4d'):format(property:gsub('^%l', string.upper), mp.get_property_native(property, 0)))
 end
 mp.register_script_message('Add', function(property, value) change_prop('add', property, value) end)
 mp.register_script_message('Set', function(property, value) change_prop('set', property, value) end)
@@ -33,8 +31,6 @@ end)
 
 
 -- Show Cache Sizes
-local mark = { auto = '☐', yes = '☑︎', no = '☒' }
-
 local function show_cache_status()
 	local cache_speed      = math.floor(  mp.get_property_native('cache-speed', 0) + 0.5 )
 	local demux_state      = mp.get_property_native('demuxer-cache-state', {})

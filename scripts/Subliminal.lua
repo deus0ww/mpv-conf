@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-11
+-- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -118,7 +118,7 @@ local function download_sub(source)
 	opt.read_options(user_opts, mp.get_script_name())
 	msg.debug("Subliminal subtitle download started", source)
 	run_subprocess(create_command())
-	mp.commandv('async', 'rescan_external_files', 'reselect') 
+	mp.command_native_async({'rescan_external_files', 'reselect'}, function() end) 
 end
 
 

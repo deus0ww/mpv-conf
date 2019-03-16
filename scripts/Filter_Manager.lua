@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-10
+-- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -21,16 +21,16 @@ local function show_status(filter, no_osd)
 		local index_string  = #filter.filters > 1 and (' %s'):format(filter.current_index) or ''
 		mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '☑︎' or '☐'), filter.name, index_string, filter_string ) )
 	end
-	mp.commandv('async', 'script-message', filter.name .. (filter.enabled and '-enabled' or '-disabled'))
+	mp.command_native_async({'script-message', filter.name .. (filter.enabled and '-enabled' or '-disabled')}, function() end)
 end
 
-local cmd_prefix = 'async no-osd %s '
 local cmd = {
-	enable  = function(filter) mp.command((cmd_prefix .. 'add @%s:%s' ):format(type_map[filter.filter_type], filter.name, filter.filters[filter.current_index])) end,
-	disable = function(filter) mp.command((cmd_prefix .. 'add @%s:!%s'):format(type_map[filter.filter_type], filter.name, filter.filters[filter.current_index])) end,
-	add     = function(filter) mp.command((cmd_prefix .. 'add @%s:!%s'):format(type_map[filter.filter_type], filter.name, filter.filters[filter.current_index])) end,
-	remove  = function(filter) mp.command((cmd_prefix .. 'del @%s'    ):format(type_map[filter.filter_type], filter.name)) end,
-	clear   = function() mp.set_property_native(type_map['audio'], {}) mp.set_property_native(type_map['video'], {}) end,
+	enable  = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:%s' ):format(filter.name, filter.filters[filter.current_index])}) end,
+	disable = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:!%s'):format(filter.name, filter.filters[filter.current_index])}) end,
+	add     = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:!%s'):format(filter.name, filter.filters[filter.current_index])}) end,
+	remove  = function(filter) mp.command_native({type_map[filter.filter_type], 'del', ('@%s'    ):format(filter.name)}) end,
+	clear   = function() mp.set_property_native(type_map['audio'], {})
+	                     mp.set_property_native(type_map['video'], {}) end,
 }
 
 local function apply_all()
@@ -83,7 +83,7 @@ local function disable_filter(filter, no_osd)
 end
 
 local function filter_status(filter, no_osd)
-	mp.commandv('async', 'script-message', filter.name .. '-state', filter.enabled and filter.filters[filter.current_index] or '')
+	mp.command_native_async({'script-message', filter.name .. '-state', filter.enabled and filter.filters[filter.current_index] or ''}, function() end)
 	show_status(filter, no_osd)
 end
 
@@ -136,4 +136,4 @@ mp.register_script_message('Filters_Registration', function(json)
 	end
 end)
 
-mp.commandv('async', 'script-message', 'Filter_Registration_Request', mp.get_script_name())
+mp.command_native_async({'script-message', 'Filter_Registration_Request', mp.get_script_name()}, function() end)

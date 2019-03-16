@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-14
+-- deus0ww - 2019-03-16
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -165,7 +165,7 @@ end
 ------------
 -- Worker --
 ------------
-mp.commandv('script-message', message.worker.registration, format_json({name = script_name, script_path = clean_path(debug.getinfo(1).short_src)}))
+mp.command_native_async({'script-message', message.worker.registration, format_json({name = script_name, script_path = clean_path(debug.getinfo(1).short_src)})}, function() end)
 
 local function stop_file_exist()
 	local file = io.open(join_paths(state.cache_dir, 'stop'), 'r')
@@ -395,7 +395,7 @@ end
 
 local function report_progress_table(thumbnail_map)
 	local progress_report = { name = script_name, input_filename = state.input_filename, thumbnail_map = thumbnail_map }
-	mp.commandv('async', 'script-message', message.worker.progress, format_json(progress_report))
+	mp.command_native_async({'script-message', message.worker.progress, format_json(progress_report)}, function() end)
 end
 
 local function report_progress(index, new_status)
@@ -445,7 +445,7 @@ local function process_queue()
 		create_thumbnail()
 	end
 	report_progress()
-	if #work_queue == 0 then mp.commandv('script-message', message.worker.finish, format_json(worker_stats)) end
+	if #work_queue == 0 then mp.command_native_async({'script-message', message.worker.finish, format_json(worker_stats)}, function() end) end
 end
 
 local function create_queue()
