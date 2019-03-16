@@ -116,23 +116,27 @@ end
 
 local function download_sub(source)
 	opt.read_options(user_opts, mp.get_script_name())
-	msg.debug("Subliminal subtitle download started", source)
-	run_subprocess(create_command())
-	mp.command_native_async({'rescan_external_files', 'reselect'}, function() end) 
+	mp.osd_message('Subliminal subtitle download started ' .. source)
+	if run_subprocess(create_command()) then
+		mp.command_native_async({'rescan_external_files', 'reselect'}, function() end) 
+		mp.osd_message('Subliminal subtitle download succeeded.')
+	else
+		mp.osd_message('Subliminal subtitle download failed.')
+	end
 end
 
 
 ---------------
 -- Listeners --
 ---------------
-mp.register_script_message(mp.get_script_name() .. "-start", function()
-	download_sub('manually.')
+mp.register_script_message(mp.get_script_name() .. '-start', function()
+	download_sub('manually...')
 end)
 
 mp.register_event('file-loaded', function()
 	if user_opts.autostart then
-		mp.add_timeout(1, download_sub('automatically.'))
+		mp.add_timeout(1, download_sub('automatically...'))
 	else
-		msg.debug("Subliminal subtitle auto-download disabled.")
+		msg.debug('Subliminal subtitle auto-download disabled.')
 	end
 end)
