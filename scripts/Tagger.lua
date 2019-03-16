@@ -30,7 +30,7 @@ local tag_color = {
 -------------
 local ass_start  = mp.get_property_osd('osd-ass-cc/0', '')
 local ass_stop   = mp.get_property_osd('osd-ass-cc/1', '')
-local ass_format = '{\\1c&%s&\\3c&%s&\\4c&000000&\\1a&H%s&\\3a&%s&\\4a&90&\\bord2\\shad0.01\\fs80}•'
+local ass_format = '{\\1cH&%s&\\3c&H%s&\\4c&H000000&\\1a&H%s&\\3a&H%s&\\4a&H90&\\bord2\\shad0.01\\fs80}•'
 local function show_tags(tags)
 	if not tags then return end
 	local tag_string, color = '{\\an8}', 'FFFFFF'
