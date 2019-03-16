@@ -1,6 +1,7 @@
 -- deus0ww - 2019-03-16
 
 local mp      = require 'mp'
+local msg     = require 'mp.msg'
 
 
 
@@ -26,6 +27,61 @@ mp.register_script_message('Set', function(property, value) change_prop('set', p
 -- Cycle Video Rotation
 mp.register_script_message('Video-Rotate', function(degrees) 
 	change_prop('set', 'video-rotate', (degrees + mp.get_property_number('video-rotate', 0)) % 360)
+end)
+
+
+
+-- Show Play/Pause
+local display = mp.get_property_osd('osd-ass-cc/0', '') ..
+                '{\\1a&H80&\\3a&H80&\\bord2\\blur2\\fs48\\fnmpv-osd-symbols}%s' ..
+                mp.get_property_osd('osd-ass-cc/1', '')
+
+mp.observe_property('pause', 'native', function(_, pause)
+	if pause == nil then return end
+	mp.osd_message(display:format(pause and '\238\128\130' or '\238\132\129'), pause and 0.8 or 0.4)
+end)
+
+
+
+-- OnTop only while playing
+local last_ontop   = mp.get_property_native('ontop', false)
+mp.observe_property('ontop', 'native', function(_, ontop)
+	if ontop == nil or ontop == last_ontop then return end
+	last_ontop = ontop
+	mp.osd_message( (ontop and '☑︎' or '☐') .. ' On Top')
+end)
+
+local paused_ontop = last_ontop
+mp.observe_property('pause', 'native', function(_, pause)
+	msg.debug('Pause:', pause)
+    if pause then
+		paused_ontop = mp.get_property_native('ontop', false)
+		if paused_ontop then
+			msg.debug('Paused - Disabling OnTop')
+			mp.command('async no-osd set ontop no')
+		end
+	else
+		if paused_ontop ~= mp.get_property_native('ontop', false) then
+			msg.debug('Unpaused - Restoring OnTop')
+			mp.command('async no-osd set ontop ' .. (paused_ontop and 'yes' or 'no'))
+		end
+    end
+end)
+
+
+
+-- Pause on Minimize
+local last_pause   = mp.get_property_native('pause', false)
+mp.observe_property('window-minimized', 'native', function(_, minimized)
+	msg.debug('Minimized:', minimized)
+	if minimized then
+		msg.debug('Minimized - Pausing')
+		last_pause = mp.get_property_native('pause', false)
+		mp.set_property_native('pause', true)
+	else
+		msg.debug('Unminimized - Restoring Pause')
+		mp.set_property_native('pause', last_pause)
+	end
 end)
 
 
