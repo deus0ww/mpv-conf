@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-03-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -43,7 +43,7 @@ end)
 
 
 -- OnTop only while playing
-local last_ontop   = mp.get_property_native('ontop', false)
+local last_ontop = mp.get_property_native('ontop', false)
 mp.observe_property('ontop', 'native', function(_, ontop)
 	if ontop == nil or ontop == last_ontop then return end
 	last_ontop = ontop
@@ -70,7 +70,7 @@ end)
 
 
 -- Pause on Minimize
-local last_pause   = mp.get_property_native('pause', false)
+local last_pause = mp.get_property_native('pause', false)
 mp.observe_property('window-minimized', 'native', function(_, minimized)
 	msg.debug('Minimized:', minimized)
 	if minimized then
@@ -81,6 +81,16 @@ mp.observe_property('window-minimized', 'native', function(_, minimized)
 		msg.debug('Unminimized - Restoring Pause')
 		mp.set_property_native('pause', last_pause)
 	end
+end)
+
+
+
+-- Format Interpolation OSD Message
+local last_interpolation = mp.get_property_native('interpolation', false)
+mp.observe_property('interpolation', 'native', function(_, interpolation)
+	if interpolation == nil or interpolation == last_interpolation then return end
+	last_interpolation = interpolation
+	mp.osd_message( (interpolation and '☑︎' or '☐') .. ' Interpolation')
 end)
 
 
