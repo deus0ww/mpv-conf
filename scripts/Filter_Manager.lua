@@ -46,17 +46,15 @@ end
 
 local function cycle_filter_up(filter, no_osd)
 	msg.debug('Filter - Up:', filter.name)
-	if filter.current_index == 0 then filter.enabled = true end
 	filter.current_index = (filter.current_index % #filter.filters) + 1
-	apply_all()
+	if filter.enabled then apply_all() end
 	show_status(filter, no_osd)
 end
 
 local function cycle_filter_dn(filter, no_osd)
 	msg.debug('Filter - Down:', filter.name)
-	if filter.current_index == 0 then filter.enabled = true end
 	filter.current_index = ((filter.current_index - 2) % #filter.filters) + 1
-	apply_all()
+	if filter.enabled then apply_all() end
 	show_status(filter, no_osd)
 end
 
