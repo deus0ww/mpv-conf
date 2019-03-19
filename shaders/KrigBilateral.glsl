@@ -101,7 +101,7 @@ vec4 hook() {
 //!WHEN CHROMA.w LUMA.w <
 //!DESC KrigBilateral Upscaling UV
 
-#define locality 5.0
+#define locality 12.0
 
 // -- Convenience --
 #define sqr(x)   dot(x,x)
