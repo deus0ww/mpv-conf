@@ -167,7 +167,7 @@ local function dir_exist(path)
 end
 
 local function create_dir(path)
-	return run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', '/c', 'mkdir', path} or {'mkdir', '-p', path} ) and dir_exist(path)
+	return run_subprocess(    OPERATING_SYSTEM == OS_WIN and {'cmd', '/c', 'mkdir', path}    or {'mkdir', '-p', path} ) and dir_exist(path)
 end
 
 local function delete_dir(path)
@@ -278,7 +278,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		mp.command_native_async({'script-message-to', worker, message.worker.start}, function() end)
+		mp.add_timeout( i, function() mp.command_native({'script-message-to', worker, message.worker.start}) end)
 	end
 	workers_started = true
 end
