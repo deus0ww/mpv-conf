@@ -2313,8 +2313,8 @@ function osc_init()
             return ""
         end
         local dmx_cache = mp.get_property_number("demuxer-cache-duration")
-        if dmx_cache and (dmx_cache > state.dmx_cache * 1.1 or
-                dmx_cache < state.dmx_cache * 0.9) then
+        if dmx_cache and (dmx_cache > state.dmx_cache * 1.05 or dmx_cache > state.dmx_cache + 5 or
+            dmx_cache < state.dmx_cache * 0.95 or dmx_cache < state.dmx_cache - 5) then
             state.dmx_cache = dmx_cache
         else
             dmx_cache = state.dmx_cache
@@ -2322,7 +2322,7 @@ function osc_init()
         local min = math.floor(dmx_cache / 60)
         local sec = dmx_cache % 60
         return "Cache: " .. (min > 0 and
-            string.format("%sm%02.0fs", min, sec) or
+            string.format("%sm %02.0fs", min, sec) or
             string.format("%3.0fs", dmx_cache))
     end
 
