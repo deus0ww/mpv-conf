@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-03-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -118,8 +118,7 @@ local function download_sub(source)
 	opt.read_options(user_opts, mp.get_script_name())
 	mp.osd_message('Subliminal subtitle download started ' .. source)
 	if run_subprocess(create_command()) then
-		mp.command_native_async({'rescan_external_files', 'reselect'}, function() end) 
-		mp.osd_message('Subliminal subtitle download succeeded.')
+		mp.command_native_async({'rescan_external_files', 'reselect'}, function() mp.osd_message('Subliminal subtitle download succeeded.') end) 
 	else
 		mp.osd_message('Subliminal subtitle download failed.')
 	end

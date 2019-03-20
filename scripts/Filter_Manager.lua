@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-03-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -15,13 +15,14 @@ local type_map    = { video = 'vf', audio = 'af' }
 local defaults    = { default_on_load = false, reset_on_load = true }
 
 local function show_status(filter, no_osd)
-	if not no_osd then
-		local filter_string = filter.filters[filter.current_index]
-		filter_string = filter_string:find('=') == nil and filter_string or filter_string:gsub('=', ' [', 1):gsub(':', ' ') .. ']'
-		local index_string  = #filter.filters > 1 and (' %s'):format(filter.current_index) or ''
-		mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '☑︎' or '☐'), filter.name, index_string, filter_string ) )
-	end
-	mp.command_native_async({'script-message', filter.name .. (filter.enabled and '-enabled' or '-disabled')}, function() end)
+	mp.command_native_async({'script-message', filter.name .. (filter.enabled and '-enabled' or '-disabled')}, function()
+		if not no_osd then
+			local filter_string = filter.filters[filter.current_index]
+			filter_string = filter_string:find('=') == nil and filter_string or filter_string:gsub('=', ' [', 1):gsub(':', ' ') .. ']'
+			local index_string  = #filter.filters > 1 and (' %s'):format(filter.current_index) or ''
+			mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '☑︎' or '☐'), filter.name, index_string, filter_string ) )
+		end
+	end)
 end
 
 local cmd = {
@@ -81,8 +82,7 @@ local function disable_filter(filter, no_osd)
 end
 
 local function filter_status(filter, no_osd)
-	mp.command_native_async({'script-message', filter.name .. '-state', filter.enabled and filter.filters[filter.current_index] or ''}, function() end)
-	show_status(filter, no_osd)
+	mp.command_native_async({'script-message', filter.name .. '-state', filter.enabled and filter.filters[filter.current_index] or ''}, function() show_status(filter, no_osd) end)
 end
 
 local function register_filter(filter)

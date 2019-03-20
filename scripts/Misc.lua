@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-17
+-- deus0ww - 2019-03-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -16,8 +16,7 @@ end)
 
 -- Property Changer
 local function change_prop(action, property, value)
-	mp.command_native_async({action, property, tostring(value)}, function() end)
-	mp.osd_message(('%s:% 4d'):format(property:gsub('^%l', string.upper), mp.get_property_native(property, 0)))
+	mp.command_native_async({action, property, tostring(value)}, function() mp.osd_message(('%s:% 4d'):format(property:gsub('^%l', string.upper), mp.get_property_native(property, 0))) end)
 end
 mp.register_script_message('Add', function(property, value) change_prop('add', property, value) end)
 mp.register_script_message('Set', function(property, value) change_prop('set', property, value) end)
