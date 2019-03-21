@@ -16,42 +16,6 @@ local function is_empty(...) -- Not for tables
 	return false
 end
 
-local function subprocess_result(sub_success, result, mpv_error)
-	local cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed
-	if result then cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed = result.status, result.stdout, result.stderr, result.error_string, result.killed_by_us end
-	
-	local cmd_status_success, cmd_status_string, cmd_err_success, cmd_err_string, success
-	
-	if     cmd_status == 0      then cmd_status_success, cmd_status_string = true,  'ok'
-	elseif is_empty(cmd_status) then cmd_status_success, cmd_status_string = true,  '_'
-	elseif cmd_status == 124 or cmd_status == 137 or cmd_status == 143 then -- timer: timed-out(124), killed(128+9), or terminated(128+15)
-	                                 cmd_status_success, cmd_status_string = false, 'timed out'
-	else                             cmd_status_success, cmd_status_string = false, ('%d'):format(cmd_status) end
-	
-	if     is_empty(cmd_error)   then cmd_err_success, cmd_err_string = true,  '_'
-	elseif cmd_error == 'init'   then cmd_err_success, cmd_err_string = false, 'failed to initialize'
-	elseif cmd_error == 'killed' then cmd_err_success, cmd_err_string = false, cmd_killed and 'killed by us' or 'killed, but not by us'
-	else                              cmd_err_success, cmd_err_string = false, cmd_error end
-	
-	if is_empty(cmd_stdout) then cmd_stdout = '_' end
-	if is_empty(cmd_stderr) then cmd_stderr = '_' end
-	
-	success = (sub_success == nil or sub_success) and is_empty(mpv_error) and cmd_status_success and cmd_err_success
-	return success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr
-end
-
-local function run_subprocess(command, name)
-	if not command then return false end
-	local subprocess_name = name or command[1]
-	local timer_start = os.time()
-	msg.debug('Subprocess', subprocess_name, 'Starting...')
-	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
-	local success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr = subprocess_result(nil, result, mpv_error)
-	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), timer_start)))
-	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
-	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr) end
-	return success
-end
 
 
 --------------
@@ -117,7 +81,7 @@ end
 local function download_sub(source)
 	opt.read_options(user_opts, mp.get_script_name())
 	mp.osd_message('Subliminal subtitle download started ' .. source)
-	if run_subprocess(create_command()) then
+	if mp.command_native({name='subprocess', args=create_command()}) then
 		mp.command_native_async({'rescan_external_files', 'reselect'}, function() mp.osd_message('Subliminal subtitle download succeeded.') end) 
 	else
 		mp.osd_message('Subliminal subtitle download failed.')

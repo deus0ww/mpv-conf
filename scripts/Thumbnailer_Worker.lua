@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-03-18
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -105,10 +105,9 @@ end
 -------------------------------------
 -- External Process and Filesystem --
 -------------------------------------
-local function subprocess_result(sub_success, result, mpv_error)
+local function subprocess_result(sub_success, result, mpv_error, subprocess_name, start_time)
 	local cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed
 	if result then cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed = result.status, result.stdout, result.stderr, result.error_string, result.killed_by_us end
-	
 	local cmd_status_success, cmd_status_string, cmd_err_success, cmd_err_string, success
 	
 	if     cmd_status == 0      then cmd_status_success, cmd_status_string = true,  'ok'
@@ -124,22 +123,31 @@ local function subprocess_result(sub_success, result, mpv_error)
 	
 	if is_empty(cmd_stdout) then cmd_stdout = '_' end
 	if is_empty(cmd_stderr) then cmd_stderr = '_' end
-	
+	subprocess_name = subprocess_name or '_'
+	start_time = start_time or os.time()
 	success = (sub_success == nil or sub_success) and is_empty(mpv_error) and cmd_status_success and cmd_err_success
+
+	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), start_time)))
+	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
+	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr) end
 	return success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr
 end
 
 local function run_subprocess(command, name)
 	if not command then return false end
-	local subprocess_name = name or command[1]
-	local timer_start = os.time()
+	local subprocess_name, start_time = name or command[1], os.time()
 	msg.debug('Subprocess', subprocess_name, 'Starting...')
-	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
-	local success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr = subprocess_result(nil, result, mpv_error)
-	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), timer_start)))
-	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
-	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr) end
+	result, mpv_error = mp.command_native( {name='subprocess', args=command} )
+	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
+end
+
+local function run_subprocess_async(command, name)
+	if not command then return false end
+	local subprocess_name, start_time = name or command[1], os.time()
+	msg.debug('Subprocess', subprocess_name, 'Starting (async)...')
+	mp.command_native_async( {name='subprocess', args=command}, function(s, r, e) subprocess_result(s, r, e, subprocess_name, start_time) end )
+	return nil
 end
 
 local function join_paths(...)
