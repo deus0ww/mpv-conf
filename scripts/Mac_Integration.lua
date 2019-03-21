@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-03-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -10,7 +10,7 @@ mp.register_script_message('ShowInFinder', function()
 	local path = mp.get_property_native('path', '')
 	msg.debug('Show in Finder:', path)
 	if path == '' then return end
-	local cmd = {'run', 'open'}
+	local cmd = {'open'}
 	if path:find('http://') ~= nil or path:find('https://') ~= nil then
 	elseif path:find('edl://') ~= nil then
 		cmd[#cmd+1] = '-R'
@@ -22,13 +22,19 @@ mp.register_script_message('ShowInFinder', function()
 		cmd[#cmd+1] = '-R'
 	end
 	cmd[#cmd+1] = path
-	mp.command_native(cmd)
+	mp.command_native( {name='subprocess', args=cmd} )
 end)
 
 
 
 -- Move to Trash -- Requires: https://github.com/ali-rantakari/trash
 mp.register_script_message('MoveToTrash', function()
+	local demux_state  = mp.get_property_native('demuxer-cache-state', {})
+	local demux_ranges = #demux_state['seekable-ranges']
+	if demux_ranges > 0 then 
+		mp.osd_message('Trashing not supported.')
+		return
+	end
 	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
 	msg.debug('Moving to Trash:', path)
 	if path and path ~= '' then
