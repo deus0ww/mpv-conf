@@ -134,4 +134,4 @@ mp.register_script_message('Filters_Registration', function(json)
 	end
 end)
 
-mp.command_native_async({'script-message', 'Filter_Registration_Request', mp.get_script_name()}, function() end)
+mp.command_native({'script-message', 'Filter_Registration_Request', mp.get_script_name()})

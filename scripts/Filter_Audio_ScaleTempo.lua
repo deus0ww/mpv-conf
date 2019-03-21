@@ -18,5 +18,5 @@ mp.observe_property('speed', 'number', function(_, speed)
 	msg.debug('AutoScaleTempo - Speed Changed')
 	if not speed or speed == previous_speed then return end
 	previous_speed = speed
-	mp.command_native_async({'script-message', filter_name .. ((speed == 1) and '-disable' or '-enable'), 'yes'}, function() end)
+	mp.command_native({'script-message', filter_name .. ((speed == 1) and '-disable' or '-enable'), 'yes'})
 end)

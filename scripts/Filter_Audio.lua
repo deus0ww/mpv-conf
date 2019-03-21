@@ -91,5 +91,5 @@ insert(filter_list, {
 
 mp.register_script_message('Filter_Registration_Request', function(origin)
 	local filter_json, _ = utils.format_json(filter_list)
-	mp.command_native_async({'script-message-to', origin, 'Filters_Registration', filter_json and filter_json or ''}, function() end)
+	mp.command_native({'script-message-to', origin, 'Filters_Registration', filter_json and filter_json or ''})
 end)

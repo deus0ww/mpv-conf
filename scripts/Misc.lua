@@ -9,7 +9,7 @@ local msg     = require 'mp.msg'
 local osc_vis, alt_vis = 'auto', 'never'
 mp.register_script_message('OSC-vis-cycle', function()
 	osc_vis, alt_vis = alt_vis, osc_vis
-	mp.command_native_async({'script-message', 'osc-visibility', osc_vis}, function() end)
+	mp.command_native({'script-message', 'osc-visibility', osc_vis})
 end)
 
 
