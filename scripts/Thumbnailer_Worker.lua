@@ -19,7 +19,7 @@ local message = {
 		progress      = 'tn_worker_progress',
 		finish        = 'tn_worker_finish',
 	},
-	debug = 'thumbnailer-debug',
+	debug = 'Thumbnailer-debug',
 
 	queued     = 1,
 	processing = 2,

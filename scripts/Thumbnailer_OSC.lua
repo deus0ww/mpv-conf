@@ -78,7 +78,7 @@ local message = {
 		update        = 'tn_osc_update',
 		finish        = 'tn_osc_finish',
 	},
-	debug = 'thumbnailer-debug',
+	debug = 'Thumbnailer-debug',
 
 	queued     = 1,
 	processing = 2,

@@ -30,7 +30,7 @@ local message = {
 		update        = 'tn_osc_update',
 		finish        = 'tn_osc_finish',
 	},
-	debug = 'thumbnailer-debug',
+	debug = 'Thumbnailer-debug',
 
 	manual_start = script_name .. '-start',
 	manual_stop  = script_name .. '-stop',
@@ -441,9 +441,11 @@ local function create_ouput_dir(subpath, dimension, rotate)
 end
 
 local function is_slow_source(duration)
-	local cache, cache_size, file_size = mp.get_property_native('cache', ''), mp.get_property_native('cache-size', 0), mp.get_property_native('file-size', 0)
-	local high_bitrate = (file_size / duration) >= (12 * 131072)               -- 12 Mbps
-	return (cache == 'auto' and cache_size > 0) or high_bitrate -- Using MPV's logic for enabling the cache to detect slow sources.
+	local demux_state   = mp.get_property_native('demuxer-cache-state', {})
+	local demux_ranges  = #demux_state['seekable-ranges']
+	local cache_enabled = (demux_ranges > 0) -- Using MPV's logic for enabling the cache to detect slow sources.
+	local high_bitrate  = (mp.get_property_native('file-size', 0) / duration) >= (12 * 131072) -- 12 Mbps
+	return cache_enabled or high_bitrate
 end
 
 local function calculate_timing(is_remote)
@@ -531,7 +533,7 @@ local function state_init()
 		is_seekable = mp.get_property_native('seekable', true),
 		has_video   = has_video() and timing.duration > 1,
 	}
-	
+
 	if is_empty(worker_script_path) then worker_script_path = user_opts.worker_script_path end
 	create_workers()
 	initialized = true
