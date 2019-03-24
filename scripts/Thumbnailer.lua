@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-18
+-- deus0ww - 2019-03-24
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -219,6 +219,7 @@ local user_opts = {
 	-- Worker
 	max_workers          = 4,                  -- Number of active workers. Must have at least one copy of the worker script alongside this script.
 	remote_worker_factor = 1,                  -- Multiply max_workers by this for remote streams
+	worker_delay         = 0.5,                -- Delay between starting workers (seconds)
 	worker_timeout       = 0,                  -- Wait this long, in seconds, before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only)
 	accurate_seek        = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
 	use_ffmpeg           = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
@@ -287,7 +288,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		mp.add_timeout( i, function() mp.command_native({'script-message-to', worker, message.worker.start}) end)
+		mp.add_timeout( user_opts.worker_delay * i, function() mp.command_native({'script-message-to', worker, message.worker.start}) end)
 	end
 	workers_started = true
 end
