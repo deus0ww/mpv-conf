@@ -173,7 +173,7 @@ end
 ------------
 -- Worker --
 ------------
-mp.command_native_async({'script-message', message.worker.registration, format_json({name = script_name, script_path = clean_path(debug.getinfo(1).short_src)})}, function() end)
+mp.command_native({'script-message', message.worker.registration, format_json({name = script_name, script_path = clean_path(debug.getinfo(1).short_src)})})
 
 local function stop_file_exist()
 	local file = io.open(join_paths(state.cache_dir, 'stop'), 'r')
@@ -453,7 +453,7 @@ local function process_queue()
 		create_thumbnail()
 	end
 	report_progress()
-	if #work_queue == 0 then mp.command_native_async({'script-message', message.worker.finish, format_json(worker_stats)}, function() end) end
+	if #work_queue == 0 then mp.command_native({'script-message', message.worker.finish, format_json(worker_stats)}) end
 end
 
 local function create_queue()

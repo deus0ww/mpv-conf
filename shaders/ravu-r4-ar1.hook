@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!DESC RAVU (step1, luma, r4)
+//!DESC RAVU (Step1, Luma, R4, AR1)
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lut_ar1_4
@@ -339,7 +339,7 @@ res += diff * (diff * diff - 2.0 * abs(diff) + 1.0) * w[3];
 res = clamp(res, 0.0, 1.0);
 return vec4(res, 0.0, 0.0, 0.0);
 }
-//!DESC RAVU (step2, luma, r4)
+//!DESC RAVU (Step2, Luma, R4, AR1)
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lut_ar1_4
@@ -679,7 +679,7 @@ res += diff * (diff * diff - 2.0 * abs(diff) + 1.0) * w[3];
 res = clamp(res, 0.0, 1.0);
 return vec4(res, 0.0, 0.0, 0.0);
 }
-//!DESC RAVU (step3, luma, r4)
+//!DESC RAVU (Step3, Luma, R4, AR1)
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lut_ar1_4
@@ -1019,7 +1019,7 @@ res += diff * (diff * diff - 2.0 * abs(diff) + 1.0) * w[3];
 res = clamp(res, 0.0, 1.0);
 return vec4(res, 0.0, 0.0, 0.0);
 }
-//!DESC RAVU (step4, luma, r4)
+//!DESC RAVU (Step4, Luma, R4, AR1)
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_int01

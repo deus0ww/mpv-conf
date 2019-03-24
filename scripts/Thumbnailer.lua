@@ -248,7 +248,7 @@ local function workers_reset()
 	timer_start              = 0
 	timer_total              = 0
 	for _, worker in ipairs(workers_indexed) do
-		mp.command_native_async({'script-message-to', worker, message.worker.reset}, function() end)
+		mp.command_native({'script-message-to', worker, message.worker.reset})
 	end
 end
 
@@ -331,7 +331,7 @@ end
 local function osc_reset()
 	osc_reset_stats()
 	osc_visible = nil
-	if osc_name then mp.command_native_async({'script-message-to', osc_name, message.osc.reset}, function() end) end
+	if osc_name then mp.command_native({'script-message-to', osc_name, message.osc.reset}) end
 end
 
 local function osc_set_options(is_visible)
@@ -412,7 +412,7 @@ local function create_workers()
 	if missing_workers > 0 and worker_script_path ~= nil and worker_script_path ~= '' then
 		for _ = 1, missing_workers do
 			msg.info('Recruiting Worker...')
-			mp.command_native_async({'load-script', worker_script_path}, function() end)
+			mp.command_native({'load-script', worker_script_path})
 		end
 	end
 end

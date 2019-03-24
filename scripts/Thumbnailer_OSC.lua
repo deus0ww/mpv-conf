@@ -185,7 +185,7 @@ local osc_reg = {
 		scalefullscreen = user_opts.scalefullscreen,
 	},
 }
-mp.command_native_async({mpv_cmd.script_message, message.osc.registration, format_json(osc_reg)}, function() end)
+mp.command_native({mpv_cmd.script_message, message.osc.registration, format_json(osc_reg)})
 
 local tn_palette = {
 	black        = '000000',
@@ -481,7 +481,7 @@ mp.register_script_message(message.osc.update, function(json)
 			else                                          tn_osc.display_progress.current = true end
 		end
 		tn_style_format.text_progress = tn_osc_stats.total > 99 and text_progress_format.three_digits or text_progress_format.two_digits
-		if tn_osc_stats.percent >= 1 then mp.command_native_async({mpv_cmd.script_message, message.osc.finish}, function() end) end
+		if tn_osc_stats.percent >= 1 then mp.command_native({mpv_cmd.script_message, message.osc.finish}) end
 	end
 	if new_data.thumbnails then
 		local index, ready
