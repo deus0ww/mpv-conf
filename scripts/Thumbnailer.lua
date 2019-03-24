@@ -288,7 +288,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		mp.add_timeout( user_opts.worker_delay * i, function() mp.command_native({'script-message-to', worker, message.worker.start}) end)
+		mp.add_timeout( user_opts.worker_delay * i + 1, function() mp.command_native({'script-message-to', worker, message.worker.start}) end)
 	end
 	workers_started = true
 end
@@ -469,11 +469,11 @@ local function calculate_geometry(scale)
 	if not video_params or is_empty(video_params.dw, video_params.dh) or dimension <= 0 then return geometry end
 	local width, height = dimension, dimension
 	if video_params.dw > video_params.dh then
-		height = width * video_params.dh / video_params.dw
+		height = floor(width  * video_params.dh / video_params.dw + 0.5)
 	else
-		width = height * video_params.dw / video_params.dh
+		width  = floor(height * video_params.dw / video_params.dh + 0.5)
 	end
-	geometry.dimension, geometry.width, geometry.height = dimension, floor(min(width,  video_params.dw) + 0.5), floor(min(height, video_params.dh) + 0.5)
+	geometry.dimension, geometry.width, geometry.height = dimension, width, height
 	if not video_params.rotate then return geometry end
 	geometry.rotate     = (video_params.rotate - saved_state.initial_rotate) % 360
 	geometry.is_rotated = not ((((video_params.rotate - saved_state.initial_rotate) % 180) ~= 0) == saved_state.meta_rotated) --xor
