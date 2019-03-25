@@ -206,7 +206,7 @@ local user_opts = {
 	-- Thumbnail
 	dimension            = 320,                -- Max width and height before scaling
 	thumbnail_count      = 192,                -- Try to create this many thumbnails within the delta limits below
-	min_delta            = 1,                  -- Minimum time between thumbnails (seconds)
+	min_delta            = 3,                  -- Minimum time between thumbnails (seconds)
 	max_delta            = 30,                 -- Maximum time between thumbnails (seconds)
 	remote_delta_factor  = 2.0,                -- Multiply delta by this for remote streams
 
@@ -239,10 +239,12 @@ end
 ------------
 -- Worker --
 ------------
-local workers, workers_indexed = {}, {}
+local workers, workers_indexed, workers_timers = {}, {}, {}
 local workers_started, workers_finished, workers_finished_indexed, timer_start, timer_total
 
 local function workers_reset()
+	for _, timer in ipairs(workers_timers) do timer:kill() end
+	workers_timers           = {}
 	workers_started          = false
 	workers_finished         = {}
 	workers_finished_indexed = {}
@@ -288,7 +290,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		mp.add_timeout( user_opts.worker_delay * i + 1, function() mp.command_native({'script-message-to', worker, message.worker.start}) end)
+		table.insert(workers_timers, mp.add_timeout( user_opts.worker_delay * i^0.8 + 0.5, function() mp.command_native({'script-message-to', worker, message.worker.start}) end))
 	end
 	workers_started = true
 end
@@ -585,7 +587,7 @@ end
 local function run_generation(paused)
 	if not initialized or not is_thumbnailable() then return end
 	if #workers_indexed < state.max_workers or not osc_name or not osc_opts then
-		mp.add_timeout(0.05, function() run_generation(paused) end)
+		mp.add_timeout(0.1, function() run_generation(paused) end)
 	else
 		workers_queue()
 		if not paused then
