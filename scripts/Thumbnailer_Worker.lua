@@ -263,10 +263,11 @@ local function create_mpv_command(time, output, force_accurate_seek)
 	local accurate_seek = force_accurate_seek or worker_options.accurate_seek or is_last_thumbnail or state.delta < 2
 	if args then
 		args[worker_extra.index_log]        = '--log-file=' .. output .. '.log'
-		args[worker_extra.index_accurate]   = '--hr-seek='                .. (accurate_seek and 'yes' or 'no')
-		args[worker_extra.index_skip_loop]  = '--vd-lavc-skiploopfilter=' .. (accurate_seek and 'nonref' or 'nonkey')
-		args[worker_extra.index_skip_idct]  = '--vd-lavc-skipidct='       .. (accurate_seek and 'nonref' or 'nonkey')
-		args[worker_extra.index_skip_frame] = '--vd-lavc-skipframe='      .. (accurate_seek and 'nonref' or 'nonkey')
+		args[worker_extra.index_fastseek]   = '--demuxer-lavf-o-set=fflags=' .. (accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
+		args[worker_extra.index_accurate]   = '--hr-seek='                   .. (accurate_seek and 'yes' or 'no')
+		args[worker_extra.index_skip_loop]  = '--vd-lavc-skiploopfilter='    .. (accurate_seek and 'nonref' or 'nonkey')
+		args[worker_extra.index_skip_idct]  = '--vd-lavc-skipidct='          .. (accurate_seek and 'nonref' or 'nonkey')
+		args[worker_extra.index_skip_frame] = '--vd-lavc-skipframe='         .. (accurate_seek and 'nonref' or 'nonkey')
 		args[worker_extra.index_time]       = '--start=' .. tostring(is_last_thumbnail and floor(time) or time)
 		args[worker_extra.index_output]     = output
 	else
@@ -291,6 +292,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, '--no-config')
 		concat_args(args, '--msg-level=all=no')
 		worker_extra.index_log = concat_args(args, '--log-file=', output .. '.log')
+		concat_args(args, '--osc=no')
 		concat_args(args, '--load-stats-overlay=no')
 		-- Remote
 		concat_args(args, (worker_extra.ytdl and '--ytdl' or '--no-ytdl'))
@@ -298,13 +300,16 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, '--user-agent=', mp.get_property_native('user-agent'))
 		concat_args(args, '--referrer=', mp.get_property_native('referrer'))
 		-- Input
-		concat_args(args, '--profile=low-latency')
-		concat_args(args, '--vd-lavc-threads=', worker_options.ffmpeg_threads)
 		concat_args(args, '--vd-lavc-fast')
-		worker_extra.index_accurate   = concat_args(args, '--hr-seek=',                accurate_seek and 'yes' or 'no')
-		worker_extra.index_skip_loop  = concat_args(args, '--vd-lavc-skiploopfilter=', accurate_seek and 'nonref' or 'nonkey')
-		worker_extra.index_skip_idct  = concat_args(args, '--vd-lavc-skipidct=',       accurate_seek and 'nonref' or 'nonkey')
-		worker_extra.index_skip_frame = concat_args(args, '--vd-lavc-skipframe=',      accurate_seek and 'nonref' or 'nonkey')
+		concat_args(args, '--vd-lavc-threads=', worker_options.ffmpeg_threads)
+		concat_args(args, '--demuxer-lavf-analyzeduration=0.1')
+		concat_args(args, '--demuxer-lavf-probesize=500000')
+		concat_args(args, '--demuxer-lavf-probe-info=nostreams')
+		worker_extra.index_fastseek   = concat_args(args, '--demuxer-lavf-o-set=fflags=', accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
+		worker_extra.index_accurate   = concat_args(args, '--hr-seek=',                   accurate_seek and 'yes' or 'no')
+		worker_extra.index_skip_loop  = concat_args(args, '--vd-lavc-skiploopfilter=',    accurate_seek and 'nonref' or 'nonkey')
+		worker_extra.index_skip_idct  = concat_args(args, '--vd-lavc-skipidct=',          accurate_seek and 'nonref' or 'nonkey')
+		worker_extra.index_skip_frame = concat_args(args, '--vd-lavc-skipframe=',         accurate_seek and 'nonref' or 'nonkey')
 		concat_args(args, '--hwdec=no')
 		concat_args(args, '--hdr-compute-peak=no')
 		concat_args(args, '--vd-lavc-dr=no')
@@ -330,6 +335,7 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 	local is_last_thumbnail = (state.duration - time) < state.delta
 	local accurate_seek = force_accurate_seek or worker_options.accurate_seek or is_last_thumbnail or state.delta < 2
 	if args then
+		args[worker_extra.index_fastseek]   = accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer'
 		args[worker_extra.index_accurate]   = accurate_seek and '-accurate_seek' or '-noaccurate_seek'
 		args[worker_extra.index_skip_loop]  = accurate_seek and 'noref' or 'nokey'
 		args[worker_extra.index_skip_idct]  = accurate_seek and 'noref' or 'nokey'
@@ -353,7 +359,11 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_args(args, '-loglevel', 'warning')
 		-- Input
 		add_args(args, '-threads', worker_options.ffmpeg_threads)
+		--add_args(args, '-fflags', 'fastseek')
 		add_args(args, '-flags2', 'fast')
+		add_args(args, '-analyzeduration', tostring(100000))
+		add_args(args, '-probesize', tostring(500000))
+		worker_extra.index_fastseek   = add_args(args, '-fflags',           accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
 		worker_extra.index_accurate   = add_args(args,                      accurate_seek and '-accurate_seek' or '-noaccurate_seek')
 		worker_extra.index_skip_loop  = add_args(args, '-skip_loop_filter', accurate_seek and 'noref' or 'nokey')
 		worker_extra.index_skip_idct  = add_args(args, '-skip_idct',        accurate_seek and 'noref' or 'nokey')
