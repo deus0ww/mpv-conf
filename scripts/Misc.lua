@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-18
+-- deus0ww - 2019-03-24
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -100,7 +100,7 @@ local function show_cache_status()
 	local demux_state      = mp.get_property_native('demuxer-cache-state', {})
 	local demux_fwd        = math.floor( ((demux_state and demux_state['fw-bytes'])    and demux_state['fw-bytes']    or 0) / 1048576 + 0.5 )
 	local demux_total      = math.floor( ((demux_state and demux_state['total-bytes']) and demux_state['total-bytes'] or 0) / 1048576 + 0.5 )
-	local demux_ranges     = #demux_state['seekable-ranges']
+	local demux_ranges     = demux_state['seekable-ranges'] and #demux_state['seekable-ranges'] or 0
 	local demux_duration   = math.floor(  mp.get_property_native('demuxer-cache-duration', 0) + 0.5 )
 	local demux_network    = mp.get_property_native('demuxer-via-network', false)
 	local paused_for_cache = mp.get_property_native('paused-for-cache', false)

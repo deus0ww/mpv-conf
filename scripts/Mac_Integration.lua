@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-18
+-- deus0ww - 2019-03-24
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -30,7 +30,7 @@ end)
 -- Move to Trash -- Requires: https://github.com/ali-rantakari/trash
 mp.register_script_message('MoveToTrash', function()
 	local demux_state  = mp.get_property_native('demuxer-cache-state', {})
-	local demux_ranges = #demux_state['seekable-ranges']
+	local demux_ranges = demux_state['seekable-ranges'] and #demux_state['seekable-ranges'] or 1
 	if demux_ranges > 0 then 
 		mp.osd_message('Trashing not supported.')
 		return

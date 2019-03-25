@@ -443,7 +443,7 @@ end
 
 local function is_slow_source(duration)
 	local demux_state   = mp.get_property_native('demuxer-cache-state', {})
-	local demux_ranges  = #demux_state['seekable-ranges']
+	local demux_ranges  = demux_state['seekable-ranges'] and #demux_state['seekable-ranges'] or 0
 	local cache_enabled = (demux_ranges > 0) -- Using MPV's logic for enabling the cache to detect slow sources.
 	local high_bitrate  = (mp.get_property_native('file-size', 0) / duration) >= (12 * 131072) -- 12 Mbps
 	return cache_enabled or high_bitrate
