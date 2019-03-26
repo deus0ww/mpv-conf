@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-18
+-- deus0ww - 2019-03-27
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -260,7 +260,7 @@ local transpose = {	[-360] = '',
 local function create_mpv_command(time, output, force_accurate_seek)
 	local state, worker_extra, args = state, worker_extra, worker_extra.args
 	local is_last_thumbnail = (state.duration - time) < state.delta
-	local accurate_seek = force_accurate_seek or worker_options.accurate_seek or is_last_thumbnail or state.delta < 2
+	local accurate_seek = force_accurate_seek or worker_options.accurate_seek or is_last_thumbnail or state.delta < 3
 	if args then
 		args[worker_extra.index_log]        = '--log-file=' .. output .. '.log'
 		args[worker_extra.index_fastseek]   = '--demuxer-lavf-o-set=fflags=' .. (accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
@@ -333,7 +333,7 @@ end
 local function create_ffmpeg_command(time, output, force_accurate_seek)
 	local state, worker_extra, args = state, worker_extra, worker_extra.args
 	local is_last_thumbnail = (state.duration - time) < state.delta
-	local accurate_seek = force_accurate_seek or worker_options.accurate_seek or is_last_thumbnail or state.delta < 2
+	local accurate_seek = force_accurate_seek or worker_options.accurate_seek or is_last_thumbnail or state.delta < 3
 	if args then
 		args[worker_extra.index_fastseek]   = accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer'
 		args[worker_extra.index_accurate]   = accurate_seek and '-accurate_seek' or '-noaccurate_seek'
@@ -472,14 +472,14 @@ local function create_queue()
 	local time, output, report_queue, used_frames = 0, '', {}, {}
 	for x = 8, 0, -1 do
 		local nth = (2^x)
-		for y = 0, worker_data.delta_per_worker, nth do
+		for y = 0, (ceil(state.tn_per_worker) - 1), nth do
 			if not used_frames[y + 1] then
 				time = (worker_data.start_time_index + y) * state.delta
 				output = (state.cache_format):format(time)
 				if check_existing(join_paths(state.cache_dir, output)) then
 					worker_stats.existing = worker_stats.existing + 1
 					report_queue[(state.cache_format):format(time)] = message.ready
-				else
+				elseif time <= state.duration then
 					work_queue[#work_queue + 1] = time
 					worker_stats.queued = worker_stats.queued + 1
 					report_queue[(state.cache_format):format(time)] = message.queued
@@ -502,7 +502,6 @@ mp.register_script_message(message.worker.queue, function(json)
 	if new_data.state then state = new_data.state end
 	if new_data.worker_options then worker_options = new_data.worker_options end
 	if new_data.start_time_index then worker_data.start_time_index = new_data.start_time_index end
-	if new_data.delta_per_worker then worker_data.delta_per_worker = new_data.delta_per_worker end
 	worker_extra.create_command = worker_options.encoder == 'ffmpeg' and create_ffmpeg_command or create_mpv_command
 	if worker_extra.create_command == create_mpv_command and state.is_remote then hack_input() end
 	if not worker_extra.filesize then worker_extra.filesize = (state.width * state.height * 4) end

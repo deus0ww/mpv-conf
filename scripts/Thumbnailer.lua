@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-24
+-- deus0ww - 2019-03-27
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -271,17 +271,12 @@ local function workers_queue()
 		state          = state,
 		worker_options = worker_set_options(),
 	}
-	local max_delta        = state.duration / state.delta
-	local worker_count     = min(#workers_indexed, state.max_workers)
-	local delta_per_worker = max_delta / worker_count
 	local start_time_index = 0
-
 	for i, worker in ipairs(workers_indexed) do
-		if i > worker_count then break end
+		if i > state.max_workers then break end
 		worker_data.start_time_index = start_time_index
-		worker_data.delta_per_worker = (i == worker_count) and max_delta - start_time_index or delta_per_worker
 		mp.command_native_async({'script-message-to', worker, message.worker.queue, format_json(worker_data)}, function() end)
-		start_time_index = start_time_index + floor(delta_per_worker) + 1
+		start_time_index = ceil(i * state.tn_per_worker)
 	end
 end
 
@@ -316,7 +311,7 @@ end
 ---------
 -- OSC --
 ---------
-local osc_name, osc_opts, osc_stats, osc_visible
+local osc_name, osc_opts, osc_stats, osc_visible, osc_last_update
 
 local function osc_reset_stats()
 	osc_stats = {
@@ -333,6 +328,7 @@ end
 
 local function osc_reset()
 	osc_reset_stats()
+	osc_last_update = 0
 	osc_visible = nil
 	if osc_name then mp.command_native({'script-message-to', osc_name, message.osc.reset}) end
 end
@@ -366,16 +362,25 @@ local function osc_update(ustate, uoptions, uthumbnails)
 end
 
 local function osc_delta_update(flush)
-	if (thumbnails_new_count >= state.osc_buffer) or (thumbnails_new_count > 0 and flush) then
+	local time_since_last_update = os.clock() - osc_last_update
+	if thumbnails_new_count <= 0 then return end
+	if flush or
+	   (time_since_last_update >= 2.0) or 
+	   (time_since_last_update >= 1.0 and thumbnails_new_count >= state.worker_buffer) or
+	   (time_since_last_update >= 0.5 and thumbnails_new_count >= state.osc_buffer) or
+	   (time_since_last_update >= 0.0 and thumbnails_new_count >= floor(state.tn_per_worker)) or
+	   (thumbnails_new_count >= floor(state.tn_per_worker - 1)) 
+	then
 		osc_update(nil, nil, thumbnails_new)
 		thumbnails_new = {}
 		thumbnails_new_count = 0
+		osc_last_update = os.clock()
 	end
 end
 
 local osc_full_update_timer  = mp.add_periodic_timer(1.0, function() osc_update(nil, nil, thumbnails) end)
 osc_full_update_timer:kill()
-local osc_delta_update_timer = mp.add_periodic_timer(0.5, function() osc_delta_update(true) end)
+local osc_delta_update_timer = mp.add_periodic_timer(0.1, function() osc_delta_update() end)
 osc_delta_update_timer:kill()
 
 local count_existing = {
@@ -508,6 +513,8 @@ local function state_init()
 	local cache_dir       = create_ouput_dir(input_filename, geometry.dimension, geometry.rotate)
 	local is_slow         = is_slow_source(timing.duration)
 	local max_workers     = calculate_worker_limit(timing.duration, timing.delta, is_remote, is_slow)
+	local tn_max          = floor(timing.duration / timing.delta) + 1
+	local tn_per_worker   = tn_max / max_workers
 	local worker_buffer   = (is_remote or is_slow) and 2 or 4
 	local osc_buffer      = (is_remote or is_slow) and worker_buffer or worker_buffer * max_workers
 
@@ -528,6 +535,8 @@ local function state_init()
 		is_rotated      = geometry.is_rotated,
 		is_remote       = is_remote,
 		is_slow         = is_slow,
+		tn_max          = tn_max,
+		tn_per_worker   = tn_per_worker,
 		max_workers     = max_workers,
 		worker_buffer   = worker_buffer,
 		osc_buffer      = osc_buffer,
