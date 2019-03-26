@@ -516,7 +516,7 @@ local function state_init()
 	local tn_max          = floor(timing.duration / timing.delta) + 1
 	local tn_per_worker   = tn_max / max_workers
 	local worker_buffer   = (is_remote or is_slow) and 2 or 4
-	local osc_buffer      = (is_remote or is_slow) and worker_buffer or worker_buffer * max_workers
+	local osc_buffer      = (is_remote or is_slow) and worker_buffer or floor(worker_buffer * max_workers * 0.5 + 0.5)
 
 	-- Global State
 	state = {
