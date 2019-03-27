@@ -356,6 +356,7 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_timeout(args)
 		worker_extra.index_name = add_args(args, 'ffmpeg')
 		add_args(args, '-hide_banner')
+		add_args(args, '-nostats')
 		add_args(args, '-loglevel', 'warning')
 		-- Input
 		add_args(args, '-threads', worker_options.ffmpeg_threads)
