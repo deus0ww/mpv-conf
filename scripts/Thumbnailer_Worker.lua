@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-27
+-- deus0ww - 2019-03-30
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -233,9 +233,9 @@ local function add_timeout(args)
 	local timeout = worker_options.worker_timeout and worker_options.worker_timeout or 0
 	if timeout == 0 then return #args end
 	if OPERATING_SYSTEM == OS_MAC then
-		add_args(args, 'gtimeout', '--preserve-status', ('--kill-after=%d'):format(2 * timeout), ('%d'):format(timeout))
+		add_args(args, 'gtimeout', '--preserve-status', ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
 	elseif OPERATING_SYSTEM == OS_NIX then
-		add_args(args,  'timeout', '--preserve-status', ('--kill-after=%d'):format(2 * timeout), ('%d'):format(timeout))
+		add_args(args, 'timeout',  '--preserve-status', ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
 	elseif OPERATING_SYSTEM == OS_WIN then
 	-- unimplemented
 	end
@@ -281,7 +281,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		local header_fields_arg = nil
 		local header_fields = mp.get_property_native('http-header-fields', {})
 		if #header_fields > 0 then
-			header_fields_arg = '--http-header-fields=' .. table.concat(header_fields, ',') -- We can't escape the headers, mpv won't parse '--http-header-fields='Name: value'' properly
+			header_fields_arg = '--http-header-fields=' .. table.concat(header_fields, ',')
 		end
 		worker_extra.args = {}
 		args = worker_extra.args -- https://mpv.io/manual/master/

@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-27
+-- deus0ww - 2019-03-30
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -215,12 +215,13 @@ local user_opts = {
 	show_progress        = 1,                  -- Display the thumbnail-ing progress. (0=never, 1=while generating, 2=always)
 	scale                = 0,                  -- 0=Use OSC scaling, 1=No scaling, 2=Retina/HiDPI. For 0, it is recommended to set scalefullscreen = scalewindowed to avoid regenerations.
 	centered             = false,              -- Center the thumbnail on screen
+	update_time          = 0.5,                -- Fastest time interval between updating the OSC with new thumbnails
 
 	-- Worker
 	max_workers          = 4,                  -- Number of active workers. Must have at least one copy of the worker script alongside this script.
 	remote_worker_factor = 1,                  -- Multiply max_workers by this for remote streams
 	worker_delay         = 0.5,                -- Delay between starting workers (seconds)
-	worker_timeout       = 0,                  -- Wait this long, in seconds, before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only)
+	worker_timeout       = 0,                  -- Timeout before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only). Standardized at 720p and linearly scaled with resolution.
 	accurate_seek        = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
 	use_ffmpeg           = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
 	prefer_ffmpeg        = false,              -- Use FFMPEG when available
@@ -258,7 +259,7 @@ end
 local function worker_set_options()
 	return {
 		encoder        = (not state.is_remote and (user_opts.use_ffmpeg and exec_exist('ffmpeg') and (user_opts.prefer_ffmpeg or not state.is_slow))) and 'ffmpeg' or 'mpv',
-		worker_timeout = user_opts.worker_timeout,
+		worker_timeout = ((state.dw * state.dh) / 921600) * user_opts.worker_timeout,
 		accurate_seek  = user_opts.accurate_seek,
 		use_ffmpeg     = user_opts.use_ffmpeg,
 		ffmpeg_threads = user_opts.ffmpeg_threads,
@@ -365,11 +366,10 @@ local function osc_delta_update(flush)
 	local time_since_last_update = os.clock() - osc_last_update
 	if thumbnails_new_count <= 0 then return end
 	if flush or
-	   (time_since_last_update >= 2.0) or 
-	   (time_since_last_update >= 1.0 and thumbnails_new_count >= state.worker_buffer) or
-	   (time_since_last_update >= 0.5 and thumbnails_new_count >= state.osc_buffer) or
-	   (time_since_last_update >= 0.0 and thumbnails_new_count >= floor(state.tn_per_worker)) or
-	   (thumbnails_new_count >= floor(state.tn_per_worker - 1)) 
+	   (time_since_last_update >= (4.00 * user_opts.update_time)) or 
+	   (time_since_last_update >= (2.00 * user_opts.update_time) and thumbnails_new_count >= state.worker_buffer) or
+	   (time_since_last_update >= (1.00 * user_opts.update_time) and thumbnails_new_count >= state.osc_buffer) or
+	   (time_since_last_update >= (0.00 * user_opts.update_time) and thumbnails_new_count >= floor(state.tn_per_worker - 1))
 	then
 		osc_update(nil, nil, thumbnails_new)
 		thumbnails_new = {}
@@ -378,9 +378,9 @@ local function osc_delta_update(flush)
 	end
 end
 
-local osc_full_update_timer  = mp.add_periodic_timer(1.0, function() osc_update(nil, nil, thumbnails) end)
+local osc_full_update_timer  = mp.add_periodic_timer((4.00 * user_opts.update_time), function() osc_update(nil, nil, thumbnails) end)
 osc_full_update_timer:kill()
-local osc_delta_update_timer = mp.add_periodic_timer(0.1, function() osc_delta_update() end)
+local osc_delta_update_timer = mp.add_periodic_timer((0.25 * user_opts.update_time), function() osc_delta_update() end)
 osc_delta_update_timer:kill()
 
 local count_existing = {
@@ -480,7 +480,7 @@ local function calculate_geometry(scale)
 	else
 		width  = floor(height * video_params.dw / video_params.dh + 0.5)
 	end
-	geometry.dimension, geometry.width, geometry.height = dimension, width, height
+	geometry.dimension, geometry.width, geometry.height, geometry.dw, geometry.dh = dimension, width, height, video_params.dw, video_params.dh
 	if not video_params.rotate then return geometry end
 	geometry.rotate     = (video_params.rotate - saved_state.initial_rotate) % 360
 	geometry.is_rotated = not ((((video_params.rotate - saved_state.initial_rotate) % 180) ~= 0) == saved_state.meta_rotated) --xor
@@ -529,6 +529,8 @@ local function state_init()
 		delta           = timing.delta,
 		width           = geometry.width,
 		height          = geometry.height,
+		dw              = geometry.dw,
+		dh              = geometry.dh,
 		scale           = scale,
 		rotate          = geometry.rotate,
 		meta_rotated    = meta_rotated,
