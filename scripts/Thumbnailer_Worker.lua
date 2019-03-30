@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-30
+-- deus0ww - 2019-03-31
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -233,11 +233,11 @@ local function add_timeout(args)
 	local timeout = worker_options.worker_timeout and worker_options.worker_timeout or 0
 	if timeout == 0 then return #args end
 	if OPERATING_SYSTEM == OS_MAC then
-		add_args(args, 'gtimeout', '--preserve-status', ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
+		add_args(args, 'gtimeout', ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
 	elseif OPERATING_SYSTEM == OS_NIX then
-		add_args(args, 'timeout',  '--preserve-status', ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
+		add_args(args, 'timeout',  ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
 	elseif OPERATING_SYSTEM == OS_WIN then
-	-- unimplemented
+		-- unimplemented
 	end
 	return #args
 end
