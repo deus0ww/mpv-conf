@@ -288,7 +288,7 @@ local function append_perfdata(s, dedicated_page)
     -- Pretty print measured time
     local function pp(i)
         -- rescale to microseconds for a saner display
-        return format("%05d", i / 1000)
+        return format("%06.3f", i / 1000000)
     end
 
     -- Format n/m with a font weight based on the ratio
@@ -298,26 +298,25 @@ local function append_perfdata(s, dedicated_page)
             i = tonumber(n) / m
         end
         -- Calculate font weight. 100 is minimum, 400 is normal, 700 bold, 900 is max
-        local w = (700 * math.sqrt(i)) + 200
-        return format("{\\b%d}%02d%%{\\b0}", w, i * 100)
+        local w = (500 * math.sqrt(i)) + 300
+        return format("{\\b%d}%03d{\\b0}", w, i * 100)
     end
 
     s[#s+1] = format("%s%s%s%s{\\fs%s}%s{\\fs%s}",
                      dedicated_page and "" or o.nl, dedicated_page and "" or o.indent,
                      b("Frame Timings:"), o.prefix_sep, o.font_size * 0.66,
-                     "(last/average/peak  μs)", o.font_size)
+                     "last average peak (ms)", o.font_size)
 
     for frame, data in pairs(vo_p) do
-        local f = "%s%s%s{\\fn%s}%s / %s / %s %s%s{\\fn%s}%s%s%s"
+        local f = "%s%s%s{\\fn%s}%s   %s   %s %s%s{\\fn%s}%s%s%s"
 
         if dedicated_page then
-            s[#s+1] = format("%s%s%s:", o.nl, o.indent,
+            s[#s+1] = format("%s%s%s:", o.nl .. o.nl, o.indent,
                              b(frame:gsub("^%l", string.upper)))
 
             for _, pass in ipairs(data) do
                 s[#s+1] = format(f, o.nl, o.indent, o.indent,
-                                 o.font_mono, pp(pass["last"]),
-                                 pp(pass["avg"]), pp(pass["peak"]),
+                                 o.font_mono, pp(pass["last"]), pp(pass["avg"]), pp(pass["peak"]),
                                  o.prefix_sep .. o.prefix_sep, p(pass["last"], last_s[frame]),
                                  o.font, o.prefix_sep, o.prefix_sep, pass["desc"])
 
@@ -330,15 +329,15 @@ local function append_perfdata(s, dedicated_page)
 
             -- Print sum of timing values as "Total"
             s[#s+1] = format(f, o.nl, o.indent, o.indent,
-                             o.font_mono, pp(last_s[frame]),
-                             pp(avg_s[frame]), pp(peak_s[frame]), "", "", o.font,
-                             o.prefix_sep, o.prefix_sep, b("Total"))
+                             o.font_mono, b(pp(last_s[frame])), b(pp(avg_s[frame])), b(pp(peak_s[frame])),
+                             o.prefix_sep .. o.prefix_sep, b("Total"),
+                             o.font, o.prefix_sep, o.prefix_sep, "")
         else
             -- for the simplified view, we just print the sum of each pass
-            s[#s+1] = format(f, o.nl, o.indent, o.indent, o.font_mono,
-                            pp(last_s[frame]), pp(avg_s[frame]), pp(peak_s[frame]),
-                            "", "", o.font, o.prefix_sep, o.prefix_sep,
-                            frame:gsub("^%l", string.upper))
+            s[#s+1] = format(f, o.nl, o.indent, o.indent,
+                            o.font_mono, pp(last_s[frame]), pp(avg_s[frame]), pp(peak_s[frame]),
+                            "", "",
+                            o.font, o.prefix_sep, o.prefix_sep, frame:gsub("^%l", string.upper))
         end
     end
 end
@@ -402,7 +401,7 @@ local function append_filters(s, prop, prefix)
         end
 
         length = length + n:len() + p:len()
-        filters[#filters+1] = no_ASS(n) .. it(no_ASS(p))
+        filters[#filters+1] = no_ASS(n) .. no_ASS(p)
     end
 
     if #filters > 0 then
