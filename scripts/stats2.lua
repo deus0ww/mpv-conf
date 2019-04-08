@@ -316,7 +316,8 @@ local function append_perfdata(s, dedicated_page)
 
             local desc
             for _, pass in ipairs(data) do
-                desc = pass["desc"]:find("user shader: ") == nil and pass["desc"] or b(pass["desc"]:gsub("user shader: ", ""))
+                desc = pass["desc"]:find("user shader: ") == nil and "{\\b300}" .. pass["desc"] .. "{\\b0}"
+                                                                  or "{\\b500}" .. pass["desc"]:gsub("user shader: ", "") .. "{\\b0}"
                 s[#s+1] = format(f, o.nl, o.indent, o.indent,
                                  o.font_mono, pp(pass["last"]), pp(pass["avg"]), pp(pass["peak"]),
                                  o.prefix_sep .. o.prefix_sep, p(pass["last"], last_s[frame]),
