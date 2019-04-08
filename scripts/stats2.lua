@@ -314,11 +314,13 @@ local function append_perfdata(s, dedicated_page)
             s[#s+1] = format("%s%s%s:", o.nl .. o.nl, o.indent,
                              b(frame:gsub("^%l", string.upper)))
 
+            local desc
             for _, pass in ipairs(data) do
+                desc = pass["desc"]:find("user shader: ") == nil and pass["desc"] or b(pass["desc"]:gsub("user shader: ", ""))
                 s[#s+1] = format(f, o.nl, o.indent, o.indent,
                                  o.font_mono, pp(pass["last"]), pp(pass["avg"]), pp(pass["peak"]),
                                  o.prefix_sep .. o.prefix_sep, p(pass["last"], last_s[frame]),
-                                 o.font, o.prefix_sep, o.prefix_sep, pass["desc"])
+                                 o.font, o.prefix_sep, o.prefix_sep, desc)
 
                 if o.plot_perfdata and o.use_ass then
                     s[#s+1] = generate_graph(pass["samples"], pass["count"],

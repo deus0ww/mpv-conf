@@ -1,6 +1,6 @@
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC Enhance-Detail
+//!DESC Enhance Detail
 
 #define str 1.0
 #define r 1.0

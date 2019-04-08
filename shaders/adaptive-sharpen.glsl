@@ -29,7 +29,7 @@
 //!BIND HOOKED
 //!SAVE ASSD
 //!COMPONENTS 2
-//!DESC Adaptive-Sharpen
+//!DESC Adaptive Sharpen
 
 //--------------------------------------- Settings ------------------------------------------------
 
@@ -228,7 +228,7 @@ vec4 hook() {
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND ASSD
-//!DESC Adaptive-Sharpen Equalization
+//!DESC Adaptive Sharpen Equalization
 
 #define video_level_out false                // True to preserve BTB & WTW (minor summation error)
                                              // Normally it should be set to false
