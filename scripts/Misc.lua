@@ -81,6 +81,10 @@ mp.observe_property('window-minimized', 'native', function(_, minimized)
 		mp.set_property_native('pause', last_pause)
 	end
 end)
+mp.register_event('file-loaded', function()
+	if mp.get_property_native('window-minimized', false) then mp.set_property_native('pause', true) end
+end)
+	
 
 
 
