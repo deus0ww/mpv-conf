@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-18
+-- deus0ww - 2019-04-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -37,13 +37,16 @@ end
 local function process_tracks(subtracks, lang_priority)
 	if not (subtracks and lang_priority) then return end
 	local processed_subtracks, language_first_index = { current_index = 1, track_count = #subtracks, active = true }, {}
+	local title, is_sign_song
 	for _, current_lang in ipairs(lang_priority) do
 		for _, subtrack in ipairs(subtracks) do
 			if subtrack.lang and language_codes[current_lang]:find(subtrack.lang:lower()) ~= nil then
 				processed_subtracks[#processed_subtracks + 1] = subtrack
-				if not language_first_index[current_lang] then
-					language_first_index[current_lang] = #processed_subtracks
-				end
+				title = subtrack.title and subtrack.title:lower() or ''
+				is_sign_song = (title:find('sign') ~= nil) or (title:find('song') ~= nil)
+				if language_first_index[current_lang] == nil or language_first_index[current_lang].is_sign_song then
+					language_first_index[current_lang] = { index = #processed_subtracks, is_sign_song = is_sign_song }
+				end 	
 			end
 		end
 	end
@@ -52,12 +55,15 @@ end
 
 local function add_undefined_tracks(subtracks, processed_subtracks, language_first_index)
 	if not (subtracks and processed_subtracks and language_first_index) then return end
+	local title, is_sign_song
 	for _, subtrack in ipairs(subtracks) do
 		if ((subtrack.lang == nil) or (subtrack.lang == '')) then
 			subtrack.lang = 'und'
 			processed_subtracks[#processed_subtracks + 1] = subtrack
-			if not language_first_index.und then
-				language_first_index.und = #processed_subtracks
+			title = subtrack.title and subtrack.title:lower() or ''
+			is_sign_song = (title:find('sign') ~= nil) or (title:find('song') ~= nil)
+			if language_first_index.und == nil or language_first_index['und'].is_sign_song then
+				language_first_index.und = { index = #processed_subtracks, is_sign_song = is_sign_song } 
 			end
 		end
 	end
@@ -123,7 +129,8 @@ local function set_default_tracks(tracks)
 		tracks.audio.active = true
 		if audio_track and language_pairs[audio_track.lang] then
 			msg.debug('Language Pair Found:', audio_track.lang, language_pairs[audio_track.lang].sub_language)
-			tracks.sub.current_index = language_first_index.sub[language_pairs[audio_track.lang].sub_language]
+			local language_index = language_first_index.sub[language_pairs[audio_track.lang].sub_language]
+			tracks.sub.current_index = language_index and language_index.index or nil
 			tracks.sub.active = language_pairs[audio_track.lang].visibility
 		else
 			msg.debug('Language Pair Not Found')
