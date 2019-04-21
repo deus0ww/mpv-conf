@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-20
+-- deus0ww - 2019-04-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -11,9 +11,9 @@ local user_opts = {
 	enabled = false,
 }
 
-local watched_properties, last_shaders
+local props, last_shaders
 local function reset()
-	watched_properties = {
+	props = {
 		['container-fps'] = 0,
 		['width'] = 0,
 		['height'] = 0,
@@ -25,29 +25,25 @@ local function reset()
 end
 reset()
 
-local ravu_limit = 3
+local ravu_threshold = 3
 local high_fps_threshold = 33
-local function get_scale(p) return math.min( p['osd-width'] / p['width'], p['osd-height'] / p['height'] ) end
-local function use_ravu(p) return get_scale(p) >= ravu_limit end
-local function is_high_fps(p) return p['container-fps'] > high_fps_threshold end
-local function is_chroma_left(p)   return p['video-params/chroma-location'] == 'mpeg2/4/h264' end
-local function is_chroma_center(p) return p['video-params/chroma-location'] == 'mpeg1/jpeg'   end
+local function get_scale()        return math.min( props['osd-width'] / props['width'], props['osd-height'] / props['height'] ) end
+local function use_ravu()         return get_scale() > ravu_threshold end
+local function is_high_fps()      return props['container-fps'] > high_fps_threshold end
+local function is_chroma_left()   return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
+local function is_chroma_center() return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
 
 local function create_shaders()
-	local p, s = watched_properties, {}
-	local scale, ravu = get_scale(p), use_ravu(p)
-
+	local s, ravu = {}, use_ravu()
 	-- LUMA
-	s[#s+1] = is_high_fps(p) and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	if ravu then s[#s+1] = 'ravu-zoom-r4.hook' end
-	s[#s+1] = 'EnhanceDetail.glsl'
+	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
+	s[#s+1] = ravu          and 'ravu-zoom-r4.hook'       or 'EnhanceDetail.glsl'
 	-- Chroma
-	if ravu and is_chroma_left(p)   then s[#s+1] = 'ravu-r4-chroma-left.hook'   end
-	if ravu and is_chroma_center(p) then s[#s+1] = 'ravu-r4-chroma-center.hook' end
+	s[#s+1] = (ravu and is_chroma_left())   and 'ravu-r4-chroma-left.hook'   or nil
+	s[#s+1] = (ravu and is_chroma_center()) and 'ravu-r4-chroma-center.hook' or nil
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
-	if not ravu then s[#s+1] = 'SSimSuperRes.glsl' end
-
+	s[#s+1] = (not ravu) and 'SSimSuperRes.glsl' or nil
 	return s
 end
 
@@ -76,14 +72,14 @@ mp.register_event('file-loaded', function() reset() end)
 
 local timer = mp.add_timeout(0.5, function() set_shaders(create_shaders()) end)
 timer:kill()
-for prop, _ in pairs(watched_properties) do
+for prop, _ in pairs(props) do
 	mp.observe_property(prop, 'native', function(_, v_new)
-		msg.debug('Property', prop, 'changed:', watched_properties[prop], '->', v_new)
+		msg.debug('Property', prop, 'changed:', props[prop], '->', v_new)
 		
-		if v_new == nil or v_new == watched_properties[prop] then return end
-		watched_properties[prop] = v_new
+		if v_new == nil or v_new == props[prop] then return end
+		props[prop] = v_new
 		
-		for _, value in pairs(watched_properties) do
+		for _, value in pairs(props) do
 			if value == 0 then return end
 		end
 
