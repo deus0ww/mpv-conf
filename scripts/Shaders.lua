@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-21
+-- deus0ww - 2019-04-24
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -6,11 +6,15 @@ local opt     = require 'mp.options'
 local utils   = require 'mp.utils'
 
 
-
 local user_opts = {
 	enabled = false,
+	set = 1,
 }
 
+
+------------------
+--- Properties ---
+------------------
 local props, last_shaders
 local function reset()
 	props = {
@@ -25,16 +29,19 @@ local function reset()
 end
 reset()
 
-local ravu_threshold = 3
-local high_fps_threshold = 33
+
+---------------
+--- Shaders ---
+---------------
+local sets = {}
+
 local function get_scale()        return math.min( props['osd-width'] / props['width'], props['osd-height'] / props['height'] ) end
-local function use_ravu()         return get_scale() > ravu_threshold end
-local function is_high_fps()      return props['container-fps'] > high_fps_threshold end
+local function is_high_fps()      return props['container-fps'] > 33 end
 local function is_chroma_left()   return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
 local function is_chroma_center() return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
 
-local function create_shaders()
-	local s, ravu = {}, use_ravu()
+sets[#sets+1] = function()
+	local s, ravu = {}, get_scale() > 3
 	-- LUMA
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = ravu          and 'ravu-zoom-r4.hook'       or 'EnhanceDetail.glsl'
@@ -43,34 +50,65 @@ local function create_shaders()
 	s[#s+1] = (ravu and is_chroma_center()) and 'ravu-r4-chroma-center.hook' or nil
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
-	s[#s+1] = (not ravu) and 'SSimSuperRes.glsl' or nil
+	s[#s+1] = not ravu and 'SSimSuperRes.glsl' or nil
 	return s
 end
 
-local function set_shaders(shaders)
+sets[#sets+1] = function()
+	local s = {}
+	-- LUMA
+	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
+	s[#s+1] = (get_scale() <= 3) and 'EnhanceDetail.glsl' or nil
+	-- Chroma
+	s[#s+1] = 'KrigBilateral.glsl'
+	-- RGB
+	s[#s+1] = 'SSimSuperRes.glsl'
+	return s
+end
+
+
+---------------------------
+--- MPV Shader Commands ---
+---------------------------
+local function clear_shaders()
+	msg.debug('Clearing Shaders.')
+	mp.commandv('change-list', 'glsl-shaders', 'clr', '')
+end
+
+local function apply_shaders(shaders)
+	if not user_opts.enabled then
+		msg.debug('Setting Shaders: skipped - disabled.')
+		return
+	end
+
 	local s, _ = utils.to_string(shaders)
 	if last_shaders == s then 
 		msg.debug('Setting Shaders: skipped - shaders unchanged.')
 		return
 	end
 	last_shaders = s
-	
-	opt.read_options(user_opts, mp.get_script_name())
-	if not user_opts.enabled then
-		msg.debug('Setting Shaders: skipped - disabled.')
-		return
-	end
-	
+
+	clear_shaders()
 	msg.debug('Setting Shaders:', s)
-	mp.commandv('change-list', 'glsl-shaders', 'clr', '')
 	for _, shader in ipairs(shaders) do
 		mp.commandv('change-list', 'glsl-shaders', 'append', '~~/shaders/' .. shader)
 	end
 end
 
-mp.register_event('file-loaded', function() reset() end)
+local function show_osd(no_osd)
+	if no_osd then return end
+	mp.osd_message(('%s Shaders Set: %d'):format(user_opts.enabled and '☑︎' or '☐', user_opts.set))
+end
 
-local timer = mp.add_timeout(0.5, function() set_shaders(create_shaders()) end)
+-----------------
+--- Listeners ---
+-----------------
+mp.register_event('file-loaded', function() 
+	opt.read_options(user_opts, mp.get_script_name())
+	reset()
+end)
+
+local timer = mp.add_timeout(0.5, function() apply_shaders(sets[user_opts.set]()) end)
 timer:kill()
 for prop, _ in pairs(props) do
 	mp.observe_property(prop, 'native', function(_, v_new)
@@ -88,3 +126,52 @@ for prop, _ in pairs(props) do
 		timer:resume()
 	end)
 end
+
+
+----------------
+--- Bindings ---
+----------------
+local function cycle_set_up(no_osd)
+	msg.debug('Shader - Up:', user_opts.set)
+	user_opts.set = (user_opts.set % #sets) + 1
+	if user_opts.enabled then apply_shaders(sets[user_opts.set]()) end
+	show_osd(no_osd)
+end
+
+local function cycle_set_dn(no_osd)
+	msg.debug('Shader - Down:', user_opts.set)
+	user_opts.set = ((user_opts.set - 2) % #sets) + 1
+	if user_opts.enabled then apply_shaders(sets[user_opts.set]()) end
+	show_osd(no_osd)
+end
+
+local function toggle_set(no_osd)
+	msg.debug('Shader - Toggling:', user_opts.set)
+	if user_opts.set == 0 then user_opts.set = 1 end
+	last_shaders = nil
+	if user_opts.enabled then clear_shaders() else apply_shaders(sets[user_opts.set]()) end
+	user_opts.enabled = not user_opts.enabled
+	show_osd(no_osd)
+end
+
+local function enable_set(no_osd)
+	msg.debug('Shader - Enabling:', user_opts.set)
+	user_opts.enabled = true
+	last_shaders = nil
+	apply_shaders(sets[user_opts.set]())
+	show_osd(no_osd)
+end
+
+local function disable_set(no_osd)
+	msg.debug('Shader - Disabling:', user_opts.set)
+	user_opts.enabled = false
+	last_shaders = nil
+	clear_shaders()
+	show_osd(no_osd)
+end
+
+mp.register_script_message('Shaders-cycle+',  function(no_osd) cycle_set_up(no_osd == 'yes') end)
+mp.register_script_message('Shaders-cycle-',  function(no_osd) cycle_set_dn(no_osd == 'yes') end)
+mp.register_script_message('Shaders-toggle',  function(no_osd) toggle_set(no_osd == 'yes') end)
+mp.register_script_message('Shaders-enable',  function(no_osd) enable_set(no_osd == 'yes') end)
+mp.register_script_message('Shaders-disable', function(no_osd) disable_set(no_osd == 'yes') end)
