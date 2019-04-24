@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-24
+-- deus0ww - 2019-04-25
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -41,28 +41,29 @@ local function is_chroma_left()   return props['video-params/chroma-location'] =
 local function is_chroma_center() return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
 
 sets[#sets+1] = function()
-	local s, ravu = {}, get_scale() > 3
+	local s, ravu = {}, get_scale() >= 3
 	-- LUMA
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	s[#s+1] = ravu          and 'ravu-zoom-r4.hook'       or 'EnhanceDetail.glsl'
+	s[#s+1] = ravu          and 'ravu-zoom-r4.hook'       or nil
 	-- Chroma
 	s[#s+1] = (ravu and is_chroma_left())   and 'ravu-r4-chroma-left.hook'   or nil
 	s[#s+1] = (ravu and is_chroma_center()) and 'ravu-r4-chroma-center.hook' or nil
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
-	s[#s+1] = not ravu and 'SSimSuperRes.glsl' or nil
+	s[#s+1] = 'SSimSuperRes.glsl'
 	return s
 end
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, ravu = {}, get_scale() >= 3
 	-- LUMA
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	s[#s+1] = (get_scale() <= 3) and 'EnhanceDetail.glsl' or nil
+	s[#s+1] = ravu          and 'ravu-lite-r4.hook'       or nil
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
 	return s
 end
 
