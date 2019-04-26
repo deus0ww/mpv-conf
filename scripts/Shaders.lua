@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-26
+-- deus0ww - 2019-04-27
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -62,7 +62,7 @@ sets[#sets+1] = function()
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = 'SSimDownscaler.glsl'
+	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
 	return s
 end
 
@@ -74,7 +74,7 @@ sets[#sets+1] = function()
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = 'SSimDownscaler.glsl'
+	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
 	return s
 end
 
