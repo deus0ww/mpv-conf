@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-27
+-- deus0ww - 2019-04-29
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -49,7 +49,7 @@ sets[#sets+1] = function()
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
+	s[#s+1] = (get_scale() > 2) and 'SSimDownscaler.glsl' or nil
 	return s
 end
 
@@ -57,24 +57,9 @@ sets[#sets+1] = function()
 	local s = {}
 	-- LUMA
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	s[#s+1] = 'ravu-zoom-r4.hook'
+	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
-	-- RGB
-	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
-	return s
-end
-
-sets[#sets+1] = function()
-	local s = {}
-	-- LUMA
-	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	-- Chroma
-	s[#s+1] = 'KrigBilateral.glsl'
-	-- RGB
-	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
 	return s
 end
 
@@ -111,6 +96,7 @@ local function show_osd(no_osd)
 	if no_osd then return end
 	mp.osd_message(('%s Shaders Set: %d'):format(user_opts.enabled and '☑︎' or '☐', user_opts.set))
 end
+
 
 -----------------
 --- Listeners ---

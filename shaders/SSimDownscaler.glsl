@@ -100,7 +100,7 @@ vec4 hook() {
 //!WHEN NATIVE_CROPPED.w POSTKERNEL.w >
 //!DESC SSimDownscaler calc Mean
 
-#define locality    4.0
+#define locality    6.0
 
 #define offset      vec2(0,0)
 
@@ -159,7 +159,7 @@ vec4 hook() {
 //!WHEN NATIVE_CROPPED.w POSTKERNEL.w >
 //!DESC SSimDownscaler calc R
 
-#define locality    4.0
+#define locality    6.0
 
 #define offset      vec2(0,0)
 
