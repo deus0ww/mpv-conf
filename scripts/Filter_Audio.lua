@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-05-07
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -86,6 +86,8 @@ insert(filter_list, {
 	filter_type = 'audio',
 	filters = {
 		'scaletempo=stride=9:overlap=0.9:search=28',
+		'rubberband=pitch=quality:transients=crisp',
+		'rubberband=pitch=quality:transients=smooth',
 	},
 })
 
