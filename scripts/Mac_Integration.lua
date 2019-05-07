@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-24
+-- deus0ww - 2019-05-08
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -43,4 +43,35 @@ mp.register_script_message('MoveToTrash', function()
 	else
 		mp.osd_message('Trashing failed.')
 	end
+end)
+
+
+
+-- Open From Clipboard - One URL per line
+mp.register_script_message('OpenFromClipboard', function()
+	local osd_msg = 'Opening From Clipboard: '
+	
+	local success, result = pcall(io.popen, 'pbpaste')
+	if not success or not result then 
+		mp.osd_message(osd_msg .. 'n/a')
+		return
+	end
+	local lines = {}
+	for line in result:lines() do lines[#lines+1] = line end
+	if #lines == 0 then
+		mp.osd_message(osd_msg .. 'n/a')
+		return
+	end
+
+	local mode = 'replace'
+	for _, line in ipairs(lines) do
+		msg.debug('loadfile', line, mode)
+		mp.commandv('loadfile', line, mode)
+		mode = 'append'
+	end
+
+	local msg = osd_msg
+	if #lines > 0 then msg = msg .. '\n' .. lines[1] end
+	if #lines > 1 then msg = msg .. (' ... and %d other URL(s).'):format(#lines-1) end
+	mp.osd_message(msg, 6.0)
 end)
