@@ -1,4 +1,4 @@
--- deus0ww - 2019-05-08
+-- deus0ww - 2019-05-09
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -21,9 +21,9 @@ local function reset()
 		['container-fps'] = 0,
 		['width'] = 0,
 		['height'] = 0,
-		--['osd-width'] = 0,
-		--['osd-height'] = 0,
-		--['video-params/chroma-location'] = 0,
+		['osd-width'] = 0,
+		['osd-height'] = 0,
+		['video-params/chroma-location'] = 0,
 	}
 	last_shaders = nil
 end
@@ -36,10 +36,20 @@ reset()
 local sets = {}
 
 local function is_high_fps()      return props['container-fps'] > 33 end
-local function is_full_hd()       return (props['width'] >= 1800) or (props['height'] >= 1000) end
---local function get_scale()        return math.min( props['osd-width'] / props['width'], props['osd-height'] / props['height'] ) end
---local function is_chroma_left()   return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
+--function is_full_hd()             return (props['width'] >= 1800) or (props['height'] >= 1000) end
+local function get_scale()        return math.min( props['osd-width'] / props['width'], props['osd-height'] / props['height'] ) end
+local function is_chroma_left()   return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
 --local function is_chroma_center() return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
+local function krigbilateral()
+	local scale = get_scale()
+	if is_chroma_left() then
+		if scale < 1.4      then return 'KrigBilateral-05.glsl' end -- No Luma Scaler
+		if scale < 2.828430 then return 'KrigBilateral-10.glsl' end -- 2x Luma Scaler (FSRCNNX)
+		return 'KrigBilateral-20.glsl' -- 4x Luma Scalers (FSRCNNX + ravu_lite)
+	else
+		return 'KrigBilateral-00.glsl'
+	end
+end
 
 sets[#sets+1] = function()
 	local s = {}
@@ -47,10 +57,10 @@ sets[#sets+1] = function()
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
-	s[#s+1] = 'KrigBilateral.glsl'
+	s[#s+1] = krigbilateral()
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = (not is_full_hd()) and 'SSimDownscaler.glsl' or nil
+	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
 	return s
 end
 
@@ -60,7 +70,9 @@ sets[#sets+1] = function()
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
-	s[#s+1] = 'KrigBilateral.glsl'
+	s[#s+1] = krigbilateral()
+	-- RGB
+	s[#s+1] = 'SSimSuperRes.glsl'
 	return s
 end
 

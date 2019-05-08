@@ -19,7 +19,7 @@
 //!SAVE LOWRES_Y
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC KrigBilateral Downscaling Y pass 1
+//!DESC KrigBilateral 05 Downscaling Y pass 1
 
 #define lumaOffset  (-vec2(0.0, 0.0)*LUMA_size*CHROMA_pt)
 
@@ -58,7 +58,7 @@ vec4 hook() {
 //!BIND LOWRES_Y
 //!SAVE LOWRES_Y
 //!WHEN CHROMA.h LUMA.h <
-//!DESC KrigBilateral Downscaling Y pass 2
+//!DESC KrigBilateral 05 Downscaling Y pass 2
 
 #define lumaOffset  (-vec2(0.0, 0.0)*LOWRES_Y_size*CHROMA_pt)
 
@@ -100,7 +100,7 @@ vec4 hook() {
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!OFFSET -0.5 0
-//!DESC KrigBilateral Upscaling UV
+//!DESC KrigBilateral 05 Upscaling UV
 
 #define locality 50.0
 
