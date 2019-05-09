@@ -557,7 +557,6 @@ local function saved_state_init()
 	local rotate = mp.get_property_native('video-params/rotate', 0)
 	saved_state = {
 		input_fullpath = mp.get_property_native('path', ''),
-		input_filename = mp.get_property_native('filename/no-ext', ''):sub(1, 64),
 		meta_rotated   = ((rotate % 180) ~= 0),
 		initial_rotate = (rotate and rotate or 0) % 360,
 		delta_factor   = 1.0,
