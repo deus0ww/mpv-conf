@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-27
+-- deus0ww - 2019-05-10
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -557,6 +557,7 @@ local function saved_state_init()
 	local rotate = mp.get_property_native('video-params/rotate', 0)
 	saved_state = {
 		input_fullpath = mp.get_property_native('path', ''),
+		input_filename = mp.get_property_native('filename/no-ext', ''):gsub('watch%?v=', ''):sub(1, 64),
 		meta_rotated   = ((rotate % 180) ~= 0),
 		initial_rotate = (rotate and rotate or 0) % 360,
 		delta_factor   = 1.0,
