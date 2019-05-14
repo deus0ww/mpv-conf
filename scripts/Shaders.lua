@@ -1,4 +1,4 @@
--- deus0ww - 2019-05-09
+-- deus0ww - 2019-05-14
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -36,7 +36,6 @@ reset()
 local sets = {}
 
 local function is_high_fps()      return props['container-fps'] > 33 end
---function is_full_hd()             return (props['width'] >= 1800) or (props['height'] >= 1000) end
 local function get_scale()        return math.min( props['osd-width'] / props['width'], props['osd-height'] / props['height'] ) end
 local function is_chroma_left()   return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
 --local function is_chroma_center() return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
@@ -55,12 +54,12 @@ sets[#sets+1] = function()
 	local s = {}
 	-- LUMA
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	s[#s+1] = 'ravu-lite-r4.hook'
+	s[#s+1] = 'ravu-r4.hook'
 	-- Chroma
 	s[#s+1] = krigbilateral()
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = get_scale() > 2 and 'SSimDownscaler.glsl' or nil
+	s[#s+1] = 'SSimDownscaler.glsl'
 	return s
 end
 
@@ -73,6 +72,7 @@ sets[#sets+1] = function()
 	s[#s+1] = krigbilateral()
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
 	return s
 end
 
@@ -119,7 +119,7 @@ mp.register_event('file-loaded', function()
 	reset()
 end)
 
-local timer = mp.add_timeout(0.5, function() apply_shaders(sets[user_opts.set]()) end)
+local timer = mp.add_timeout(1, function() apply_shaders(sets[user_opts.set]()) end)
 timer:kill()
 for prop, _ in pairs(props) do
 	mp.observe_property(prop, 'native', function(_, v_new)
