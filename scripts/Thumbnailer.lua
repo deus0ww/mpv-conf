@@ -1,4 +1,4 @@
--- deus0ww - 2019-05-10
+-- deus0ww - 2019-05-17
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -226,7 +226,7 @@ local user_opts = {
 	use_ffmpeg           = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
 	prefer_ffmpeg        = false,              -- Use FFMPEG when available
 	ffmpeg_threads       = 1,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
-	ffmpeg_scaler        = 'bicublin',         -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
+	ffmpeg_scaler        = 'bicubic',          -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
 }
 
 local thumbnails, thumbnails_new,thumbnails_new_count
@@ -286,7 +286,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		table.insert(workers_timers, mp.add_timeout( user_opts.worker_delay * i^0.8 + 0.5, function() mp.command_native({'script-message-to', worker, message.worker.start}) end))
+		table.insert(workers_timers, mp.add_timeout( user_opts.worker_delay * i^0.8 + 1, function() mp.command_native({'script-message-to', worker, message.worker.start}) end))
 	end
 	workers_started = true
 end
@@ -365,11 +365,11 @@ end
 local function osc_delta_update(flush)
 	local time_since_last_update = os.clock() - osc_last_update
 	if thumbnails_new_count <= 0 then return end
-	if flush or
-	   (time_since_last_update >= (4.00 * user_opts.update_time)) or 
+	if (time_since_last_update >= (4.00 * user_opts.update_time)) or 
 	   (time_since_last_update >= (2.00 * user_opts.update_time) and thumbnails_new_count >= state.worker_buffer) or
 	   (time_since_last_update >= (1.00 * user_opts.update_time) and thumbnails_new_count >= state.osc_buffer) or
-	   (time_since_last_update >= (0.00 * user_opts.update_time) and thumbnails_new_count >= floor(state.tn_per_worker - 1))
+	   thumbnails_new_count >= floor(state.tn_per_worker - 1) or
+	   flush
 	then
 		osc_update(nil, nil, thumbnails_new)
 		thumbnails_new = {}

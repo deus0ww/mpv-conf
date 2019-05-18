@@ -39,7 +39,7 @@ mp.register_script_message('MoveToTrash', function()
 	msg.debug('Moving to Trash:', path)
 	if path and path ~= '' then
 		mp.command_native({'run', 'trash', '-F', path})
-		mp.osd_message('Trashing succeeded.')
+		mp.osd_message('Trashed.')
 	else
 		mp.osd_message('Trashing failed.')
 	end
