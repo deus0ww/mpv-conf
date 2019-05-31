@@ -1,4 +1,4 @@
--- deus0ww - 2019-05-17
+-- deus0ww - 2019-05-31
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -11,11 +11,6 @@ local utils   = require 'mp.utils'
 local script_name = mp.get_script_name()
 
 local message = {
-	mpv = {
-		file_loaded   = 'file-loaded',
-		file_unloaded = 'end-file',
-		shutdown      = 'shutdown',
-	},
 	worker = {
 		registration  = 'tn_worker_registration',
 		reset         = 'tn_worker_reset',
@@ -41,6 +36,7 @@ local message = {
 	double       = script_name .. '-double',
 	shrink       = script_name .. '-shrink',
 	enlarge      = script_name .. '-enlarge',
+	auto_delete  = script_name .. '-toggle-auto-delete',
 
 	queued     = 1,
 	processing = 2,
@@ -197,7 +193,7 @@ local user_opts = {
 	-- General
 	auto_gen             = true,               -- Auto generate thumbnails
 	auto_show            = true,               -- Show thumbnails by default
-	delete_on_quit       = false,              -- Delete the thumbnail cache on quit. Use at your own risk.
+	auto_delete          = false,              -- Delete the thumbnail cache on quit. Use at your own risk.
 
 	-- Paths
 	cache_dir            = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
@@ -628,28 +624,28 @@ local function osc_set_visibility(is_visible)
 end
 
 
----------------
--- Listeners --
----------------
--- Listen for Manual Start
+--------------
+-- Bindings --
+--------------
+-- Binding - Manual Start
 mp.register_script_message(message.manual_start, start)
 
--- Listen for Manual Stop
+-- Binding - Manual Stop
 mp.register_script_message(message.manual_stop, stop)
 
--- Listen for Toggle Generation
+-- Binding - Toggle Generation
 mp.register_script_message(message.toggle_gen, function() if workers_are_stopped() then start() else stop() end end)
 
--- Listen for Manual Show OSC
+-- Binding - Manual Show OSC
 mp.register_script_message(message.manual_show, function() osc_set_visibility(true) end)
 
--- Listen for Manual Hide OSC
+-- Binding - Manual Hide OSC
 mp.register_script_message(message.manual_hide, function() osc_set_visibility(false) end)
 
--- Listen for Toggle Visibility
+-- Binding - Toggle Visibility
 mp.register_script_message(message.toggle_osc,  function() osc_set_visibility(not osc_visible) end)
 
--- Listen for Double Frequency
+-- Binding - Double Frequency
 mp.register_script_message(message.double, function()
 	if not initialized or not saved_state or not saved_state.delta_factor then return end
 	local target = max(0.25, saved_state.delta_factor * 0.5)
@@ -668,16 +664,28 @@ local function resize(target)
 	end
 end
 
--- Listen for Shrink
+-- Binding - Shrink
 mp.register_script_message(message.shrink, function()
 	if initialized and saved_state and saved_state.size_factor then resize(max(0.2, saved_state.size_factor - 0.2)) end
 end)
 
--- Listen for Enlarge
+-- Binding - Enlarge
 mp.register_script_message(message.enlarge, function()
 	if initialized and saved_state and saved_state.size_factor then resize(min(2.0, saved_state.size_factor + 0.2)) end
 end)
 
+-- Binding - Toggle Auto Delete
+local auto_delete = nil
+mp.register_script_message(message.auto_delete, function()
+	if auto_delete == nil then auto_delete = user_opts.auto_delete end
+	auto_delete = not auto_delete
+	mp.osd_message( (auto_delete and '☑︎' or '☐') .. ' Thumbnail Auto Delete')
+end)
+
+
+------------
+-- Events --
+------------
 -- On Video Params Change
 mp.observe_property('video-params', 'native', function(_, video_params)
 	if not video_params or is_empty(video_params.dw, video_params.dh) then return end
@@ -709,13 +717,18 @@ mp.observe_property('fullscreen', 'native', function(_, fullscreen)
 end)
 
 -- On Shutdown
-mp.register_event(message.mpv.shutdown, function()
-	if not user_opts.delete_on_quit then return end
-	local path = user_opts.cache_dir
-	if path:len() < script_name:len() then return end
-	delete_dir(path)
+mp.register_event('shutdown', function()
+	if auto_delete or ((auto_delete == nil) and user_opts.auto_delete) then 
+		local path = user_opts.cache_dir
+		if path:len() < script_name:len() then return end
+		delete_dir(path)
+	end
 end)
 
+
+-------------------
+-- Workers & OSC --
+-------------------
 -- Listen for OSC Registration
 mp.register_script_message(message.osc.registration, function(json)
 	local osc_reg = parse_json(json)
@@ -784,7 +797,10 @@ mp.register_script_message(message.worker.finish, function(json)
 	end
 end)
 
--- Debug
+
+-----------
+-- Debug --
+-----------
 mp.register_script_message(message.debug, function()
 	msg.info('============')
 	msg.info('Video Stats:')
