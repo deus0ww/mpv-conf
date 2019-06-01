@@ -33,8 +33,8 @@ local function reset()
 	props = {
 		['width'] = '',
 		['height'] = '',
-		['osd-width'] = '',
-		['osd-height'] = '',
+		['osd-width'] = 0,
+		['osd-height'] = 0,
 		['container-fps'] = '',
 		['video-params/rotate'] = '',
 		['video-params/pixelformat'] = '',
@@ -73,7 +73,7 @@ local function get_rotated_offset()   return rotated_offset[props['video-params/
 local function get_scale()
 	local width, height = props['width'], props['height']
 	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
-	return math.min( props['osd-width'] / width, props['osd-height'] / height )
+	return math.min( mp.get_property_native('osd-width', 0) / width, mp.get_property_native('osd-height', 0) / height )
 end
 
 local output_subdir = 'KrigBilateral/'
@@ -127,7 +127,7 @@ local sets = {}
 --	sets[#sets+1] = function()
 --		local s = {}
 --		-- Chroma
---		s[#s+1] = krigbilateral()
+--		s[#s+1] = krigbilateral(true)
 --		return { shaders = s, label = 'Krig' }
 --	end
 
