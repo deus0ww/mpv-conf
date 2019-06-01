@@ -1,4 +1,4 @@
--- deus0ww - 2019-05-31
+-- deus0ww - 2019-06-01
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -555,7 +555,7 @@ local function saved_state_init()
 		input_fullpath = mp.get_property_native('path', ''),
 		input_filename = mp.get_property_native('filename/no-ext', ''):gsub('watch%?v=', ''):sub(1, 64),
 		meta_rotated   = ((rotate % 180) ~= 0),
-		initial_rotate = (rotate and rotate or 0) % 360,
+		initial_rotate = rotate % 360,
 		delta_factor   = 1.0,
 		size_factor    = 1.0,
 		fullscreen     = mp.get_property_native("fullscreen", false)
