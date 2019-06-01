@@ -23,24 +23,22 @@
 
 #define lumaOffset  (-vec2(0.0, 0.0)*LUMA_size*CHROMA_pt)
 
-#define factor      ((LUMA_pt*CHROMA_size.x)[axis])
-
 #define axis 1
 
 #define Kernel(x)   dot(vec4(0.355768, -0.487396, 0.144232, -0.012604), cos(vec4(0.,1.,2.,3.)*acos(-1.0)*(x+1.)))
 
 vec4 hook() {
     // Calculate bounds
-    float low  = floor((LUMA_pos - CHROMA_pt) * LUMA_size - lumaOffset + 0.5)[axis];
-    float high = floor((LUMA_pos + CHROMA_pt) * LUMA_size - lumaOffset + 0.5)[axis];
+    float low  = ceil((LUMA_pos - 0.5*CHROMA_pt) * LUMA_size - lumaOffset - 0.5)[axis];
+    float high = floor((LUMA_pos + 0.5*CHROMA_pt) * LUMA_size - lumaOffset - 0.5)[axis];
 
     float W = 0.0;
     vec4 avg = vec4(0);
     vec2 pos = LUMA_pos;
 
-    for (float k = 0.0; k < high - low; k++) {
-        pos[axis] = LUMA_pt[axis] * (k + low + 0.5);
-        float rel = (pos[axis] - LUMA_pos[axis])*CHROMA_size[axis] + lumaOffset[axis]*factor;
+    for (float k = low; k <= high; k++) {
+        pos[axis] = LUMA_pt[axis] * (k - lumaOffset[axis] + 0.5);
+        float rel = (pos[axis] - LUMA_pos[axis])*CHROMA_size[axis];
         float w = Kernel(rel);
 
         vec4 y = textureLod(LUMA_raw, pos, 0.0).xxxx * LUMA_mul;
@@ -62,24 +60,22 @@ vec4 hook() {
 
 #define lumaOffset  (-vec2(0.0, 0.0)*LOWRES_Y_size*CHROMA_pt)
 
-#define factor      ((LOWRES_Y_pt*CHROMA_size)[axis])
-
 #define axis 0
 
 #define Kernel(x)   dot(vec4(0.355768, -0.487396, 0.144232, -0.012604), cos(vec4(0.,1.,2.,3.)*acos(-1.0)*(x+1.)))
 
 vec4 hook() {
     // Calculate bounds
-    float low  = floor((LOWRES_Y_pos - CHROMA_pt) * LOWRES_Y_size - lumaOffset + 0.5)[axis];
-    float high = floor((LOWRES_Y_pos + CHROMA_pt) * LOWRES_Y_size - lumaOffset + 0.5)[axis];
+    float low  = ceil((LOWRES_Y_pos - 0.5*CHROMA_pt) * LOWRES_Y_size - lumaOffset - 0.5)[axis];
+    float high = floor((LOWRES_Y_pos + 0.5*CHROMA_pt) * LOWRES_Y_size - lumaOffset - 0.5)[axis];
 
     float W = 0.0;
     vec4 avg = vec4(0);
     vec2 pos = LOWRES_Y_pos;
 
-    for (float k = 0.0; k < high - low; k++) {
-        pos[axis] = LOWRES_Y_pt[axis] * (k + low + 0.5);
-        float rel = (pos[axis] - LOWRES_Y_pos[axis])*CHROMA_size[axis] + lumaOffset[axis]*factor;
+    for (float k = low; k <= high; k++) {
+        pos[axis] = LOWRES_Y_pt[axis] * (k - lumaOffset[axis] + 0.5);
+        float rel = (pos[axis] - LOWRES_Y_pos[axis])*CHROMA_size[axis];
         float w = Kernel(rel);
 
         vec4 y = textureLod(LOWRES_Y_raw, pos, 0.0).xxxx * LOWRES_Y_mul;
