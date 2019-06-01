@@ -44,6 +44,13 @@ local function reset()
 end
 reset()
 
+local function is_initialized()
+	for _, value in pairs(props) do
+		if value == '' then return false end
+	end
+	return true
+end
+
 
 --------------------
 --- Shader Utils ---
@@ -69,8 +76,10 @@ local function get_scale()
 	return math.min( props['osd-width'] / width, props['osd-height'] / height )
 end
 
-local output_format = 'KrigBilateral/KrigBilateral%+.1f%+.1f.glsl'
-local sed_command = 'sed -e \"s|\\${X_OFFSET}|%+.1f|\" -e \"s|\\${Y_OFFSET}|%+.1f|\" %s > %s'
+local output_subdir = 'KrigBilateral/'
+local output_format = 'KrigBilateral%+.1f%+.1f.glsl'
+local mkdir_cmd     = 'mkdir -p %s'
+local sed_cmd       = 'sed -e \"s|\\${X_OFFSET}|%+.1f|\" -e \"s|\\${Y_OFFSET}|%+.1f|\" %s > %s'
 
 local function krigbilateral(has_prescalers)
 	local offset
@@ -89,13 +98,24 @@ local function krigbilateral(has_prescalers)
 	end
 
 	local output = output_format:format(offset.x, offset.y)
-	if not file_exists(user_opts.path .. output) then
-		msg.debug('Creating KrigBilateral Shader:', user_opts.path .. output)
-		pcall(io.popen, sed_command:format(offset.x, offset.y, user_opts.path .. 'KrigBilateral.glsl', user_opts.path .. output))
+	local output_fullpath = user_opts.path .. output_subdir .. output
+	if not file_exists(output_fullpath) then
+		local success1, success2, result
+		success1, result = pcall(io.popen, mkdir_cmd:format(user_opts.path .. output_subdir))
+		if success1 then result:close() end
+		success2, result = pcall(io.popen, sed_cmd:format(offset.x, offset.y, user_opts.path .. 'KrigBilateral.glsl', output_fullpath))
+		if success2 then result:close() end
+		
+		if (success1 and success2) then
+			msg.debug('Creating KrigBilateral Shader:', output_fullpath)
+		else
+			msg.debug('Creating KrigBilateral Shader: failed')
+			return ''
+		end
 	else
-		msg.debug('Using KrigBilateral Shader:', user_opts.path .. output)
+		msg.debug('Using KrigBilateral Shader:', output_fullpath)
 	end
-	return output
+	return output_subdir .. output
 end
 
 
@@ -107,7 +127,7 @@ local sets = {}
 --	sets[#sets+1] = function()
 --		local s = {}
 --		-- Chroma
---		s[#s+1] = krigbilateral(true)
+--		s[#s+1] = krigbilateral()
 --		return { shaders = s, label = 'Krig' }
 --	end
 
@@ -162,7 +182,7 @@ local function apply_shaders(shaders)
 	clear_shaders()
 	msg.debug('Setting Shaders:', s)
 	for _, shader in ipairs(shaders) do
-		mp.commandv('change-list', 'glsl-shaders', 'append', '~~/shaders/' .. shader)
+		if shader and shader ~= '' then mp.commandv('change-list', 'glsl-shaders', 'append', '~~/shaders/' .. shader) end
 	end
 end
 
@@ -189,13 +209,11 @@ for prop, _ in pairs(props) do
 		if v_new == nil or v_new == props[prop] then return end
 		props[prop] = v_new
 		
-		for _, value in pairs(props) do
-			if value == '' then return end
+		if is_initialized() then
+			msg.debug('Resetting Timer')
+			timer:kill()
+			timer:resume()
 		end
-
-		msg.debug('Resetting Timer')
-		timer:kill()
-		timer:resume()
 	end)
 end
 
@@ -205,6 +223,7 @@ end
 ----------------
 local function cycle_set_up(no_osd)
 	msg.debug('Shader - Up:', user_opts.set)
+	if not is_initialized() then return end
 	user_opts.set = (user_opts.set % #sets) + 1
 	local shaders = sets[user_opts.set]()
 	if user_opts.enabled then apply_shaders(shaders.shaders) end
@@ -213,6 +232,7 @@ end
 
 local function cycle_set_dn(no_osd)
 	msg.debug('Shader - Down:', user_opts.set)
+	if not is_initialized() then return end
 	user_opts.set = ((user_opts.set - 2) % #sets) + 1
 	local shaders = sets[user_opts.set]()
 	if user_opts.enabled then apply_shaders(shaders.shaders) end
@@ -221,6 +241,7 @@ end
 
 local function toggle_set(no_osd)
 	msg.debug('Shader - Toggling:', user_opts.set)
+	if not is_initialized() then return end
 	if user_opts.set == 0 then user_opts.set = 1 end
 	last_shaders = nil
 	local shaders = sets[user_opts.set]()
@@ -231,6 +252,7 @@ end
 
 local function enable_set(no_osd)
 	msg.debug('Shader - Enabling:', user_opts.set)
+	if not is_initialized() then return end
 	user_opts.enabled = true
 	last_shaders = nil
 	local shaders = sets[user_opts.set]()
@@ -240,6 +262,7 @@ end
 
 local function disable_set(no_osd)
 	msg.debug('Shader - Disabling:', user_opts.set)
+	if not is_initialized() then return end
 	user_opts.enabled = false
 	last_shaders = nil
 	local shaders = sets[user_opts.set]()
