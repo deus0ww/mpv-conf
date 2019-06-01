@@ -17,15 +17,15 @@
 //!BIND HOOKED
 //!BIND LUMA
 //!SAVE LOWRES_Y
-//!HEIGHT LUMA.h
+//!WIDTH LUMA.w
 //!WHEN CHROMA.w LUMA.w <
-//!DESC KrigBilateral 05 Downscaling Y pass 1
+//!DESC KrigBilateral Downscaling Y pass 1
 
 #define lumaOffset  (-vec2(0.0, 0.0)*LUMA_size*CHROMA_pt)
 
 #define factor      ((LUMA_pt*CHROMA_size.x)[axis])
 
-#define axis 0
+#define axis 1
 
 #define Kernel(x)   dot(vec4(0.355768, -0.487396, 0.144232, -0.012604), cos(vec4(0.,1.,2.,3.)*acos(-1.0)*(x+1.)))
 
@@ -43,7 +43,7 @@ vec4 hook() {
         float rel = (pos[axis] - LUMA_pos[axis])*CHROMA_size[axis] + lumaOffset[axis]*factor;
         float w = Kernel(rel);
 
-        vec4 y = (textureLod(LUMA_raw, pos, 0.0).xxxx * LUMA_mul - 16./255.) / (219./255.);
+        vec4 y = textureLod(LUMA_raw, pos, 0.0).xxxx * LUMA_mul;
         y.y *= y.y;
         avg += w * y;
         W += w;
@@ -57,14 +57,14 @@ vec4 hook() {
 //!BIND HOOKED
 //!BIND LOWRES_Y
 //!SAVE LOWRES_Y
-//!WHEN CHROMA.h LUMA.h <
-//!DESC KrigBilateral 05 Downscaling Y pass 2
+//!WHEN CHROMA.w LUMA.w <
+//!DESC KrigBilateral Downscaling Y pass 2
 
 #define lumaOffset  (-vec2(0.0, 0.0)*LOWRES_Y_size*CHROMA_pt)
 
 #define factor      ((LOWRES_Y_pt*CHROMA_size)[axis])
 
-#define axis 1
+#define axis 0
 
 #define Kernel(x)   dot(vec4(0.355768, -0.487396, 0.144232, -0.012604), cos(vec4(0.,1.,2.,3.)*acos(-1.0)*(x+1.)))
 
@@ -99,8 +99,8 @@ vec4 hook() {
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!OFFSET -0.5 0
-//!DESC KrigBilateral 05 Upscaling UV
+//!OFFSET ${X_OFFSET} ${Y_OFFSET}
+//!DESC KrigBilateral Upscaling UV [Offset: ${X_OFFSET}, ${Y_OFFSET}]
 
 #define locality 50.0
 
@@ -130,7 +130,7 @@ vec4 hook() {
 #define c(i)   (inversesqrt(1.0 + X[i].y/localVar) * exp(-0.5*(sqr(X[i].x - y)/(localVar + X[i].y) + sqr((coords[i] - offset)/radius))))
 
 vec4 hook() {
-    vec2 pos = LUMA_pos * LOWRES_Y_size - chromaOffset - vec2(0.5);
+    vec2 pos = CHROMA_pos * HOOKED_size - chromaOffset - vec2(0.5);
     vec2 offset = pos - (even ? floor(pos) : round(pos));
     pos -= offset;
 
@@ -146,7 +146,6 @@ vec4 hook() {
     for (int i=0; i<N+1; i++) {
         y += LUMA_texOff(coords[i]).x * pow(1.0/locality, float(sqr(coords[i])));
         X[i] = vec4(GetY(coords[i]), GetUV(coords[i]));
-        X[i].x = X[i].x * 219./255. + 16./255.;
         vec2 w = clamp(1.5 - abs(coords[i] - offset), 0.0, 1.0);
         total += w.x*w.y*vec4(X[i].x, pow(X[i].x, 2.0), X[i].y, 1.0);
     }

@@ -1,4 +1,4 @@
--- deus0ww - 2019-05-29
+-- deus0ww - 2019-06-01
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -9,7 +9,20 @@ local utils   = require 'mp.utils'
 local user_opts = {
 	enabled = false,
 	set = 1,
+	path = '/Users/Shared/Library/mpv/shaders/', -- Should be the same as '~~/shaders/' expanded
 }
+
+
+-------------
+--- Utils ---
+-------------
+local function file_exists(path)
+	local file = io.open(path, 'rb')
+	if not file then return false end
+	local _, _, code = file:read(1)
+	file:close()
+	return code == nil
+end
 
 
 ------------------
@@ -18,40 +31,85 @@ local user_opts = {
 local props, last_shaders
 local function reset()
 	props = {
-		['width'] = 0,
-		['height'] = 0,
-		['osd-width'] = 0,
-		['osd-height'] = 0,
-		['container-fps'] = 0,
-		['video-params/pixelformat'] = 0,
-		['video-params/chroma-location'] = 0,
+		['width'] = '',
+		['height'] = '',
+		['osd-width'] = '',
+		['osd-height'] = '',
+		['container-fps'] = '',
+		['video-params/rotate'] = '',
+		['video-params/pixelformat'] = '',
+		['video-params/chroma-location'] = '',
 	}
 	last_shaders = nil
 end
 reset()
 
 
----------------
---- Shaders ---
----------------
-local function get_scale()            return math.min( props['osd-width'] / props['width'], props['osd-height'] / props['height'] ) end
+--------------------
+--- Shader Utils ---
+--------------------
+local rotated_offset = { [-360] = {x = -0.5,  y =  0.0 },
+					     [-270] = {x =  0.0,  y = -0.5 },
+					     [-180] = {x =  0.5,  y =  0.0 },
+					     [ -90] = {x =  0.0,  y =  0.5 },
+					     [   0] = {x = -0.5,  y =  0.0 },
+					     [  90] = {x =  0.0,  y = -0.5 },
+					     [ 180] = {x =  0.5,  y =  0.0 },
+					     [ 270] = {x =  0.0,  y =  0.5 },
+					     [ 360] = {x = -0.5,  y =  0.0 }, }
+
 local function is_high_fps()          return props['container-fps'] > 33 end
 local function is_chroma_subsampled() return props['video-params/pixelformat']:find('444') == nil end
 local function is_chroma_left()       return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
 --local function is_chroma_center()     return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
-
-local function krigbilateral()
-	local scale = get_scale()
-	if is_chroma_left() and is_chroma_subsampled() then
-		if scale < 1.4      then return 'KrigBilateral-05.glsl' end -- No Luma Scaler
-		if scale < 2.828430 then return 'KrigBilateral-10.glsl' end -- 2x Luma Scaler (FSRCNNX)
-		return 'KrigBilateral-20.glsl' -- 4x Luma Scalers (FSRCNNX + RAVU)
-	else
-		return 'KrigBilateral-00.glsl'
-	end
+local function get_rotated_offset()   return rotated_offset[props['video-params/rotate']] end
+local function get_scale()
+	local width, height = props['width'], props['height']
+	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
+	return math.min( props['osd-width'] / width, props['osd-height'] / height )
 end
 
+local output_format = 'KrigBilateral/KrigBilateral%+.1f%+.1f.glsl'
+local sed_command = 'sed -e \"s|\\${X_OFFSET}|%+.1f|\" -e \"s|\\${Y_OFFSET}|%+.1f|\" %s > %s'
+
+local function krigbilateral(has_prescalers)
+	local offset
+	if is_chroma_left() and is_chroma_subsampled() then
+		local scale, prescale = get_scale(), 1
+		if has_prescalers then
+			if     scale > 2.82843024 then prescale = 4 -- FSRCNNX + RAVU
+		 -- elseif scale > 2.12132269 then prescale = 3 -- Disabled: no 3x prescaler
+			elseif scale > 1.4        then prescale = 2 -- FSRCNNX
+			else                           prescale = 1 end
+		end
+		local rotated_offset = get_rotated_offset()
+		offset = { x = rotated_offset.x * prescale, y = rotated_offset.y * prescale }
+	else
+		offset = { x = 0, y = 0 }
+	end
+
+	local output = output_format:format(offset.x, offset.y)
+	if not file_exists(user_opts.path .. output) then
+		msg.debug('Creating KrigBilateral Shader:', user_opts.path .. output)
+		pcall(io.popen, sed_command:format(offset.x, offset.y, user_opts.path .. 'KrigBilateral.glsl', user_opts.path .. output))
+	else
+		msg.debug('Using KrigBilateral Shader:', user_opts.path .. output)
+	end
+	return output
+end
+
+
+-------------------
+--- Shader Sets ---
+-------------------
 local sets = {}
+
+--	sets[#sets+1] = function()
+--		local s = {}
+--		-- Chroma
+--		s[#s+1] = krigbilateral(true)
+--		return { shaders = s, label = 'Krig' }
+--	end
 
 sets[#sets+1] = function()
 	local s = {}
@@ -59,7 +117,7 @@ sets[#sets+1] = function()
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
-	s[#s+1] = krigbilateral()
+	s[#s+1] = krigbilateral(true)
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
@@ -72,7 +130,7 @@ sets[#sets+1] = function()
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-r4.hook'
 	-- Chroma
-	s[#s+1] = krigbilateral()
+	s[#s+1] = krigbilateral(true)
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
@@ -80,9 +138,9 @@ sets[#sets+1] = function()
 end
 
 
----------------------------
---- MPV Shader Commands ---
----------------------------
+--------------------
+--- MPV Commands ---
+--------------------
 local function clear_shaders()
 	msg.debug('Clearing Shaders.')
 	mp.commandv('change-list', 'glsl-shaders', 'clr', '')
@@ -114,9 +172,9 @@ local function show_osd(no_osd, label)
 end
 
 
------------------
---- Listeners ---
------------------
+--------------------------
+--- Observers & Events ---
+--------------------------
 mp.register_event('file-loaded', function() 
 	opt.read_options(user_opts, mp.get_script_name())
 	reset()
@@ -126,13 +184,13 @@ local timer = mp.add_timeout(1, function() apply_shaders(sets[user_opts.set]().s
 timer:kill()
 for prop, _ in pairs(props) do
 	mp.observe_property(prop, 'native', function(_, v_new)
-		msg.debug('Property', prop, 'changed:', props[prop], '->', v_new)
+		msg.debug('Property', prop, 'changed:', (props[prop] ~= '') and props[prop] or 'n/a', '->', v_new)
 		
 		if v_new == nil or v_new == props[prop] then return end
 		props[prop] = v_new
 		
 		for _, value in pairs(props) do
-			if value == 0 then return end
+			if value == '' then return end
 		end
 
 		msg.debug('Resetting Timer')
