@@ -25,7 +25,7 @@
 
 #define axis 1
 
-#define Kernel(x)   dot(vec4(0.355768, -0.487396, 0.144232, -0.012604), cos(vec4(0.,1.,2.,3.)*acos(-1.0)*(x+1.)))
+#define Kernel(x)   (1. - abs(x))
 
 vec4 hook() {
     // Calculate bounds
@@ -62,7 +62,7 @@ vec4 hook() {
 
 #define axis 0
 
-#define Kernel(x)   dot(vec4(0.355768, -0.487396, 0.144232, -0.012604), cos(vec4(0.,1.,2.,3.)*acos(-1.0)*(x+1.)))
+#define Kernel(x)   (1. - abs(x))
 
 vec4 hook() {
     // Calculate bounds
@@ -98,8 +98,6 @@ vec4 hook() {
 //!OFFSET ${X_OFFSET} ${Y_OFFSET}
 //!DESC KrigBilateral Upscaling UV [Offset: ${X_OFFSET}, ${Y_OFFSET}]
 
-#define locality 50.0
-
 // -- Convenience --
 #define sqr(x)   dot(x,x)
 #define bitnoise 1.0/(2.0*255.0)
@@ -132,7 +130,7 @@ vec4 hook() {
 
     vec2 coords[N+1];
     vec4 X[N+1];
-    float y = 0.0;
+    float y = LUMA_texOff(0).x;
     vec4 total = vec4(0);
 
     coords[0] = vec2(-1,-1); coords[1] = vec2(-1, 0); coords[2] = vec2(-1, 1);
@@ -140,12 +138,10 @@ vec4 hook() {
     coords[6] = vec2( 1, 0); coords[7] = vec2( 1, 1); coords[8] = vec2( 0, 0);
 
     for (int i=0; i<N+1; i++) {
-        y += LUMA_texOff(coords[i]).x * pow(1.0/locality, float(sqr(coords[i])));
         X[i] = vec4(GetY(coords[i]), GetUV(coords[i]));
         vec2 w = clamp(1.5 - abs(coords[i] - offset), 0.0, 1.0);
         total += w.x*w.y*vec4(X[i].x, pow(X[i].x, 2.0), X[i].y, 1.0);
     }
-    y /= (1.0 + 4.0/locality + 4.0/pow(locality, 2.0));
     total.xyz /= total.w;
     float localVar = sqr(noise) + abs(total.y - pow(total.x, 2.0)) + total.z;
     float radius = 1.0;
