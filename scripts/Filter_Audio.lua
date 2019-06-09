@@ -22,9 +22,9 @@ insert(filter_list, {
 	default_on_load = true,
 	reset_on_load = true,
 	filters = {
-		'pan="stereo|FL = 0.500*FC + 0.707*FL + 0.707*BL + 0.500*LFE | FR = 0.500*FC + 0.707*FR + 0.707*BR + 0.500*LFE"', -- Downmix with LFE
-		'pan="stereo|FL = 0.707*FC + 1.000*FL + 0.707*BL + 0.000*LFE | FR = 0.707*FC + 1.000*FR + 0.707*BR + 0.000*LFE"', -- ATSC
-		'pan="stereo|FL = 1.000*FC + 0.300*FL + 0.300*BL + 0.000*LFE | FR = 1.000*FC + 0.300*FR + 0.300*BR + 0.000*LFE"', -- Robert Collier's Nightmode Dialogue
+		'pan="stereo|FL < 0.500*FC + 0.707*FL + 0.707*BL + 0.500*LFE | FR < 0.500*FC + 0.707*FR + 0.707*BR + 0.500*LFE"', -- Downmix with LFE
+		'pan="stereo|FL < 0.707*FC + 1.000*FL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*BR + 0.000*LFE"', -- ATSC
+		'pan="stereo|FL < 1.000*FC + 0.300*FL + 0.300*BL + 0.000*LFE | FR < 1.000*FC + 0.300*FR + 0.300*BR + 0.000*LFE"', -- Robert Collier's Nightmode Dialogue
 	},
 })
 
