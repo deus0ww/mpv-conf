@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-09
+-- deus0ww - 2019-06-10
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -17,14 +17,16 @@ insert(filter_list, {
 })
 
 insert(filter_list, {
-	name = 'Pan',
+	name = 'Downmix',
 	filter_type = 'audio',
 	default_on_load = true,
-	reset_on_load = true,
 	filters = {
-		'pan="stereo|FL < 0.500*FC + 0.707*FL + 0.707*BL + 0.500*LFE | FR < 0.500*FC + 0.707*FR + 0.707*BR + 0.500*LFE"', -- Downmix with LFE
-		'pan="stereo|FL < 0.707*FC + 1.000*FL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*BR + 0.000*LFE"', -- ATSC
-		'pan="stereo|FL < 1.000*FC + 0.300*FL + 0.300*BL + 0.000*LFE | FR < 1.000*FC + 0.300*FR + 0.300*BR + 0.000*LFE"', -- Robert Collier's Nightmode Dialogue
+		-- 0.707 = -3dB, 0.595 = -4.5dB, 0.500 = -6dB, 0.353 = -9dB
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.707*BR + 0.500*LFE"', -- ATSC + LFE
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*BR + 0.000*LFE"', -- ATSC
+		'pan="stereo| FL < 0.707*FC + 0.500*FL + 0.353*BL + 0.000*LFE | FR < 0.707*FC + 0.500*FR + 0.353*BR + 0.000*LFE"', -- Nightmode
+		
+		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz6.sofa:gain=10',
 	},
 })
 
