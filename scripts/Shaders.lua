@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-01
+-- deus0ww - 2019-06-08
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -128,6 +128,7 @@ local sets = {}
 --		local s = {}
 --		-- Chroma
 --		s[#s+1] = krigbilateral(true)
+--		s[#s+1] = 'KrigBilateral-auto.glsl'
 --		return { shaders = s, label = 'Krig' }
 --	end
 
@@ -137,7 +138,7 @@ sets[#sets+1] = function()
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
-	s[#s+1] = krigbilateral(true)
+	s[#s+1] = 'KrigBilateral-auto.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
@@ -148,7 +149,7 @@ sets[#sets+1] = function()
 	local s = {}
 	-- LUMA
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	s[#s+1] = 'ravu-r4.hook'
+	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
 	s[#s+1] = krigbilateral(true)
 	-- RGB
