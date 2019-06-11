@@ -95,8 +95,8 @@ vec4 hook() {
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!OFFSET ${X_OFFSET} ${Y_OFFSET}
-//!DESC KrigBilateral Upscaling UV [Offset: ${X_OFFSET}, ${Y_OFFSET}]
+//!OFFSET ALIGN
+//!DESC KrigBilateral Upscaling UV
 
 // -- Convenience --
 #define sqr(x)   dot(x,x)

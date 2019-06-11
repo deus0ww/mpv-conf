@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-08
+-- deus0ww - 2019-06-11
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -31,14 +31,7 @@ end
 local props, last_shaders
 local function reset()
 	props = {
-		['width'] = '',
-		['height'] = '',
-		['osd-width'] = 0,
-		['osd-height'] = 0,
 		['container-fps'] = '',
-		['video-params/rotate'] = '',
-		['video-params/pixelformat'] = '',
-		['video-params/chroma-location'] = '',
 	}
 	last_shaders = nil
 end
@@ -55,68 +48,7 @@ end
 --------------------
 --- Shader Utils ---
 --------------------
-local rotated_offset = { [-360] = {x = -0.5,  y =  0.0 },
-					     [-270] = {x =  0.0,  y = -0.5 },
-					     [-180] = {x =  0.5,  y =  0.0 },
-					     [ -90] = {x =  0.0,  y =  0.5 },
-					     [   0] = {x = -0.5,  y =  0.0 },
-					     [  90] = {x =  0.0,  y = -0.5 },
-					     [ 180] = {x =  0.5,  y =  0.0 },
-					     [ 270] = {x =  0.0,  y =  0.5 },
-					     [ 360] = {x = -0.5,  y =  0.0 }, }
-
-local function is_high_fps()          return props['container-fps'] > 33 end
-local function is_chroma_subsampled() return props['video-params/pixelformat']:find('444') == nil end
-local function is_chroma_left()       return props['video-params/chroma-location'] == 'mpeg2/4/h264' end
---local function is_chroma_center()     return props['video-params/chroma-location'] == 'mpeg1/jpeg'   end
-local function get_rotated_offset()   return rotated_offset[props['video-params/rotate']] end
-local function get_scale()
-	local width, height = props['width'], props['height']
-	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
-	return math.min( mp.get_property_native('osd-width', 0) / width, mp.get_property_native('osd-height', 0) / height )
-end
-
-local output_subdir = 'KrigBilateral/'
-local output_format = 'KrigBilateral%+.1f%+.1f.glsl'
-local mkdir_cmd     = 'mkdir -p %s'
-local sed_cmd       = 'sed -e \"s|\\${X_OFFSET}|%+.1f|\" -e \"s|\\${Y_OFFSET}|%+.1f|\" %s > %s'
-
-local function krigbilateral(has_prescalers)
-	local offset
-	if is_chroma_left() and is_chroma_subsampled() then
-		local scale, prescale = get_scale(), 1
-		if has_prescalers then
-			if     scale > 2.82843024 then prescale = 4 -- FSRCNNX + RAVU
-		 -- elseif scale > 2.12132269 then prescale = 3 -- Disabled: no 3x prescaler
-			elseif scale > 1.4        then prescale = 2 -- FSRCNNX
-			else                           prescale = 1 end
-		end
-		local rotated_offset = get_rotated_offset()
-		offset = { x = rotated_offset.x * prescale, y = rotated_offset.y * prescale }
-	else
-		offset = { x = 0, y = 0 }
-	end
-
-	local output = output_format:format(offset.x, offset.y)
-	local output_fullpath = user_opts.path .. output_subdir .. output
-	if not file_exists(output_fullpath) then
-		local success1, success2, result
-		success1, result = pcall(io.popen, mkdir_cmd:format(user_opts.path .. output_subdir))
-		if success1 then result:close() end
-		success2, result = pcall(io.popen, sed_cmd:format(offset.x, offset.y, user_opts.path .. 'KrigBilateral.glsl', output_fullpath))
-		if success2 then result:close() end
-		
-		if (success1 and success2) then
-			msg.debug('Creating KrigBilateral Shader:', output_fullpath)
-		else
-			msg.debug('Creating KrigBilateral Shader: failed')
-			return ''
-		end
-	else
-		msg.debug('Using KrigBilateral Shader:', output_fullpath)
-	end
-	return output_subdir .. output
-end
+local function is_high_fps() return props['container-fps'] > 33 end
 
 
 -------------------
@@ -127,35 +59,21 @@ local sets = {}
 --	sets[#sets+1] = function()
 --		local s = {}
 --		-- Chroma
---		s[#s+1] = krigbilateral(true)
---		s[#s+1] = 'KrigBilateral-auto.glsl'
+--		s[#s+1] = 'KrigBilateral.glsl'
 --		return { shaders = s, label = 'Krig' }
 --	end
 
 sets[#sets+1] = function()
 	local s = {}
-	-- LUMA
+	-- Luma
 	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
-	s[#s+1] = 'KrigBilateral-auto.glsl'
+	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
 	return { shaders = s, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS' }
-end
-
-sets[#sets+1] = function()
-	local s = {}
-	-- LUMA
-	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
-	s[#s+1] = 'ravu-lite-r4.hook'
-	-- Chroma
-	s[#s+1] = krigbilateral(true)
-	-- RGB
-	s[#s+1] = 'SSimSuperRes.glsl'
-	s[#s+1] = 'SSimDownscaler.glsl'
-	return { shaders = s, label = 'FSRCNNX + RAVU + Krig + SSimSR/DS' }
 end
 
 
