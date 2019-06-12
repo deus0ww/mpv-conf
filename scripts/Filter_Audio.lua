@@ -21,12 +21,12 @@ insert(filter_list, {
 	filter_type = 'audio',
 	default_on_load = true,
 	filters = {
-		-- 0.707 = -3dB, 0.595 = -4.5dB, 0.500 = -6dB, 0.353 = -9dB
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.707*BR + 0.500*LFE"', -- ATSC + LFE
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*BR + 0.000*LFE"', -- ATSC
-		'pan="stereo| FL < 0.707*FC + 0.500*FL + 0.353*BL + 0.000*LFE | FR < 0.707*FC + 0.500*FR + 0.353*BR + 0.000*LFE"', -- Nightmode
-		
-		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz6.sofa:gain=10',
+		-- 0.707 = -3dB, 0.595 = -4.5dB, 0.500 = -6dB, 0.353 = -9dB, 0.250 = -12dB
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.500*SL + 0.353*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.500*SR + 0.353*BR + 0.500*LFE"', -- ATSC + LFE
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.500*SL + 0.353*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.500*SR + 0.353*BR + 0.000*LFE"', -- ATSC
+		'pan="stereo| FL < 0.707*FC + 0.500*FL + 0.353*SL + 0.250*BL + 0.000*LFE | FR < 0.707*FC + 0.500*FR + 0.353*SR + 0.250*BR + 0.000*LFE"', -- Nightmode
+
+		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:gain=12:type=time:interpolate=yes',
 	},
 })
 
