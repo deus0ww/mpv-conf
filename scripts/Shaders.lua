@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-17
+-- deus0ww - 2019-06-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -74,7 +74,7 @@ sets[#sets+1] = function()
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
 	s[#s+1] = 'adaptive-sharpen.glsl'
-	return { shaders = s, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS' }
+	return { shaders = s, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function()
@@ -87,7 +87,7 @@ sets[#sets+1] = function()
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
-	return { shaders = s, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
+	return { shaders = s, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS' }
 end
 
 
