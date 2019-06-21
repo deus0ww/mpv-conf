@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-01
+-- deus0ww - 2019-06-21
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -462,6 +462,7 @@ end
 
 local function calculate_scale()
 	if (user_opts and user_opts.scale and user_opts.scale > 0) then return user_opts.scale end
+	if not osc_opts then return 1 end
 	return (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
 end
 
