@@ -1,12 +1,12 @@
--- deus0ww - 2019-06-25
+-- deus0ww - 2019-06-26
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
-local insert  = table.insert
 
 local filter_list = {}
+local function add(filter) filter_list[#filter_list+1] = filter end
 
-insert(filter_list, {
+add({
 	name = 'Format',
 	filter_type = 'audio',
 	default_on_load = true,
@@ -16,7 +16,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'DenoiseAudio',
 	filter_type = 'audio',
 	reset_on_load = true,
@@ -27,7 +27,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'HighPass',
 	filter_type = 'audio',
 	reset_on_load = true,
@@ -38,7 +38,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'LowPass',
 	filter_type = 'audio',
 	reset_on_load = true,
@@ -49,7 +49,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'Compressor',
 	filter_type = 'audio',
 	reset_on_load = false,
@@ -61,7 +61,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'Normalize',
 	filter_type = 'audio',
 	filters = {
@@ -69,7 +69,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'Downmix',
 	filter_type = 'audio',
 	default_on_load = true,
@@ -83,7 +83,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
 	default_on_load = true,
@@ -96,7 +96,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'ScaleTempo',
 	filter_type = 'audio',
 	filters = {
