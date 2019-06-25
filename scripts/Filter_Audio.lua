@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-24
+-- deus0ww - 2019-06-25
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -13,19 +13,6 @@ insert(filter_list, {
 	reset_on_load = true,
 	filters = {
 		'format=doublep:srate=96000',
-	},
-})
-
-insert(filter_list, {
-	name = 'Downmix',
-	filter_type = 'audio',
-	default_on_load = true,
-	filters = { -- -3dB=0.707, -6dB=0.500, -9dB=0.353, -12dB=0.250, -15dB=0.177
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.500*SL + 0.500*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.500*SR + 0.500*BR + 0.500*LFE"',
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.500*LFE"', -- ATSC + LFE
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.000*LFE"', -- ATSC
-		'pan="stereo| FL < 1.000*FC + 0.707*FL + 0.500*SL + 0.500*BL + 0.000*LFE | FR < 1.000*FC + 0.707*FR + 0.500*SR + 0.500*BR + 0.000*LFE"', -- Nightmode
-		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:gain=12:type=freq:interpolate=yes',
 	},
 })
 
@@ -45,9 +32,9 @@ insert(filter_list, {
 	filter_type = 'audio',
 	reset_on_load = true,
 	filters = {
-		'highpass=f=100',
-		'highpass=f=200',
-		'highpass=f=300',
+		'highpass=frequency=100',
+		'highpass=frequency=150',
+		'highpass=frequency=200',
 	},
 })
 
@@ -56,9 +43,43 @@ insert(filter_list, {
 	filter_type = 'audio',
 	reset_on_load = true,
 	filters = {
-		'lowpass=f=6000',
-		'lowpass=f=4500',
-		'lowpass=f=3000',
+		'lowpass=frequency=7500',
+		'lowpass=frequency=5000',
+		'lowpass=frequency=2500',
+	},
+})
+
+insert(filter_list, {
+	name = 'Compressor',
+	filter_type = 'audio',
+	reset_on_load = false,
+	filters = {
+		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|020/0', --  2:1
+		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|060/0', --  4:1
+		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|140/0', --  8:1
+		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|300/0', -- 16:1
+	},
+})
+
+insert(filter_list, {
+	name = 'Normalize',
+	filter_type = 'audio',
+	filters = {
+		'dynaudnorm=f=1000:m=20',
+	},
+})
+
+insert(filter_list, {
+	name = 'Downmix',
+	filter_type = 'audio',
+	default_on_load = true,
+	reset_on_load = false,
+	filters = { -- -3dB=0.707, -6dB=0.500, -9dB=0.353, -12dB=0.250, -15dB=0.177
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.500*SL + 0.500*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.500*SR + 0.500*BR + 0.500*LFE"',
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.500*LFE"', -- ATSC + LFE
+		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.000*LFE"', -- ATSC
+		'pan="stereo| FL < 1.000*FC + 0.707*FL + 0.500*SL + 0.500*BL + 0.000*LFE | FR < 1.000*FC + 0.707*FR + 0.500*SR + 0.500*BR + 0.000*LFE"', -- Nightmode
+		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:gain=12:type=freq:interpolate=yes',
 	},
 })
 
@@ -72,25 +93,6 @@ insert(filter_list, {
 		'extrastereo=m=1.50',
 		'extrastereo=m=1.75',
 		'extrastereo=m=2.00',
-	},
-})
-
-insert(filter_list, {
-	name = 'Compressor',
-	filter_type = 'audio',
-	filters = {
-		'acompressor=threshold=-25dB:ratio=02:attack=50:release=300:makeup=2dB:knee=10dB',
-		'acompressor=threshold=-25dB:ratio=04:attack=50:release=300:makeup=2dB:knee=10dB',
-		'acompressor=threshold=-25dB:ratio=08:attack=50:release=300:makeup=2dB:knee=10dB',
-		'acompressor=threshold=-25dB:ratio=16:attack=50:release=300:makeup=2dB:knee=10dB',
-	},
-})
-
-insert(filter_list, {
-	name = 'Normalize',
-	filter_type = 'audio',
-	filters = {
-		'dynaudnorm=f=1000:m=20',
 	},
 })
 
