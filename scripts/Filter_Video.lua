@@ -1,12 +1,12 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2019-06-26
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
-local insert  = table.insert
 
 local filter_list = {}
+local function add(filter) filter_list[#filter_list+1] = filter end
 
-insert(filter_list, {
+add({
 	name = 'Deinterlace',
 	filter_type = 'video',
 	filters = {
@@ -16,7 +16,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'PostProcess',
 	filter_type = 'video',
 	reset_on_load = false,
@@ -26,35 +26,21 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
-	name = 'PostProcessDenoise',
-	filter_type = 'video',
-	reset_on_load = false,
-	filters = {
-		'pp=tmpnoise|100|200|400',
-		'pp=tmpnoise|200|400|800',
-		'pp=tmpnoise|400|800|1600',
-		'pp=tmpnoise|800|1600|3200',
-		'pp=tmpnoise|1600|3200|6400',
-	},
-})
-
-insert(filter_list, {
+add({
 	name = 'DenoiseVideo',
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
-		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=1.00:chroma_tmp=0.75',
-		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=2.00:chroma_tmp=1.50',
-		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=4.00:chroma_tmp=3.00',
-		'hqdn3d=luma_spatial=0.00:chroma_spatial=0.00:luma_tmp=6.00:chroma_tmp=4.50',
-		'hqdn3d=luma_spatial=1.00:chroma_spatial=0.75:luma_tmp=8.00:chroma_tmp=6.00',
-		'hqdn3d=luma_spatial=2.00:chroma_spatial=1.50:luma_tmp=8.00:chroma_tmp=6.00',
-		'hqdn3d=luma_spatial=4.00:chroma_spatial=3.00:luma_tmp=8.00:chroma_tmp=6.00',
+		'atadenoise=0a=0.02:1b=0.02:2b=0.02:s=5',
+		'atadenoise=0a=0.04:1b=0.04:2b=0.04:s=5',
+		'atadenoise=0a=0.08:1b=0.08:2b=0.08:s=7',
+		-- Not Temporal: removegrain
+		-- Too Blurred:  hqdn3d
+		-- Too Slow:     bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'Noise',
 	filter_type = 'video',
 	filters = {
@@ -68,7 +54,7 @@ insert(filter_list, {
 	},
 })
 
-insert(filter_list, {
+add({
 	name = 'Invert',
 	filter_type = 'video',
 	filters = {
