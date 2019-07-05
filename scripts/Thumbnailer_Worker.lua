@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-31
+-- deus0ww - 2019-07-05
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -129,7 +129,7 @@ local function subprocess_result(sub_success, result, mpv_error, subprocess_name
 
 	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), start_time)))
 	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
-	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr) end
+	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr, '| Time:', ('%ds'):format(os.difftime(os.time(), start_time))) end
 	return success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr
 end
 
@@ -137,7 +137,7 @@ local function run_subprocess(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
 	msg.debug('Subprocess', subprocess_name, 'Starting...')
-	result, mpv_error = mp.command_native( {name='subprocess', args=command} )
+	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
 	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
 end
@@ -233,9 +233,9 @@ local function add_timeout(args)
 	local timeout = worker_options.worker_timeout and worker_options.worker_timeout or 0
 	if timeout == 0 then return #args end
 	if OPERATING_SYSTEM == OS_MAC then
-		add_args(args, 'gtimeout', ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
+		add_args(args, 'gtimeout', ('--kill-after=%d'):format(timeout), ('%d'):format(timeout + 2))
 	elseif OPERATING_SYSTEM == OS_NIX then
-		add_args(args, 'timeout',  ('--kill-after=%d'):format(timeout * 0.25 + 2), ('%d'):format(timeout + 2))
+		add_args(args, 'timeout',  ('--kill-after=%d'):format(timeout), ('%d'):format(timeout + 2))
 	elseif OPERATING_SYSTEM == OS_WIN then
 		-- unimplemented
 	end
@@ -324,6 +324,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, video_filters)
 		-- Output
 		concat_args(args, '--of=rawvideo')
+		concat_args(args, '--ocopy-metadata=no')
 		concat_args(args, '--o')
 		worker_extra.index_output = concat_args(args, output)
 	end
@@ -360,8 +361,9 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_args(args, '-loglevel', 'warning')
 		-- Input
 		add_args(args, '-threads', worker_options.ffmpeg_threads)
-		--add_args(args, '-fflags', 'fastseek')
+		add_args(args, '-fflags', 'fastseek')
 		add_args(args, '-flags2', 'fast')
+		if worker_options.worker_timeout > 0 then add_args(args, '-timelimit', ceil(worker_options.worker_timeout)) end
 		add_args(args, '-analyzeduration', tostring(100000))
 		add_args(args, '-probesize', tostring(500000))
 		worker_extra.index_fastseek   = add_args(args, '-fflags',           accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
@@ -373,6 +375,8 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_args(args, '-guess_layout_max', '0')
 		add_args(args, '-an', '-sn')
 		add_args(args, '-i', state.input_fullpath)
+		add_args(args, '-map_metadata', '-1')
+		add_args(args, '-map_chapters', '-1')
 		add_args(args, '-frames:v', '1')
 		-- Filters
 		add_args(args, '-filter_threads', worker_options.ffmpeg_threads)
@@ -428,7 +432,23 @@ local function report_progress(index, new_status)
 	end
 end
 
-local function create_thumbnail()
+local function set_encoder(encoder)
+	if encoder == 'ffmpeg' then
+		worker_extra.create_command = create_ffmpeg_command
+	else
+		worker_extra.create_command = create_mpv_command
+		if state.is_remote then hack_input() end
+	end
+	worker_extra.args = nil
+end
+
+
+local function create_thumbnail(time, fullpath)
+	return (run_subprocess(worker_extra.create_command(time, fullpath, false)) and check_existing(fullpath)) or
+	       (run_subprocess(worker_extra.create_command(time, fullpath, true))  and check_existing(fullpath))
+end
+
+local function process_thumbnail()
 	if #work_queue == 0 then return end
 	local worker_stats = worker_stats
 	local status       = message.processing
@@ -436,38 +456,57 @@ local function create_thumbnail()
 	local output       = (state.cache_format):format(time)
 	local fullpath     = join_paths(state.cache_dir, output) .. state.cache_extension
 	report_progress (time, status)
+
+	-- Check for existing thumbnail to avoid generation
 	if check_existing(fullpath) then
 		worker_stats.existing = worker_stats.existing + 1
-		status = message.ready
-	elseif run_subprocess(worker_extra.create_command(time, fullpath)) then
-		if not check_existing(fullpath) then run_subprocess(worker_extra.create_command(time, fullpath, true)) end
-		if not check_existing(fullpath) then pad_file(fullpath) end
-		if not check_existing(fullpath) then
-			worker_stats.failed = worker_stats.failed + 1
-			status = message.failed
-		else
+		worker_stats.queued = worker_stats.queued - 1
+		report_progress (time, message.ready)
+		return
+	end
+	-- Generate the thumbnail
+	if create_thumbnail(time, fullpath) then
+		worker_stats.success = worker_stats.success + 1
+		worker_stats.queued = worker_stats.queued - 1
+		report_progress (time, message.ready)
+		return
+	end
+	-- Switch to MPV when FFMPEG fails
+	if worker_options.encoder == 'ffmpeg' then
+		set_encoder('mpv')
+		if create_thumbnail(time, fullpath) then
 			worker_stats.success = worker_stats.success + 1
-			status = message.ready
+			worker_stats.queued = worker_stats.queued - 1
+			report_progress (time, message.ready)
+			return
 		end
+	end
+	-- If the thumbnail is incomplete, pad it
+	if not check_existing(fullpath) then pad_file(fullpath) end
+	-- Final check
+	if check_existing(fullpath) then
+		worker_stats.success = worker_stats.success + 1
+		worker_stats.queued = worker_stats.queued - 1
+		report_progress (time, message.ready)
 	else
 		worker_stats.failed = worker_stats.failed + 1
-		status = message.failed
+		worker_stats.queued = worker_stats.queued - 1
+		report_progress (time, message.failed)
 	end
-	worker_stats.queued = worker_stats.queued - 1
-	report_progress (time, status)
 end
 
 local function process_queue()
 	if not work_queue then return end
 	for _ = 1, #work_queue do
 		if stop_file_exist() then report_progress() break end
-		create_thumbnail()
+		process_thumbnail()
 	end
 	report_progress()
 	if #work_queue == 0 then mp.command_native({'script-message', message.worker.finish, format_json(worker_stats)}) end
 end
 
 local function create_queue()
+	set_encoder(worker_options.encoder)
 	work_queue = {}
 	local worker_data, work_queue, worker_stats = worker_data, work_queue, worker_stats
 	local time, output, report_queue, used_frames = 0, '', {}, {}
@@ -503,8 +542,6 @@ mp.register_script_message(message.worker.queue, function(json)
 	if new_data.state then state = new_data.state end
 	if new_data.worker_options then worker_options = new_data.worker_options end
 	if new_data.start_time_index then worker_data.start_time_index = new_data.start_time_index end
-	worker_extra.create_command = worker_options.encoder == 'ffmpeg' and create_ffmpeg_command or create_mpv_command
-	if worker_extra.create_command == create_mpv_command and state.is_remote then hack_input() end
 	if not worker_extra.filesize then worker_extra.filesize = (state.width * state.height * 4) end
 	create_queue()
 end)

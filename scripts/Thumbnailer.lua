@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-21
+-- deus0ww - 2019-07-05
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -120,7 +120,7 @@ local function run_subprocess(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
 	msg.debug('Subprocess', subprocess_name, 'Starting...')
-	result, mpv_error = mp.command_native( {name='subprocess', args=command} )
+	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
 	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
 end
@@ -191,38 +191,41 @@ local saved_state, state
 
 local user_opts = {
 	-- General
-	auto_gen             = true,               -- Auto generate thumbnails
-	auto_show            = true,               -- Show thumbnails by default
-	auto_delete          = false,              -- Delete the thumbnail cache on quit. Use at your own risk.
+	auto_gen              = true,               -- Auto generate thumbnails
+	auto_show             = true,               -- Show thumbnails by default
+	auto_delete           = false,              -- Delete the thumbnail cache on quit. Use at your own risk.
 
 	-- Paths
-	cache_dir            = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
-	worker_script_path   = '',                 -- Only needed if the script can't auto-locate the file to load more workers
+	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
+	worker_script_path    = '',                 -- Only needed if the script can't auto-locate the file to load more workers
 
 	-- Thumbnail
-	dimension            = 320,                -- Max width and height before scaling
-	thumbnail_count      = 192,                -- Try to create this many thumbnails within the delta limits below
-	min_delta            = 3,                  -- Minimum time between thumbnails (seconds)
-	max_delta            = 30,                 -- Maximum time between thumbnails (seconds)
-	remote_delta_factor  = 2.0,                -- Multiply delta by this for remote streams
-
+	dimension             = 320,                -- Max width and height before scaling
+	thumbnail_count       = 192,                -- Try to create this many thumbnails within the delta limits below
+	min_delta             = 3,                  -- Minimum time between thumbnails (seconds)
+	max_delta             = 30,                 -- Maximum time between thumbnails (seconds)
+	remote_delta_factor   = 2,                  -- Multiply delta by this for remote streams
+	bitrate_delta_factor  = 2,                  -- Multiply delta by this for remote streams
+	bitrate_threshold     = 8,                  -- The threshold to consider a source to be high bitrate (Mbps)
+	
 	-- OSC
-	spacer               = 2,                  -- Size of borders and spacings
-	show_progress        = 1,                  -- Display the thumbnail-ing progress. (0=never, 1=while generating, 2=always)
-	scale                = 0,                  -- 0=Use OSC scaling, 1=No scaling, 2=Retina/HiDPI. For 0, it is recommended to set scalefullscreen = scalewindowed to avoid regenerations.
-	centered             = false,              -- Center the thumbnail on screen
-	update_time          = 0.5,                -- Fastest time interval between updating the OSC with new thumbnails
+	spacer                = 2,                  -- Size of borders and spacings
+	show_progress         = 1,                  -- Display the thumbnail-ing progress. (0=never, 1=while generating, 2=always)
+	scale                 = 0,                  -- 0=Use OSC scaling, 1=No scaling, 2=Retina/HiDPI. For 0, it is recommended to set scalefullscreen = scalewindowed to avoid regenerations.
+	centered              = false,              -- Center the thumbnail on screen
+	update_time           = 0.5,                -- Fastest time interval between updating the OSC with new thumbnails
 
 	-- Worker
-	max_workers          = 4,                  -- Number of active workers. Must have at least one copy of the worker script alongside this script.
-	remote_worker_factor = 1,                  -- Multiply max_workers by this for remote streams
-	worker_delay         = 0.5,                -- Delay between starting workers (seconds)
-	worker_timeout       = 0,                  -- Timeout before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only). Standardized at 720p and linearly scaled with resolution.
-	accurate_seek        = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
-	use_ffmpeg           = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
-	prefer_ffmpeg        = false,              -- Use FFMPEG when available
-	ffmpeg_threads       = 1,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
-	ffmpeg_scaler        = 'bicubic',          -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
+	max_workers           = 4,                  -- Number of active workers. Must have at least one copy of the worker script alongside this script.
+	worker_remote_factor  = 0.5,                -- Multiply max_workers by this for remote streams or when MPV enables cache
+	worker_bitrate_factor = 0.5,                -- Multiply max_workers by this for high bitrate sources. Set threshold with bitrate_threshold
+	worker_delay          = 0.5,                -- Delay between starting workers (seconds)
+	worker_timeout        = 3,                  -- Timeout before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only). Standardized at 720p and linearly scaled with resolution.
+	accurate_seek         = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
+	use_ffmpeg            = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
+	prefer_ffmpeg         = false,              -- Use FFMPEG when available
+	ffmpeg_threads        = 1,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
+	ffmpeg_scaler         = 'bicubic',          -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
 }
 
 local thumbnails, thumbnails_new,thumbnails_new_count
@@ -255,7 +258,7 @@ end
 local function worker_set_options()
 	return {
 		encoder        = (not state.is_remote and (user_opts.use_ffmpeg and exec_exist('ffmpeg') and (user_opts.prefer_ffmpeg or not state.is_slow))) and 'ffmpeg' or 'mpv',
-		worker_timeout = ((state.dw * state.dh) / 921600) * user_opts.worker_timeout,
+		worker_timeout = state.worker_timeout,
 		accurate_seek  = user_opts.accurate_seek,
 		use_ffmpeg     = user_opts.use_ffmpeg,
 		ffmpeg_threads = user_opts.ffmpeg_threads,
@@ -444,20 +447,23 @@ local function create_ouput_dir(subpath, dimension, rotate)
 	return path
 end
 
-local function is_slow_source(duration)
+local function is_slow_source()
 	local demux_state   = mp.get_property_native('demuxer-cache-state', {})
 	local demux_ranges  = demux_state['seekable-ranges'] and #demux_state['seekable-ranges'] or 0
 	local cache_enabled = (demux_ranges > 0) -- Using MPV's logic for enabling the cache to detect slow sources.
-	local high_bitrate  = (mp.get_property_native('file-size', 0) / duration) >= (12 * 131072) -- 12 Mbps
-	return cache_enabled or high_bitrate
+	return cache_enabled
 end
 
 local function calculate_timing(is_remote)
-	local duration = mp.get_property_native('duration', 0)
-	if duration == 0 then return { duration = 0, delta = huge } end
-	local delta_target = (is_remote and user_opts.remote_delta_factor or 1) * (saved_state.delta_factor and saved_state.delta_factor or 1) * duration / (user_opts.thumbnail_count - 1)
-	local delta = max(user_opts.min_delta, min(user_opts.max_delta, delta_target))
-	return { duration = duration, delta = delta }
+	local duration, file_size  = mp.get_property_native('duration', 0), mp.get_property_native('file-size', 0)
+	if duration == 0 or file_size == 0 then return { duration = 0, delta = huge, high_bitrate = false } end
+	local delta_target   = duration / (user_opts.thumbnail_count - 1)
+	local remote_factor  = is_remote and user_opts.remote_delta_factor or 1
+	local saved_factor   = saved_state.delta_factor or 1
+	local high_bitrate   = (file_size / duration) >= (user_opts.bitrate_threshold * 131072)
+	local bitrate_factor = high_bitrate and user_opts.bitrate_delta_factor or 1
+	local delta = max(user_opts.min_delta, min(user_opts.max_delta, delta_target)) * remote_factor * saved_factor * bitrate_factor
+	return { duration = duration, delta = delta, high_bitrate = high_bitrate }
 end
 
 local function calculate_scale()
@@ -484,8 +490,18 @@ local function calculate_geometry(scale)
 	return geometry
 end
 
-local function calculate_worker_limit(duration, delta, is_remote, is_slow)
-	return max(floor(min(user_opts.max_workers, duration/delta) * ((is_remote or is_slow ) and user_opts.remote_worker_factor or 1) + 0.5), 1)
+local function calculate_worker_limit(duration, delta, is_remote, is_slow, is_high_bitrate)
+	local remote_factor  = (is_remote or is_slow) and user_opts.worker_remote_factor or 1
+	local bitrate_factor = is_high_bitrate and user_opts.worker_bitrate_factor or 1
+	return max(floor(min(user_opts.max_workers, duration / delta) * remote_factor * bitrate_factor), 1)
+end
+
+local function calculate_worker_timeout(width, height, is_remote, is_slow, is_high_bitrate)
+	if user_opts.worker_timeout == 0 then return 0 end
+	local worker_timeout = ((width * height) / 921600) * user_opts.worker_timeout
+	if (is_remote or is_slow) then worker_timeout = worker_timeout * 2 end
+	if is_high_bitrate        then worker_timeout = worker_timeout * 2 end
+	return ceil(worker_timeout)
 end
 
 local function has_video()
@@ -508,8 +524,9 @@ local function state_init()
 	local geometry        = calculate_geometry(scale)
 	local meta_rotated    = saved_state.meta_rotated
 	local cache_dir       = create_ouput_dir(input_filename, geometry.dimension, geometry.rotate)
-	local is_slow         = is_slow_source(timing.duration)
-	local max_workers     = calculate_worker_limit(timing.duration, timing.delta, is_remote, is_slow)
+	local is_slow         = is_slow_source()
+	local worker_timeout  = calculate_worker_timeout(geometry.width, geometry.height, is_remote, is_slow, timing.is_high_bitrate)
+	local max_workers     = calculate_worker_limit(timing.duration, timing.delta, is_remote, is_slow, timing.is_high_bitrate)
 	local tn_max          = floor(timing.duration / timing.delta) + 1
 	local tn_per_worker   = tn_max / max_workers
 	local worker_buffer   = 2
@@ -537,6 +554,7 @@ local function state_init()
 		tn_max          = tn_max,
 		tn_per_worker   = tn_per_worker,
 		max_workers     = max_workers,
+		worker_timeout  = worker_timeout,
 		worker_buffer   = worker_buffer,
 		osc_buffer      = osc_buffer,
 	}
