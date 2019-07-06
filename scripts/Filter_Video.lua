@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-26
+-- deus0ww - 2019-07-06
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -31,12 +31,14 @@ add({
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
-		'atadenoise=0a=0.02:1b=0.02:2b=0.02:s=5',
-		'atadenoise=0a=0.04:1b=0.04:2b=0.04:s=5',
-		'atadenoise=0a=0.08:1b=0.08:2b=0.08:s=7',
-		-- Not Temporal: removegrain
+		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '5'),
+		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '5'),
+		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.08'):gsub('B', '0.16'):gsub('S', '7'),
+		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.16'):gsub('B', '0.32'):gsub('S', '9'),
+		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.32'):gsub('B', '0.64'):gsub('S', '11'),
 		-- Too Blurred:  hqdn3d
-		-- Too Slow:     bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
+		-- Not Temporal: removegrain
+		-- Not Realtime: bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 	},
 })
 

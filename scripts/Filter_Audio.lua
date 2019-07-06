@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-01
+-- deus0ww - 2019-07-06
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -21,9 +21,11 @@ add({
 	filter_type = 'audio',
 	reset_on_load = true,
 	filters = {
-		'afftdn=nr=12:nf=-42',
-		'afftdn=nr=18:nf=-36',
-		'afftdn=nr=24:nf=-30',
+		'afftdn=nr=12:nf=-48',
+		'afftdn=nr=18:nf=-42',
+		'afftdn=nr=24:nf=-36',
+		'afftdn=nr=30:nf=-36',
+		'afftdn=nr=36:nf=-36',
 	},
 })
 
