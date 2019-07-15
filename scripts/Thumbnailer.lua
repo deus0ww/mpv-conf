@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-05
+-- deus0ww - 2019-07-15
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
