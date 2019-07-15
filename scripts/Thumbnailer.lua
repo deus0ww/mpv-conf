@@ -193,7 +193,7 @@ local user_opts = {
 	-- General
 	auto_gen              = true,               -- Auto generate thumbnails
 	auto_show             = true,               -- Show thumbnails by default
-	auto_delete           = false,              -- Delete the thumbnail cache on quit. Use at your own risk.
+	auto_delete           = 0,                  -- Delete the thumbnail cache. Use at your own risk. 0=No, 1=On file close, 2=When quiting
 
 	-- Paths
 	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
@@ -438,13 +438,15 @@ local function hash_string(input)
 	return line and line:match('%w+') or input
 end
 
-local function create_ouput_dir(subpath, dimension, rotate)
-	local path = join_paths(user_opts.cache_dir, subpath, dimension, rotate)
-	if not create_dir(path) then
-		path = join_paths(user_opts.cache_dir, hash_string(subpath), dimension, rotate)
-		if not create_dir(path) then path = nil end
+local function create_ouput_dir(filename, dimension, rotate)
+	local basepath = join_paths(user_opts.cache_dir, filename)
+	if not create_dir(basepath) then
+		basepath = join_paths(user_opts.cache_dir, hash_string(filename))
+		if not create_dir(basepath) then return {basepath = nil, fullpath = nil} end
 	end
-	return path
+	local fullpath = join_paths(basepath, dimension, rotate)
+	if not create_dir(fullpath) then return { basepath = nil, fullpath = nil } end
+	return {basepath = basepath, fullpath = fullpath}
 end
 
 local function is_slow_source()
@@ -534,7 +536,8 @@ local function state_init()
 
 	-- Global State
 	state = {
-		cache_dir       = cache_dir,
+		cache_dir       = cache_dir.fullpath,
+		cache_dir_base  = cache_dir.basepath,
 		cache_format    = cache_format,
 		cache_extension = cache_extension,
 		input_fullpath  = input_fullpath,
@@ -595,6 +598,26 @@ local function is_thumbnailable()
 		if not value then return false end
 	end
 	return true
+end
+
+local auto_delete = nil
+
+local function delete_cache_dir()
+	if auto_delete or ((auto_delete == nil) and (user_opts.auto_delete > 0)) then 
+		local path = user_opts.cache_dir
+		msg.debug('Clearing Cache on Shutdown:', path)
+		if path:len() < 16 then return end
+		delete_dir(path)
+	end
+end
+
+local function delete_cache_subdir()
+	if (auto_delete or ((auto_delete == nil) and (user_opts.auto_delete == 1))) and state then
+		local path = state.cache_dir_base
+		msg.debug('Clearing Cache for File:', path)
+		if path:len() < 16 then return end
+		delete_dir(path)
+	end
 end
 
 local function reset_all(keep_saved, keep_osc_data)
@@ -694,7 +717,6 @@ mp.register_script_message(message.enlarge, function()
 end)
 
 -- Binding - Toggle Auto Delete
-local auto_delete = nil
 mp.register_script_message(message.auto_delete, function()
 	if auto_delete == nil then auto_delete = user_opts.auto_delete end
 	auto_delete = not auto_delete
@@ -709,14 +731,15 @@ end)
 mp.observe_property('video-params', 'native', function(_, video_params)
 	if not video_params or is_empty(video_params.dw, video_params.dh) then return end
 	if not saved_state or (saved_state.input_fullpath ~= mp.get_property_native('path', '')) then
+		delete_cache_subdir()
 		reset_all()
-		saved_state.video_params   = video_params
+		saved_state.video_params = video_params
 		start(not user_opts.auto_gen)
 		return
 	end
 	if initialized and saved_state and saved_state.video_params and saved_state.video_params.rotate and video_params.rotate and tostring(saved_state.video_params.rotate) ~= tostring(video_params.rotate) then
 		reset_all(true)
-		saved_state.video_params  = video_params
+		saved_state.video_params = video_params
 		start()
 		return
 	end
@@ -736,13 +759,7 @@ mp.observe_property('fullscreen', 'native', function(_, fullscreen)
 end)
 
 -- On Shutdown
-mp.register_event('shutdown', function()
-	if auto_delete or ((auto_delete == nil) and user_opts.auto_delete) then 
-		local path = user_opts.cache_dir
-		if path:len() < script_name:len() then return end
-		delete_dir(path)
-	end
-end)
+mp.register_event('shutdown', delete_cache_dir)
 
 
 -------------------
