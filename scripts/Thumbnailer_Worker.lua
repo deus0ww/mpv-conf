@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-05
+-- deus0ww - 2019-07-22
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -364,8 +364,8 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_args(args, '-fflags', 'fastseek')
 		add_args(args, '-flags2', 'fast')
 		if worker_options.worker_timeout > 0 then add_args(args, '-timelimit', ceil(worker_options.worker_timeout)) end
-		add_args(args, '-analyzeduration', tostring(100000))
-		add_args(args, '-probesize', tostring(500000))
+		add_args(args, '-analyzeduration', '500000')  -- Default: 5000000
+		add_args(args, '-probesize', '500000')        -- Default: 5000000
 		worker_extra.index_fastseek   = add_args(args, '-fflags',           accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
 		worker_extra.index_accurate   = add_args(args,                      accurate_seek and '-accurate_seek' or '-noaccurate_seek')
 		worker_extra.index_skip_loop  = add_args(args, '-skip_loop_filter', accurate_seek and 'noref' or 'nokey')
@@ -394,7 +394,7 @@ end
 
 -- From https://github.com/TheAMM/mpv_thumbnail_script
 local function hack_input()
-	msg.info('Hacking Input...')
+	msg.debug('Hacking Input...')
 	local file_path = mp.get_property_native('stream-path')
 	local playlist_filename = join_paths(state.cache_dir, 'playlist.txt')
 	worker_extra.ytdl = false

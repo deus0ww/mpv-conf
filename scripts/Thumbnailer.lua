@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-15
+-- deus0ww - 2019-07-22
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -220,7 +220,7 @@ local user_opts = {
 	worker_remote_factor  = 0.5,                -- Multiply max_workers by this for remote streams or when MPV enables cache
 	worker_bitrate_factor = 0.5,                -- Multiply max_workers by this for high bitrate sources. Set threshold with bitrate_threshold
 	worker_delay          = 0.5,                -- Delay between starting workers (seconds)
-	worker_timeout        = 3,                  -- Timeout before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only). Standardized at 720p and linearly scaled with resolution.
+	worker_timeout        = 4,                  -- Timeout before killing encoder. 0=No Timeout (Linux or Mac w/ coreutils installed only). Standardized at 720p and linearly scaled with resolution.
 	accurate_seek         = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
 	use_ffmpeg            = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
 	prefer_ffmpeg         = false,              -- Use FFMPEG when available
@@ -412,13 +412,13 @@ local worker_script_path
 
 local function create_workers()
 	local workers_requested = (state and state.max_workers) and state.max_workers or user_opts.max_workers
-	msg.info('Workers Available:', #workers_indexed)
-	msg.info('Workers Requested:', workers_requested)
-	msg.info('worker_script_path:', worker_script_path)
+	msg.debug('Workers Available:', #workers_indexed)
+	msg.debug('Workers Requested:', workers_requested)
+	msg.debug('worker_script_path:', worker_script_path)
 	local missing_workers = workers_requested - #workers_indexed
 	if missing_workers > 0 and worker_script_path ~= nil and worker_script_path ~= '' then
 		for _ = 1, missing_workers do
-			msg.info('Recruiting Worker...')
+			msg.debug('Recruiting Worker...')
 			mp.command_native({'load-script', worker_script_path})
 		end
 	end
@@ -630,7 +630,7 @@ local function reset_all(keep_saved, keep_osc_data)
 	opt.read_options(user_opts, script_name)
 	if not keep_saved or not saved_state then saved_state_init() end
 	if not keep_osc_data then osc_reset() else osc_reset_stats() end
-	msg.info('Reset (' .. (keep_saved and 'Soft' or 'Hard') .. ', ' .. (keep_osc_data and 'OSC-Partial' or 'OSC-All') .. ')')
+	msg.debug('Reset (' .. (keep_saved and 'Soft' or 'Hard') .. ', ' .. (keep_osc_data and 'OSC-Partial' or 'OSC-All') .. ')')
 end
 
 local function run_generation(paused)
@@ -771,7 +771,7 @@ mp.register_script_message(message.osc.registration, function(json)
 	if osc_reg and osc_reg.script_name and osc_reg.osc_opts and not (osc_name and osc_opts) then
 		osc_name = osc_reg.script_name
 		osc_opts = osc_reg.osc_opts
-		msg.info('OSC Registered:', utils.to_string(osc_reg))
+		msg.debug('OSC Registered:', utils.to_string(osc_reg))
 	else
 		msg.warn('OSC Not Registered:', utils.to_string(osc_reg))
 	end
@@ -779,7 +779,7 @@ end)
 
 -- Listen for OSC Finish
 mp.register_script_message(message.osc.finish, function()
-	msg.info('OSC: Finished.')
+	msg.debug('OSC: Finished.')
 	osc_delta_update_timer:kill()
 	osc_full_update_timer:kill()
 end)
@@ -793,9 +793,9 @@ mp.register_script_message(message.worker.registration, function(new_reg)
 		if (is_empty(worker_script_path)) and not is_empty(worker_reg.script_path) then
 			worker_script_path = worker_reg.script_path
 			create_workers()
-			msg.info('Worker Script Path Recieved:', worker_script_path)
+			msg.debug('Worker Script Path Recieved:', worker_script_path)
 		end
-		msg.info('Worker Registered:', worker_reg.name)
+		msg.debug('Worker Registered:', worker_reg.name)
 	else
 		msg.warn('Worker Not Registered:', worker_reg.name)
 	end
@@ -821,12 +821,12 @@ mp.register_script_message(message.worker.finish, function(json)
 	if worker_stats.name and worker_stats.queued == 0 and not workers_finished[worker_stats.name] then
 		workers_finished[worker_stats.name] = true
 		workers_finished_indexed[#workers_finished_indexed + 1] = worker_stats.name
-		msg.info('Worker Finished:', worker_stats.name, json)
+		msg.debug('Worker Finished:', worker_stats.name, json)
 	else
 		msg.warn('Worker Finished (uncounted):', worker_stats.name, json)
 	end
 	if #workers_finished_indexed >= state.max_workers then
-		msg.info('All Workers: Done.')
+		msg.debug('All Workers: Done.')
 		osc_delta_update_timer:kill()
 		osc_delta_update(true)
 		osc_full_update_timer:resume()
