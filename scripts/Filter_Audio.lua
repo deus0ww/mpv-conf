@@ -81,7 +81,8 @@ add({
 	name = 'Normalize',
 	filter_type = 'audio',
 	filters = {
-		'dynaudnorm=f=250:g=11:m=12:p=0.8:r=0.8'
+		-- 'dynaudnorm=f=250:g=11:m=12:p=0.8:r=0.8',
+		'dynaudnorm=framelen=250:gausssize=11:maxgain=12:peak=0.8:targetrms=0.8'
 	},
 })
 
