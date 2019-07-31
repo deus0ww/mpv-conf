@@ -215,5 +215,8 @@ local function reset_and_set_defaults()
 end
 
 mp.register_event('file-loaded', function() mp.add_timeout(0.050, reset_and_set_defaults) end)
-mp.observe_property('video-params/rotate', 'native', function() mp.add_timeout(0.050, set_defaults) end)
 mp.register_script_message('Defaults', set_defaults)
+mp.observe_property('video-params/rotate', 'native', function(_, rotate) 
+	if not rotate then return end
+	mp.add_timeout(0.050, set_defaults)
+end)
