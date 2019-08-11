@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-31
+-- deus0ww - 2019-08-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -13,7 +13,8 @@ local utils   = require 'mp.utils'
 local opts = {
 	screen_width          = 2560,
 	screen_height         = 1440,
-	
+	scale_factor          = 1,	   -- 1=Non-Retina, 2=Retina
+
 	default_resize_type   = 2,     -- 0=Off, 1=Absolute, 2=Percent of Screen, 3=Percent of Video
 	default_resize_width  = 50, 
 	default_resize_height = 50,
@@ -58,8 +59,8 @@ local rotate_initial = 0
 local rotate_current = 0
 
 mp.observe_property('fullscreen', 'native', function(_, fs)     fullscreen = fs or false end)
-mp.observe_property('osd-width',  'native', function(_, width)  osd_width  = width  or 0 end)
-mp.observe_property('osd-height', 'native', function(_, height) osd_height = height or 0 end)
+mp.observe_property('osd-width',  'native', function(_, width)  osd_width  = width  and (width  / opts.scale_factor) or 0 end)
+mp.observe_property('osd-height', 'native', function(_, height) osd_height = height and (height / opts.scale_factor) or 0 end)
 mp.observe_property('video-params/rotate', 'native', function(_, rotate) rotate_current = rotate or 0 end)
 mp.observe_property('video-params/dw',     'native', function(_, width)  video_width    = width  or 0 end)
 mp.observe_property('video-params/dh',     'native', function(_, height) video_height   = height or 0 end)
