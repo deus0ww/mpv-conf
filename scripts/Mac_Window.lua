@@ -1,4 +1,4 @@
--- deus0ww - 2019-08-12
+-- deus0ww - 2019-08-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -47,10 +47,19 @@ local function sanitize(input, min, max, default, no_rounding)
 	return no_rounding and input or (input < 0 and math.ceil(input - 0.5) or math.floor(input + 0.5))
 end
 
+local function cmd_result(cmd, success, result, err)
+	if success then msg.debug(cmd, 'succeeded:', utils.to_string(result))
+	else msg.debug(cmd, 'failed:', utils.to_string(err)) end
+end
+
+
+
+----------------
+-- Properties --
+----------------
 local resized_width  = 0
 local resized_height = 0
 
-local fullscreen   = false
 local osd_width    = 0
 local osd_height   = 0
 local video_width  = 0
@@ -58,12 +67,13 @@ local video_height = 0
 local rotate_initial = 0
 local rotate_current = 0
 
-mp.observe_property('fullscreen', 'native', function(_, fs)     fullscreen = fs or false end)
 mp.observe_property('osd-width',  'native', function(_, width)  osd_width  = width  and (width  / opts.scale_factor) or 0 end)
 mp.observe_property('osd-height', 'native', function(_, height) osd_height = height and (height / opts.scale_factor) or 0 end)
-mp.observe_property('video-params/rotate', 'native', function(_, rotate) rotate_current = rotate or 0 end)
 mp.observe_property('video-params/dw',     'native', function(_, width)  video_width    = width  or 0 end)
 mp.observe_property('video-params/dh',     'native', function(_, height) video_height   = height or 0 end)
+mp.observe_property('video-params/rotate', 'native', function(_, rotate) rotate_current = rotate or 0 end)
+
+local function is_fullscreen() return mp.get_property_native('fullscreen', true) end
 
 local function is_rotated()
 	return not ((((rotate_current - rotate_initial) % 180) ~= 0) == ((rotate_initial % 180) ~= 0))
@@ -79,10 +89,10 @@ end
 -- Resize Window --
 -------------------
 local function do_resize(width, height)
-	if fullscreen then return end
+	if is_fullscreen() then return end
 	resized_width, resized_height = width, height
 	msg.debug('Resizing window to', width, height)
-	mp.command_native({name='subprocess', args={'osascript', path_resize_script, tostring(pid), tostring(width), tostring(height)}})
+	mp.command_native_async({name='subprocess', args={'osascript', path_resize_script, tostring(pid), tostring(width), tostring(height)}}, function(success, result, err) cmd_result('Resize', success, result, err) end)
 end
 
 -- Resize - Absolute Size
@@ -128,9 +138,9 @@ mp.register_script_message('Resize%', resize_percent)
 -- Move Window --
 -----------------
 local function do_move(x, y)
-	if fullscreen then return end
+	if is_fullscreen() then return end
 	msg.debug('Moving window to', x, y)
-	mp.command_native({name='subprocess', args={'osascript', path_move_script, tostring(pid), tostring(x), tostring(y)}})
+	mp.command_native({name='subprocess', args={'osascript', path_move_script, tostring(pid), tostring(x), tostring(y)}}, function(success, result, err) cmd_result('Move', success, result, err) end)
 end
 
 -- Move - Coordinate
@@ -204,7 +214,7 @@ local function set_default_move()
 end
 
 local function set_defaults()
-	if fullscreen then return end
+	if is_fullscreen() then return end
 	set_default_resize()
 	set_default_move()
 end
