@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-06
+-- deus0ww - 2019-09-28
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -31,16 +31,16 @@ add({
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
-		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '5'),
-		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '5'),
-		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.08'):gsub('B', '0.16'):gsub('S', '7'),
-		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.16'):gsub('B', '0.32'):gsub('S', '9'),
-		('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.32'):gsub('B', '0.64'):gsub('S', '11'),
-		-- Too Blurred:  hqdn3d
-		-- Not Temporal: removegrain
-		-- Not Realtime: bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '5')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '5')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.08'):gsub('B', '0.16'):gsub('S', '7')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.16'):gsub('B', '0.32'):gsub('S', '9')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.32'):gsub('B', '0.64'):gsub('S', '11')),
 	},
 })
+-- Too Blurred:  hqdn3d
+-- Not Temporal: removegrain
+-- Not Realtime: bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 
 add({
 	name = 'Noise',
