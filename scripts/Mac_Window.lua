@@ -1,4 +1,4 @@
--- deus0ww - 2019-09-30
+-- deus0ww - 2019-10-06
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -56,9 +56,17 @@ local as_get = 'tell app "System Events" to get %s of window 1 of (process 1 who
 local cmd    = { name = 'subprocess', args = {'osascript', '-e'}, capture_stdout = true, capture_stderr = true, }
 local pid    = utils.getpid()
 
-local function debug_error(desc, script, res)
+local function handle_error(desc, script, res)
 	msg.warn(desc, res.stderr)
 	msg.warn('Failed Command:', script)
+	if res.stderr == nil then return end
+	if res.stderr:find('osascript is not allowed assistive access') ~= nil then
+		mp.osd_message('Moving/Resizing Failed: Assistive access denied.', 4)
+	elseif res.stderr:find('Not authorized to send Apple events to System Events.') ~= nil then
+		mp.osd_message('Moving/Resizing Failed: Not authorized.', 4)
+	else
+		mp.osd_message('Moving/Resizing Failed.')
+	end
 end
 
 local function run_get(property)
@@ -67,7 +75,7 @@ local function run_get(property)
 	cmd.args[3] = script
 	local res = mp.command_native(cmd)
 	if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 or #res.stdout == 0 then
-		debug_error('Getting ' .. property .. ' failed.', script, res)
+		handle_error('Getting ' .. property .. ' failed.', script, res)
 		return {-1, -1}
 	end
 	local v = {}
@@ -83,11 +91,11 @@ local function run_set(property, arg1, arg2)
 	local script = as_set:format(property, pid, arg1, arg2)
 	cmd.args[3] = script
 	if opts.async_applescript then
-		mp.command_native_async(cmd, function(_, res, _) if (#res.stderr > 0) then debug_error('Setting ' .. property .. ' failed.', script, res) end end)
+		mp.command_native_async(cmd, function(_, res, _) if (#res.stderr > 0) then handle_error('Setting ' .. property .. ' failed.', script, res) end end)
 	else
 		local res = mp.command_native(cmd)
 		if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 then
-			debug_error('Setting ' .. property .. ' failed.', script, res)
+			handle_error('Setting ' .. property .. ' failed.', script, res)
 		end
 	end
 end
