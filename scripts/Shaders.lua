@@ -1,4 +1,4 @@
--- deus0ww - 2019-06-18
+-- deus0ww - 2019-10-30
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -75,6 +75,21 @@ sets[#sets+1] = function()
 	s[#s+1] = 'SSimDownscaler.glsl'
 	s[#s+1] = 'adaptive-sharpen.glsl'
 	return { shaders = s, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
+end
+
+sets[#sets+1] = function()
+	local s = {}
+	-- Luma
+	s[#s+1] = 'Anime4K_Adaptive_v1.0RC2.glsl'
+	s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
+	s[#s+1] = 'ravu-lite-r4.hook'
+	-- Chroma
+	s[#s+1] = 'KrigBilateral.glsl'
+	-- RGB
+	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
+	s[#s+1] = 'adaptive-sharpen.glsl'
+	return { shaders = s, label = 'Anime4K + FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function()
