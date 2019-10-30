@@ -31,6 +31,7 @@ local o = {
     plot_perfdata = true,
     plot_vsync_ratio = true,
     plot_vsync_jitter = true,
+    plot_cache = true,
     skip_frames = 5,
     global_max = true,
     flush_graph_data = true,         -- clear data buffers when toggling
@@ -39,8 +40,8 @@ local o = {
     plot_color = "FFFFFF",
 
     -- Text style
-    font = "Source Sans Pro",
-    font_mono = "Source Sans Pro",   -- monospaced digits are sufficient
+    font = "sans",
+    font_mono = "monospace",   -- monospaced digits are sufficient
     font_size = 8,
     font_color = "FFFFFF",
     border_size = 0.8,
@@ -83,6 +84,8 @@ local min = math.min
 local recorder = nil
 -- Timer used for redrawing (toggling) and clearing the screen (oneshot)
 local display_timer = nil
+-- Timer used to update cache stats.
+local cache_recorder_timer = nil
 -- Current page and <page key>:<page function> mappings
 local curr_page = o.key_page_1
 local pages = {}
@@ -92,11 +95,14 @@ local ass_stop = mp.get_property_osd("osd-ass-cc/1")
 -- Ring buffers for the values used to construct a graph.
 -- .pos denotes the current position, .len the buffer length
 -- .max is the max value in the corresponding buffer
-local vsratio_buf, vsjitter_buf
+local vsratio_buf, vsjitter_buf, cache_ahead_buf, cache_total_buf
 local function init_buffers()
     vsratio_buf = {0, pos = 1, len = 50, max = 0}
     vsjitter_buf = {0, pos = 1, len = 50, max = 0}
+    cache_ahead_buf = {0, pos = 1, len = 50, max = 0}
+    cache_total_buf = {0, pos = 1, len = 50, max = 0}
 end
+init_buffers()
 -- Save all properties known to this version of mpv
 local property_list = {}
 for p in string.gmatch(mp.get_property("property-list"), "([^,]+)") do property_list[p] = true end
@@ -597,19 +603,131 @@ local function vo_stats()
     return table.concat(stats)
 end
 
-
--- Returns an ASS string with stats about filters/profiles/shaders
-local function filter_stats()
-    return "coming soon"
+local function opt_time(t)
+    if type(t) == type(1.1) then
+        return mp.format_time(t)
+    end
+    return "?"
 end
 
+-- Returns an ASS string with stats about the demuxer cache etc.
+local function cache_stats()
+    local stats = {}
+
+    add_header(stats)
+    append(stats, "", {prefix=o.nl .. o.nl .. "Cache info:", nl="", indent=""})
+
+    local info = mp.get_property_native("demuxer-cache-state")
+    if info == nil then
+        append(stats, "Unavailable.", {})
+        return table.concat(stats)
+    end
+
+    local a = info["reader-pts"]
+    local b = info["cache-end"]
+
+    append(stats, opt_time(a) .. " - " .. opt_time(b), {prefix = "Packet queue:"})
+
+    local r = nil
+    if (a ~= nil) and (b ~= nil) then
+        r = b - a
+    end
+
+    local r_graph = nil
+    if not display_timer.oneshot and o.use_ass and o.plot_cache then
+        r_graph = generate_graph(cache_ahead_buf, cache_ahead_buf.pos,
+                                 cache_ahead_buf.len, cache_ahead_buf.max,
+                                 nil, 0.8, 1)
+        r_graph = o.prefix_sep .. r_graph
+    end
+    append(stats, opt_time(r), {prefix = "Read-ahead:", suffix = r_graph})
+
+    -- These states are not necessarily exclusive. They're about potentially
+    -- separate mechanisms, whose states may be decoupled.
+    local state = "reading"
+    local seek_ts = info["debug-seeking"]
+    if seek_ts ~= nil then
+        state = "seeking (to " .. mp.format_time(seek_ts) .. ")"
+    elseif info["eof"] == true then
+        state = "eof"
+    elseif info["underrun"] then
+        state = "underrun"
+    elseif info["idle"]  == true then
+        state = "inactive"
+    end
+    append(stats, state, {prefix = "State:"})
+
+    local total_graph = nil
+    if not display_timer.oneshot and o.use_ass and o.plot_cache then
+        total_graph = generate_graph(cache_total_buf, cache_total_buf.pos,
+                                     cache_total_buf.len, cache_total_buf.max,
+                                     nil, 0.8, 1)
+        total_graph = o.prefix_sep .. total_graph
+    end
+    append(stats, utils.format_bytes_humanized(info["total-bytes"]),
+           {prefix = "Total RAM:", suffix = total_graph})
+    append(stats, utils.format_bytes_humanized(info["fw-bytes"]),
+           {prefix = "Forward RAM:"})
+
+    local fc = info["file-cache-bytes"]
+    if fc ~= nil then
+        fc = utils.format_bytes_humanized(fc)
+    else
+        fc = "(disabled)"
+    end
+    append(stats, fc, {prefix = "Disk cache:"})
+
+    append(stats, info["debug-low-level-seeks"], {prefix = "Media seeks:"})
+
+    append(stats, "", {prefix=o.nl .. o.nl .. "Ranges:", nl="", indent=""})
+
+    append(stats, info["bof-cached"] and "yes" or "no",
+           {prefix = "Start cached:"})
+    append(stats, info["eof-cached"] and "yes" or "no",
+           {prefix = "End cached:"})
+
+    local ranges = info["seekable-ranges"] or {}
+    for n, r in ipairs(ranges) do
+        append(stats, mp.format_time(r["start"]) .. " - " ..
+                      mp.format_time(r["end"]),
+               {prefix = format("Range %s:", n)})
+    end
+
+    return table.concat(stats)
+end
+
+local function graph_add_value(graph, value)
+    graph.pos = (graph.pos % graph.len) + 1
+    graph[graph.pos] = value
+    graph.max = max(graph.max, value)
+end
+
+-- Record 1 sample of cache statistics.
+-- (Unlike record_data(), this does not return a function, but runs directly.)
+local function record_cache_stats()
+    local info = mp.get_property_native("demuxer-cache-state")
+    if info == nil then
+        return
+    end
+
+    local a = info["reader-pts"]
+    local b = info["cache-end"]
+    if (a ~= nil) and (b ~= nil) then
+        graph_add_value(cache_ahead_buf, b - a)
+    end
+
+    graph_add_value(cache_total_buf, info["total-bytes"])
+end
+
+cache_recorder_timer = mp.add_periodic_timer(0.25, record_cache_stats)
+cache_recorder_timer:kill()
 
 -- Current page and <page key>:<page function> mapping
 curr_page = o.key_page_1
 pages = {
     [o.key_page_1] = { f = default_stats, desc = "Default" },
     [o.key_page_2] = { f = vo_stats, desc = "Extended Frame Timings" },
-    --[o.key_page_3] = { f = filter_stats, desc = "Dummy" },
+    [o.key_page_3] = { f = cache_stats, desc = "Cache Statistics" },
 }
 
 
@@ -645,7 +763,6 @@ local function record_data(skip)
         end
     end
 end
-
 
 -- Call the function for `page` and print it to OSD
 local function print_page(page)
@@ -696,6 +813,7 @@ local function process_key_binding(oneshot)
         -- Previous and current keys were toggling -> end toggling
         elseif not display_timer.oneshot and not oneshot then
             display_timer:kill()
+            cache_recorder_timer:stop()
             clear_screen()
             remove_page_bindings()
             if recorder then
@@ -708,6 +826,7 @@ local function process_key_binding(oneshot)
         if not oneshot and (o.plot_vsync_jitter or o.plot_vsync_ratio) then
             recorder = record_data(o.skip_frames)
             mp.register_event("tick", recorder)
+            cache_recorder_timer:resume()
         end
         display_timer:kill()
         display_timer.oneshot = oneshot
