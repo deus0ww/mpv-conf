@@ -31,7 +31,12 @@ end
 local props, last_shaders
 local function reset()
 	props = {
+		['width'] = '',
+		['height'] = '',
+		['osd-width'] = 0,
+		['osd-height'] = 0,
 		['container-fps'] = '',
+		['video-params/rotate'] = '',
 	}
 	last_shaders = nil
 end
@@ -49,7 +54,11 @@ end
 --- Shader Utils ---
 --------------------
 local function is_high_fps() return props['container-fps'] > 33 end
-
+local function get_scale()
+	local width, height = props['width'], props['height']
+	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
+	return math.min( mp.get_property_native('osd-width', 0) / width, mp.get_property_native('osd-height', 0) / height )
+end
 
 -------------------
 --- Shader Sets ---
@@ -78,18 +87,25 @@ sets[#sets+1] = function()
 end
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, label = {}
 	-- Luma
-	s[#s+1] = 'Anime4K_Adaptive_v1.0RC2.glsl'
-	s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
-	s[#s+1] = 'ravu-lite-r4.hook'
+	if get_scale() <= 2 then
+		s[#s+1] = 'Anime4K_Adaptive_v1.0RC2.glsl'
+		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
+		label   = 'Anime4K + FSRCNNX'
+	else
+		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
+		s[#s+1] = 'Anime4K_Adaptive_v1.0RC2.glsl'
+		s[#s+1] = 'ravu-lite-r4.hook'
+		label   = 'FSRCNNX + Anime4K + RAVU-Lite'
+	end
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
 	s[#s+1] = 'adaptive-sharpen.glsl'
-	return { shaders = s, label = 'Anime4K + FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
+	return { shaders = s, label = label .. ' + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function()
@@ -136,7 +152,7 @@ end
 
 local function show_osd(no_osd, label)
 	if no_osd then return end
-	mp.osd_message(('%s Shaders Set %d: %s'):format(user_opts.enabled and '☑︎' or '☐', user_opts.set, label or 'n/a'))
+	mp.osd_message(('%s Shaders Set %d: %s'):format(user_opts.enabled and '☑︎' or '☐', user_opts.set, label or 'n/a'), 6)
 end
 
 
@@ -220,6 +236,6 @@ end
 
 mp.register_script_message('Shaders-cycle+',  function(no_osd) cycle_set_up(no_osd == 'yes') end)
 mp.register_script_message('Shaders-cycle-',  function(no_osd) cycle_set_dn(no_osd == 'yes') end)
-mp.register_script_message('Shaders-toggle',  function(no_osd) toggle_set(no_osd == 'yes') end)
-mp.register_script_message('Shaders-enable',  function(no_osd) enable_set(no_osd == 'yes') end)
-mp.register_script_message('Shaders-disable', function(no_osd) disable_set(no_osd == 'yes') end)
+mp.register_script_message('Shaders-toggle',  function(no_osd) toggle_set(no_osd   == 'yes') end)
+mp.register_script_message('Shaders-enable',  function(no_osd) enable_set(no_osd   == 'yes') end)
+mp.register_script_message('Shaders-disable', function(no_osd) disable_set(no_osd  == 'yes') end)
