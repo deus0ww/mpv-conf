@@ -1,4 +1,4 @@
--- deus0ww - 2019-10-30
+-- deus0ww - 2019-11-01
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -6,19 +6,31 @@ local opt     = require 'mp.options'
 local utils   = require 'mp.utils'
 
 
-local user_opts = {
-	enabled     = false,
-	auto_switch = true,
-	general_set = 1,
-	anime_set   = 2,
-	path        = mp.command_native({'expand-path', '~~/shaders/'}),
+local o = {
+	enabled          = false,    -- Master switch to enable/disable shaders
+
+	default_index    = 1,        -- Default shader set
+	auto_switch      = true,     -- Auto switch shader preset base on path
+	
+	preset_1_enabled = true,     -- Enable this preset
+	preset_1_path    = 'anime',  -- Path search string
+	preset_1_index   = 2,        -- Shader set index to enable
+	
+	preset_2_enabled = false,
+	preset_2_path    = '',
+	preset_2_index   = 1,
+	
+	preset_3_enabled = false,
+	preset_3_path    = '',
+	preset_3_index   = 1,
 }
+opt.read_options(o, mp.get_script_name())
 
 
 ------------------
 --- Properties ---
 ------------------
-local current_set = user_opts.general_set
+local current_set, enabled = o.default_index, o.enabled
 local props, last_shaders
 local function reset()
 	props = {
@@ -50,17 +62,11 @@ local function get_scale()
 	return math.min( mp.get_property_native('osd-width', 0) / width, mp.get_property_native('osd-height', 0) / height )
 end
 
+
 -------------------
 --- Shader Sets ---
 -------------------
 local sets = {}
-
---	sets[#sets+1] = function()
---		local s = {}
---		-- Chroma
---		s[#s+1] = 'KrigBilateral.glsl'
---		return { shaders = s, label = 'Krig' }
---	end
 
 sets[#sets+1] = function()
 	local s = {}
@@ -117,7 +123,7 @@ end
 --------------------
 local function show_osd(no_osd, label)
 	if no_osd then return end
-	mp.osd_message(('%s Shaders Set %d: %s'):format(user_opts.enabled and '☑︎' or '☐', current_set, label or 'n/a'), 6)
+	mp.osd_message(('%s Shaders Set %d: %s'):format(enabled and '☑︎' or '☐', current_set, label or 'n/a'), 6)
 end
 
 local function mpv_clear_shaders()
@@ -147,7 +153,7 @@ end
 local function set_shaders(no_osd)
 	local shaders = sets[current_set]()
 	show_osd(no_osd, shaders.label)
-	if not user_opts.enabled then
+	if not enabled then
 		msg.debug('Setting Shaders: skipped - disabled.')
 		return
 	end
@@ -160,16 +166,18 @@ local function set_shaders(no_osd)
 	mpv_set_shaders(shaders.shaders)
 end
 
+
 --------------------------
 --- Observers & Events ---
 --------------------------
-mp.register_event('file-loaded', function() 
-	opt.read_options(user_opts, mp.get_script_name())
+mp.register_event('file-loaded', function()
 	reset()
+	if not o.auto_switch then return end
 	local path = mp.get_property_native('path', ''):lower()
-	if user_opts.auto_switch then
-		current_set = (path:find('anime') ~= nil) and user_opts.anime_set or user_opts.general_set
-	end
+	current_set = o.default_index
+	if o.preset_1_enabled and path:find(o.preset_1_path) ~= nil then current_set = o.preset_1_index end
+	if o.preset_2_enabled and path:find(o.preset_2_path) ~= nil then current_set = o.preset_2_index end
+	if o.preset_3_enabled and path:find(o.preset_3_path) ~= nil then current_set = o.preset_3_index end
 end)
 
 local timer = mp.add_timeout(1, function() set_shaders(true) end)
@@ -210,21 +218,21 @@ end
 local function toggle_set(no_osd)
 	msg.debug('Shader - Toggling:', current_set)
 	if not is_initialized() then return end
-	user_opts.enabled = not user_opts.enabled
-	if user_opts.enabled then set_shaders(no_osd) else clear_shaders(no_osd) end
+	enabled = not enabled
+	if enabled then set_shaders(no_osd) else clear_shaders(no_osd) end
 end
 
 local function enable_set(no_osd)
 	msg.debug('Shader - Enabling:', current_set)
 	if not is_initialized() then return end
-	user_opts.enabled = true
+	enabled = true
 	set_shaders(no_osd)
 end
 
 local function disable_set(no_osd)
 	msg.debug('Shader - Disabling:', current_set)
 	if not is_initialized() then return end
-	user_opts.enabled = false
+	enabled = false
 	clear_shaders(no_osd)
 end
 
