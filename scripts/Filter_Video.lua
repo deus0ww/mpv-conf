@@ -1,4 +1,4 @@
--- deus0ww - 2019-09-28
+-- deus0ww - 2019-10-31
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -10,9 +10,12 @@ add({
 	name = 'Deinterlace',
 	filter_type = 'video',
 	filters = {
-		'bwdif=parity=auto:deint=all',
-    	'bwdif=parity=tff:deint=all',
-    	'bwdif=parity=bff:deint=all',
+		'bwdif=mode=0:deint=all:parity=auto',
+		'bwdif=mode=1:deint=all:parity=auto',
+    	'bwdif=mode=0:deint=all:parity=tff',
+    	'bwdif=mode=1:deint=all:parity=tff',
+    	'bwdif=mode=0:deint=all:parity=bff',
+    	'bwdif=mode=1:deint=all:parity=bff',
 	},
 })
 
@@ -46,13 +49,13 @@ add({
 	name = 'Noise',
 	filter_type = 'video',
 	filters = {
+		'noise=c0_strength=02:all_flags=t',
 		'noise=c0_strength=04:all_flags=t',
 		'noise=c0_strength=06:all_flags=t',
 		'noise=c0_strength=08:all_flags=t',
 		'noise=c0_strength=12:all_flags=t',
 		'noise=c0_strength=16:all_flags=t',
 		'noise=c0_strength=24:all_flags=t',
-		'noise=c0_strength=32:all_flags=t',
 	},
 })
 
