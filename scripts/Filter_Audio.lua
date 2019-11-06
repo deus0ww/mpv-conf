@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-06
+-- deus0ww - 2019-11-06
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -12,7 +12,7 @@ add({
 	default_on_load = true,
 	reset_on_load = true,
 	filters = {
-		'format=doublep:srate=96000',
+		'format=float:srate=96000',
 	},
 })
 
