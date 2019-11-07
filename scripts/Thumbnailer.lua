@@ -1,4 +1,4 @@
--- deus0ww - 2019-07-22
+-- deus0ww - 2019-11-08
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -119,7 +119,7 @@ end
 local function run_subprocess(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
-	msg.debug('Subprocess', subprocess_name, 'Starting...')
+	-- msg.debug('Subprocess', subprocess_name, 'Starting...')
 	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
 	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
@@ -128,7 +128,7 @@ end
 local function run_subprocess_async(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
-	msg.debug('Subprocess', subprocess_name, 'Starting (async)...')
+	-- msg.debug('Subprocess', subprocess_name, 'Starting (async)...')
 	mp.command_native_async( {name='subprocess', args=command}, function(s, r, e) subprocess_result(s, r, e, subprocess_name, start_time) end )
 	return nil
 end
@@ -418,7 +418,7 @@ local function create_workers()
 	local missing_workers = workers_requested - #workers_indexed
 	if missing_workers > 0 and worker_script_path ~= nil and worker_script_path ~= '' then
 		for _ = 1, missing_workers do
-			msg.debug('Recruiting Worker...')
+			-- msg.debug('Recruiting Worker...')
 			mp.command_native({'load-script', worker_script_path})
 		end
 	end
@@ -826,7 +826,7 @@ mp.register_script_message(message.worker.finish, function(json)
 		msg.warn('Worker Finished (uncounted):', worker_stats.name, json)
 	end
 	if #workers_finished_indexed >= state.max_workers then
-		msg.debug('All Workers: Done.')
+		msg.debug('All Workers: Finished.')
 		osc_delta_update_timer:kill()
 		osc_delta_update(true)
 		osc_full_update_timer:resume()

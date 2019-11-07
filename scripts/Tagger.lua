@@ -1,4 +1,4 @@
--- deus0ww - 2019-02-20
+-- deus0ww - 2019-11-08
 
 -- Requires:
 --   - macOS >= 10.9
@@ -55,21 +55,20 @@ end
 
 local function run_tag(cmd, path)
 	if not file_exists(path) then return end
-	msg.debug('Command:', cmd)
-	local success, result = pcall(io.popen, cmd)
+	local success, result = pcall(io.popen, cmd .. ('"%s"'):format(path))
 	local lines = {}
 	if not (success and result) then return lines end
 	for line in result:lines() do
 		lines[line] = true
 	end
 	result:close()
-	msg.debug('Command Result:', utils.to_string(lines))
+	msg.debug('Command:', cmd, '|', 'Result:', utils.to_string(lines))
 	return lines
 end
 
-local function add_tag(path, tag)  return run_tag('tag -a ' .. tag .. ' ' .. ('"%s"'):format(path), path) end
-local function del_tag(path, tag)  return run_tag('tag -r ' .. tag .. ' ' .. ('"%s"'):format(path), path) end
-local function read_tag(path)      return run_tag('tag -l -N -g '         .. ('"%s"'):format(path), path) end
+local function add_tag(path, tag)  return run_tag('tag -a ' .. tag .. ' ', path) end
+local function del_tag(path, tag)  return run_tag('tag -r ' .. tag .. ' ', path) end
+local function read_tag(path)      return run_tag('tag -l -N -g '        , path) end
 
 
 ------------------
