@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 //!DESC Anime4K-Luma-v1.0RC2
 //!HOOK LUMA
 //!BIND HOOKED
@@ -29,10 +30,10 @@
 //!HEIGHT OUTPUT.h
 //!SAVE LUMAX
 //!COMPONENTS 1
-
 vec4 hook() {
 	return HOOKED_tex(HOOKED_pos);
 }
+
 
 //!DESC Anime4K-ComputeGaussianX-v1.0RC2
 //!HOOK LUMA
@@ -40,7 +41,6 @@ vec4 hook() {
 //!BIND LUMAX
 //!SAVE LUMAG
 //!COMPONENTS 1
-
 float lumGaussian7(vec2 pos, vec2 d) {
 	float g = LUMA_tex(pos - (d * 3)).x * 0.121597;
 	g = g + LUMA_tex(pos - (d * 2)).x * 0.142046;
@@ -59,7 +59,6 @@ vec4 hook() {
 }
 
 
-
 //!DESC Anime4K-ComputeGaussianY-v1.0RC2
 //!HOOK LUMA
 //!BIND HOOKED
@@ -67,7 +66,6 @@ vec4 hook() {
 //!BIND LUMAG
 //!SAVE LUMAG
 //!COMPONENTS 1
-
 float lumGaussian7(vec2 pos, vec2 d) {
 	float g = LUMAG_tex(pos - (d * 3)).x * 0.121597;
 	g = g + LUMAG_tex(pos - (d * 2)).x * 0.142046;
@@ -92,14 +90,12 @@ vec4 hook() {
 //!BIND LUMAG
 //!SAVE LUMAG
 //!COMPONENTS 1
-
 #define BlendColorDodgef(base, blend) 	(((blend) == 1.0) ? (blend) : min((base) / (1.0 - (blend)), 1.0))
 #define BlendColorDividef(top, bottom) 	(((bottom) == 1.0) ? (bottom) : min((top) / (bottom), 1.0))
 
 // Component wise blending
 #define Blend(base, blend, funcf) 		vec3(funcf(base.r, blend.r), funcf(base.g, blend.g), funcf(base.b, blend.b))
 #define BlendColorDodge(base, blend) 	Blend(base, blend, BlendColorDodgef)
-
 
 vec4 hook() {
 	float lum = clamp(LUMA_tex(HOOKED_pos).x, 0.001, 0.999);
@@ -112,7 +108,6 @@ vec4 hook() {
 }
 
 
-
 //!DESC Anime4K-ComputeLineGaussianX-v1.0RC2
 //!HOOK LUMA
 //!BIND HOOKED
@@ -120,7 +115,6 @@ vec4 hook() {
 //!BIND LUMAG
 //!SAVE LUMAG
 //!COMPONENTS 1
-
 float lumGaussian7(vec2 pos, vec2 d) {
 	float g = LUMAG_tex(pos - (d * 3)).x * 0.121597;
 	g = g + LUMAG_tex(pos - (d * 2)).x * 0.142046;
@@ -139,7 +133,6 @@ vec4 hook() {
 }
 
 
-
 //!DESC Anime4K-ComputeLineGaussianY-v1.0RC2
 //!HOOK LUMA
 //!BIND HOOKED
@@ -147,7 +140,6 @@ vec4 hook() {
 //!BIND LUMAG
 //!SAVE LUMAG
 //!COMPONENTS 1
-
 float lumGaussian7(vec2 pos, vec2 d) {
 	float g = LUMAG_tex(pos - (d * 3)).x * 0.121597;
 	g = g + LUMAG_tex(pos - (d * 2)).x * 0.142046;
@@ -172,7 +164,6 @@ vec4 hook() {
 //!BIND LUMAX
 //!SAVE LUMAD
 //!COMPONENTS 2
-
 vec4 hook() {
 	vec2 d = LUMAX_pt;
 	
@@ -208,7 +199,6 @@ vec4 hook() {
 //!BIND LUMAD
 //!SAVE LUMAD
 //!COMPONENTS 1
-
 vec4 hook() {
 	vec2 d = LUMAX_pt;
 	
@@ -219,11 +209,9 @@ vec4 hook() {
     float cx = LUMAD_tex(HOOKED_pos).x;
 	float bx = LUMAD_tex(HOOKED_pos + vec2(0, d.y)).x;
 	
-	
 	float ty = LUMAD_tex(HOOKED_pos + vec2(0, -d.y)).y;
     //float cy = LUMAD_tex(HOOKED_pos).y;
 	float by = LUMAD_tex(HOOKED_pos + vec2(0, d.y)).y;
-	
 	
 	//Horizontal Gradient
 	//[-1  0  1]
@@ -243,11 +231,10 @@ vec4 hook() {
 
 
 //!DESC Anime4K-ThinLines-v1.0RC2
-//!HOOK SCALED
+//!HOOK POSTKERNEL
 //!BIND HOOKED
 //!BIND LUMA
 //!BIND LUMAG
-
 #define LINE_DETECT_THRESHOLD 0.06
 
 #define lineprob (LUMAG_tex(HOOKED_pos).x)
@@ -257,7 +244,7 @@ float getLum(vec4 rgb) {
 }
 
 vec4 getLargest(vec4 cc, vec4 lightestColor, vec4 a, vec4 b, vec4 c) {
-	float strength = min((SCALED_size.x) / (LUMA_size.x) / 6.0, 1);
+	float strength = min((POSTKERNEL_size.x) / (LUMA_size.x) / 6.0, 1);
 	vec4 newColor = cc * (1 - strength) + ((a + b + c) / 3.0) * strength;
 	if (newColor.a > lightestColor.a) {
 		return newColor;
@@ -275,7 +262,6 @@ float min3v(vec4 a, vec4 b, vec4 c) {
 float max3v(vec4 a, vec4 b, vec4 c) {
 	return max(max(a.a, b.a), c.a);
 }
-
 
 vec4 hook()  {
 
@@ -356,24 +342,22 @@ vec4 hook()  {
 			lightestColor = getLargest(cc, lightestColor, t, l, tl);
 		}
 	}
-	
-	
+
 	return lightestColor;
 }
 
 
 //!DESC Anime4K-Refine-v1.0RC2
-//!HOOK SCALED
+//!HOOK POSTKERNEL
 //!BIND HOOKED
 //!BIND LUMA
 //!BIND LUMAD
 //!BIND LUMAG
-
 #define LINE_DETECT_MUL 6
 #define LINE_DETECT_THRESHOLD 0.06
 #define MAX_STRENGTH 1
 
-#define strength (min((SCALED_size.x) / (LUMA_size.x), 1))
+#define strength (min((POSTKERNEL_size.x) / (LUMA_size.x), 1))
 #define lineprob (LUMAG_tex(HOOKED_pos).x)
 
 vec4 getAverage(vec4 cc, vec4 a, vec4 b, vec4 c) {
@@ -391,7 +375,6 @@ float min3v(vec4 a, vec4 b, vec4 c) {
 float max3v(vec4 a, vec4 b, vec4 c) {
 	return max(max(a.a, b.a), c.a);
 }
-
 
 vec4 hook()  {
 
@@ -469,7 +452,6 @@ vec4 hook()  {
 		}
 	}
 	
-	
 	return cc;
 }
 
@@ -478,11 +460,10 @@ vec4 hook()  {
 //https://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-opengl-test-radeon-geforce/3/
 
 //!DESC Anime4K-PostFXAA-v1.0RC2
-//!HOOK SCALED
+//!HOOK POSTKERNEL
 //!BIND HOOKED
 //!BIND LUMA
 //!BIND LUMAG
-
 #define FXAA_MIN (1.0 / 128.0)
 #define FXAA_MUL (1.0 / 8.0)
 #define FXAA_SPAN 8.0
@@ -490,7 +471,7 @@ vec4 hook()  {
 #define LINE_DETECT_MUL 6
 #define LINE_DETECT_THRESHOLD 0.06
 
-#define strength (min((SCALED_size.x) / (LUMA_size.x), 1))
+#define strength (min((POSTKERNEL_size.x) / (LUMA_size.x), 1))
 #define lineprob (LUMAG_tex(HOOKED_pos).x)
 
 vec4 getAverage(vec4 cc, vec4 xc) {
@@ -512,9 +493,7 @@ vec4 hook()  {
 		return HOOKED_tex(HOOKED_pos);
 	}
 
-
 	vec2 d = HOOKED_pt;
-	
 	
     vec4 cc = HOOKED_tex(HOOKED_pos);
     vec4 xc = cc;

@@ -84,21 +84,18 @@ end
 
 sets[#sets+1] = function()
 	local s, label = {}
-	-- Luma
 	if get_scale() <= 2 then
 		s[#s+1] = 'Anime4K_Adaptive_v1.0RC2.glsl'
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
 		label   = 'Anime4K + FSRCNNX'
 	else
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
+		s[#s+1] = 'SSimSuperRes.glsl'
 		s[#s+1] = 'Anime4K_Adaptive_v1.0RC2.glsl'
 		s[#s+1] = 'ravu-lite-r4.hook'
 		label   = 'FSRCNNX + Anime4K + RAVU-Lite'
 	end
-	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
-	-- RGB
-	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
 	s[#s+1] = 'adaptive-sharpen.glsl'
 	return { shaders = s, label = label .. ' + Krig + SSimSR/DS + AdaptiveSharpen' }
