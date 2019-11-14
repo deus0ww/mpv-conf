@@ -68,7 +68,7 @@ end
 
 
 
--- deus0ww - 2019-10-30
+-- deus0ww - 2019-11-14
 
 ------------
 -- tn_osc --
@@ -485,7 +485,7 @@ mp.register_script_message(message.osc.update, function(json)
 		tn_style_format.text_progress = tn_osc_stats.total > 99 and text_progress_format.three_digits or text_progress_format.two_digits
 		if tn_osc_stats.percent >= 1 then mp.command_native({mpv_cmd.script_message, message.osc.finish}) end
 	end
-	if new_data.thumbnails then
+	if new_data.thumbnails and tn_state then
 		local index, ready
 		for time_string, status in pairs(new_data.thumbnails) do
 			index, ready = tonumber(time_string), (status == message.ready)
