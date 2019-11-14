@@ -1,4 +1,4 @@
--- deus0ww - 2019-10-06
+-- deus0ww - 2019-11-14
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -10,7 +10,7 @@ local utils   = require 'mp.utils'
 ------------------
 -- User Options --
 ------------------
-local opts = {
+local o = {
 	display_w           = 2560,
 	display_h           = 1440,
 	scale_factor        = 1,	 -- 1=Non-Retina, 2=Retina
@@ -28,7 +28,7 @@ local opts = {
 	check_position      = false, -- Reduces movement but slower
 	async_applescript   = true,  -- Run applescripts asynchronously (faster but more error-prone)
 }
-opt.read_options(opts, mp.get_script_name())
+opt.read_options(o, mp.get_script_name())
 
 
 
@@ -36,8 +36,8 @@ opt.read_options(opts, mp.get_script_name())
 -- Properties --
 ----------------
 local menubar_h      = 23   -- 22px + 1px border
-local display        = {w = opts.display_w, h = opts.display_h - menubar_h }
-local align_current  = opts.default_align
+local display        = {w = o.display_w, h = o.display_h - menubar_h }
+local align_current  = o.default_align
 
 local rotate_initial = 0
 local rotate_current = 0
@@ -90,7 +90,7 @@ local function run_set(property, arg1, arg2)
 	msg.debug('Setting:', property, arg1, arg2, 'PID:', pid)
 	local script = as_set:format(property, pid, arg1, arg2)
 	cmd.args[3] = script
-	if opts.async_applescript then
+	if o.async_applescript then
 		mp.command_native_async(cmd, function(_, res, _) if (#res.stderr > 0) then handle_error('Setting ' .. property .. ' failed.', script, res) end end)
 	else
 		local res = mp.command_native(cmd)
@@ -106,7 +106,7 @@ end
 -- Getters/Setters --
 ---------------------
 local function get_position()
-	if opts.check_position then
+	if o.check_position then
 		local u = run_get('position')
 		return { x = u[1], y = u[2] }
 	else
@@ -118,7 +118,7 @@ local function get_size()
 	local osd_w, osd_h = mp.get_osd_size()
 	if osd_w and osd_w > 0 and osd_h and osd_h > 0 then
 		msg.debug('Getting: OSD Size')
-		return { w = (osd_w / opts.scale_factor), h = (osd_h / opts.scale_factor) }
+		return { w = (osd_w / o.scale_factor), h = (osd_h / o.scale_factor) }
 	else
 		local v = run_get('size')
 		return { w = v[1], h = v[2] }
@@ -266,29 +266,30 @@ end
 ----------
 -- Core --
 ----------
-local function change_window(current, target)
-	msg.debug('Changing Window - Current:', utils.to_string(current))
-	msg.debug('Changing Window - Target: ', utils.to_string(target))
-	-- Move first if expanding
-	if (current.x ~= target.x or current.y ~= target.y) and
-	   (current.w  < target.w or current.w  < target.w) then
-		set_position(target.x, target.y)
-	end
-	
-	-- Resize
-	if (current.w ~= target.w or current.h ~= target.h) then set_size(target.w, target.h) end
-	
-	-- Move after if shrinking or not resizing
-	if (current.x ~= target.x or current.y ~= target.y) and
-	   (current.w >= target.w or current.w >= target.w) then
-		set_position(target.x, target.y)
-	end
-end
+local function same_size(a, b)     return (a.w == b.w and a.h == b.h) end
+local function same_position(a, b) return (a.x == b.x and a.y == b.y) end
 
 local function get_current_state()
 	local current = get_position_and_size()
 	local target  = { x = current.x, y = current.y, w = current.w, h = current.h }
 	return current, target
+end
+
+local function change_window(current, target)
+	msg.debug('Changing Window - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
+	
+	-- Shrink
+	if (current.w > target.w or current.w > target.w) then set_size(target.w, target.h) end
+	-- Move
+	if not same_position(current, target) then set_position(target.x, target.y) end
+	-- Expand
+	if (current.w < target.w or current.w < target.w) then set_size(target.w, target.h) end
+		
+	mp.add_timeout(1.0, function()
+		current = get_current_state()
+		msg.debug('Changing Window (Timer) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
+		if not same_size(current, target) then change_window(current, target) end
+	end)
 end
 
 local function move_on_screen() -- Make sure the window is completely on screen
@@ -299,7 +300,7 @@ local function move_on_screen() -- Make sure the window is completely on screen
 end
 
 local function resize(w, h, resize_type)
-	if opts.check_position then move_on_screen() end
+	if o.check_position then move_on_screen() end
 	msg.debug(' === Resizing ===')
 	local current, target = get_current_state()
 	target.w, target.h = resize_type(w, h)
@@ -355,17 +356,17 @@ end
 
 local function set_defaults()
 	if is_fullscreen() then return end
-	align_current  = opts.default_align
-	local resize_type = sanitize(opts.default_resize_type, 0, 3, 1)
-	local move_type   = sanitize(opts.default_move_type,   0, 2, 1)
+	align_current  = o.default_align
+	local resize_type = sanitize(o.default_resize_type, 0, 3, 1)
+	local move_type   = sanitize(o.default_move_type,   0, 2, 1)
 	
 	if resize_type == 0 then
 		align(align_current)
 	else
-		resize(opts.default_resize_w, opts.default_resize_h, default_resize[resize_type])
+		resize(o.default_resize_w, o.default_resize_h, default_resize[resize_type])
 	end
-	if opts.default_align == 0 and move_type ~= 0 then
-		move(opts.default_move_x, opts.default_move_y, default_move[move_type])
+	if o.default_align == 0 and move_type ~= 0 then
+		move(o.default_move_x, o.default_move_y, default_move[move_type])
 	end
 end
 
