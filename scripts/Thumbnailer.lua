@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-08
+-- deus0ww - 2019-11-16
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -194,6 +194,7 @@ local user_opts = {
 	auto_gen              = true,               -- Auto generate thumbnails
 	auto_show             = true,               -- Show thumbnails by default
 	auto_delete           = 0,                  -- Delete the thumbnail cache. Use at your own risk. 0=No, 1=On file close, 2=When quiting
+	start_delay           = 1,                  -- Delay the start of the thumbnailer (seconds)
 
 	-- Paths
 	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
@@ -204,8 +205,9 @@ local user_opts = {
 	thumbnail_count       = 192,                -- Try to create this many thumbnails within the delta limits below
 	min_delta             = 3,                  -- Minimum time between thumbnails (seconds)
 	max_delta             = 30,                 -- Maximum time between thumbnails (seconds)
-	remote_delta_factor   = 2,                  -- Multiply delta by this for remote streams
-	bitrate_delta_factor  = 2,                  -- Multiply delta by this for remote streams
+	remote_delta_factor   = 2,                  -- Multiply delta by this for remote sources
+	stream_delta_factor   = 2,                  -- Multiply delta by this for streams (youtube, etc)
+	bitrate_delta_factor  = 2,                  -- Multiply delta by this for high bitrate sources
 	bitrate_threshold     = 8,                  -- The threshold to consider a source to be high bitrate (Mbps)
 	
 	-- OSC
@@ -458,13 +460,14 @@ end
 
 local function calculate_timing(is_remote)
 	local duration, file_size  = mp.get_property_native('duration', 0), mp.get_property_native('file-size', 0)
-	if duration == 0 or file_size == 0 then return { duration = 0, delta = huge, high_bitrate = false } end
+	if duration == 0 then return { duration = 0, delta = huge, high_bitrate = false } end
 	local delta_target   = duration / (user_opts.thumbnail_count - 1)
-	local remote_factor  = is_remote and user_opts.remote_delta_factor or 1
 	local saved_factor   = saved_state.delta_factor or 1
+	local remote_factor  = is_remote and user_opts.remote_delta_factor or 1
+	local stream_factor  = file_size == 0 and user_opts.stream_delta_factor or 1
 	local high_bitrate   = (file_size / duration) >= (user_opts.bitrate_threshold * 131072)
 	local bitrate_factor = high_bitrate and user_opts.bitrate_delta_factor or 1
-	local delta = max(user_opts.min_delta, min(user_opts.max_delta, delta_target)) * remote_factor * saved_factor * bitrate_factor
+	local delta = max(user_opts.min_delta, min(user_opts.max_delta, delta_target)) * saved_factor * remote_factor * stream_factor * bitrate_factor
 	return { duration = duration, delta = delta, high_bitrate = high_bitrate }
 end
 
@@ -563,7 +566,7 @@ local function state_init()
 	}
 	stop_conditions = {
 		is_seekable = mp.get_property_native('seekable', true),
-		has_video   = has_video() and timing.duration > 1,
+		has_video   = has_video(),
 	}
 
 	if is_empty(worker_script_path) then worker_script_path = user_opts.worker_script_path end
@@ -588,14 +591,21 @@ local function is_thumbnailable()
 	-- Must catch all cases that's not thumbnail-able and anything else that may crash the OSC.
 	if not (state and stop_conditions) then return false end
 	for key, value in pairs(state) do
-		if key == 'rotate'        and value then goto continue end
-		if key == 'worker_buffer' and value then goto continue end
-		if key == 'osc_buffer'    and value then goto continue end
-		if is_empty(value) then return false end
+		if key == 'rotate'         and value then goto continue end
+		if key == 'worker_buffer'  and value then goto continue end
+		if key == 'osc_buffer'     and value then goto continue end
+		if key == 'worker_timeout' and value then goto continue end
+		if is_empty(value) then
+			msg.warn('Stopping - State Incomplete:', key, value)
+			return false
+		end
 		::continue::
 	end
-	for _, value in pairs(stop_conditions) do
-		if not value then return false end
+	for condition, value in pairs(stop_conditions) do		
+		if not value then 
+			msg.warn('Stopping:', condition, value)
+			return false 
+		end
 	end
 	return true
 end
@@ -653,7 +663,7 @@ local function stop()
 end
 
 local function start(paused)
-	if not initialized then state_init() end
+	if not initialized then mp.add_timeout(user_opts.start_delay, function() state_init() end) end
 	if is_thumbnailable() then
 		osc_update(state, osc_set_options(osc_visible), nil)
 		run_generation(paused)
@@ -844,6 +854,9 @@ mp.register_script_message(message.debug, function()
 	msg.info('video-params', utils.to_string(mp.get_property_native('video-params', {})))
 	msg.info('video-dec-params', utils.to_string(mp.get_property_native('video-dec-params', {})))
 	msg.info('video-out-params', utils.to_string(mp.get_property_native('video-out-params', {})))
+	msg.info('track-list', utils.to_string(mp.get_property_native('track-list', {})))
+	msg.info('duration', mp.get_property_native('duration', 0))
+	msg.info('file-size', mp.get_property_native('file-size', 0))
 	
 	msg.info('============================')
 	msg.info('Thumbnailer Internal States:')
