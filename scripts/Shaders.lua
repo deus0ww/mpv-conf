@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-01
+-- deus0ww - 2019-11-16
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -17,8 +17,8 @@ local o = {
 	preset_1_index   = 2,        -- Shader set index to enable
 	
 	preset_2_enabled = false,
-	preset_2_path    = '',
-	preset_2_index   = 1,
+	preset_2_path    = 'cartoon',
+	preset_2_index   = 3,
 	
 	preset_3_enabled = false,
 	preset_3_path    = '',
