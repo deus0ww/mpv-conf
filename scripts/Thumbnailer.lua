@@ -663,7 +663,11 @@ local function stop()
 end
 
 local function start(paused)
-	if not initialized then mp.add_timeout(user_opts.start_delay, function() state_init() end) end
+	if not initialized then mp.add_timeout(user_opts.start_delay, function() 
+			state_init()
+			start(paused)
+		end)
+	end
 	if is_thumbnailable() then
 		osc_update(state, osc_set_options(osc_visible), nil)
 		run_generation(paused)
