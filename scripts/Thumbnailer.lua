@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-16
+-- deus0ww - 2019-11-17
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -194,7 +194,7 @@ local user_opts = {
 	auto_gen              = true,               -- Auto generate thumbnails
 	auto_show             = true,               -- Show thumbnails by default
 	auto_delete           = 0,                  -- Delete the thumbnail cache. Use at your own risk. 0=No, 1=On file close, 2=When quiting
-	start_delay           = 1,                  -- Delay the start of the thumbnailer (seconds)
+	start_delay           = 2,                  -- Delay the start of the thumbnailer (seconds)
 
 	-- Paths
 	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
