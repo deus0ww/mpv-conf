@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-14
+-- deus0ww - 2019-11-22
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -275,6 +275,7 @@ local function get_current_state()
 	return current, target
 end
 
+local change_timer
 local function change_window(current, target)
 	msg.debug('Changing Window - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
 	
@@ -284,8 +285,9 @@ local function change_window(current, target)
 	if not same_position(current, target) then set_position(target.x, target.y) end
 	-- Expand
 	if (current.w < target.w or current.w < target.w) then set_size(target.w, target.h) end
-		
-	mp.add_timeout(1.0, function()
+	
+	if change_timer then change_timer:kill() end
+	change_timer = mp.add_timeout(1.0, function()
 		current = get_current_state()
 		msg.debug('Changing Window (Timer) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
 		if not same_size(current, target) then change_window(current, target) end
@@ -371,6 +373,7 @@ local function set_defaults()
 end
 
 local function on_file_loaded()
+	if change_timer then change_timer:kill() end
 	reset_rotation()
 	set_defaults()
 end
