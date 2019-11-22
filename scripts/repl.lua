@@ -14,6 +14,7 @@
 -- OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 -- CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+local mp = require 'mp'
 local utils = require 'mp.utils'
 local options = require 'mp.options'
 local assdraw = require 'mp.assdraw'
@@ -31,7 +32,7 @@ local opts = {
 	['font-size'] = 16,
 }
 
-function detect_platform()
+local function detect_platform()
 	local o = {}
 	-- Kind of a dumb way of detecting the platform but whatever
 	if mp.get_property_native('options/vo-mmcss-profile', o) ~= o then
@@ -85,22 +86,43 @@ end
 
 local repl_active = false
 local insert_mode = false
+local pending_update = false
 local line = ''
 local cursor = 1
 local history = {}
 local history_pos = 1
 local log_ring = {}
+local key_bindings = {}
+
+local update_timer = nil
+update_timer = mp.add_periodic_timer(0.05, function()
+	if pending_update then
+		update()
+	else
+		update_timer:kill()
+	end
+end)
+update_timer:kill()
 
 -- Add a line to the log buffer (which is limited to 100 lines)
-function log_add(style, text)
+local function log_add(style, text)
 	log_ring[#log_ring + 1] = { style = style, text = text }
 	if #log_ring > 100 then
 		table.remove(log_ring, 1)
 	end
+
+	if repl_active then
+		if not update_timer:is_enabled() then
+			update()
+			update_timer:resume()
+		else
+			pending_update = true
+		end
+	end
 end
 
 -- Escape a string for verbatim display on the OSD
-function ass_escape(str)
+local function ass_escape(str)
 	-- There is no escape for '\' in ASS (I think?) but '\' is used verbatim if
 	-- it isn't followed by a recognised character, so add a zero-width
 	-- non-breaking space
@@ -115,7 +137,9 @@ end
 
 -- Render the REPL and console as an ASS OSD
 function update()
-	local screenx, screeny, aspect = mp.get_osd_size()
+	pending_update = false
+
+	local screenx, screeny, _ = mp.get_osd_size()
 	screenx = screenx / opts.scale
 	screeny = screeny / opts.scale
 
@@ -178,23 +202,38 @@ function update()
 	mp.set_osd_ass(screenx, screeny, ass.text)
 end
 
+local function enable_messages(silent)
+	if silent then
+		if not pcall(function () mp.enable_messages('silent:terminal-default') end) then
+			mp.enable_messages('info')
+		end
+	else
+		if not pcall(function () mp.enable_messages('terminal-default') end) then
+			mp.enable_messages('info')
+		end
+	end
+end
+
 -- Set the REPL visibility (`, Esc)
-function set_active(active)
+local function set_active(active)
 	if active == repl_active then return end
 	if active then
 		repl_active = true
 		insert_mode = false
 		mp.enable_key_bindings('repl-input', 'allow-hide-cursor+allow-vo-dragging')
+		enable_messages()
+		define_key_bindings()
 	else
 		repl_active = false
-		mp.disable_key_bindings('repl-input')
+		undefine_key_bindings()
+		enable_messages(true)
 	end
 	update()
 end
 
 -- Show the repl if hidden and replace its contents with 'text'
 -- (script-message-to repl type)
-function show_and_type(text)
+local function show_and_type(text)
 	text = text or ''
 
 	-- Save the line currently being edited, just in case
@@ -215,7 +254,7 @@ end
 
 -- Naive helper function to find the next UTF-8 character in 'str' after 'pos'
 -- by skipping continuation bytes. Assumes 'str' contains valid UTF-8.
-function next_utf8(str, pos)
+local function next_utf8(str, pos)
 	if pos > str:len() then return pos end
 	repeat
 		pos = pos + 1
@@ -224,7 +263,7 @@ function next_utf8(str, pos)
 end
 
 -- As above, but finds the previous UTF-8 charcter in 'str' before 'pos'
-function prev_utf8(str, pos)
+local function prev_utf8(str, pos)
 	if pos <= 1 then return pos end
 	repeat
 		pos = pos - 1
@@ -233,18 +272,18 @@ function prev_utf8(str, pos)
 end
 
 -- Insert a character at the current cursor position (' '-'~', Shift+Enter)
-function handle_char_input(c)
+local function handle_char_input(c)
 	if insert_mode then
 		line = line:sub(1, cursor - 1) .. c .. line:sub(next_utf8(line, cursor))
 	else
 		line = line:sub(1, cursor - 1) .. c .. line:sub(cursor)
 	end
-	cursor = cursor + 1
+	cursor = cursor + #c
 	update()
 end
 
 -- Remove the character behind the cursor (Backspace)
-function handle_backspace()
+local function handle_backspace()
 	if cursor <= 1 then return end
 	local prev = prev_utf8(line, cursor)
 	line = line:sub(1, prev - 1) .. line:sub(cursor)
@@ -253,31 +292,31 @@ function handle_backspace()
 end
 
 -- Remove the character in front of the cursor (Del)
-function handle_del()
+local function handle_del()
 	if cursor > line:len() then return end
 	line = line:sub(1, cursor - 1) .. line:sub(next_utf8(line, cursor))
 	update()
 end
 
 -- Toggle insert mode (Ins)
-function handle_ins()
+local function handle_ins()
 	insert_mode = not insert_mode
 end
 
 -- Move the cursor to the next character (Right)
-function next_char(amount)
+local function next_char()
 	cursor = next_utf8(line, cursor)
 	update()
 end
 
 -- Move the cursor to the previous character (Left)
-function prev_char(amount)
+local function prev_char()
 	cursor = prev_utf8(line, cursor)
 	update()
 end
 
 -- Clear the current line (Ctrl+C)
-function clear()
+local function clear()
 	line = ''
 	cursor = 1
 	insert_mode = false
@@ -286,14 +325,14 @@ function clear()
 end
 
 -- Close the REPL if the current line is empty, otherwise do nothing (Ctrl+D)
-function maybe_exit()
+local function maybe_exit()
 	if line == '' then
 		set_active(false)
 	end
 end
 
 -- Run the current command and clear the line (Enter)
-function handle_enter()
+local function handle_enter()
 	if line == '' then
 		return
 	end
@@ -306,7 +345,7 @@ function handle_enter()
 end
 
 -- Go to the specified position in the command history
-function go_history(new_pos)
+local function go_history(new_pos)
 	local old_pos = history_pos
 	history_pos = new_pos
 
@@ -341,23 +380,23 @@ function go_history(new_pos)
 end
 
 -- Go to the specified relative position in the command history (Up, Down)
-function move_history(amount)
+local function move_history(amount)
 	go_history(history_pos + amount)
 end
 
 -- Go to the first command in the command history (PgUp)
-function handle_pgup()
+local function handle_pgup()
 	go_history(1)
 end
 
 -- Stop browsing history and start editing a blank line (PgDown)
-function handle_pgdown()
+local function handle_pgdown()
 	go_history(#history + 1)
 end
 
 -- Move to the start of the current word, or if already at the start, the start
 -- of the previous word. (Ctrl+Left)
-function prev_word()
+local function prev_word()
 	-- This is basically the same as next_word() but backwards, so reverse the
 	-- string in order to do a "backwards" find. This wouldn't be as annoying
 	-- to do if Lua didn't insist on 1-based indexing.
@@ -367,7 +406,7 @@ end
 
 -- Move to the end of the current word, or if already at the end, the end of
 -- the next word. (Ctrl+Right)
-function next_word()
+local function next_word()
 	cursor = select(2, line:find('%s*[^%s]*', cursor)) + 1
 	update()
 end
@@ -396,7 +435,7 @@ local completers = {
 -- Use 'list' to find possible tab-completions for 'part.' Returns the longest
 -- common prefix of all the matching list items and a flag that indicates
 -- whether the match was unique or not.
-function complete_match(part, list)
+local function complete_match(part, list)
 	local completion = nil
 	local full_match = false
 
@@ -421,7 +460,7 @@ function complete_match(part, list)
 end
 
 -- Complete the option or property at the cursor (TAB)
-function complete()
+local function complete()
 	local before_cur = line:sub(1, cursor - 1)
 	local after_cur = line:sub(cursor)
 
@@ -462,19 +501,19 @@ function complete()
 end
 
 -- Move the cursor to the beginning of the line (HOME)
-function go_home()
+local function go_home()
 	cursor = 1
 	update()
 end
 
 -- Move the cursor to the end of the line (END)
-function go_end()
+local function go_end()
 	cursor = line:len() + 1
 	update()
 end
 
 -- Delete from the cursor to the end of the word (Ctrl+W)
-function del_word()
+local function del_word()
 	local before_cur = line:sub(1, cursor - 1)
 	local after_cur = line:sub(cursor)
 
@@ -485,26 +524,26 @@ function del_word()
 end
 
 -- Delete from the cursor to the end of the line (Ctrl+K)
-function del_to_eol()
+local function del_to_eol()
 	line = line:sub(1, cursor - 1)
 	update()
 end
 
 -- Delete from the cursor back to the start of the line (Ctrl+U)
-function del_to_start()
+local function del_to_start()
 	line = line:sub(cursor)
 	cursor = 1
 	update()
 end
 
 -- Empty the log buffer of all messages (Ctrl+L)
-function clear_log_buffer()
+local function clear_log_buffer()
 	log_ring = {}
 	update()
 end
 
 -- Returns a string of UTF-8 text from the clipboard (or the primary selection)
-function get_clipboard(clip)
+local function get_clipboard(clip)
 	if platform == 'linux' then
 		local res = utils.subprocess({ args = {
 			'xclip', '-selection', clip and 'clipboard' or 'primary', '-out'
@@ -547,7 +586,7 @@ end
 
 -- Paste text from the window-system's clipboard. 'clip' determines whether the
 -- clipboard or the primary selection buffer is used (on X11 only.)
-function paste(clip)
+local function paste(clip)
 	local text = get_clipboard(clip)
 	local before_cur = line:sub(1, cursor - 1)
 	local after_cur = line:sub(cursor)
@@ -555,30 +594,6 @@ function paste(clip)
 	cursor = cursor + text:len()
 	update()
 end
-
--- The REPL has pretty specific requirements for key bindings that aren't
--- really satisified by any of mpv's helper methods, since they must be in
--- their own input section, but they must also raise events on key-repeat.
--- Hence, this function manually creates an input section and puts a list of
--- bindings in it.
-function add_repl_bindings(bindings)
-	local cfg = ''
-	for i, binding in ipairs(bindings) do
-		local key = binding[1]
-		local fn = binding[2]
-		local name = '__repl_binding_' .. i
-		mp.add_key_binding(nil, name, fn, 'repeatable')
-		cfg = cfg .. key .. ' script-binding ' .. mp.script_name .. '/' ..
-		      name .. '\n'
-	end
-	mp.commandv('define-section', 'repl-input', cfg, 'force')
-end
-
--- Mapping from characters to mpv key names
-local binding_name_map = {
-	[' '] = 'SPACE',
-	['#'] = 'SHARP',
-}
 
 -- List of input bindings. This is a weird mashup between common GUI text-input
 -- bindings and readline bindings.
@@ -619,17 +634,36 @@ local bindings = {
 	{ 'meta+v',      function() paste(true) end             },
 	{ 'ctrl+w',      del_word                               },
 }
--- Add bindings for all the printable US-ASCII characters from ' ' to '~'
--- inclusive. Note, this is a pretty hacky way to do text input. mpv's input
--- system was designed for single-key key bindings rather than text input, so
--- things like dead-keys and non-ASCII input won't work. This is probably okay
--- though, since all mpv's commands and properties can be represented in ASCII.
-for b = (' '):byte(), ('~'):byte() do
-	local c = string.char(b)
-	local binding = binding_name_map[c] or c
-	bindings[#bindings + 1] = {binding, function() handle_char_input(c) end}
+
+local function text_input(info)
+	if info.key_text and (info.event == "press" or info.event == "down"
+						  or info.event == "repeat")
+	then
+		handle_char_input(info.key_text)
+	end
 end
-add_repl_bindings(bindings)
+
+function define_key_bindings()
+	if #key_bindings > 0 then
+		return
+	end
+	for _, bind in ipairs(bindings) do
+		-- Generate arbitrary name for removing the bindings later.
+		local name = "_repl_" .. (#key_bindings + 1)
+		key_bindings[#key_bindings + 1] = name
+		mp.add_forced_key_binding(bind[1], name, bind[2], {repeatable = true})
+	end
+	mp.add_forced_key_binding("any_unicode", "_repl_text", text_input,
+		{repeatable = true, complex = true})
+	key_bindings[#key_bindings + 1] = "_repl_text"
+end
+
+function undefine_key_bindings()
+	for _, name in ipairs(key_bindings) do
+		mp.remove_key_binding(name)
+	end
+	key_bindings = {}
+end
 
 -- Add a global binding for enabling the REPL. While it's enabled, its bindings
 -- will take over and it can be closed with ESC.
@@ -648,16 +682,33 @@ mp.observe_property('osd-width', 'native', update)
 mp.observe_property('osd-height', 'native', update)
 
 -- Watch for log-messages and print them in the REPL console
-mp.enable_messages('info')
+enable_messages(true)
 mp.register_event('log-message', function(e)
 	-- Ignore log messages from the OSD because of paranoia, since writing them
 	-- to the OSD could generate more messages in an infinite loop.
 	if e.prefix:sub(1, 3) == 'osd' then return end
 
-	-- Use color for warn/error/fatal messages. Colors are stolen from base16
-	-- Eighties by Chris Kempson.
+	-- Ignore messages output by this script.
+	if e.prefix == mp.get_script_name() then return end
+
+	-- Ignore buffer overflow warning messages. Overflowed log messages would
+	-- have been offscreen anyway.
+	if e.prefix == 'overflow' then return end
+
+	-- Filter out trace-level log messages, even if the terminal-default log
+	-- level includes them. These aren't too useful for an on-screen display
+	-- without scrollback and they include messages that are generated from the
+	-- OSD display itself.
+	if e.level == 'trace' then return end
+
+	-- Use color for debug/v/warn/error/fatal messages. Colors are stolen from
+	-- base16 Eighties by Chris Kempson.
 	local style = ''
-	if e.level == 'warn' then
+	if e.level == 'debug' then
+		style = '{\\1c&Ha09f93&}'
+	elseif e.level == 'v' then
+		style = '{\\1c&H99cc99&}'
+	elseif e.level == 'warn' then
 		style = '{\\1c&H66ccff&}'
 	elseif e.level == 'error' then
 		style = '{\\1c&H7a77f2&}'
@@ -666,5 +717,4 @@ mp.register_event('log-message', function(e)
 	end
 
 	log_add(style, '[' .. e.prefix .. '] ' .. e.text)
-	update()
 end)
