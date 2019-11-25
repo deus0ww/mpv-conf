@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-16
+-- deus0ww - 2019-11-24
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -13,16 +13,16 @@ local o = {
 	auto_switch      = true,     -- Auto switch shader preset base on path
 	
 	preset_1_enabled = true,     -- Enable this preset
-	preset_1_path    = 'anime',  -- Path search string
+	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
 	preset_1_index   = 2,        -- Shader set index to enable
 	
-	preset_2_enabled = false,
-	preset_2_path    = 'cartoon',
-	preset_2_index   = 3,
+	preset_2_enabled = true,
+	preset_2_path    = '%[.+%]',
+	preset_2_index   = 2,
 	
 	preset_3_enabled = false,
-	preset_3_path    = '',
-	preset_3_index   = 1,
+	preset_3_path    = 'cartoon',
+	preset_3_index   = 3,
 }
 opt.read_options(o, mp.get_script_name())
 
@@ -137,6 +137,10 @@ local function mpv_set_shaders(shaders)
 end
 
 local function clear_shaders(no_osd)
+	if not is_initialized() then 
+		msg.debug('Setting Shaders: skipped - properties not available.')
+		return
+	end
 	local shaders = sets[current_set]()
 	show_osd(no_osd, shaders.label)
 	if last_shaders == nil then
@@ -148,6 +152,10 @@ local function clear_shaders(no_osd)
 end
 
 local function set_shaders(no_osd)
+	if not is_initialized() then 
+		msg.debug('Setting Shaders: skipped - properties not available.')
+		return
+	end
 	local shaders = sets[current_set]()
 	show_osd(no_osd, shaders.label)
 	if not enabled then
