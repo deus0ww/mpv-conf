@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-30
+-- deus0ww - 2019-11-26
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -15,8 +15,11 @@ end)
 
 
 -- Property Changer
+local function title_case(first, rest) return first:upper()..rest:lower() end
 local function change_prop(action, property, value)
-	mp.command_native_async({action, property, tostring(value)}, function() mp.osd_message(('%s:% 4d'):format(property:gsub('^%l', string.upper), mp.get_property_native(property, 0))) end)
+	mp.command_native_async({action, property, tostring(value)}, function()
+		mp.osd_message(('%s:% 4d'):format(property:gsub("(%a)([%w_']*)", title_case), mp.get_property_native(property, 0)))
+	end)
 end
 mp.register_script_message('Add', function(property, value) change_prop('add', property, value) end)
 mp.register_script_message('Set', function(property, value) change_prop('set', property, value) end)
