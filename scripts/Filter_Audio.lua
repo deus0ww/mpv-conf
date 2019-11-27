@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-06
+-- deus0ww - 2019-11-28
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -73,7 +73,8 @@ add({
 		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.500*LFE"', -- ATSC + LFE
 		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.000*LFE"', -- ATSC
 		'pan="stereo| FL < 1.000*FC + 0.707*FL + 0.500*SL + 0.500*BL + 0.000*LFE | FR < 1.000*FC + 0.707*FR + 0.500*SR + 0.500*BR + 0.000*LFE"', -- Nightmode
-		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:gain=12:type=freq:interpolate=yes',
+		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:gain=0:type=freq:interpolate=yes',
+		'bs2b=profile=jmeier',
 	},
 })
 
@@ -90,7 +91,7 @@ add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
 	default_on_load = true,
-	reset_on_load = true,
+	reset_on_load = false,
 	filters = {
 		'extrastereo=m=1.25',
 		'extrastereo=m=1.50',
