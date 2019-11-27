@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-17
+-- deus0ww - 2019-11-27
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -287,7 +287,7 @@ local function workers_start()
 	if state.cache_dir and state.cache_dir ~= '' then os.remove(join_paths(state.cache_dir, 'stop')) end
 	for i, worker in ipairs(workers_indexed) do
 		if i > state.max_workers then break end
-		table.insert(workers_timers, mp.add_timeout( user_opts.worker_delay * i^0.8 + 1, function() mp.command_native({'script-message-to', worker, message.worker.start}) end))
+		table.insert(workers_timers, mp.add_timeout( user_opts.worker_delay * i^0.8, function() mp.command_native({'script-message-to', worker, message.worker.start}) end))
 	end
 	workers_started = true
 end
