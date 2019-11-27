@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-22
+-- deus0ww - 2019-11-28
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -90,6 +90,10 @@ local function run_set(property, arg1, arg2)
 	msg.debug('Setting:', property, arg1, arg2, 'PID:', pid)
 	local script = as_set:format(property, pid, arg1, arg2)
 	cmd.args[3] = script
+	if is_fullscreen() then
+		msg.debug('Aborted - In Fullscreen')
+		return
+	end
 	if o.async_applescript then
 		mp.command_native_async(cmd, function(_, res, _) if (#res.stderr > 0) then handle_error('Setting ' .. property .. ' failed.', script, res) end end)
 	else
@@ -290,7 +294,7 @@ local function change_window(current, target)
 	change_timer = mp.add_timeout(1.0, function()
 		current = get_current_state()
 		msg.debug('Changing Window (Timer) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
-		if not same_size(current, target) then change_window(current, target) end
+		if not same_size(current, target) and not is_fullscreen() then change_window(current, target) end
 	end)
 end
 
