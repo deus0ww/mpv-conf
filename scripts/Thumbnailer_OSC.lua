@@ -3033,3 +3033,4 @@ mp.register_script_message("osc-visibility", visibility_mode)
 mp.add_key_binding(nil, "visibility", function() visibility_mode("cycle") end)
 
 set_virt_mouse_area(0, 0, 0, 0, "input")
+set_virt_mouse_area(0, 0, 0, 0, "window-controls")
