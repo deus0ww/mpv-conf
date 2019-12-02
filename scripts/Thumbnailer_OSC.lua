@@ -1448,7 +1448,8 @@ function window_controls(alignment, topbar)
     if alignment == "left" then
         controlbox_left = wc_geo.x
         titlebox_left = wc_geo.x + controlbox_w + 5
-    elseif alignment == "right" then
+    elseif alignment == "right" or
+           alignment == "yes" then
         -- Already default
     else
         msg.error("Invalid setting \""..alignment.."\" for windowcontrols")
@@ -2954,10 +2955,12 @@ mp.set_key_bindings({
     {"mouse_move",              function(e) process_event("mouse_move", nil) end},
     {"mouse_leave",             mouse_leave},
 }, "showhide", "force")
-mp.set_key_bindings({
-    {"mouse_move",              function(e) process_event("mouse_move", nil) end},
-    {"mouse_leave",             mouse_leave},
-}, "showhide_wc", "force")
+if user_opts.windowcontrols ~= "no" then
+    mp.set_key_bindings({
+        {"mouse_move",              function(e) process_event("mouse_move", nil) end},
+        {"mouse_leave",             mouse_leave},
+    }, "showhide_wc", "force")
+end
 do_enable_keybindings()
 
 --mouse input bindings
