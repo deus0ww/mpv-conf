@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-26
+-- deus0ww - 2019-12-04
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -96,6 +96,13 @@ local last_interpolation = mp.get_property_native('interpolation', false)
 mp.observe_property('interpolation', 'native', function(_, interpolation)
 	if interpolation == nil or interpolation == last_interpolation then return end
 	last_interpolation = interpolation
-	mp.osd_message( (interpolation and '☑︎' or '☐') .. ' Interpolation')
+	local tscale = mp.get_property_native('tscale', 'na')
+	local window = mp.get_property_native('tscale-window', 'na')
+	local radius = mp.get_property_native('tscale-radius', 0)
+	local clamp  = mp.get_property_native('tscale-clamp', 1.0)
+	tscale = tscale ~= '' and tscale or 'na'
+	window = window ~= '' and window or 'na'
+	radius = radius ~= 0  and tostring(radius) or 'default'
+	mp.osd_message( ('%s Interpolation: [Filter=%s  Window=%s Radius=%s Clamp=%d]'):format((interpolation and '☑︎' or '☐'), tscale, window, radius, clamp) )
 end)
 
