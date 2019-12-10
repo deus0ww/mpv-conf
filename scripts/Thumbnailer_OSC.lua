@@ -84,7 +84,7 @@ end
 
 
 
--- deus0ww - 2019-12-04
+-- deus0ww - 2019-12-10
 
 ------------
 -- tn_osc --
@@ -2962,6 +2962,7 @@ mp.observe_property("fullscreen", "bool",
 mp.observe_property("border", "bool",
     function(name, val)
         state.border = val
+        request_init()
     end
 )
 mp.observe_property("idle-active", "bool",
