@@ -386,7 +386,7 @@ local function show_thumbnail(seek_percent)
 		closest_index, path = find_closest(seek_index, seek_index < seek)
 		thumbnail.closest_index_last, thumbnail.total_expected_last, thumbnail.ready_last, thumbnail.seek_index_last = closest_index, total_expected, ready, seek_index
 	end
-	local x, y = floor(thumbnail.left / scale.x + 0.5), floor(thumbnail.top / scale.y + 0.5)
+	local x, y = floor(thumbnail.left or 0 / scale.x + 0.5), floor(thumbnail.top or 0 / scale.y + 0.5)
 	if path and not (thumbnail.visible and thumbnail.x_last == x and thumbnail.y_last == y and thumbnail.path_last == path) then
 		thumbnail.x_last, thumbnail.y_last, thumbnail.path_last  = x, y, path
 		draw_thumbnail(x, y, path)
@@ -563,7 +563,7 @@ local osc_styles = {
     vidtitleBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\q2}",
 
     wcButtons = "{\\1c&HFFFFFF\\fs24\\fnmpv-osd-symbols}",
-    wcTitle = "{\\1c&HFFFFFF\\fs24}",
+    wcTitle = "{\\1c&HFFFFFF\\fs24\\q2}",
     wcBar = "{\\1c&H000000}",
 }
 
