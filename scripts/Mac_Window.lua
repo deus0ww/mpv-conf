@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-28
+-- deus0ww - 2019-12-16
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -39,6 +39,7 @@ local menubar_h      = 23   -- 22px + 1px border
 local display        = {w = o.display_w, h = o.display_h - menubar_h }
 local align_current  = o.default_align
 
+local osd_w, osd_h   = 0, 0
 local rotate_initial = 0
 local rotate_current = 0
 
@@ -51,10 +52,12 @@ local function is_rotated()     return not ((((rotate_current - rotate_initial) 
 -----------------
 -- AppleScript --
 -----------------
-local as_set = 'tell app "System Events" to set %s of window 1 of (process 1 whose unix id = %d) to {%d, %d}'
-local as_get = 'tell app "System Events" to get %s of window 1 of (process 1 whose unix id = %d)'
-local cmd    = { name = 'subprocess', args = {'osascript', '-e'}, capture_stdout = true, capture_stderr = true, }
-local pid    = utils.getpid()
+local as_pre  = 'tell app "System Events"'
+local as_set  = 'set %s of window 1 of (process 1 whose unix id = %d) to {%d, %d}'
+local as_post = 'end tell'
+local as_get  = 'tell app "System Events" to get {position, size} of window 1 of (process 1 whose unix id = %d)'
+local cmd     = { name = 'subprocess', capture_stdout = true, capture_stderr = true, }
+local pid     = utils.getpid()
 
 local function handle_error(desc, script, res)
 	msg.warn(desc, res.stderr)
@@ -69,88 +72,67 @@ local function handle_error(desc, script, res)
 	end
 end
 
-local function run_get(property)
-	msg.debug('Getting:', property, 'PID:', pid)
-	local script = as_get:format(property, pid)
-	cmd.args[3] = script
-	local res = mp.command_native(cmd)
-	if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 or #res.stdout == 0 then
-		handle_error('Getting ' .. property .. ' failed.', script, res)
-		return {-1, -1}
-	end
-	local v = {}
-	for num in res.stdout:gmatch('[^,%s]+') do
-		v[#v+1] = tonumber(num) or -1
-	end
-	msg.debug(utils.to_string(v))
-	return v
-end
-
-local function run_set(property, arg1, arg2)
-	msg.debug('Setting:', property, arg1, arg2, 'PID:', pid)
-	local script = as_set:format(property, pid, arg1, arg2)
-	cmd.args[3] = script
+local function run_set(x, y, w, h)
+	msg.debug('Setting:', utils.to_string({{x=x, y=y}, {w=w, h=h}, pid=pid}))
 	if is_fullscreen() then
 		msg.debug('Aborted - In Fullscreen')
 		return
 	end
+	local args = {'osascript'}
+	args[#args+1] = '-e'
+	args[#args+1] = as_pre
+	if ((x and x > 0) and (y and y > 0)) then
+		args[#args+1] = '-e'
+		args[#args+1] = as_set:format('position', pid, x, y)
+	end
+	if ((w and w > 0) and (h and h > 0)) then
+		args[#args+1] = '-e'
+		args[#args+1] = as_set:format('size', pid, w, h)
+	end
+	args[#args+1] = '-e'
+	args[#args+1] = as_post
+	cmd.args = args
 	if o.async_applescript then
-		mp.command_native_async(cmd, function(_, res, _) if (#res.stderr > 0) then handle_error('Setting ' .. property .. ' failed.', script, res) end end)
+		mp.command_native_async(cmd, function(_, res, _) 
+			if (#res.stderr > 0) then
+				handle_error('Setting window state failed.', utils.to_string(args), res)
+			end
+		end)
 	else
 		local res = mp.command_native(cmd)
 		if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 then
-			handle_error('Setting ' .. property .. ' failed.', script, res)
+			handle_error('Setting window state failed.', utils.to_string(args), res)
 		end
 	end
 end
 
-
-
----------------------
--- Getters/Setters --
----------------------
-local function get_position()
-	if o.check_position then
-		local u = run_get('position')
-		return { x = u[1], y = u[2] }
-	else
-		return { x = -1, y = -1 }
+local function run_get()
+	msg.debug('Getting position and size. PID:', pid)
+	local args = {'osascript'}
+	args[#args+1] = '-e'
+	args[#args+1] = as_get:format(pid)
+	cmd.args = args
+	local res = mp.command_native(cmd)
+	if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 or #res.stdout == 0 then
+		handle_error('Getting window state failed.', utils.to_string(args), res)
+		return {-1, -1}
 	end
-end
-
-local function get_size()
-	local osd_w, osd_h = mp.get_osd_size()
-	if osd_w and osd_w > 0 and osd_h and osd_h > 0 then
-		msg.debug('Getting: OSD Size')
-		return { w = (osd_w / o.scale_factor), h = (osd_h / o.scale_factor) }
-	else
-		local v = run_get('size')
-		return { w = v[1], h = v[2] }
+	local u = {}
+	for num in res.stdout:gmatch('[^,%s]+') do
+		u[#u+1] = tonumber(num) or -1
 	end
+	local v = { x = u[1], y = u[2], w = u[3], h = u[4] }
+	msg.debug(utils.to_string(v))
+	return v
 end
 
-local function get_position_and_size()
-	local u, v = get_position(), get_size()
-	local z = { x = u.x, y = u.y, w = v.w, h = v.h }
-	msg.debug('Current Window:', utils.to_string(z))
-	return z
-end
-
-local function set_position(x, y) 
-	msg.debug('Trying to set position:', x, y)
-	if is_fullscreen() then
-		msg.debug('Aborted - In Fullscreen')
+local function run_get_simple()
+	if ((osd_w and osd_w > 0) and (osd_h and osd_h > 0) and not o.check_position) then
+		msg.debug('Getting Size: OSD')
+		return { x = -1, y = -1, w = (osd_w / o.scale_factor), h = (osd_h / o.scale_factor) }
 	else
-		run_set('position', x, y + menubar_h)
-	end
-end
-
-local function set_size(w, h)
-	msg.debug('Trying to set size:', w, h)
-	if is_fullscreen() then
-		msg.debug('Aborted - In Fullscreen')
-	else
-		run_set('size', w, h)
+		msg.debug('Getting Size: AppleScript')
+		return run_get()
 	end
 end
 
@@ -235,7 +217,7 @@ local function move_absolute(x, y, w, h)
 	x, y, w, h = sanitize_all(x, y, w, h)
 	x = math.min(display.w - w, x)
 	y = math.min(display.h - h, y)
-	x, y, w, h = sanitize_all(x, y, w, h)
+	x, y, w, h = sanitize_all(x, y + menubar_h, w, h)
 	msg.debug('Target Position:', x, y)
 	return x, y
 end
@@ -274,28 +256,20 @@ local function same_size(a, b)     return (a.w == b.w and a.h == b.h) end
 local function same_position(a, b) return (a.x == b.x and a.y == b.y) end
 
 local function get_current_state()
-	local current = get_position_and_size()
+	local current = run_get_simple()
 	local target  = { x = current.x, y = current.y, w = current.w, h = current.h }
 	return current, target
 end
 
-local change_timer
 local function change_window(current, target)
 	msg.debug('Changing Window - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
-	
-	-- Shrink
-	if (current.w > target.w or current.w > target.w) then set_size(target.w, target.h) end
-	-- Move
-	if not same_position(current, target) then set_position(target.x, target.y) end
-	-- Expand
-	if (current.w < target.w or current.w < target.w) then set_size(target.w, target.h) end
-	
-	if change_timer then change_timer:kill() end
-	change_timer = mp.add_timeout(1.0, function()
-		current = get_current_state()
-		msg.debug('Changing Window (Timer) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
-		if not same_size(current, target) and not is_fullscreen() then change_window(current, target) end
-	end)
+	if (not same_size(current, target)) or
+	   (not same_position(current, target) and o.check_position) or
+	   (not is_fullscreen()) then
+		run_set(target.x, target.y, target.w, target.h)
+	else
+		msg.debug('Aborting - Unchanged or in fullscreen')
+	end
 end
 
 local function move_on_screen() -- Make sure the window is completely on screen
@@ -375,19 +349,30 @@ local function set_defaults()
 		move(o.default_move_x, o.default_move_y, default_move[move_type])
 	end
 end
-
-local function on_file_loaded()
-	if change_timer then change_timer:kill() end
-	reset_rotation()
-	set_defaults()
-end
-
-mp.register_event('file-loaded', function() mp.add_timeout(0.25, on_file_loaded) end)
-
 mp.register_script_message('Defaults', set_defaults)
 
+local timer
+mp.register_event('file-loaded', function()
+	reset_rotation()
+	if timer then timer:kill() end
+	timer = mp.add_periodic_timer(0.05, function()
+		if is_fullscreen() then
+			timer:kill()
+			msg.debug('Fullscreen - Aborting')
+		elseif ((osd_w and osd_w > 0) and (osd_h and osd_h > 0)) then
+			timer:kill()
+			msg.debug('OSD - Ready')
+			set_defaults()
+		else
+			msg.debug('OSD - Waiting: ', osd_w, osd_h)
+		end
+	end)
+end)
+
+mp.observe_property('osd-width',  'native', function(_, w) osd_w = w end)
+mp.observe_property('osd-height', 'native', function(_, h) osd_h = h end)
 mp.observe_property('video-params/rotate', 'native', function(_, rotate)
-	if not rotate or rotate == rotate_current then return end
+	if not rotate or rotate == rotate_current or is_fullscreen() then return end
 	rotate_current = rotate
-	mp.add_timeout(0.25, set_defaults)
+	set_defaults()
 end)
