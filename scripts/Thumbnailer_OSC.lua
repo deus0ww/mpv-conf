@@ -2521,6 +2521,7 @@ function osc_init()
         reset_margins()
     end
 
+    update_margins()
 end
 
 function reset_margins()
@@ -2530,6 +2531,24 @@ function reset_margins()
         end
         state.using_video_margins = false
     end
+end
+
+function update_margins()
+    local margins = osc_param.video_margins
+
+    -- Don't report margins if it's visible only temporarily. At least for
+    -- console.lua this makes no sense.
+    if (not state.osc_visible) or (user_opts.hidetimeout >= 0) then
+        margins = {l = 0, r = 0, t = 0, b = 0}
+    end
+
+    utils.shared_script_property_set("osc-margins",
+        string.format("%f,%f,%f,%f", margins.l, margins.r, margins.t, margins.b))
+end
+
+function shutdown()
+    reset_margins()
+    utils.shared_script_property_set("osc-margins", nil)
 end
 
 --
@@ -2573,6 +2592,7 @@ end
 function osc_visible(visible)
     state.osc_visible = visible
     control_timer()
+    update_margins()
 end
 
 function pause_state(name, enabled)
@@ -2943,7 +2963,7 @@ end
 
 validate_user_opts()
 
-mp.register_event("shutdown", reset_margins)
+mp.register_event("shutdown", shutdown)
 mp.register_event("start-file", request_init)
 mp.register_event("tracks-changed", request_init)
 mp.observe_property("playlist", nil, request_init)
@@ -3074,6 +3094,8 @@ function visibility_mode(mode, no_osd)
     if not no_osd and tonumber(mp.get_property("osd-level")) >= 1 then
         mp.osd_message("OSC visibility: " .. mode)
     end
+
+    update_margins()
 end
 
 visibility_mode(user_opts.visibility, true)
