@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-16
+-- deus0ww - 2019-12-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -53,9 +53,9 @@ local function is_rotated()     return not ((((rotate_current - rotate_initial) 
 -- AppleScript --
 -----------------
 local as_pre  = 'tell app "System Events"'
-local as_set  = 'set %s of window 1 of (process 1 whose unix id = %d) to {%d, %d}'
+local as_set  = 'set %s of every window of (every process whose unix id = %d) to {%d, %d}'
 local as_post = 'end tell'
-local as_get  = 'tell app "System Events" to get {position, size} of window 1 of (process 1 whose unix id = %d)'
+local as_get  = 'tell app "System Events" to get {position, size} of every window of (every process whose unix id = %d)'
 local cmd     = { name = 'subprocess', capture_stdout = true, capture_stderr = true, }
 local pid     = utils.getpid()
 
@@ -252,8 +252,8 @@ end
 ----------
 -- Core --
 ----------
-local function same_size(a, b)     return (a.w == b.w and a.h == b.h) end
-local function same_position(a, b) return (a.x == b.x and a.y == b.y) end
+local function resize_needed(a, b) return  ((a.w ~= b.w) or (a.h ~= b.h)) end
+local function move_needed(a, b) return (((a.x >= 0) and (a.y >= 0)) or o.check_position) and ((a.x ~= b.x) or (a.y ~= b.y)) end
 
 local function get_current_state()
 	local current = run_get_simple()
@@ -261,15 +261,22 @@ local function get_current_state()
 	return current, target
 end
 
-local function change_window(current, target)
-	msg.debug('Changing Window - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
-	if (not same_size(current, target)) or
-	   (not same_position(current, target) and o.check_position) or
-	   (not is_fullscreen()) then
+local function change_window_once(current, target)
+	msg.debug('Resize Needed: ', resize_needed(current, target), ' | Move Needed: ', move_needed(current, target))
+	if ((resize_needed(current, target) or move_needed(current, target)) and not is_fullscreen()) then
 		run_set(target.x, target.y, target.w, target.h)
 	else
 		msg.debug('Aborting - Unchanged or in fullscreen')
 	end
+end
+
+local function change_window(current, target)
+	msg.debug('Changing Window (attempt 1) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
+	change_window_once(current, target)
+	
+	current = run_get()
+	msg.debug('Changing Window (attempt 2) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
+	change_window_once(current, target)
 end
 
 local function move_on_screen() -- Make sure the window is completely on screen
