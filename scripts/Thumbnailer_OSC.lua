@@ -559,7 +559,7 @@ local osc_styles = {
     topButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\fnmpv-osd-symbols}",
     smallButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs28\\fnmpv-osd-symbols}",
     timecodesBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs27}",
-    timePosBar = "{\\blur0.4\\bord".. user_opts.tooltipborder .."\\1c&HFFFFFF\\3c&H000000\\fs27}",
+    timePosBar = "{\\blur0.54\\bord".. user_opts.tooltipborder .."\\1c&HFFFFFF\\3c&H000000\\fs27}",
     vidtitleBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\q2}",
 
     wcButtons = "{\\1c&HFFFFFF\\fs24\\fnmpv-osd-symbols}",
@@ -585,8 +585,10 @@ local state = {
     message_text,
     message_timeout,
     fullscreen = false,
-    timer = nil,
-    cache_idle = false,
+    tick_timer = nil,
+    tick_last_time = 0,                     -- when the last tick() was run
+    hide_timer = nil,
+    cache_state = nil,
     idle = false,
     enabled = true,
     input_enabled = true,
@@ -598,7 +600,7 @@ local state = {
 }
 
 local window_control_box_width = 80
-
+local tick_delay = 0.03
 
 --
 -- Helperfunctions
@@ -2362,7 +2364,7 @@ function osc_init()
         if user_opts.seekrangestyle == "none" then
             return nil
         end
-        local cache_state = mp.get_property_native("demuxer-cache-state", nil)
+        local cache_state = state.cache_state
         if not cache_state then
             return nil
         end
@@ -2371,14 +2373,17 @@ function osc_init()
             return nil
         end
         local ranges = cache_state["seekable-ranges"]
-        for _, range in pairs(ranges) do
-            range["start"] = 100 * range["start"] / duration
-            range["end"] = 100 * range["end"] / duration
-        end
         if #ranges == 0 then
             return nil
         end
-        return ranges
+        local nranges = {}
+        for _, range in pairs(ranges) do
+            nranges[#nranges + 1] = {
+                ["start"] = 100 * range["start"] / duration,
+                ["end"] = 100 * range["end"] / duration,
+            }
+        end
+        return nranges
     end
     ne.eventresponder["mouse_move"] = --keyframe seeking when mouse is dragged
         function (element)
@@ -2443,8 +2448,8 @@ function osc_init()
     ne = new_element("cache", "button")
 
     ne.content = function ()
-        local cache_state = mp.get_property_native("demuxer-cache-state", {})
-        if not (cache_state["seekable-ranges"] and
+        local cache_state = state.cache_state
+        if not (cache_state and cache_state["seekable-ranges"] and
             #cache_state["seekable-ranges"] > 0) then
             -- probably not a network stream
             return ""
@@ -2577,12 +2582,11 @@ function hide_osc()
         -- typically hide happens at render() from tick(), but now tick() is
         -- no-op and won't render again to remove the osc, so do that manually.
         state.osc_visible = false
-        timer_stop()
         render_wipe()
     elseif (user_opts.fadeduration > 0) then
         if not(state.osc_visible == false) then
             state.anitype = "out"
-            control_timer()
+            request_tick()
         end
     else
         osc_visible(false)
@@ -2590,61 +2594,41 @@ function hide_osc()
 end
 
 function osc_visible(visible)
-    state.osc_visible = visible
-    control_timer()
-    update_margins()
+    if state.osc_visible ~= visible then
+        state.osc_visible = visible
+        update_margins()
+    end
+    request_tick()
 end
 
 function pause_state(name, enabled)
     state.paused = enabled
-    control_timer()
+    request_tick()
 end
 
-function cache_state(name, idle)
-    state.cache_idle = idle
-    control_timer()
+function cache_state(name, st)
+    state.cache_state = st
+    request_tick()
 end
 
-function control_timer()
-    if (state.paused) and (state.osc_visible) and
-        ( not(state.cache_idle) or not (state.anitype == nil) ) then
-
-        timer_start()
-    else
-        timer_stop()
+-- Request that tick() is called (which typically re-renders the OSC).
+-- The tick is then either executed immediately, or rate-limited if it was
+-- called a small time ago.
+function request_tick()
+    if state.tick_timer == nil then
+        state.tick_timer = mp.add_timeout(0, tick)
     end
-end
 
-function timer_start()
-    if not (state.timer_active) then
-        msg.trace("timer start")
-
-        if (state.timer == nil) then
-            -- create new timer
-            state.timer = mp.add_periodic_timer(0.03, tick)
-        else
-            -- resume existing one
-            state.timer:resume()
+    if not state.tick_timer:is_enabled() then
+        local now = mp.get_time()
+        local timeout = tick_delay - (now - state.tick_last_time)
+        if timeout < 0 then
+            timeout = 0
         end
-
-        state.timer_active = true
+        state.tick_timer.timeout = timeout
+        state.tick_timer:resume()
     end
 end
-
-function timer_stop()
-    if (state.timer_active) then
-        msg.trace("timer stop")
-
-        if not (state.timer == nil) then
-            -- kill timer
-            state.timer:kill()
-        end
-
-        state.timer_active = false
-    end
-end
-
-
 
 function mouse_leave()
     if user_opts.hidetimeout >= 0 then
@@ -2777,11 +2761,23 @@ function render()
     end
 
     -- autohide
-    if not (state.showtime == nil) and (user_opts.hidetimeout >= 0)
-        and (state.showtime + (user_opts.hidetimeout/1000) < now)
-        and (state.active_element == nil) and not (mouse_over_osc) then
-
-        hide_osc()
+    if not (state.showtime == nil) and (user_opts.hidetimeout >= 0) then
+        local timeout = state.showtime + (user_opts.hidetimeout/1000) - now
+        if timeout <= 0 then
+            if (state.active_element == nil) and not (mouse_over_osc) then
+                hide_osc()
+            end
+        else
+            -- the timer is only used to recheck the state and to possibly run
+            -- the code below again
+            if not state.hide_timer then
+                state.hide_timer = mp.add_timeout(0, tick)
+            end
+            state.hide_timer.timeout = timeout
+            -- re-arm
+            state.hide_timer:kill()
+            state.hide_timer:resume()
+        end
     end
 
 
@@ -2880,7 +2876,7 @@ function process_event(source, what)
         if element_has_action(elements[n], action) then
             elements[n].eventresponder[action](elements[n])
         end
-        tick()
+        request_tick()
     end
 end
 
@@ -2934,6 +2930,12 @@ function tick()
     else
         -- Flush OSD
         mp.set_osd_ass(osc_param.playresy, osc_param.playresy, "")
+    end
+
+    state.tick_last_time = mp.get_time()
+
+    if state.anitype ~= nil then
+        request_tick()
     end
 end
 
@@ -3004,17 +3006,16 @@ mp.observe_property("window-maximized", "bool",
 mp.observe_property("idle-active", "bool",
     function(name, val)
         state.idle = val
-        tick()
+        request_tick()
     end
 )
 mp.observe_property("pause", "bool", pause_state)
-mp.observe_property("cache-idle", "bool", cache_state)
+mp.observe_property("demuxer-cache-state", "native", cache_state)
 mp.observe_property("vo-configured", "bool", function(name, val)
-    if val then
-        mp.register_event("tick", tick)
-    else
-        mp.unregister_event(tick)
-    end
+    request_tick()
+end)
+mp.observe_property("playback-time", "number", function(name, val)
+    request_tick()
 end)
 
 -- mouse show/hide bindings
