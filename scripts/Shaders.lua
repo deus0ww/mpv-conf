@@ -89,7 +89,7 @@ sets[#sets+1] = function()
 	s[#s+1] = 'SSimDownscaler.glsl'
 	s[#s+1] = 'adaptive-sharpen.glsl'
 	-- Options
-	o['dscale'] = 'ewa_robidoux'    -- For SSimDownscaler.glsl
+	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	
@@ -100,7 +100,7 @@ sets[#sets+1] = function()
 	local s, o, scale, label = {}, default_options(), get_scale()
 	if scale < 1 then
 		s[#s+1] = 'SSimDownscaler.glsl'
-		o['dscale'] = 'ewa_robidoux'    -- For SSimDownscaler.glsl
+		o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 		o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 		label   = 'Krig + SSimDS + AdaptiveSharpen'
 	elseif scale <= 2 then
@@ -133,7 +133,7 @@ sets[#sets+1] = function()
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
 	-- Options
-	o['dscale'] = 'ewa_robidoux'    -- For SSimDownscaler.glsl
+	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	
 	return { shaders = s, options = o, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS' }
