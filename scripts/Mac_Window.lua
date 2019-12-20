@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-20
+-- deus0ww - 2019-12-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -25,8 +25,7 @@ local o = {
 	default_move_x      = 50,
 	default_move_y      = 50,
 	
-	check_position      = false, -- Reduces movement but slower
-	async_applescript   = true,  -- Run applescripts asynchronously (faster but more error-prone)
+	async_applescript   = false, -- Run applescripts asynchronously (faster but more error-prone)
 }
 opt.read_options(o, mp.get_script_name())
 
@@ -128,7 +127,7 @@ local function run_get()
 end
 
 local function run_get_simple()
-	if ((osd_w and osd_w > 0) and (osd_h and osd_h > 0) and not o.check_position) then
+	if ((osd_w and osd_w > 0) and (osd_h and osd_h > 0)) then
 		msg.debug('Getting Size: OSD')
 		return { x = -1, y = -1, w = (osd_w / hidpi_scale), h = (osd_h / hidpi_scale) }
 	else
@@ -253,8 +252,7 @@ end
 ----------
 -- Core --
 ----------
-local function resize_needed(a, b) return  ((a.w ~= b.w) or (a.h ~= b.h)) end
-local function move_needed(a, b) return (((a.x >= 0) and (a.y >= 0)) or o.check_position) and ((a.x ~= b.x) or (a.y ~= b.y)) end
+local function window_changed(a, b) return ((a.w ~= b.w) or (a.h ~= b.h) or (a.x ~= b.x) or (a.y ~= b.y)) end
 
 local function get_current_state()
 	local current = run_get_simple()
@@ -263,8 +261,7 @@ local function get_current_state()
 end
 
 local function change_window_once(current, target)
-	msg.debug('Resize Needed: ', resize_needed(current, target), ' | Move Needed: ', move_needed(current, target))
-	if ((resize_needed(current, target) or move_needed(current, target)) and not is_fullscreen()) then
+	if (window_changed(current, target) and not is_fullscreen()) then
 		run_set(target.x, target.y, target.w, target.h)
 	else
 		msg.debug('Aborting - Unchanged or in fullscreen')
@@ -280,15 +277,7 @@ local function change_window(current, target)
 	change_window_once(current, target)
 end
 
-local function move_on_screen() -- Make sure the window is completely on screen
-	msg.debug(' === Moving on Screen ===')
-	local current, target = get_current_state()
-	target.x, target.y = move_absolute(current.x, current.y, target.w, target.h)
-	change_window(current, target)
-end
-
 local function resize(w, h, resize_type)
-	if o.check_position then move_on_screen() end
 	msg.debug(' === Resizing ===')
 	local current, target = get_current_state()
 	target.w, target.h = resize_type(w, h)
