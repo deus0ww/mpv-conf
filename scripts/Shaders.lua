@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-29
+-- deus0ww - 2019-12-22
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -55,7 +55,7 @@ end
 --------------------
 --- Shader Utils ---
 --------------------
-local function is_high_fps() return props['container-fps'] > 33 end
+local function is_high_fps() return props['container-fps'] > 27 end
 local function get_scale()
 	local width, height = props['width'], props['height']
 	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
