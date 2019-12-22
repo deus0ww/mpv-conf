@@ -2104,9 +2104,8 @@ end
 function update_options(list)
     validate_user_opts()
     request_tick()
-    if list["visibility"] then
-        visibility_mode(user_opts.visibility, true)
-    end
+    visibility_mode(user_opts.visibility, true)
+    request_init()
 end
 
 -- OSC INIT
@@ -2139,6 +2138,8 @@ function osc_init()
 
     -- stop seeking with the slider to prevent skipping files
     state.active_element = nil
+
+    osc_param.video_margins = {l = 0, r = 0, t = 0, b = 0}
 
     elements = {}
 
@@ -2498,30 +2499,6 @@ function osc_init()
     --do something with the elements
     prepare_elements()
 
-    if user_opts.boxvideo then
-        -- check whether any margin option has a non-default value
-        local margins_used = false
-
-        for _, opt in ipairs(margins_opts) do
-            if mp.get_property_number(opt[2], 0.0) ~= 0.0 then
-                margins_used = true
-            end
-        end
-
-        if not margins_used then
-            local margins = osc_param.video_margins
-            for _, opt in ipairs(margins_opts) do
-                local v = margins[opt[1]]
-                if v ~= 0 then
-                    mp.set_property_number(opt[2], v)
-                    state.using_video_margins = true
-                end
-            end
-        end
-    else
-        reset_margins()
-    end
-
     update_margins()
 end
 
@@ -2537,10 +2514,34 @@ end
 function update_margins()
     local margins = osc_param.video_margins
 
-    -- Don't report margins if it's visible only temporarily. At least for
-    -- console.lua this makes no sense.
+    -- Don't use margins if it's visible only temporarily.
     if (not state.osc_visible) or (get_hidetimeout() >= 0) then
         margins = {l = 0, r = 0, t = 0, b = 0}
+    end
+
+    if user_opts.boxvideo then
+        -- check whether any margin option has a non-default value
+        local margins_used = false
+
+        if not state.using_video_margins then
+            for _, opt in ipairs(margins_opts) do
+                if mp.get_property_number(opt[2], 0.0) ~= 0.0 then
+                    margins_used = true
+                end
+            end
+        end
+
+        if not margins_used then
+            for _, opt in ipairs(margins_opts) do
+                local v = margins[opt[1]]
+                if (v ~= 0) or state.using_video_margins then
+                    mp.set_property_number(opt[2], v)
+                    state.using_video_margins = true
+                end
+            end
+        end
+    else
+        reset_margins()
     end
 
     utils.shared_script_property_set("osc-margins",
