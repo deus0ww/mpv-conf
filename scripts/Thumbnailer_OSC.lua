@@ -575,6 +575,7 @@ local state = {
     using_video_margins = false,
     border = true,
     maximized = false,
+    osd = mp.create_osd_overlay("ass-events"),
 }
 
 local window_control_box_width = 80
@@ -585,6 +586,19 @@ local is_december = os.date("*t").month == 12
 --
 -- Helperfunctions
 --
+
+function set_osd(res_x, res_y, text)
+    if state.osd.res_x == res_x and
+       state.osd.res_y == res_y and
+       state.osd.data == text then
+        return
+    end
+    state.osd.res_x = res_x
+    state.osd.res_y = res_y
+    state.osd.data = text
+    state.osd.z = 1000
+    state.osd:update()
+end
 
 local margins_opts = {
     {"l", "video-margin-ratio-left"},
@@ -2643,7 +2657,7 @@ end
 
 function render_wipe()
     msg.trace("render_wipe()")
-    mp.set_osd_ass(0, 0, "{}")
+    state.osd:remove()
 end
 
 function render()
@@ -2794,8 +2808,8 @@ function render()
     end
 
     -- submit
-    mp.set_osd_ass(osc_param.playresy * osc_param.display_aspect,
-                   osc_param.playresy, ass.text)
+    set_osd(osc_param.playresy * osc_param.display_aspect,
+            osc_param.playresy, ass.text)
 end
 
 --
@@ -2931,7 +2945,7 @@ function tick()
         ass:pos(320, icon_y+65)
         ass:an(8)
         ass:append("Drop files or URLs to play here.")
-        mp.set_osd_ass(640, 360, ass.text)
+        set_osd(640, 360, ass.text)
 
         if state.showhide_enabled then
             mp.disable_key_bindings("showhide")
@@ -2947,7 +2961,7 @@ function tick()
         render()
     else
         -- Flush OSD
-        mp.set_osd_ass(osc_param.playresy, osc_param.playresy, "")
+        set_osd(osc_param.playresy, osc_param.playresy, "")
     end
 
     state.tick_last_time = mp.get_time()
