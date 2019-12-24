@@ -63,7 +63,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2019-12-12
+-- deus0ww - 2019-12-25
 
 ------------
 -- tn_osc --
@@ -2141,6 +2141,7 @@ function osc_init()
     else
         scale = user_opts.scalewindowed
     end
+    scale = scale * mp.get_property_native("display-hidpi-scale", 1.0)
 
     if user_opts.vidscale then
         osc_param.unscaled_y = baseResY

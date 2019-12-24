@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-27
+-- deus0ww - 2019-12-25
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -472,9 +472,8 @@ local function calculate_timing(is_remote)
 end
 
 local function calculate_scale()
-	if (user_opts and user_opts.scale and user_opts.scale > 0) then return user_opts.scale end
-	if not osc_opts then return 1 end
-	return (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
+	local scale = (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
+	return scale * mp.get_property_native('display-hidpi-scale', 1.0)
 end
 
 local function calculate_geometry(scale)
@@ -761,9 +760,7 @@ end)
 
 -- On Fullscreen Change
 mp.observe_property('fullscreen', 'native', function(_, fullscreen)
-	if (fullscreen == nil) or
-	   (user_opts and user_opts.scale and user_opts.scale > 0) or
-	   (not osc_opts or osc_opts.scalewindowed == osc_opts.scalefullscreen) then return end
+	if (fullscreen == nil) or (not osc_opts or osc_opts.scalewindowed == osc_opts.scalefullscreen) then return end
 	if initialized and saved_state then
 		reset_all(true)
 		saved_state.fullscreen = fullscreen

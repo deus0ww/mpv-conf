@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-21
+-- deus0ww - 2019-12-25
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -13,7 +13,6 @@ local utils   = require 'mp.utils'
 local o = {
 	display_w           = 2560,
 	display_h           = 1440,
-	hidpi_scale         = 1,	 -- 1=Non-Retina, 2=Retina
 
 	default_resize_type = 3,     -- 0=Off, 1=Absolute, 2=Percent of display, 3=Percent of display (one-axis), 4=Percent of Video
 	default_resize_w    = 50, 
@@ -36,7 +35,6 @@ opt.read_options(o, mp.get_script_name())
 ----------------
 local menubar_h      = 23   -- 22px + 1px border
 local display        = {w = o.display_w, h = o.display_h - menubar_h }
-local hidpi_scale    = mp.get_property_native('display-hidpi-scale', o.hidpi_scale)
 local align_current  = o.default_align
 
 local osd_w, osd_h   = 0, 0
@@ -128,7 +126,8 @@ end
 
 local function run_get_simple()
 	if ((osd_w and osd_w > 0) and (osd_h and osd_h > 0)) then
-		msg.debug('Getting Size: OSD')
+		local hidpi_scale = mp.get_property_native('display-hidpi-scale', 1.0)
+		msg.debug('Getting Size: OSD - Scale:', hidpi_scale)
 		return { x = -1, y = -1, w = (osd_w / hidpi_scale), h = (osd_h / hidpi_scale) }
 	else
 		msg.debug('Getting Size: AppleScript')
