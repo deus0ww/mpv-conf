@@ -3137,6 +3137,7 @@ function visibility_mode(mode, no_osd)
     end
 
     update_margins()
+    request_tick()
 end
 
 visibility_mode(user_opts.visibility, true)
