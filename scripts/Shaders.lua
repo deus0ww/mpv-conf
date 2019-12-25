@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-22
+-- deus0ww - 2019-12-25
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -24,13 +24,19 @@ local opts = {
 	preset_3_path    = 'cartoon',
 	preset_3_index   = 3,
 }
-opt.read_options(opts, mp.get_script_name())
+
+local current_index, enabled
+local function on_opts_update()
+	current_index  = opts.default_index
+	enabled        = opts.enabled
+end
+opt.read_options(opts, mp.get_script_name(), on_opts_update)
+on_opts_update()
 
 
 ------------------
 --- Properties ---
 ------------------
-local current_index, enabled = opts.default_index, opts.enabled
 local props, last_shaders
 local function reset()
 	props = {

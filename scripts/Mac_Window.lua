@@ -26,17 +26,20 @@ local o = {
 	
 	async_applescript   = false, -- Run applescripts asynchronously (faster but more error-prone)
 }
-opt.read_options(o, mp.get_script_name())
 
+local menubar_h = 23   -- 22px + 1px border
+local display, align_current
+local function on_opts_update()
+	display       = {w = o.display_w, h = o.display_h - menubar_h }
+	align_current = o.default_align
+end
+opt.read_options(o, mp.get_script_name(), on_opts_update)
+on_opts_update()
 
 
 ----------------
 -- Properties --
 ----------------
-local menubar_h      = 23   -- 22px + 1px border
-local display        = {w = o.display_w, h = o.display_h - menubar_h }
-local align_current  = o.default_align
-
 local osd_w, osd_h   = 0, 0
 local rotate_initial = 0
 local rotate_current = 0
@@ -113,7 +116,7 @@ local function run_get()
 	local res = mp.command_native(cmd)
 	if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 or #res.stdout == 0 then
 		handle_error('Getting window state failed.', utils.to_string(args), res)
-		return {-1, -1}
+		return { x = -1, y = -1, w = -1, h = -1 }
 	end
 	local u = {}
 	for num in res.stdout:gmatch('[^,%s]+') do
