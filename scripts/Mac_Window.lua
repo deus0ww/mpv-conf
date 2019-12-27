@@ -263,7 +263,9 @@ end
 ----------
 -- Core --
 ----------
-local function window_changed(a, b) return ((a.w ~= b.w) or (a.h ~= b.h) or (a.x ~= b.x) or (a.y ~= b.y)) end
+local tolerance = 1
+local function is_eq(a, b) return math.abs(a - b) <= tolerance end
+local function window_changed(a, b) return not (is_eq(a.w, b.w) and is_eq(a.h, b.h) and is_eq(a.x, b.x) and is_eq(a.y, b.y)) end
 
 local function get_current_state()
 	local current = run_get_simple()
