@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-25
+-- deus0ww - 2019-12-27
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -82,6 +82,14 @@ local function run_set(x, y, w, h)
 	local args = {'osascript'}
 	args[#args+1] = '-e'
 	args[#args+1] = as_pre
+	if ((x and x > 0) and (y and y > 0)) then
+		args[#args+1] = '-e'
+		args[#args+1] = as_set:format('position', pid, x, y)
+	end
+	if ((w and w > 0) and (h and h > 0)) then
+		args[#args+1] = '-e'
+		args[#args+1] = as_set:format('size', pid, w, h)
+	end
 	if ((x and x > 0) and (y and y > 0)) then
 		args[#args+1] = '-e'
 		args[#args+1] = as_set:format('position', pid, x, y)
