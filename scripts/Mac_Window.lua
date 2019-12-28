@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-27
+-- deus0ww - 2019-12-28
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -23,28 +23,52 @@ local o = {
 	default_move_type   = 0,     -- 0=Off, 1=Absolute, 2=Percent of display
 	default_move_x      = 50,
 	default_move_y      = 50,
-	
-	async_applescript   = false, -- Run applescripts asynchronously (faster but more error-prone)
 }
 
 local menubar_h = 23   -- 22px + 1px border
 local display, align_current
 local function on_opts_update()
-	display       = {w = o.display_w, h = o.display_h - menubar_h }
+	display       = { w = o.display_w, h = o.display_h - menubar_h }
 	align_current = o.default_align
 end
 opt.read_options(o, mp.get_script_name(), on_opts_update)
 on_opts_update()
 
 
+
+--------------
+-- Utilties --
+--------------
+local function sanitize(input, min, max, default, no_rounding)
+	if type(input) ~= 'number' then input = (tonumber(input) or default or 0) end
+	if min then input = math.max(input, min) end
+	if max then input = math.min(input, max) end
+	return no_rounding and input or (input < 0 and math.ceil(input - 0.5) or math.floor(input + 0.5))
+end
+
+local function sanitize_all(x, y, w, h)
+	x = x and sanitize(x, 0, display.w, 0) or nil
+	y = y and sanitize(y, 0, display.h, 0) or nil
+	w = w and sanitize(w, 0, display.w, 0) or nil
+	h = h and sanitize(h, 0, display.h, 0) or nil
+	return x, y, w, h
+end
+
+local function format_log(message, window)
+	return ('%-11s | Position: %4d %4d | Size: %4d %4d |'):format(message, window.x, window.y, window.w, window.h)
+end
+
+
+
 ----------------
 -- Properties --
 ----------------
-local osd_w, osd_h   = 0, 0
+local osd = { w = 0, h = 0 }
+local video = {w = 0, h = 0}
+
 local rotate_initial = 0
 local rotate_current = 0
 
-local function get_video_size() return { w = mp.get_property_native('video-params/dw', 0), h = mp.get_property_native('video-params/dh', 0) } end
 local function is_fullscreen()  return mp.get_property_native('fullscreen', true) end
 local function is_rotated()     return not ((((rotate_current - rotate_initial) % 180) ~= 0) == ((rotate_initial % 180) ~= 0)) end
 
@@ -61,9 +85,17 @@ local cmd     = { name = 'subprocess', capture_stdout = true, capture_stderr = t
 local pid     = utils.getpid()
 
 local function handle_error(desc, script, res)
-	msg.warn(desc, res.stderr)
+	if (res.error_string == 'killed') then
+		msg.warn(desc, 'Killed.')
+		return
+	elseif (res.error_string == 'init') then
+		msg.warn(desc, 'Failed to init.')
+	else
+		msg.warn(desc)
+	end
 	msg.warn('Failed Command:', script)
 	if res.stderr == nil then return end
+	msg.warn('Stderr:', res.stderr)
 	if res.stderr:find('osascript is not allowed assistive access') ~= nil then
 		mp.osd_message('Moving/Resizing Failed: Assistive access denied.', 4)
 	elseif res.stderr:find('Not authorized to send Apple events to System Events.') ~= nil then
@@ -74,9 +106,9 @@ local function handle_error(desc, script, res)
 end
 
 local function run_set(x, y, w, h)
-	msg.debug('Setting:', utils.to_string({{x=x, y=y}, {w=w, h=h}, pid=pid}))
+	msg.debug(format_log('Setting', { x = x, y = y, w = w, h = h }))
 	if is_fullscreen() then
-		msg.debug('Aborted - In Fullscreen')
+		msg.debug('Setting Window Aborted - In Fullscreen')
 		return
 	end
 	local args = {'osascript'}
@@ -98,26 +130,17 @@ local function run_set(x, y, w, h)
 		args[#args+1] = '-e'
 		args[#args+1] = as_set:format('position', pid, x, y)
 	end
-
 	args[#args+1] = '-e'
 	args[#args+1] = as_post
 	cmd.args = args
-	if o.async_applescript then
-		mp.command_native_async(cmd, function(_, res, _) 
-			if (#res.stderr > 0) then
-				handle_error('Setting window state failed.', utils.to_string(args), res)
-			end
-		end)
-	else
-		local res = mp.command_native(cmd)
-		if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 then
-			handle_error('Setting window state failed.', utils.to_string(args), res)
-		end
+	local res = mp.command_native(cmd)
+	if res.status < 0 or #res.error_string > 0 or #res.stderr > 0 then
+		handle_error('Setting window state failed.', utils.to_string(args), res)
 	end
 end
 
 local function run_get()
-	msg.debug('Getting position and size. PID:', pid)
+	msg.debug('Getting Window State with AppleScript - PID:', pid)
 	local args = {'osascript'}
 	args[#args+1] = '-e'
 	args[#args+1] = as_get:format(pid)
@@ -132,39 +155,19 @@ local function run_get()
 		u[#u+1] = tonumber(num) or -1
 	end
 	local v = { x = u[1], y = u[2], w = u[3], h = u[4] }
-	msg.debug(utils.to_string(v))
+	msg.debug(format_log('Got Current', v))
 	return v
 end
 
-local function run_get_simple()
-	if ((osd_w and osd_w > 0) and (osd_h and osd_h > 0)) then
+local function run_get_fast()
+	osd.w, osd.h = mp.get_osd_size()
+	if ((osd.w and osd.w > 0) and (osd.h and osd.h > 0)) then
 		local hidpi_scale = mp.get_property_native('display-hidpi-scale', 1.0)
-		msg.debug('Getting Size: OSD - Scale:', hidpi_scale)
-		return { x = -1, y = -1, w = (osd_w / hidpi_scale), h = (osd_h / hidpi_scale) }
+		msg.debug('Getting Window State with OSD - HiDPI Scale:', hidpi_scale)
+		return { x = -1, y = -1, w = (osd.w / hidpi_scale), h = (osd.h / hidpi_scale) }
 	else
-		msg.debug('Getting Size: AppleScript')
 		return run_get()
 	end
-end
-
-
-
-------------
--- Global --
-------------
-local function sanitize(input, min, max, default, no_rounding)
-	if type(input) ~= 'number' then input = (tonumber(input) or default or 0) end
-	if min then input = math.max(input, min) end
-	if max then input = math.min(input, max) end
-	return no_rounding and input or (input < 0 and math.ceil(input - 0.5) or math.floor(input + 0.5))
-end
-
-local function sanitize_all(x, y, w, h)
-	x = x and sanitize(x, 0, display.w, 0) or nil
-	y = y and sanitize(y, 0, display.h, 0) or nil
-	w = w and sanitize(w, 0, display.w, 0) or nil
-	h = h and sanitize(h, 0, display.h, 0) or nil
-	return x, y, w, h
 end
 
 
@@ -174,22 +177,22 @@ end
 -------------------
 -- Resize - Absolute Size
 local function resize_absolute(w, h)
-	msg.debug('Target Size:', w, h)
+	msg.debug(('Target Size: %7.2f %7.2f'):format(w, h))
 	local _, _, w, h = sanitize_all(nil, nil, w, h)
-	local video = get_video_size()
 	local aspect = is_rotated() and video.h / video.w or video.w / video.h
 	if (w / h) > aspect then
-		w = math.floor(h * aspect + 0.5)
+		w = h * aspect
 	else
-		h = math.floor(w / aspect + 0.5)
+		h = w / aspect
 	end
-	msg.debug('Target Size:', w, h)
+	_, _, w, h = sanitize_all(nil, nil, w, h)
+	msg.debug(('Target Size: %7.2f %7.2f'):format(w, h))
 	return w, h
 end
 
 -- Resize - Percent of display Size
 local function resize_percent_display(px, py)
-	msg.debug('Target Size:', px, py, '% of display')
+	msg.debug(('Target Size: %6.1f%% %6.1f%% of display'):format(px, py))
 	px = sanitize(px, 0, 100, 100, true) / 100
 	py = sanitize(py, 0, 100, 100, true) / 100
 	return resize_absolute(display.w * px, display.h * py)
@@ -197,8 +200,7 @@ end
 
 -- Resize - Percent of display Size (one-axis)
 local function resize_percent_display_oneaxis(percent)
-	msg.debug('Target Size:', percent, '%', '(one-axis)')
-	local video = get_video_size()
+	msg.debug(('Target Size: %6.1f%% of display (one-axis)'):format(percent))
 	local aspect = is_rotated() and video.h / video.w or video.w / video.h
 	if aspect > 1 then
 		return resize_percent_display(100, percent)
@@ -209,9 +211,8 @@ end
 
 -- Resize - Percent of Video Size
 local function resize_percent(percent)
-	msg.debug('Target Size:', percent, '%')
+	msg.debug(('Target Size: %6.1f%% of video'):format(percent))
 	percent = sanitize(percent, 0, 800, 100, true) / 100
-	local video = get_video_size()
 	local w, h = video.w * percent, video.h * percent
 	if is_rotated() then w, h = h, w end
 	return resize_absolute(w, h)
@@ -224,18 +225,18 @@ end
 -----------------
 -- Move - Absolute Coordinate
 local function move_absolute(x, y, w, h)
-	msg.debug('Target Position:', x, y)
+	msg.debug(('Target Position: %7.2f %7.2f'):format(x, y))
 	x, y, w, h = sanitize_all(x, y, w, h)
 	x = math.min(display.w - w, x)
 	y = math.min(display.h - h, y)
 	x, y, w, h = sanitize_all(x, y + menubar_h, w, h)
-	msg.debug('Target Position:', x, y)
+	msg.debug(('Target Position: %7.2f %7.2f'):format(x, y))
 	return x, y
 end
 
 -- Move - Percent of display
 local function move_percent_display(px, py, w, h)
-	msg.debug('Target Position:', px, py, '% of display')
+	msg.debug(('Target Position: %6.1f%% %6.1f%% of display'):format(px, py))
 	px = sanitize(px, -100, 100, 50, true) / 100
 	py = sanitize(py, -100, 100, 50, true) / 100
 	local x = px > 0 and (px * display.w) or ((1 + px) * display.w)
@@ -268,7 +269,7 @@ local function is_eq(a, b) return math.abs(a - b) <= tolerance end
 local function window_changed(a, b) return not (is_eq(a.w, b.w) and is_eq(a.h, b.h) and is_eq(a.x, b.x) and is_eq(a.y, b.y)) end
 
 local function get_current_state()
-	local current = run_get_simple()
+	local current = run_get_fast()
 	local target  = { x = current.x, y = current.y, w = current.w, h = current.h }
 	return current, target
 end
@@ -277,21 +278,23 @@ local function change_window_once(current, target)
 	if (window_changed(current, target) and not is_fullscreen()) then
 		run_set(target.x, target.y, target.w, target.h)
 	else
-		msg.debug('Aborting - Unchanged or in fullscreen')
+		msg.debug('Setting Skipped - Within Tolerance or in Fullscreen')
 	end
 end
 
 local function change_window(current, target)
-	msg.debug('Changing Window (attempt 1) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
+	msg.debug(format_log('[1] Current', current))
+	msg.debug(format_log('[1] Target', target))
 	change_window_once(current, target)
 	
 	current = run_get()
-	msg.debug('Changing Window (attempt 2) - Current:', utils.to_string(current), '| Target: ', utils.to_string(target))
+	msg.debug(format_log('[2] Current', current))
+	msg.debug(format_log('[2] Target', target))
 	change_window_once(current, target)
 end
 
 local function resize(w, h, resize_type)
-	msg.debug(' === Resizing ===')
+	msg.debug(' --- Resizing ---')
 	local current, target = get_current_state()
 	target.w, target.h = resize_type(w, h)
 	if align_current ~= 0 then
@@ -303,14 +306,14 @@ local function resize(w, h, resize_type)
 end
 
 local function move(x, y, move_type)
-	msg.debug(' === Moving ===')
+	msg.debug(' --- Moving ---')
 	local current, target = get_current_state()
 	target.x, target.y = move_type(x, y, current.w, current.h)
 	change_window(current, target)
 end
 
 local function align(a)
-	msg.debug(' === Align ===')
+	msg.debug(' --- Align ---')
 	local current, target = get_current_state()
 	align_current = a
 	target.x, target.y = move_align(a, current.w, current.h)
@@ -339,13 +342,24 @@ mp.register_script_message('Align',          align)
 local default_resize = { resize_absolute, resize_percent_display, resize_percent_display_oneaxis, resize_percent }
 local default_move   = { move_absolute, move_percent_display }
 
-local function reset_rotation()
-	rotate_initial = mp.get_property_native('video-params/rotate', 0)
-	rotate_current = rotate_initial
+local initialized = false
+
+local function reset()
+	initialized = false
+	osd   = { w = 0, h = 0 }
+	video = { w = 0, h = 0 }
+	rotate_initial = -1
+	rotate_current = -1
 end
 
 local function set_defaults()
-	if is_fullscreen() then return end
+	if is_fullscreen() then
+		msg.debug('Setting Defaults Aborted - In Fullscreen')
+		return
+	elseif not initialized then
+		msg.debug('Setting Defaults Aborted - Not Initialized')
+		return
+	end
 	align_current  = o.default_align
 	local resize_type = sanitize(o.default_resize_type, 0, 3, 1)
 	local move_type   = sanitize(o.default_move_type,   0, 2, 1)
@@ -359,30 +373,48 @@ local function set_defaults()
 		move(o.default_move_x, o.default_move_y, default_move[move_type])
 	end
 end
-mp.register_script_message('Defaults', set_defaults)
-
-local timer
-mp.register_event('file-loaded', function()
-	reset_rotation()
-	if timer then timer:kill() end
-	timer = mp.add_periodic_timer(0.05, function()
-		if is_fullscreen() then
-			timer:kill()
-			msg.debug('Fullscreen - Aborting')
-		elseif ((osd_w and osd_w > 0) and (osd_h and osd_h > 0)) then
-			timer:kill()
-			msg.debug('OSD - Ready')
-			set_defaults()
-		else
-			msg.debug('OSD - Waiting: ', osd_w, osd_h)
-		end
-	end)
+mp.register_script_message('Defaults', function()
+	msg.debug(' === Setting Defaults Manually ===')
+	set_defaults()
 end)
 
-mp.observe_property('osd-width',  'native', function(_, w) osd_w = w end)
-mp.observe_property('osd-height', 'native', function(_, h) osd_h = h end)
+local function observe_prop(k, v)
+	if     k == 'osd-width'           then osd.w   = v or 0
+	elseif k == 'osd-height'          then osd.h   = v or 0
+	elseif k == 'dwidth'              then video.w = v or 0
+	elseif k == 'dheight'             then video.h = v or 0
+	elseif k == 'video-params/rotate' then
+		rotate_initial = v or -1
+		rotate_current = rotate_initial
+	else msg.debug('Unknown Property')
+	end
+	
+	if osd.w   > 0 and osd.h   > 0 and
+	   video.w > 0 and video.h > 0 and
+	   rotate_initial >= 0 then
+		mp.unobserve_property(observe_prop)
+		msg.debug(('OSD Size:   %4d %4d'):format(osd.w, osd.h))
+		msg.debug(('Video Size: %4d %4d'):format(video.w, video.h))
+		msg.debug( 'Rotation:  ', rotate_initial)
+		initialized = true
+		set_defaults()
+	else
+		msg.debug('Waiting...')
+	end
+end
+
+mp.register_event('file-loaded', function()
+	msg.debug(' === Setting Defaults Automatically ===')
+	reset()
+	mp.observe_property('osd-width',           'native', observe_prop)
+	mp.observe_property('osd-height',          'native', observe_prop)
+	mp.observe_property('dwidth',              'native', observe_prop)
+	mp.observe_property('dheight',             'native', observe_prop)
+	mp.observe_property('video-params/rotate', 'native', observe_prop)
+end)
+
 mp.observe_property('video-params/rotate', 'native', function(_, rotate)
-	if not rotate or rotate == rotate_current or is_fullscreen() then return end
+	if not rotate or rotate == rotate_current or not initialized then return end
 	rotate_current = rotate
 	set_defaults()
 end)
