@@ -63,7 +63,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2019-12-25
+-- deus0ww - 2019-12-30
 
 ------------
 -- tn_osc --
@@ -488,6 +488,7 @@ mp.register_script_message(message.osc.update, function(json)
 			tn_thumbnails_ready[index]   = ready
 		end
 	end
+	request_tick()
 end)
 
 mp.register_script_message(message.debug, function()
