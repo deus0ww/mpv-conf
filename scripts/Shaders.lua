@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-25
+-- deus0ww - 2019-12-31
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -40,21 +40,23 @@ on_opts_update()
 local props, last_shaders
 local function reset()
 	props = {
-		['width']               = '',
-		['height']              = '',
-		['osd-width']           = 0,
-		['osd-height']          = 0,
-		['container-fps']       = '',
-		['video-params/rotate'] = '',
+		['dwidth']              = -1,
+		['dheight']             = -1,
+		['osd-width']           = -1,
+		['osd-height']          = -1,
+		['container-fps']       = -1,
+		['video-params/rotate'] = -1,
 	}
 end
 reset()
 
 local function is_initialized()
-	for _, value in pairs(props) do
-		if value == '' then return false end
-	end
-	return true
+	return ((props['dwidth']              >  0) and
+            (props['dheight']             >  0) and
+            (props['osd-width']           >  0) and
+            (props['osd-height']          >  0) and
+            (props['container-fps']       >  0) and
+            (props['video-params/rotate'] >= 0))
 end
 
 
@@ -63,7 +65,7 @@ end
 --------------------
 local function is_high_fps() return props['container-fps'] > 27 end
 local function get_scale()
-	local width, height = props['width'], props['height']
+	local width, height = props['dwidth'], props['dheight']
 	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
 	return math.min( mp.get_property_native('osd-width', 0) / width, mp.get_property_native('osd-height', 0) / height )
 end
@@ -219,6 +221,19 @@ end
 --------------------------
 --- Observers & Events ---
 --------------------------
+local timer = mp.add_timeout(2, function() set_shaders(true) end)
+timer:kill()
+local function observe_prop(k, v)
+	msg.debug(k, props[k], '->', v)
+	props[k] = v or -1
+	
+	if is_initialized() then
+		msg.debug('Resetting Timer')
+		timer:kill()
+		timer:resume()
+	end
+end
+
 mp.register_event('file-loaded', function()
 	reset()
 	if not opts.auto_switch then return end
@@ -227,24 +242,12 @@ mp.register_event('file-loaded', function()
 	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
 	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
 	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
+	
+	for prop, _ in pairs(props) do
+		mp.observe_property(prop, 'native', observe_prop)
+	end
 end)
 
-local timer = mp.add_timeout(1, function() set_shaders(true) end)
-timer:kill()
-for prop, _ in pairs(props) do
-	mp.observe_property(prop, 'native', function(_, v_new)
-		msg.debug('Property', prop, 'changed:', (props[prop] ~= '') and props[prop] or 'n/a', '->', v_new)
-		
-		if v_new == nil or v_new == props[prop] then return end
-		props[prop] = v_new
-		
-		if is_initialized() then
-			msg.debug('Resetting Timer')
-			timer:kill()
-			timer:resume()
-		end
-	end)
-end
 
 
 ----------------
