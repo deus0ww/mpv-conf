@@ -221,7 +221,7 @@ end
 --------------------------
 --- Observers & Events ---
 --------------------------
-local timer = mp.add_timeout(2, function() set_shaders(true) end)
+local timer = mp.add_timeout(3, function() set_shaders(true) end)
 timer:kill()
 local function observe_prop(k, v)
 	msg.debug(k, props[k], '->', v)
@@ -234,7 +234,7 @@ local function observe_prop(k, v)
 	end
 end
 
-mp.register_event('file-loaded', function()
+local function start()
 	reset()
 	if not opts.auto_switch then return end
 	local path = mp.get_property_native('path', ''):lower()
@@ -246,7 +246,8 @@ mp.register_event('file-loaded', function()
 	for prop, _ in pairs(props) do
 		mp.observe_property(prop, 'native', observe_prop)
 	end
-end)
+end
+mp.register_event('file-loaded', start)
 
 
 
