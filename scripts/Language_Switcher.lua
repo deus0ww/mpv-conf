@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-18
+-- deus0ww - 2020-01-03
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -22,7 +22,7 @@ local language_priorities = {
 local language_pairs = {
 	eng = {sub_language = 'tha', visibility = false },
 	jpn = {sub_language = 'eng', visibility = true  },
-	und = {sub_language = 'und', visibility = false },
+	und = {sub_language = 'eng', visibility = true },
 }
 
 local function process_track_list(track_list)
