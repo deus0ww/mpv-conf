@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-31
+-- deus0ww - 2020-01-04
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -8,18 +8,20 @@ local utils   = require 'mp.utils'
 
 local opts = {
 	enabled          = false,    -- Master switch to enable/disable shaders
+	set_timer        = 1,
+	hifps_threshold  = 27,
 
 	default_index    = 1,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
-	
+
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
 	preset_1_index   = 2,        -- Shader set index to enable
-	
+
 	preset_2_enabled = true,
 	preset_2_path    = '%[.+%]',
 	preset_2_index   = 2,
-	
+
 	preset_3_enabled = false,
 	preset_3_path    = 'cartoon',
 	preset_3_index   = 3,
@@ -63,7 +65,7 @@ end
 --------------------
 --- Shader Utils ---
 --------------------
-local function is_high_fps() return props['container-fps'] > 27 end
+local function is_high_fps() return props['container-fps'] > opts.hifps_threshold end
 local function get_scale()
 	local width, height = props['dwidth'], props['dheight']
 	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
@@ -221,7 +223,7 @@ end
 --------------------------
 --- Observers & Events ---
 --------------------------
-local timer = mp.add_timeout(3, function() set_shaders(true) end)
+local timer = mp.add_timeout(opts.set_timer, function() set_shaders(true) end)
 timer:kill()
 local function observe_prop(k, v)
 	msg.debug(k, props[k], '->', v)
