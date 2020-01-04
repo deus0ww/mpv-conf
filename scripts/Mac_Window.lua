@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-28
+-- deus0ww - 2020-01-04
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -154,7 +154,7 @@ local function run_get()
 	for num in res.stdout:gmatch('[^,%s]+') do
 		u[#u+1] = tonumber(num) or -1
 	end
-	local v = { x = u[1], y = u[2], w = u[3], h = u[4] }
+	local v = { x = u[1] or -1, y = u[2] or -1, w = u[3] or -1, h = u[4] or -1 }
 	msg.debug(format_log('Got Current', v))
 	return v
 end
