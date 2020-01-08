@@ -162,7 +162,7 @@ end
 
 local function run_get_fast()
 	local osd_dimensions = mp.get_property_native('osd-dimensions', {})
-	osd.w, osd.h = osd_dimensionsw, osd_dimensions.h
+	osd.w, osd.h = osd_dimensions.w, osd_dimensions.h
 	if ((osd.w and osd.w > 0) and (osd.h and osd.h > 0)) then
 		if hidpi_scale < 0 then hidpi_scale = mp.get_property_native("display-hidpi-scale", -1.0) end
 		msg.debug('Getting Window State with OSD - HiDPI Scale:', hidpi_scale)
