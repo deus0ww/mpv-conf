@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-28
+-- deus0ww - 2020-01-09
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -106,7 +106,7 @@ add({
 	filters = {
 		'scaletempo=stride=9:overlap=0.9:search=28',
 		'rubberband=pitch=quality:transients=crisp',
-		'rubberband=pitch=quality:transients=smooth',
+		'rubberband=pitch=quality:transients=mixed',
 	},
 })
 
