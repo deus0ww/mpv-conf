@@ -188,7 +188,6 @@ end
 local initialized        = false
 local default_cache_dir  = join_paths(OPERATING_SYSTEM == OS_WIN and os.getenv('TEMP') or '/tmp/', script_name)
 local saved_state, state
-local hidpi_scale = -1
 
 local user_opts = {
 	-- General
@@ -473,8 +472,7 @@ end
 
 local function calculate_scale()
 	local scale = (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
-	if hidpi_scale < 0 then hidpi_scale = mp.get_property_native("display-hidpi-scale", -1) end
-	return scale * (hidpi_scale > 0 and hidpi_scale or 1)
+	return scale * mp.get_property_native("display-hidpi-scale", 1.0)
 end
 
 local function calculate_geometry(scale)

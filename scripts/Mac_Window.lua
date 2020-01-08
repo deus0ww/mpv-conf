@@ -26,7 +26,6 @@ local o = {
 }
 
 local menubar_h   = 23   -- 22px + 1px border
-local hidpi_scale = -1.0
 local display, align_current
 local function on_opts_update()
 	display       = { w = o.display_w, h = o.display_h - menubar_h }
@@ -64,11 +63,11 @@ end
 ----------------
 -- Properties --
 ----------------
-local osd = { w = 0, h = 0 }
-local video = {w = 0, h = 0}
-
-local rotate_initial = 0
-local rotate_current = 0
+local osd            = { w = 0, h = 0 }
+local video          = { w = 0, h = 0}
+local dpi_scale      = 0
+local rotate_initial = -1
+local rotate_current = -1
 
 local function is_fullscreen()  return mp.get_property_native('fullscreen', true) end
 local function is_rotated()     return not ((((rotate_current - rotate_initial) % 180) ~= 0) == ((rotate_initial % 180) ~= 0)) end
@@ -164,10 +163,9 @@ local function run_get_fast()
 	local osd_dimensions = mp.get_property_native('osd-dimensions', {})
 	osd.w, osd.h = osd_dimensions.w, osd_dimensions.h
 	if ((osd.w and osd.w > 0) and (osd.h and osd.h > 0)) then
-		if hidpi_scale < 0 then hidpi_scale = mp.get_property_native("display-hidpi-scale", -1.0) end
+		local hidpi_scale = mp.get_property_native('display-hidpi-scale', 1.0)
 		msg.debug('Getting Window State with OSD - HiDPI Scale:', hidpi_scale)
-		local scale = (hidpi_scale > 0 and hidpi_scale or 1)
-		return { x = -1, y = -1, w = (osd.w / scale), h = (osd.h / scale) }
+		return { x = -1, y = -1, w = (osd.w / hidpi_scale), h = (osd.h / hidpi_scale) }
 	else
 		return run_get()
 	end
@@ -349,8 +347,9 @@ local initialized = false
 
 local function reset()
 	initialized = false
-	osd   = { w = 0, h = 0 }
-	video = { w = 0, h = 0 }
+	osd            = { w = 0, h = 0 }
+	video          = { w = 0, h = 0 }
+	dpi_scale      = 0
 	rotate_initial = -1
 	rotate_current = -1
 end
@@ -382,10 +381,11 @@ mp.register_script_message('Defaults', function()
 end)
 
 local function observe_prop(k, v)
-	if     k == 'osd-dimensions'      then osd.w   = (v and v.w) or 0
-		                                   osd.h   = (v and v.h) or 0
-	elseif k == 'dwidth'              then video.w = v or 0
-	elseif k == 'dheight'             then video.h = v or 0
+	if     k == 'osd-dimensions'      then osd.w     = (v and v.w) or 0
+		                                   osd.h     = (v and v.h) or 0
+	elseif k == 'dwidth'              then video.w   = v or 0
+	elseif k == 'dheight'             then video.h   = v or 0
+	elseif k == 'display-hidpi-scale' then dpi_scale = v or 0
 	elseif k == 'video-params/rotate' then
 		rotate_initial = v or -1
 		rotate_current = rotate_initial
@@ -394,6 +394,7 @@ local function observe_prop(k, v)
 	
 	if osd.w   > 0 and osd.h   > 0 and
 	   video.w > 0 and video.h > 0 and
+	   dpi_scale > 0 and
 	   rotate_initial >= 0 then
 		mp.unobserve_property(observe_prop)
 		msg.debug(('OSD Size:   %4d %4d'):format(osd.w, osd.h))
@@ -412,6 +413,7 @@ mp.register_event('file-loaded', function()
 	mp.observe_property('osd-dimensions',      'native', observe_prop)
 	mp.observe_property('dwidth',              'native', observe_prop)
 	mp.observe_property('dheight',             'native', observe_prop)
+	mp.observe_property('display-hidpi-scale', 'native', observe_prop)
 	mp.observe_property('video-params/rotate', 'native', observe_prop)
 end)
 

@@ -578,7 +578,6 @@ local state = {
     border = true,
     maximized = false,
     osd = mp.create_osd_overlay("ass-events"),
-    hidpi_scale = -1,
 }
 
 local window_control_box_width = 80
@@ -2144,8 +2143,7 @@ function osc_init()
         scale = user_opts.scalewindowed
     end
     
-    if state.hidpi_scale < 0 then state.hidpi_scale = mp.get_property_native("display-hidpi-scale", -1.0) end
-    scale = scale * (state.hidpi_scale > 0 and state.hidpi_scale or 1)
+    scale = scale * mp.get_property_native("display-hidpi-scale", 1.0)
 
     if user_opts.vidscale then
         osc_param.unscaled_y = baseResY
