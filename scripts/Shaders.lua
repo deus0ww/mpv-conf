@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-04
+-- deus0ww - 2020-01-09
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -67,9 +67,10 @@ end
 --------------------
 local function is_high_fps() return props['container-fps'] > opts.hifps_threshold end
 local function get_scale()
-	local width, height = props['dwidth'], props['dheight']
-	if (props['video-params/rotate'] % 180) ~= 0 then width, height = height, width end
-	return math.min( mp.get_property_native('osd-width', 0) / width, mp.get_property_native('osd-height', 0) / height )
+	local dwidth, dheight = props['dwidth'], props['dheight']
+	if (props['video-params/rotate'] % 180) ~= 0 then dwidth, dheight = dheight, dwidth end
+	local x_scale, y_scale = props['osd-width'] / dwidth, props['osd-height'] / dheight
+	return (x_scale > 0 and y_scale > 0) and math.min(x_scale, y_scale) or 1
 end
 local function default_options()
 	return {
@@ -226,7 +227,7 @@ end
 local timer = mp.add_timeout(opts.set_timer, function() set_shaders(true) end)
 timer:kill()
 local function observe_prop(k, v)
-	msg.debug(k, props[k], '->', v)
+	-- msg.debug(k, props[k], '->', utils.to_string(v))
 	props[k] = v or -1
 	
 	if is_initialized() then

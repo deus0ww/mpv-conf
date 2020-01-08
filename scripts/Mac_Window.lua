@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-04
+-- deus0ww - 2020-01-09
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -25,7 +25,8 @@ local o = {
 	default_move_y      = 50,
 }
 
-local menubar_h = 23   -- 22px + 1px border
+local menubar_h   = 23   -- 22px + 1px border
+local hidpi_scale = -1.0
 local display, align_current
 local function on_opts_update()
 	display       = { w = o.display_w, h = o.display_h - menubar_h }
@@ -160,11 +161,13 @@ local function run_get()
 end
 
 local function run_get_fast()
-	osd.w, osd.h = mp.get_osd_size()
+	local osd_dimensions = mp.get_property_native('osd-dimensions', {})
+	osd.w, osd.h = osd_dimensionsw, osd_dimensions.h
 	if ((osd.w and osd.w > 0) and (osd.h and osd.h > 0)) then
-		local hidpi_scale = mp.get_property_native('display-hidpi-scale', 1.0)
+		if hidpi_scale < 0 then hidpi_scale = mp.get_property_native("display-hidpi-scale", -1.0) end
 		msg.debug('Getting Window State with OSD - HiDPI Scale:', hidpi_scale)
-		return { x = -1, y = -1, w = (osd.w / hidpi_scale), h = (osd.h / hidpi_scale) }
+		local scale = (hidpi_scale > 0 and hidpi_scale or 1)
+		return { x = -1, y = -1, w = (osd.w / scale), h = (osd.h / scale) }
 	else
 		return run_get()
 	end
@@ -379,8 +382,8 @@ mp.register_script_message('Defaults', function()
 end)
 
 local function observe_prop(k, v)
-	if     k == 'osd-width'           then osd.w   = v or 0
-	elseif k == 'osd-height'          then osd.h   = v or 0
+	if     k == 'osd-dimensions'      then osd.w   = (v and v.w) or 0
+		                                   osd.h   = (v and v.h) or 0
 	elseif k == 'dwidth'              then video.w = v or 0
 	elseif k == 'dheight'             then video.h = v or 0
 	elseif k == 'video-params/rotate' then
@@ -406,8 +409,7 @@ end
 mp.register_event('file-loaded', function()
 	msg.debug(' === Setting Defaults Automatically ===')
 	reset()
-	mp.observe_property('osd-width',           'native', observe_prop)
-	mp.observe_property('osd-height',          'native', observe_prop)
+	mp.observe_property('osd-dimensions',      'native', observe_prop)
 	mp.observe_property('dwidth',              'native', observe_prop)
 	mp.observe_property('dheight',             'native', observe_prop)
 	mp.observe_property('video-params/rotate', 'native', observe_prop)

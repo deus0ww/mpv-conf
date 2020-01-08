@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-25
+-- deus0ww - 2020-01-09
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -188,6 +188,7 @@ end
 local initialized        = false
 local default_cache_dir  = join_paths(OPERATING_SYSTEM == OS_WIN and os.getenv('TEMP') or '/tmp/', script_name)
 local saved_state, state
+local hidpi_scale = -1
 
 local user_opts = {
 	-- General
@@ -213,7 +214,6 @@ local user_opts = {
 	-- OSC
 	spacer                = 2,                  -- Size of borders and spacings
 	show_progress         = 1,                  -- Display the thumbnail-ing progress. (0=never, 1=while generating, 2=always)
-	scale                 = 0,                  -- 0=Use OSC scaling, 1=No scaling, 2=Retina/HiDPI. For 0, it is recommended to set scalefullscreen = scalewindowed to avoid regenerations.
 	centered              = false,              -- Center the thumbnail on screen
 	update_time           = 0.5,                -- Fastest time interval between updating the OSC with new thumbnails
 
@@ -473,7 +473,8 @@ end
 
 local function calculate_scale()
 	local scale = (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
-	return scale * mp.get_property_native('display-hidpi-scale', 1.0)
+	if hidpi_scale < 0 then hidpi_scale = mp.get_property_native("display-hidpi-scale", -1) end
+	return scale * (hidpi_scale > 0 and hidpi_scale or 1)
 end
 
 local function calculate_geometry(scale)
