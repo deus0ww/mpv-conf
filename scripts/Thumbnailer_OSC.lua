@@ -63,7 +63,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2019-12-30
+-- deus0ww - 2020-01-10
 
 ------------
 -- tn_osc --
@@ -173,8 +173,6 @@ end
 ------------
 -- TN OSC --
 ------------
-local mpv_cmd = {async = 'async', overlay_add = 'overlay-add', overlay_remove = 'overlay-remove', script_message = 'script-message', bgra = 'bgra',}
-
 local osc_reg = {
 	script_name = mp.get_script_name(),
 	osc_opts = {
@@ -182,7 +180,7 @@ local osc_reg = {
 		scalefullscreen = user_opts.scalefullscreen,
 	},
 }
-mp.command_native({mpv_cmd.script_message, message.osc.registration, format_json(osc_reg)})
+mp.command_native({'script-message', message.osc.registration, format_json(osc_reg)})
 
 local tn_palette = {
 	black        = '000000',
@@ -335,19 +333,20 @@ local function find_closest(seek_index, round_up)
 	return nil, nil
 end
 
-local id = 9
-local cmd_async
+local draw_cmd = { name = 'overlay-add',    id = 9, offset = 0, fmt = 'bgra' }
+local hide_cmd = { name = 'overlay-remove', id = 9}
 
 local function draw_thumbnail(x, y, path)
-	if cmd_async then mp.abort_async_command(cmd_async) end
-	cmd_async = mp.command_native_async( { mpv_cmd.overlay_add, id, x, y, path, 0, mpv_cmd.bgra, tn_state.width, tn_state.height, tn_state.width * 4 }, function() end )
+	draw_cmd.x = x
+	draw_cmd.y = y
+	draw_cmd.file = path
+	mp.command_native(draw_cmd)
 	tn_osc.thumbnail.visible = true
 end
 
 local function hide_thumbnail()
 	if tn_osc and tn_osc.thumbnail and tn_osc.thumbnail.visible then
-		if cmd_async then mp.abort_async_command(cmd_async) end
-		cmd_async = mp.command_native_async( { mpv_cmd.overlay_remove, id }, function() end )
+		mp.command_native(hide_cmd)
 		tn_osc.thumbnail.visible = false
 	end
 end
@@ -468,6 +467,9 @@ mp.register_script_message(message.osc.update, function(json)
 	if new_data.state then
 		tn_state = new_data.state
 		if tn_state.is_rotated then tn_state.width, tn_state.height = tn_state.height, tn_state.width end
+		draw_cmd.w = tn_state.width
+		draw_cmd.h = tn_state.height
+		draw_cmd.stride = tn_state.width * 4
 	end
 	if new_data.osc_options then tn_osc_options = new_data.osc_options end
 	if new_data.osc_stats then
@@ -478,7 +480,7 @@ mp.register_script_message(message.osc.update, function(json)
 			else                                          tn_osc.display_progress.current = true end
 		end
 		tn_style_format.text_progress = tn_osc_stats.total > 99 and text_progress_format.three_digits or text_progress_format.two_digits
-		if tn_osc_stats.percent >= 1 then mp.command_native({mpv_cmd.script_message, message.osc.finish}) end
+		if tn_osc_stats.percent >= 1 then mp.command_native({'script-message', message.osc.finish}) end
 	end
 	if new_data.thumbnails and tn_state then
 		local index, ready
