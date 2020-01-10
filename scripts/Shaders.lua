@@ -22,7 +22,7 @@ local opts = {
 	preset_2_path    = '%[.+%]',
 	preset_2_index   = 2,
 
-	preset_3_enabled = true,
+	preset_3_enabled = false,
 	preset_3_path    = 'cartoon',
 	preset_3_index   = 3,
 }
@@ -80,7 +80,7 @@ local function default_options()
 	return {
 		['scale']  = 'ewa_lanczossharp',
 		['cscale'] = 'ewa_robidouxsharp',
-		['dscale'] = 'ewa_robidouxsharp',
+		['dscale'] = 'robidouxsharp',      -- ewa_* causes artifacts
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
 	}
