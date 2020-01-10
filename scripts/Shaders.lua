@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-09
+-- deus0ww - 2020-01-10
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -91,7 +91,7 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
-	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
+	s[#s+1] = (is_high_fps() or (get_scale() > 2)) and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
@@ -136,7 +136,7 @@ end
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
-	s[#s+1] = is_high_fps() and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
+	s[#s+1] = (is_high_fps() or (get_scale() > 2)) and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
