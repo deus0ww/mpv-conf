@@ -140,18 +140,20 @@ end
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
-	s[#s+1] = fsrcnnx()
 	s[#s+1] = 'ravu-lite-r4.hook'
+	s[#s+1] = fsrcnnx()
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
 	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
+	s[#s+1] = 'adaptive-sharpen.glsl'
 	-- Options
 	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	
-	return { shaders = s, options = o, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS' }
+	return { shaders = s, options = o, label = 'RAVU-Lite + FSRCNNX + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
 
