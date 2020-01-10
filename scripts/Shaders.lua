@@ -72,6 +72,10 @@ local function get_scale()
 	local x_scale, y_scale = props['osd-width'] / dwidth, props['osd-height'] / dheight
 	return (x_scale > 0 and y_scale > 0) and math.min(x_scale, y_scale) or 1
 end
+
+local fsrcnnx_8, fsrcnnx_16 = 'FSRCNNX_x2_8-0-4-1.glsl', 'FSRCNNX_x2_16-0-4-1.glsl'
+local function fsrcnnx() return (is_high_fps() or (get_scale() > 2.82843024)) and fsrcnnx_8 or fsrcnnx_16 end
+
 local function default_options()
 	return {
 		['scale']  = 'ewa_lanczossharp',
@@ -91,7 +95,7 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
-	s[#s+1] = (is_high_fps() or (get_scale() > 2)) and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
+	s[#s+1] = fsrcnnx()
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
@@ -136,7 +140,7 @@ end
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
-	s[#s+1] = (is_high_fps() or (get_scale() > 2)) and 'FSRCNNX_x2_8-0-4-1.glsl' or 'FSRCNNX_x2_16-0-4-1.glsl'
+	s[#s+1] = fsrcnnx()
 	s[#s+1] = 'ravu-lite-r4.hook'
 	-- Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
