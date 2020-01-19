@@ -1,4 +1,4 @@
--- deus0ww - 2019-12-04
+-- deus0ww - 2020-01-20
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -85,10 +85,12 @@ mp.observe_property('window-minimized', 'native', function(_, minimized)
 	end
 end)
 mp.register_event('file-loaded', function()
-	if mp.get_property_native('window-minimized', false) then mp.set_property_native('pause', true) end
+	if mp.get_property_native('window-minimized', false) then
+		mp.set_property_native('pause', true)
+		last_pause = false
+	end
 end)
 	
-
 
 
 -- Format Interpolation OSD Message
