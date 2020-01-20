@@ -1,4 +1,4 @@
--- deus0ww - 2019-04-28
+-- deus0ww - 2020-01-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -6,7 +6,7 @@ local msg     = require 'mp.msg'
 local filter_name = 'ScaleTempo'
 
 local function show_status(filter_enabled)
-	mp.osd_message(string.format('Speed: %.2f\n%s %s', mp.get_property('speed'), (filter_enabled and '☑︎' or '☐'), filter_name))
+	mp.osd_message(string.format('Speed: %.2f\n%s %s', mp.get_property('speed'), (filter_enabled and '■' or '□'), filter_name))
 end
 
 mp.register_script_message(filter_name .. '-enabled',  function() show_status(true)  end)

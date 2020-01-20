@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-20
+-- deus0ww - 2020-01-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -35,7 +35,7 @@ end)
 
 -- Show Play/Pause
 local display = mp.get_property_osd('osd-ass-cc/0', '') ..
-                '{\\1a&H80&\\3a&H80&\\bord2\\blur2\\fs20\\fnmpv-osd-symbols}%s' ..
+                '{\\1a&H20&\\3a&H20&\\bord0.75\\blur0.6\\fs20\\fnmpv-osd-symbols}%s' ..
                 mp.get_property_osd('osd-ass-cc/1', '')
 mp.observe_property('pause', 'native', function(_, pause)
 	if pause == nil then return end
@@ -49,7 +49,7 @@ local last_ontop = mp.get_property_native('ontop', false)
 mp.observe_property('ontop', 'native', function(_, ontop)
 	if ontop == nil or ontop == last_ontop then return end
 	last_ontop = ontop
-	mp.osd_message( (ontop and '☑︎' or '☐') .. ' On Top')
+	mp.osd_message( (ontop and '■' or '□') .. ' On Top')
 end)
 
 local paused_ontop = last_ontop
@@ -105,6 +105,6 @@ mp.observe_property('interpolation', 'native', function(_, interpolation)
 	tscale = tscale ~= '' and tscale or 'na'
 	window = window ~= '' and window or 'na'
 	radius = radius ~= 0  and tostring(radius) or 'default'
-	mp.osd_message( ('%s Interpolation: [Filter=%s  Window=%s Radius=%s Clamp=%d]'):format((interpolation and '☑︎' or '☐'), tscale, window, radius, clamp) )
+	mp.osd_message( ('%s Interpolation: [Filter=%s  Window=%s Radius=%s Clamp=%d]'):format((interpolation and '■' or '□'), tscale, window, radius, clamp) )
 end)
 

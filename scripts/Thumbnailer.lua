@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-09
+-- deus0ww - 2020-01-21
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -471,8 +471,13 @@ local function calculate_timing(is_remote)
 end
 
 local function calculate_scale()
-	local scale = (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
-	return scale * mp.get_property_native("display-hidpi-scale", 1.0)
+	local hidpi_scale = mp.get_property_native("display-hidpi-scale", 1.0)
+	if osc_opts then
+		local scale = (saved_state.fullscreen ~= nil and saved_state.fullscreen) and osc_opts.scalefullscreen or osc_opts.scalewindowed
+		return scale * hidpi_scale
+	else
+		return hidpi_scale
+	end
 end
 
 local function calculate_geometry(scale)
@@ -732,7 +737,7 @@ end)
 mp.register_script_message(message.auto_delete, function()
 	if auto_delete == nil then auto_delete = user_opts.auto_delete end
 	auto_delete = not auto_delete
-	mp.osd_message( (auto_delete and '☑︎' or '☐') .. ' Thumbnail Auto Delete')
+	mp.osd_message( (auto_delete and '■' or '□') .. ' Thumbnail Auto Delete')
 end)
 
 

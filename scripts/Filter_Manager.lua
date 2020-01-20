@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-18
+-- deus0ww - 2020-01-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -20,7 +20,7 @@ local function show_status(filter, no_osd)
 			local filter_string = filter.filters[filter.current_index]
 			filter_string = filter_string:find('=') == nil and filter_string or filter_string:gsub('=', ' [', 1):gsub(':', ' ') .. ']'
 			local index_string  = #filter.filters > 1 and (' %s'):format(filter.current_index) or ''
-			mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '☑︎' or '☐'), filter.name, index_string, filter_string ) )
+			mp.osd_message( ('%s %s%s:  %s'):format( (filter.enabled and '■' or '□'), filter.name, index_string, filter_string ) )
 		end
 	end)
 end

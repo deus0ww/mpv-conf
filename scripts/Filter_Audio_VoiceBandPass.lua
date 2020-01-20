@@ -1,4 +1,4 @@
--- deus0ww - 2019-03-16
+-- deus0ww - 2020-01-21
 
 local mp      = require 'mp'
 
@@ -15,9 +15,9 @@ local function show_status()
 	local lowpass_string  = format_filter_string(state.lowpass_string)
 	local highpass_string = format_filter_string(state.highpass_string)
 	if lowpass_string == '' and highpass_string == '' then
-		mp.osd_message('☐ VoiceBandPass')
+		mp.osd_message('□ VoiceBandPass')
 	else
-		mp.osd_message('☑︎ VoiceBandPass:  ' .. highpass_string .. '  ' .. lowpass_string)
+		mp.osd_message('■ VoiceBandPass:  ' .. highpass_string .. '  ' .. lowpass_string)
 	end
 end
 

@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-10
+-- deus0ww - 2020-01-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -160,7 +160,7 @@ end
 --------------------
 local function show_osd(no_osd, label)
 	if no_osd then return end
-	mp.osd_message(('%s Shaders Set %d: %s'):format(enabled and '☑︎' or '☐', current_index, label or 'n/a'), 6)
+	mp.osd_message(('%s Shaders Set %d: %s'):format(enabled and '■' or '□', current_index, label or 'n/a'), 6)
 end
 
 local function mpv_set_options(options)
