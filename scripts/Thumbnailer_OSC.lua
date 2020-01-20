@@ -52,6 +52,9 @@ local user_opts = {
     windowcontrols = "auto",    -- whether to show window controls
     windowcontrols_alignment = "right", -- which side to show window controls on
     greenandgrumpy = false,     -- disable santa hat
+    
+    font = "sans",
+    font_mono = "monospace",
 }
 
 -- read options from config and command-line
@@ -63,7 +66,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2020-01-10
+-- deus0ww - 2020-01-21
 
 ------------
 -- tn_osc --
@@ -200,7 +203,7 @@ local tn_style_format = {
 	progress_mini  = '{\\bord0\\1c&%s&\\1a&H%X&\\fs18\\fscx%f\\fscy%f',
 	progress_mini2 = '\\frz%d}',
 	progress_block = '{\\bord0\\1c&H%s&\\1a&H%X&}',
-	progress_text  = '{\\1c&%s&\\3c&H%s&\\1a&H%X&\\3a&H%X&\\blur0.25\\fs18\\fscx%f\\fscy%f\\xbord%f\\ybord%f}',
+	progress_text  = '{\\1c&%s&\\3c&H%s&\\1a&H%X&\\3a&H%X&\\blur0.25\\fs18\\fscx%f\\fscy%f\\xbord%f\\ybord%f\\fn' .. user_opts.font_mono .. '}',
 	text_timer     = '%.2ds',
 	text_progress  = '%.3d/%.3d',
 	text_progress2 = '[%d]',
@@ -529,20 +532,20 @@ local osc_param = { -- calculated by osc_init()
 local osc_styles = {
     bigButtons = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs50\\fnmpv-osd-symbols}",
     smallButtonsL = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs19\\fnmpv-osd-symbols}",
-    smallButtonsLlabel = "{\\fscx105\\fscy105\\fn" .. mp.get_property("options/osd-font") .. "}",
+    smallButtonsLlabel = "{\\fscx105\\fscy105\\fn" .. user_opts.font_mono .. "}",
     smallButtonsR = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs30\\fnmpv-osd-symbols}",
     topButtons = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\fnmpv-osd-symbols}",
 
     elementDown = "{\\1c&H999999}",
-    timecodes = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs20}",
-    vidtitle = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\q2}",
+    timecodes = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs20\\fn" .. user_opts.font_mono .. "}",
+    vidtitle = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\q2\\fn" .. user_opts.font .. "}",
     box = "{\\rDefault\\blur0\\bord1\\1c&H000000\\3c&HFFFFFF}",
 
     topButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\fnmpv-osd-symbols}",
     smallButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs28\\fnmpv-osd-symbols}",
-    timecodesBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs27}",
-    timePosBar = "{\\blur0.54\\bord".. user_opts.tooltipborder .."\\1c&HFFFFFF\\3c&H000000\\fs27}",
-    vidtitleBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\q2}",
+    timecodesBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs27\\fn" .. user_opts.font_mono .. "}",
+    timePosBar = "{\\blur0.54\\bord".. user_opts.tooltipborder .."\\1c&HFFFFFF\\3c&H000000\\fs27\\fn" .. user_opts.font_mono .. "}",
+    vidtitleBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\q2\\fn" .. user_opts.font .. "}",
 
     wcButtons = "{\\1c&HFFFFFF\\fs24\\fnmpv-osd-symbols}",
     wcTitle = "{\\1c&HFFFFFF\\fs24\\q2}",
