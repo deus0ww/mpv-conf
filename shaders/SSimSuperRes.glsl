@@ -21,8 +21,6 @@
 //!COMPONENTS 4
 //!DESC SSSR Downscaling I
 
-#define factor      ((HOOKED_pt*input_size)[axis])
-
 #define axis 0
 
 #define offset      vec2(0,0)
@@ -37,17 +35,17 @@
 
 vec4 hook() {
     // Calculate bounds
-    float low  = floor((HOOKED_pos - taps/input_size) * HOOKED_size - offset + 0.5)[axis];
-    float high = floor((HOOKED_pos + taps/input_size) * HOOKED_size - offset + 0.5)[axis];
+    float low  = ceil((HOOKED_pos - taps/input_size) * HOOKED_size - offset - 0.5)[axis];
+    float high = floor((HOOKED_pos + taps/input_size) * HOOKED_size - offset - 0.5)[axis];
 
     float W = 0.0;
     vec4 avg = vec4(0);
     vec2 pos = HOOKED_pos;
     vec4 tex;
 
-    for (float k = 0.0; k < high - low; k++) {
-        pos[axis] = HOOKED_pt[axis] * (k + low + 0.5);
-        float rel = (pos[axis] - HOOKED_pos[axis])*input_size[axis] + offset[axis]*factor;
+    for (float k = low; k <= high; k++) {
+        pos[axis] = HOOKED_pt[axis] * (k - offset[axis] + 0.5);
+        float rel = (pos[axis] - HOOKED_pos[axis])*input_size[axis];
         float w = Kernel(rel);
 
         tex.rgb = textureLod(HOOKED_raw, pos, 0.0).rgb * HOOKED_mul;
@@ -69,8 +67,6 @@ vec4 hook() {
 //!COMPONENTS 4
 //!DESC SSSR Downscaling II
 
-#define factor      ((LOWRES_pt*input_size)[axis])
-
 #define axis 1
 
 #define offset      vec2(0,0)
@@ -85,17 +81,17 @@ vec4 hook() {
 
 vec4 hook() {
     // Calculate bounds
-    float low  = floor((LOWRES_pos - taps/input_size) * LOWRES_size - offset + 0.5)[axis];
-    float high = floor((LOWRES_pos + taps/input_size) * LOWRES_size - offset + 0.5)[axis];
+    float low  = ceil((LOWRES_pos - taps/input_size) * LOWRES_size - offset - 0.5)[axis];
+    float high = floor((LOWRES_pos + taps/input_size) * LOWRES_size - offset - 0.5)[axis];
 
     float W = 0.0;
     vec4 avg = vec4(0);
     vec2 pos = LOWRES_pos;
     vec4 tex;
 
-    for (float k = 0.0; k < high - low; k++) {
-        pos[axis] = LOWRES_pt[axis] * (k + low + 0.5);
-        float rel = (pos[axis] - LOWRES_pos[axis])*input_size[axis] + offset[axis]*factor;
+    for (float k = low; k <= high; k++) {
+        pos[axis] = LOWRES_pt[axis] * (k - offset[axis] + 0.5);
+        float rel = (pos[axis] - LOWRES_pos[axis])*input_size[axis];
         float w = Kernel(rel);
 
         tex.rgb = textureLod(LOWRES_raw, pos, 0.0).rgb * LOWRES_mul;
