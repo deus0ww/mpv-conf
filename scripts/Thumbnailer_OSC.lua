@@ -1387,9 +1387,10 @@ function render_message(ass)
         local outline = tonumber(mp.get_property("options/osd-border-size"))
         local maxlines = math.ceil(osc_param.unscaled_y*0.75 / fontsize)
         local counterscale = osc_param.playresy / osc_param.unscaled_y
+		local hidpi_scale = mp.get_property_native("display-hidpi-scale", 1.0)
 
-        fontsize = fontsize * counterscale / math.max(0.65 + math.min(lines/maxlines, 1), 1)
-        outline = outline * counterscale / math.max(0.75 + math.min(lines/maxlines, 1)/2, 1)
+        fontsize = fontsize * hidpi_scale * counterscale / math.max(0.65 + math.min(lines/maxlines, 1), 1)
+        outline = outline * hidpi_scale * counterscale / math.max(0.75 + math.min(lines/maxlines, 1)/2, 1)
 
         local style = "{\\bord" .. outline .. "\\fs" .. fontsize .. "}"
 
