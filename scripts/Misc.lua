@@ -35,7 +35,7 @@ end)
 
 -- Show Play/Pause
 local display = mp.get_property_osd('osd-ass-cc/0', '') ..
-                '{\\1a&H20&\\3a&H20&\\bord0.75\\blur0.6\\fs20\\fnmpv-osd-symbols}%s' ..
+                '{\\1a&H20&\\3a&H20&\\bord1\\blur0.5\\fs20\\fnmpv-osd-symbols}%s' ..
                 mp.get_property_osd('osd-ass-cc/1', '')
 mp.observe_property('pause', 'native', function(_, pause)
 	if pause == nil then return end

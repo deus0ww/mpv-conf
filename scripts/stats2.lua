@@ -44,6 +44,7 @@ local o = {
     font_mono = "monospace",   -- monospaced digits are sufficient
     font_size = 8,
     font_color = "FFFFFF",
+    blur = 0,
     border_size = 0.8,
     border_color = "262626",
     shadow_x_offset = 0.0,
@@ -154,10 +155,10 @@ local function text_style()
         return set_ASS(true) .. o.custom_header
     else
         return format("%s{\\r}{\\an4}{\\fs%d}{\\fn%s}{\\bord%f}{\\3c&H%s&}" ..
-                      "{\\1c&H%s&}{\\alpha&H%s&}{\\xshad%f}{\\yshad%f}{\\4c&H%s&}",
+                      "{\\1c&H%s&}{\\alpha&H%s&}{\\xshad%f}{\\yshad%f}{\\4c&H%s&\\blur%s}",
                       set_ASS(true), o.font_size, o.font, o.border_size,
                       o.border_color, o.font_color, o.alpha, o.shadow_x_offset,
-                      o.shadow_y_offset, o.shadow_color)
+                      o.shadow_y_offset, o.shadow_color, o.blur)
     end
 end
 
