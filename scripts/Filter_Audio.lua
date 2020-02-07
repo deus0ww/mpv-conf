@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-09
+-- deus0ww - 2020-02-07
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -60,6 +60,19 @@ add({
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|060/0', --  4:1
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|140/0', --  8:1
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|300/0', -- 16:1
+	},
+})
+
+add({
+	name = 'Crystalizer',
+	filter_type = 'audio',
+	default_on_load = true,
+	reset_on_load = false,
+	filters = {
+		'crystalizer=i=0.5',
+		'crystalizer=i=1.0',
+		'crystalizer=i=2.0',
+		'crystalizer=i=4.0',
 	},
 })
 
