@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-03
+-- deus0ww - 2020-02-09
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -14,8 +14,8 @@ local language_codes = {
 local language_profiles = {
 	eng = 'ww-subtitle-english',
 	tha = 'ww-subtitle-thai',
-	und = 'ww-subtitle-thai',
 }
+setmetatable(language_profiles, {__index = function() return 'ww-subtitle-other' end})
 
 local codec_type = {
 	dvb_subtitle = 'bitmap',
@@ -56,14 +56,14 @@ end
 local last = { profile_lang = 'eng', profile_type = 'text', }
 local function set_profile(track_lang, track_type)
 	local profile_lang, profile_type = language_profiles[track_lang], codec_profile[track_type]
-	if last.profile_lang ~= profile_lang then
+	if profile_lang ~= nil and profile_lang ~= last.profile_lang then
 		last.profile_lang = profile_lang
 		msg.debug('Applying Profile:', profile_lang)
 		mp.commandv('apply-profile', profile_lang)
 	else
 		msg.debug('Skipping Profile:', profile_lang)
 	end
-	if last.profile_type ~= profile_type then
+	if profile_type ~= nil and profile_type ~= last.profile_type then
 		last.profile_type = profile_type
 		msg.debug('Applying Profile:', profile_type)
 		mp.commandv('apply-profile', profile_type)
