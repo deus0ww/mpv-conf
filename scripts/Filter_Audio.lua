@@ -1,4 +1,4 @@
--- deus0ww - 2020-02-07
+-- deus0ww - 2020-02-15
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -35,8 +35,9 @@ add({
 	reset_on_load = true,
 	filters = {
 		'highpass=frequency=100',
-		'highpass=frequency=150',
 		'highpass=frequency=200',
+		'highpass=frequency=300',
+		'highpass=frequency=400',	
 	},
 })
 
@@ -45,9 +46,10 @@ add({
 	filter_type = 'audio',
 	reset_on_load = true,
 	filters = {
+		'lowpass=frequency=9000',
 		'lowpass=frequency=7500',
-		'lowpass=frequency=5000',
-		'lowpass=frequency=2500',
+		'lowpass=frequency=6000',
+		'lowpass=frequency=4500',
 	},
 })
 
