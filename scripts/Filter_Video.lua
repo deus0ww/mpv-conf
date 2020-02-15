@@ -1,4 +1,4 @@
--- deus0ww - 2019-10-31
+-- deus0ww - 2020-02-15
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -10,12 +10,16 @@ add({
 	name = 'Deinterlace',
 	filter_type = 'video',
 	filters = {
-		'bwdif=mode=0:deint=all:parity=auto',
-		'bwdif=mode=1:deint=all:parity=auto',
-    	'bwdif=mode=0:deint=all:parity=tff',
-    	'bwdif=mode=1:deint=all:parity=tff',
-    	'bwdif=mode=0:deint=all:parity=bff',
-    	'bwdif=mode=1:deint=all:parity=bff',
+	-- https://ffmpeg.org/ffmpeg-filters.html#bwdif
+		-- mode: send_frame, send_field 	(send_field)
+		-- parity: ttf, bff, auto			(auto)
+		-- deint: all, interlaced			(all)
+		'bwdif=mode=send_frame:parity=auto',
+		'bwdif=mode=send_field:parity=auto',
+    	'bwdif=mode=send_frame:parity=tff',
+    	'bwdif=mode=send_field:parity=tff',
+    	'bwdif=mode=send_frame:parity=bff',
+    	'bwdif=mode=send_field:parity=bff',
 	},
 })
 
@@ -24,6 +28,7 @@ add({
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#pp
 		'pp=ac',
 		'pp=ac/autolevels',
 	},
@@ -34,21 +39,30 @@ add({
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#atadenoise
+		-- 0a, 1a, 2a: threshold A			(0.02)			(0 - 0.3)
+		-- 0b, 1b, 2b: threshold B			(0.04)			(0 - 5)
+		-- s: Frames for averaging			(9)				(5 - 129 odd-only)
+		-- a: (p)arallel, (s)erial			(p)
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '5')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '5')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.08'):gsub('B', '0.16'):gsub('S', '7')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.16'):gsub('B', '0.32'):gsub('S', '9')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.32'):gsub('B', '0.64'):gsub('S', '11')),
+		
+		-- Too Blurry:   hqdn3d
+		-- Not Temporal: removegrain
+		-- Not Slow:     bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 	},
 })
--- Too Blurred:  hqdn3d
--- Not Temporal: removegrain
--- Not Realtime: bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 
 add({
 	name = 'Noise',
 	filter_type = 'video',
 	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#noise
+		-- alls, c#s: Noise strength		(0)				(0, 100)
+		-- allf, c#f: (a)verage, (p)attern, (t)temporal, (u)niform
 		'noise=c0_strength=02:all_flags=t',
 		'noise=c0_strength=04:all_flags=t',
 		'noise=c0_strength=06:all_flags=t',
@@ -63,6 +77,7 @@ add({
 	name = 'Invert',
 	filter_type = 'video',
 	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#negate
     	'negate',
 	},
 })
