@@ -66,7 +66,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2020-01-21
+-- deus0ww - 2020-02-29
 
 ------------
 -- tn_osc --
@@ -2431,8 +2431,11 @@ function osc_init()
             local seekto = get_slider_value(element)
             if (element.state.lastseek == nil) or
                 (not (element.state.lastseek == seekto)) then
-                    mp.commandv("seek", seekto, "absolute-percent",
-                        user_opts.seekbarkeyframes and "keyframes" or "exact")
+                    local flags = "absolute-percent"
+                    if not user_opts.seekbarkeyframes then
+                        flags = flags .. "+exact"
+                    end
+                    mp.commandv("seek", seekto, flags)
                     element.state.lastseek = seekto
             end
 
