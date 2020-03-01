@@ -146,7 +146,6 @@ vec4 hook() {
 //!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC2
 //!HOOK SCALED
 //!BIND HOOKED
-//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAD
 //!COMPONENTS 2
 
@@ -186,7 +185,6 @@ vec4 hook() {
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
-//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAD
 //!COMPONENTS 1
 
@@ -226,7 +224,6 @@ vec4 hook() {
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
-//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAMM
 //!COMPONENTS 4
 
@@ -285,7 +282,6 @@ vec4 hook() {
 //!BIND HOOKED
 //!BIND LUMAD
 //!BIND LUMAMM
-//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAMM
 //!COMPONENTS 4
 
@@ -366,7 +362,6 @@ vec4 hook() {
 //!BIND LUMA
 //!BIND LUMAD
 //!BIND LUMAMM
-//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 
 
 /* --------------------- SETTINGS --------------------- */

@@ -138,6 +138,32 @@ sets[#sets+1] = function()
 end
 
 sets[#sets+1] = function()
+	local s, o, scale, label = {}, default_options(), get_scale()
+	if scale < 1 then
+		s[#s+1] = 'SSimDownscaler.glsl'
+		o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
+		o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+		label   = 'Krig + SSimDS + AdaptiveSharpen'
+	elseif scale <= 2 then
+		s[#s+1] = 'Anime4K_Hybrid_v2.0RC2.glsl'
+		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
+		label   = 'Anime4K + FSRCNNX + Krig + AdaptiveSharpen'
+	else
+		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
+		s[#s+1] = 'SSimSuperRes.glsl'
+		s[#s+1] = 'Anime4K_Hybrid_v2.0RC2.glsl'
+		s[#s+1] = 'ravu-lite-r4.hook'
+		label   = 'FSRCNNX + Anime4K + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
+	end
+	s[#s+1] = 'KrigBilateral.glsl'
+	s[#s+1] = 'adaptive-sharpen.glsl'
+	
+	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
+	
+	return { shaders = s, options = o, label = label }
+end
+
+sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
 	s[#s+1] = fsrcnnx()
