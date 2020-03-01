@@ -147,16 +147,16 @@ sets[#sets+1] = function()
 	elseif scale <= 2 then
 		s[#s+1] = 'Anime4K_Hybrid_v2.0RC2.glsl'
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
-		label   = 'Anime4K + FSRCNNX + Krig + AdaptiveSharpen'
+		label   = 'Anime4K2 + FSRCNNX + Krig + AdaptiveSharpen'
 	else
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
 		s[#s+1] = 'SSimSuperRes.glsl'
 		s[#s+1] = 'Anime4K_Hybrid_v2.0RC2.glsl'
 		s[#s+1] = 'ravu-lite-r4.hook'
-		label   = 'FSRCNNX + Anime4K + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
+		label   = 'FSRCNNX + Anime4K2 + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
 	end
 	s[#s+1] = 'KrigBilateral.glsl'
-	s[#s+1] = 'adaptive-sharpen.glsl'
+	-- s[#s+1] = 'adaptive-sharpen.glsl'
 	
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	

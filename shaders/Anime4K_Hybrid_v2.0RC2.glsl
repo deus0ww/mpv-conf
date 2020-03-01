@@ -25,19 +25,25 @@
 // SOFTWARE.
 
 
+//!DESC Anime4K-Hybrid-Pre-v2.0RC2
+//!HOOK LUMA
+//!BIND HOOKED
+//!SAVE LUMAW
+vec4 hook() {
+	return HOOKED_tex(HOOKED_pos);
+}
+
 
 //!DESC Anime4K-Hybrid-CAS-v2.0RC2
 //!HOOK SCALED
 //!BIND HOOKED
 
-
 /* ---------------------- CAS SETTINGS ---------------------- */
 
 //CAS Sharpness, initial sharpen filter strength (traditional sharpening)
-#define SHARPNESS 1.0
+#define SHARPNESS 0.75
 
 /* --- MOST OF THE OTHER SETTINGS CAN BE FOUND AT THE END --- */
-
 
 float lerp(float x, float y, float a) {
 	return mix(x, y, a);
@@ -142,7 +148,6 @@ vec4 hook() {
 }
 
 
-
 //!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC2
 //!HOOK SCALED
 //!BIND HOOKED
@@ -162,7 +167,6 @@ vec4 hook() {
 	float l = getLum(HOOKED_tex(HOOKED_pos + vec2(-d.x, 0)));
 	float c = getLum(HOOKED_tex(HOOKED_pos));
 	float r = getLum(HOOKED_tex(HOOKED_pos + vec2(d.x, 0)));
-	
 	
 	//Horizontal Gradient
 	//[-1  0  1]
@@ -198,11 +202,9 @@ vec4 hook() {
 	float cx = LUMAD_tex(HOOKED_pos).x;
 	float bx = LUMAD_tex(HOOKED_pos + vec2(0, d.y)).x;
 	
-	
 	float ty = LUMAD_tex(HOOKED_pos + vec2(0, -d.y)).y;
 	//float cy = LUMAD_tex(HOOKED_pos).y;
 	float by = LUMAD_tex(HOOKED_pos + vec2(0, d.y)).y;
-	
 	
 	//Horizontal Gradient
 	//[-1  0  1]
@@ -219,6 +221,7 @@ vec4 hook() {
 	//Computes the luminance's gradient
 	return vec4(clamp(sqrt(xgrad * xgrad + ygrad * ygrad), 0, 1), 0, 0, 0);
 }
+
 
 //!DESC Anime4K-Hybrid-ComputeMinMaxX-v2.0RC2
 //!HOOK SCALED
@@ -249,7 +252,6 @@ vec4 hook() {
 	float l = LUMAD_tex(HOOKED_pos + vec2(-d.x, 0)).x;
 	float r = LUMAD_tex(HOOKED_pos + vec2(d.x, 0)).x;
 	
-	
 	//Horizontal Gradient
 	//[-1  0  1]
 	//[-2  0  2]
@@ -271,7 +273,6 @@ vec4 hook() {
 	float g0 = LUMAD_tex(HOOKED_pos + vec2( d.x * 2, 0)).x;
 	float h0 = LUMAD_tex(HOOKED_pos + vec2( d.x * 3, 0)).x;
 	float i0 = LUMAD_tex(HOOKED_pos + vec2( d.x * 4, 0)).x;
-	
 	
 	return vec4(xgrad, ygrad, max9(a0,b0,c0,d0,e0,f0,g0,h0,i0), min9(a0,b0,c0,d0,e0,f0,g0,h0,i0));
 }
@@ -306,11 +307,9 @@ vec4 hook() {
 	float cx = LUMAMM_tex(HOOKED_pos).x;
 	float bx = LUMAMM_tex(HOOKED_pos + vec2(0, d.y)).x;
 	
-	
 	float ty = LUMAMM_tex(HOOKED_pos + vec2(0, -d.y)).y;
 	//float cy = LUMAMM_tex(HOOKED_pos).y;
 	float by = LUMAMM_tex(HOOKED_pos + vec2(0, d.y)).y;
-	
 	
 	//Horizontal Gradient
 	//[-1  0  1]
@@ -323,7 +322,6 @@ vec4 hook() {
 	//[ 0  0  0]
 	//[ 1  2  1]
 	float ygrad = (-ty + by);
-	
 	
 	float a0 = LUMAMM_tex(HOOKED_pos + vec2(0, -d.y * 4)).z;
 	float b0 = LUMAMM_tex(HOOKED_pos + vec2(0, -d.y * 3)).z;
@@ -359,10 +357,9 @@ vec4 hook() {
 //!DESC Anime4K-Refine-v1.0RC2
 //!HOOK SCALED
 //!BIND HOOKED
-//!BIND LUMA
+//!BIND LUMAW
 //!BIND LUMAD
 //!BIND LUMAMM
-
 
 /* --------------------- SETTINGS --------------------- */
 
@@ -372,7 +369,6 @@ vec4 hook() {
 
 //Strength of antialiasing, (higher = algorithm will not deblur edges as much), good values are between 0.3 and 2, also depending on DEBLUR_MEAN and DEBLUR_SIGMA
 #define ANTIALIAS_STRENGTH 0.6
-
 
 /* --- MODIFY THESE SETTINGS BELOW AT YOUR OWN RISK --- */
 
@@ -390,7 +386,6 @@ vec4 hook() {
 
 /* ----------------- END OF SETTINGS ----------------- */
 
-
 float gaussian(float x, float s, float m, float a) {
 	return (1 / (s * sqrt(2 * 3.14159))) * exp(-0.5 * pow((x - m) / s, 2.0)) / a;
 }
@@ -400,7 +395,7 @@ vec4 hook() {
 	
 	vec4 dc = LUMAMM_tex(HOOKED_pos);
 	
-	float upratio = clamp(SCALED_size.x / LUMA_size.x - 1, 0, 6);
+	float upratio = clamp(SCALED_size.x / LUMAW_size.x - 1, 0, 6);
 	float lval = clamp(abs(dc.z - dc.w) * EDGE_DETECT_STRENGTH * upratio, 0, 1) * clamp(LUMAD_tex(HOOKED_pos).x * DERIVATIVE_STRENGTH * upratio, 0, 1);
 	
 	if (abs(dc.x + dc.y) <= 0.0001) {
@@ -412,7 +407,6 @@ vec4 hook() {
 	}
 	
 	float dval = lval * clamp(gaussian(lval, DEBLUR_SIGMA, DEBLUR_MEAN, ANTIALIAS_STRENGTH), 0, 1);
-	
 	
 	float xpos = -sign(dc.x);
 	float ypos = -sign(dc.y);
@@ -427,6 +421,4 @@ vec4 hook() {
 	vec4 avg = xyratio * xval + (1-xyratio) * yval;
 	
 	return avg * dval + SCALED_tex(HOOKED_pos) * (1 - dval);
-	
 }
-
