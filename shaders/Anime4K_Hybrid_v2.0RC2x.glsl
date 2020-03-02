@@ -25,7 +25,7 @@
 // SOFTWARE.
 
 
-//!DESC Anime4K-Hybrid-Pre-v2.0RC2
+//!DESC Anime4K-Hybrid-Pre-v2.0RC2x
 //!HOOK LUMA
 //!BIND HOOKED
 //!SAVE LUMAW
@@ -34,14 +34,14 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-CAS-v2.0RC2
+//!DESC Anime4K-Hybrid-CAS-v2.0RC2x
 //!HOOK SCALED
 //!BIND HOOKED
 
 /* ---------------------- CAS SETTINGS ---------------------- */
 
 //CAS Sharpness, initial sharpen filter strength (traditional sharpening)
-#define SHARPNESS 1.0
+#define SHARPNESS 0.0
 
 /* --- MOST OF THE OTHER SETTINGS CAN BE FOUND AT THE END --- */
 
@@ -150,7 +150,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC2
+//!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC2x
 //!HOOK SCALED
 //!BIND HOOKED
 //!SAVE LUMAD
@@ -187,7 +187,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC2
+//!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC2x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -225,7 +225,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeMinMaxX-v2.0RC2
+//!DESC Anime4K-Hybrid-ComputeMinMaxX-v2.0RC2x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -280,7 +280,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeMinMaxY-v2.0RC2
+//!DESC Anime4K-Hybrid-ComputeMinMaxY-v2.0RC2x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -356,7 +356,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-Refine-v2.0RC2
+//!DESC Anime4K-Hybrid-Refine-v2.0RC2x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAW
@@ -370,7 +370,7 @@ vec4 hook() {
 #define DERIVATIVE_STRENGTH 4
 
 //Strength of antialiasing, (higher = algorithm will not deblur edges as much), good values are between 0.3 and 2, also depending on DEBLUR_MEAN and DEBLUR_SIGMA
-#define ANTIALIAS_STRENGTH 0.34
+#define ANTIALIAS_STRENGTH 0.4
 
 /* --- MODIFY THESE SETTINGS BELOW AT YOUR OWN RISK --- */
 
@@ -378,10 +378,10 @@ vec4 hook() {
 //'s' is DEBLUR_SIGMA, 'm' is DEBLUR_MEAN and 'a' is ANTIALIAS_STRENGTH
 
 //Mean of the gaussian curve used to determine which edges to deblur (higher = larger deblur on sharp edges, lower deblur on blurry edges)
-#define DEBLUR_MEAN 0.19
+#define DEBLUR_MEAN 0.4
 
 //Variance of the gaussian curve used to determine which edges to deblur (higher = broader deblur filtering, will deblur very blurry edges and sharp edges alike, lower = will only deblur very specific edge types) 
-#define DEBLUR_SIGMA 0.55
+#define DEBLUR_SIGMA 1.00
 
 //Power curve used to ease in upscaling smaller than 2x upscaling factors.
 #define UPSCALE_RATIO_HYSTERESIS 2
