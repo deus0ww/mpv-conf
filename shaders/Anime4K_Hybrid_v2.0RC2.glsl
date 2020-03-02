@@ -41,7 +41,7 @@ vec4 hook() {
 /* ---------------------- CAS SETTINGS ---------------------- */
 
 //CAS Sharpness, initial sharpen filter strength (traditional sharpening)
-#define SHARPNESS 0.75
+#define SHARPNESS 1.0
 
 /* --- MOST OF THE OTHER SETTINGS CAN BE FOUND AT THE END --- */
 
