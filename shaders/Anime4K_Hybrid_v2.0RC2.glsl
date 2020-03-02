@@ -68,7 +68,9 @@ float rcp(float x) {
 	return 1.0 / x;
 }
 
-vec4 hook() {	 
+vec4 hook() {	
+	float sharpval = clamp(SCALED_size.x / 3840, 0, 1) * SHARPNESS; 
+	
 	// fetch a 3x3 neighborhood around the pixel 'e',
 	//	a b c
 	//	d(e)f
@@ -131,7 +133,7 @@ vec4 hook() {
 	//	0 w 0
 	//	w 1 w
 	//	0 w 0  
-	float peak = -rcp(lerp(8.0, 5.0, saturate(SHARPNESS)));
+	float peak = -rcp(lerp(8.0, 5.0, saturate(sharpval)));
 
 	float wR = ampR * peak;
 	float wG = ampG * peak;
@@ -354,7 +356,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Refine-v1.0RC2
+//!DESC Anime4K-Hybrid-Refine-v2.0RC2
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAW
@@ -368,7 +370,7 @@ vec4 hook() {
 #define DERIVATIVE_STRENGTH 4
 
 //Strength of antialiasing, (higher = algorithm will not deblur edges as much), good values are between 0.3 and 2, also depending on DEBLUR_MEAN and DEBLUR_SIGMA
-#define ANTIALIAS_STRENGTH 0.6
+#define ANTIALIAS_STRENGTH 0.34
 
 /* --- MODIFY THESE SETTINGS BELOW AT YOUR OWN RISK --- */
 
@@ -376,10 +378,10 @@ vec4 hook() {
 //'s' is DEBLUR_SIGMA, 'm' is DEBLUR_MEAN and 'a' is ANTIALIAS_STRENGTH
 
 //Mean of the gaussian curve used to determine which edges to deblur (higher = larger deblur on sharp edges, lower deblur on blurry edges)
-#define DEBLUR_MEAN 0.4
+#define DEBLUR_MEAN 0.19
 
 //Variance of the gaussian curve used to determine which edges to deblur (higher = broader deblur filtering, will deblur very blurry edges and sharp edges alike, lower = will only deblur very specific edge types) 
-#define DEBLUR_SIGMA 0.43
+#define DEBLUR_SIGMA 0.55
 
 //Power curve used to ease in upscaling smaller than 2x upscaling factors.
 #define UPSCALE_RATIO_HYSTERESIS 2
@@ -406,7 +408,7 @@ vec4 hook() {
 		lval = lval * pow(upratio, UPSCALE_RATIO_HYSTERESIS);
 	}
 	
-	float dval = lval * clamp(gaussian(lval, DEBLUR_SIGMA, DEBLUR_MEAN, ANTIALIAS_STRENGTH), 0, 1);
+	float dval = clamp(lval * gaussian(lval, DEBLUR_SIGMA, DEBLUR_MEAN, ANTIALIAS_STRENGTH), 0, 1);
 	
 	float xpos = -sign(dc.x);
 	float ypos = -sign(dc.y);
