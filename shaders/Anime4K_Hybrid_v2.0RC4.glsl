@@ -74,6 +74,15 @@ vec4 hook() {
 }
 
 
+//!DESC Anime4K-Hybrid-SaveLuma-v2.0RC4
+//!HOOK LUMA
+//!BIND HOOKED
+//!SAVE LUMAX
+vec4 hook() {
+	return HOOKED_tex(HOOKED_pos);
+}
+
+
 //!DESC Anime4K-Hybrid-CAS-v2.0RC4
 //!HOOK MAINPRESUB
 //!BIND HOOKED
@@ -231,7 +240,7 @@ vec4 hook() {
 //!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
-//!BIND LUMA
+//!BIND LUMAX
 //!BIND LUMAD
 //!SAVE LUMAD
 //!COMPONENTS 2
@@ -297,7 +306,7 @@ vec4 hook() {
 	//Computes the luminance's gradient
 	float sobel_norm = clamp(sqrt(xgrad * xgrad + ygrad * ygrad), 0, 1);
 	
-	float upratio = clamp(SCALED_size.x / LUMA_size.x - 1, 0, 6);
+	float upratio = clamp(SCALED_size.x / LUMAX_size.x - 1, 0, 6);
 	
 	float dval = clamp(power_function(clamp(sobel_norm * max(pow(upratio, UPSCALE_RATIO_HYSTERESIS), 1), 0, 1)) * REFINE_STRENGTH + REFINE_BIAS, 0, 1);
 	
@@ -398,7 +407,6 @@ vec4 hook() {
 //!DESC Anime4K-Hybrid-Refine-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
-//!BIND LUMA
 //!BIND LUMAD
 //!BIND LUMAMM
 
