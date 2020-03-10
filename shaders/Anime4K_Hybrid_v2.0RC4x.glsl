@@ -25,7 +25,7 @@
 // SOFTWARE.
 
 
-//!DESC Anime4K-Hybrid-Bilateral-v2.0RC4
+//!DESC Anime4K-Hybrid-Bilateral-v2.0RC4x
 //!HOOK LUMA
 //!BIND HOOKED
 
@@ -74,7 +74,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-CAS-v2.0RC4
+//!DESC Anime4K-Hybrid-CAS-v2.0RC4x
 //!HOOK MAINPRESUB
 //!BIND HOOKED
 
@@ -191,7 +191,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC4
+//!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC4x
 //!HOOK SCALED
 //!BIND HOOKED
 //!SAVE LUMAD
@@ -228,7 +228,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC4
+//!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC4x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMA
@@ -309,7 +309,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeSecondGradientX-v2.0RC4
+//!DESC Anime4K-Hybrid-ComputeSecondGradientX-v2.0RC4x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -346,7 +346,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeSecondGradientY-v2.0RC4
+//!DESC Anime4K-Hybrid-ComputeSecondGradientY-v2.0RC4x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -395,7 +395,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-Refine-v2.0RC4
+//!DESC Anime4K-Hybrid-Refine-v2.0RC4x
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMA
