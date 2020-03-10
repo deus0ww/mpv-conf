@@ -145,13 +145,13 @@ sets[#sets+1] = function()
 		o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 		label   = 'Krig + SSimDS + AdaptiveSharpen'
 	elseif scale <= 2 then
-		s[#s+1] = 'Anime4K_Hybrid_v2.0RC3.glsl'
+		s[#s+1] = 'Anime4K_Hybrid_v2.0RC4.glsl'
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
 		label   = 'Anime4K2 + FSRCNNX + Krig + AdaptiveSharpen'
 	else
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
 		s[#s+1] = 'SSimSuperRes.glsl'
-		s[#s+1] = 'Anime4K_Hybrid_v2.0RC3.glsl'
+		s[#s+1] = 'Anime4K_Hybrid_v2.0RC4.glsl'
 		s[#s+1] = 'ravu-lite-r4.hook'
 		label   = 'FSRCNNX + Anime4K2 + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
 	end
@@ -171,13 +171,13 @@ sets[#sets+1] = function()
 		o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 		label   = 'Krig + SSimDS + AdaptiveSharpen'
 	elseif scale <= 2 then
-		s[#s+1] = 'Anime4K_Hybrid_v2.0RC3x.glsl'
+		s[#s+1] = 'Anime4K_Hybrid_v2.0RC4x.glsl'
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
 		label   = 'Anime4K2x + FSRCNNX + Krig + AdaptiveSharpen'
 	else
 		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
 		s[#s+1] = 'SSimSuperRes.glsl'
-		s[#s+1] = 'Anime4K_Hybrid_v2.0RC3x.glsl'
+		s[#s+1] = 'Anime4K_Hybrid_v2.0RC4x.glsl'
 		s[#s+1] = 'ravu-lite-r4.hook'
 		label   = 'FSRCNNX + Anime4K2x + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
 	end

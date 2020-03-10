@@ -1,4 +1,4 @@
-//Anime4K Hybrid + CAS GLSL v2.0 Release Candidate 3
+//Anime4K Hybrid + CAS GLSL v2.0 Release Candidate 4
 
 // MIT License
 
@@ -25,25 +25,66 @@
 // SOFTWARE.
 
 
-//!DESC Anime4K-Hybrid-SaveLuma-v2.0RC3
+//!DESC Anime4K-Hybrid-Bilateral-v2.0RC4
 //!HOOK LUMA
 //!BIND HOOKED
-//!SAVE LUMAW
+
+/* ---------------------- BILATERAL FILTERING SETTINGS ---------------------- */
+
+//CAS Sharpness, initial sharpen filter strength (traditional sharpening)
+#define STRENGTH 0.1
+
+/* --- MOST OF THE OTHER SETTINGS CAN BE FOUND AT THE END --- */
+
+float gaussian(float x, float s, float m) {
+	return (1 / (s * sqrt(2 * 3.14159))) * exp(-0.5 * pow((x - m) / s, 2.0));
+}
+
 vec4 hook() {
-	return HOOKED_tex(HOOKED_pos);
+	vec2 d = HOOKED_pt;
+	
+	float v0 = LUMA_tex(HOOKED_pos + vec2(-d.x, -d.y)).x;
+	float v1 = LUMA_tex(HOOKED_pos + vec2(0, -d.y)).x;
+	float v2 = LUMA_tex(HOOKED_pos + vec2(d.x, -d.y)).x;
+	float v3 = LUMA_tex(HOOKED_pos + vec2(-d.x, 0)).x;
+	float v4 = LUMA_tex(HOOKED_pos).x;
+	float v5 = LUMA_tex(HOOKED_pos + vec2(d.x, 0)).x;
+	float v6 = LUMA_tex(HOOKED_pos + vec2(-d.x, d.y)).x;
+	float v7 = LUMA_tex(HOOKED_pos + vec2(0, d.y)).x;
+	float v8 = LUMA_tex(HOOKED_pos + vec2(d.x, d.y)).x;
+	
+	float s = v4 * STRENGTH + 0.01;
+	float m = 0;
+	
+	float s0 = gaussian(v4 - v0, s, m);
+	float s1 = gaussian(v4 - v1, s, m);
+	float s2 = gaussian(v4 - v2, s, m);
+	float s3 = gaussian(v4 - v3, s, m);
+	float s4 = gaussian(0, s, m);
+	float s5 = gaussian(v4 - v5, s, m);
+	float s6 = gaussian(v4 - v6, s, m);
+	float s7 = gaussian(v4 - v7, s, m);
+	float s8 = gaussian(v4 - v8, s, m);
+	
+	float ss = s0 + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8;
+	
+	float sv = (v0 * s0 + v1 * s1 + v2 * s2 + v3 * s3 + v4 * s4 + v5 * s5 + v6 * s6 + v7 * s7 + v8 * s8) / ss;
+	
+	return vec4(sv, 0, 0, 0);
 }
 
 
-//!DESC Anime4K-Hybrid-CAS-v2.0RC3
-//!HOOK SCALED
+//!DESC Anime4K-Hybrid-CAS-v2.0RC4
+//!HOOK MAINPRESUB
 //!BIND HOOKED
 
 /* ---------------------- CAS SETTINGS ---------------------- */
 
 //CAS Sharpness, initial sharpen filter strength (traditional sharpening)
-#define SHARPNESS 1.0
+#define SHARPNESS 0.8
 
 /* --- MOST OF THE OTHER SETTINGS CAN BE FOUND AT THE END --- */
+
 
 float lerp(float x, float y, float a) {
 	return mix(x, y, a);
@@ -69,7 +110,7 @@ float rcp(float x) {
 }
 
 vec4 hook() {	
-	float sharpval = clamp(SCALED_size.x / 3840, 0, 1) * SHARPNESS; 
+	float sharpval = clamp(HOOKED_size.x / 3840, 0, 1) * SHARPNESS; 
 	
 	// fetch a 3x3 neighborhood around the pixel 'e',
 	//	a b c
@@ -150,9 +191,10 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC3
+//!DESC Anime4K-Hybrid-ComputeGradientX-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
+//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAD
 //!COMPONENTS 2
 
@@ -187,11 +229,12 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC3
+//!DESC Anime4K-Hybrid-ComputeGradientY-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
-//!BIND LUMAW
+//!BIND LUMA
 //!BIND LUMAD
+//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAD
 //!COMPONENTS 2
 
@@ -256,7 +299,7 @@ vec4 hook() {
 	//Computes the luminance's gradient
 	float sobel_norm = clamp(sqrt(xgrad * xgrad + ygrad * ygrad), 0, 1);
 	
-	float upratio = clamp(SCALED_size.x / LUMAW_size.x - 1, 0, 6);
+	float upratio = clamp(SCALED_size.x / LUMA_size.x - 1, 0, 6);
 	
 	float dval = clamp(power_function(clamp(sobel_norm * max(pow(upratio, UPSCALE_RATIO_HYSTERESIS), 1), 0, 1)) * REFINE_STRENGTH + REFINE_BIAS, 0, 1);
 	
@@ -268,10 +311,11 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeSecondGradientX-v2.0RC3
+//!DESC Anime4K-Hybrid-ComputeSecondGradientX-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
+//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAMM
 //!COMPONENTS 2
 
@@ -305,11 +349,12 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeSecondGradientY-v2.0RC3
+//!DESC Anime4K-Hybrid-ComputeSecondGradientY-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
 //!BIND LUMAMM
+//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 //!SAVE LUMAMM
 //!COMPONENTS 2
 
@@ -354,11 +399,13 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-Refine-v2.0RC3
+//!DESC Anime4K-Hybrid-Refine-v2.0RC4
 //!HOOK SCALED
 //!BIND HOOKED
+//!BIND LUMA
 //!BIND LUMAD
 //!BIND LUMAMM
+//!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
