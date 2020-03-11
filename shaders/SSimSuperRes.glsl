@@ -29,9 +29,7 @@
 #define Kernel(x)   MN(0.2620145123990142, 0.3689927438004929, abs(x))
 #define taps        2.0
 
-#define Kb 0.0722
-#define Kr 0.2126
-#define Luma(rgb)   ( dot(vec3(Kr, 1.0 - Kr - Kb, Kb), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
 
 vec4 hook() {
     // Calculate bounds
@@ -75,9 +73,7 @@ vec4 hook() {
 #define Kernel(x)   MN(0.2620145123990142, 0.3689927438004929, abs(x))
 #define taps        2.0
 
-#define Kb 0.0722
-#define Kr 0.2126
-#define Luma(rgb)   ( dot(vec3(Kr, 1.0 - Kr - Kb, Kb), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
 
 vec4 hook() {
     // Calculate bounds
@@ -119,9 +115,7 @@ vec4 hook() {
 #define GetL(x,y)   PREKERNEL_tex(PREKERNEL_pt*(PREKERNEL_pos * input_size + tex_offset + vec2(x,y))).rgb
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
-#define Kb 0.0722
-#define Kr 0.2126
-#define Luma(rgb)   ( dot(vec3(Kr, 1.0 - Kr - Kb, Kb), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
 
 vec4 hook() {
     vec3 meanL = vec3(0);
@@ -157,9 +151,7 @@ vec4 hook() {
 #define GetH(x,y)   LOWRES_texOff(vec2(x,y)).rgb
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
-#define Kb 0.0722
-#define Kr 0.2126
-#define Luma(rgb)   ( dot(vec3(Kr, 1.0 - Kr - Kb, Kb), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
 
 vec4 hook() {
     vec3 meanH = vec3(0);
@@ -205,9 +197,7 @@ vec4 hook() {
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
 #define GammaInv(x) ( pow(clamp(x, 0.0, 1.0), vec3(2.0)) )
-#define Kb 0.0722
-#define Kr 0.2126
-#define Luma(rgb)   ( dot(vec3(Kr, 1.0 - Kr - Kb, Kb), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
 
 vec4 hook() {
     vec4 c0 = HOOKED_tex(HOOKED_pos);
