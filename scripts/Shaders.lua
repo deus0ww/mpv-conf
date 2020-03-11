@@ -182,7 +182,7 @@ sets[#sets+1] = function()
 		label   = 'FSRCNNX + Anime4K2x + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
 	end
 	s[#s+1] = 'KrigBilateral.glsl'
-	s[#s+1] = 'adaptive-sharpen.glsl'
+	-- s[#s+1] = 'adaptive-sharpen.glsl'
 	
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	
