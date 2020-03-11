@@ -90,7 +90,7 @@ vec4 hook() {
 /* ---------------------- CAS SETTINGS ---------------------- */
 
 //CAS Sharpness, initial sharpen filter strength (traditional sharpening)
-#define SHARPNESS 0.0
+#define SHARPNESS 0.8
 
 /* --- MOST OF THE OTHER SETTINGS CAN BE FOUND AT THE END --- */
 
@@ -207,7 +207,10 @@ vec4 hook() {
 //!COMPONENTS 2
 
 float getLum(vec4 rgb) {
-	return 0.299*rgb.r + 0.587*rgb.g + 0.114*rgb.b;
+	return sqrt(dot(vec3(0.299, 0.587, 0.114), pow((pow(clamp(rgb.rgb, 0.0, 1.0), vec3(2.4))), vec3(2.0))));
+	// return sqrt(dot(vec3(0.2558, 0.6511, 0.0931), pow(clamp(rgb.rgb, 0.0, 1.0), vec3(2.0))));
+	// return dot(vec3(0.2126, 0.7152, 0.0722), pow(abs(rgb.rgb), vec3(2.0)));
+	// return 0.299*rgb.r + 0.587*rgb.g + 0.114*rgb.b;
 }
 
 vec4 hook() {
