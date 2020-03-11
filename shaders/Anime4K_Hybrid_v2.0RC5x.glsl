@@ -215,9 +215,10 @@ vec4 hook() {
 //!COMPONENTS 2
 
 float getLum(vec4 rgb) {
-	return sqrt(dot(vec3(0.299000, 0.587000, 0.114000), pow(rgb.rgb, vec3(2.0))));
-	// return sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(rgb.rgb, vec3(2.0))));
-	// return sqrt(dot(vec3(0.255800, 0.651100, 0.093100), pow(rgb.rgb, vec3(2.0))));
+	return sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(rgb.rgb, vec3(2.0)))); // 709
+	// return sqrt(dot(vec3(0.255800, 0.651100, 0.093100), pow(rgb.rgb, vec3(2.0)))); // Avg
+	// return sqrt(dot(vec3(0.299000, 0.587000, 0.114000), pow(rgb.rgb, vec3(2.0)))); // 601
+	// return sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(rgb.rgb, vec3(2.0)))); // 709
 	// return 0.299*rgb.r + 0.587*rgb.g + 0.114*rgb.b;
 }
 

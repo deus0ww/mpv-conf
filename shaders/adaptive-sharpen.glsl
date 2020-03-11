@@ -65,7 +65,8 @@
 #define sat(x)         ( clamp(x, 0.0, 1.0) )
 
 // Colour to luma, fast approx gamma, avg of rec. 709 & 601 luma coeffs
-#define CtL(RGB)       ( sqrt(dot(vec3(0.2558, 0.6511, 0.0931), pow(sat(RGB), vec3(2.0)))) )
+// #define CtL(RGB)       ( sqrt(dot(vec3(0.2558, 0.6511, 0.0931), pow(sat(RGB), vec3(2.0)))) )
+#define CtL(RGB)       ( sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(sat(RGB), vec3(2.0)))) )
 
 // Center pixel diff
 #define mdiff(a,b,c,d,e,f,g) ( abs(luma[g]-luma[a]) + abs(luma[g]-luma[b])           \
