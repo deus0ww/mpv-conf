@@ -240,7 +240,8 @@ vec4 hook() {
 #define lineprob (LUMAG_tex(HOOKED_pos).x)
 
 float getLum(vec4 rgb) {
-	return (rgb.r + rgb.r + rgb.g + rgb.g + rgb.g + rgb.b) / 6.0;
+	return sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(rgb.rgb, vec3(2.0)))); // 709
+	// return (rgb.r + rgb.r + rgb.g + rgb.g + rgb.g + rgb.b) / 6.0;
 }
 
 vec4 getLargest(vec4 cc, vec4 lightestColor, vec4 a, vec4 b, vec4 c) {
