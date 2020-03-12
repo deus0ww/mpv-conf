@@ -1,13 +1,24 @@
--- deus0ww - 2019-07-01
+-- deus0ww - 2020-03-12
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
+local utils   = require 'mp.utils'
+
+
+
+local function subprocess(label, args)
+	msg.debug(label..'-Arg', utils.to_string(args))
+	local res, err = mp.command_native({name='subprocess', args=args, capture_stdout=true, capture_stderr=true})
+	msg.debug(label..'-Res', utils.to_string(res))
+	msg.debug(label..'-Err', utils.to_string(err))
+	return ((err == nil) and (res.stderr == nil or res.stderr == "") and (res.error_string == nil or res.error_string == ""))
+end
 
 
 
 -- Show Finder
 mp.register_script_message('ShowFinder', function()
-	mp.command_native({'run', 'open', '-a', 'Finder'})
+	subprocess('ShowFinder', {'open', '-a', 'Finder'})
 end)
 
 
@@ -29,7 +40,7 @@ mp.register_script_message('ShowInFinder', function()
 		cmd[#cmd+1] = '-R'
 	end
 	cmd[#cmd+1] = path
-	mp.command_native( {name='subprocess', args=cmd} )
+	subprocess('ShowInFinder', cmd)
 end)
 
 
@@ -45,10 +56,10 @@ mp.register_script_message('MoveToTrash', function()
 	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
 	msg.debug('Moving to Trash:', path)
 	if path and path ~= '' then
-		mp.command_native({'run', 'trash', '-F', path})
-		mp.osd_message('Trashed.')
+		local success = subprocess('MoveToTrash', {'trash', '-vF', path })
+		mp.osd_message(success and 'Trashed.' or 'Trashing failed.')
 	else
-		mp.osd_message('Trashing failed.')
+		mp.osd_message('Nothing to trash.')
 	end
 end)
 
