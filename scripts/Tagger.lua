@@ -1,9 +1,9 @@
--- deus0ww - 2019-11-08
+-- deus0ww - 2020-03-12
 
 -- Requires:
 --   - macOS >= 10.9
 --   - Tag: https://github.com/jdberry/tag/
---   - Lua io.popen support
+
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -53,22 +53,23 @@ local function file_exists(path)
 	return code == nil
 end
 
-local function run_tag(cmd, path)
-	if not file_exists(path) then return end
-	local success, result = pcall(io.popen, cmd .. ('"%s"'):format(path))
-	local lines = {}
-	if not (success and result) then return lines end
-	for line in result:lines() do
-		lines[line] = true
-	end
-	result:close()
-	msg.debug('Command:', cmd, '|', 'Result:', utils.to_string(lines))
-	return lines
+function lines(s)
+	if s:sub(-1) ~= '\n' then s = s..'\n' end
+	return s:gmatch('(.-)\n')
 end
 
-local function add_tag(path, tag)  return run_tag('tag -a ' .. tag .. ' ', path) end
-local function del_tag(path, tag)  return run_tag('tag -r ' .. tag .. ' ', path) end
-local function read_tag(path)      return run_tag('tag -l -N -g '        , path) end
+local function run_tag(cmd)
+	if not file_exists(cmd[#cmd]) then return end
+	local res = mp.command_native({name='subprocess', args=cmd, playback_only = true, capture_stdout = true, capture_stderr = true,})
+	msg.debug('Command:', utils.to_string(cmd), '|', 'Results:', utils.to_string(res))
+	local results = {}
+	if (res and res.stdout) then for line in lines(res.stdout) do results[line] = true end end
+	return results
+end
+
+local function add_tag(path, tag)  return run_tag({'tag', '-a', tag, path}) end
+local function del_tag(path, tag)  return run_tag({'tag', '-r', tag, path}) end
+local function read_tag(path)      return run_tag({'tag', '-l', '-N', '-g', path}) end
 
 
 ------------------

@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-21
+-- deus0ww - 2020-03-12
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -56,11 +56,8 @@ local function get_os()
 		else return OS_NIX end
 	end
 	if (package.config:sub(1,1) ~= '/') then return OS_WIN end
-	local success, file = pcall(io.popen, 'uname -s')
-	if not (success and file) then return OS_MAC end
-	local line = file:read('*l')
-	file:close()
-	return (line and line:lower() ~= 'darwin') and OS_NIX or OS_MAC
+	local res = mp.command_native({ name = 'subprocess', args = {'uname', '-s'}, playback_only = false, capture_stdout = true, capture_stderr = true, })
+	return (res and res.stdout and res.stdout:lower():find('darwin') ~= nil) and OS_MAC or OS_NIX
 end
 local OPERATING_SYSTEM = get_os()
 
@@ -425,24 +422,21 @@ local function create_workers()
 	end
 end
 
-local function hash_string(input)
+local function hash_string(filepath, filename)
 	if OPERATING_SYSTEM == OS_WIN then return input end
 	local command
-	if     exec_exist('shasum')     then command = 'shasum -a 256'
-	elseif exec_exist('gsha256sum') then command = 'gsha256sum'
-	elseif exec_exist('sha256sum')  then command = 'sha256sum' end
-	if not command then return input end -- checksum command unavailable
-	local success, file = pcall(io.popen, 'printf "%s" "' .. input .. '" | ' .. command)
-	if not (success and file) then return input end
-	local line = file:read('*l')
-	file:close()
-	return line and line:match('%w+') or input
+	if     exec_exist('shasum')     then command = {'shasum', '-a', '256', filepath}
+	elseif exec_exist('gsha256sum') then command = {'gsha256sum', filepath}
+	elseif exec_exist('sha256sum')  then command = {'sha256sum', filepath} end
+	if not command then return filename end -- checksum command unavailable
+	local res = mp.command_native({name = 'subprocess', args = command, playback_only = false, capture_stdout = true, capture_stderr = true,})
+	return (res and res.stdout) and res.stdout:match('%w+') or filename
 end
 
-local function create_ouput_dir(filename, dimension, rotate)
+local function create_ouput_dir(filepath, filename, dimension, rotate)
 	local basepath = join_paths(user_opts.cache_dir, filename)
 	if not create_dir(basepath) then
-		basepath = join_paths(user_opts.cache_dir, hash_string(filename))
+		basepath = join_paths(user_opts.cache_dir, hash_string(filepath, filename))
 		if not create_dir(basepath) then return {basepath = nil, fullpath = nil} end
 	end
 	local fullpath = join_paths(basepath, dimension, rotate)
@@ -531,7 +525,7 @@ local function state_init()
 	local scale           = calculate_scale()
 	local geometry        = calculate_geometry(scale)
 	local meta_rotated    = saved_state.meta_rotated
-	local cache_dir       = create_ouput_dir(input_filename, geometry.dimension, geometry.rotate)
+	local cache_dir       = create_ouput_dir(input_fullpath, input_filename, geometry.dimension, geometry.rotate)
 	local is_slow         = is_slow_source()
 	local worker_timeout  = calculate_worker_timeout(geometry.width, geometry.height, is_remote, is_slow, timing.is_high_bitrate)
 	local max_workers     = calculate_worker_limit(timing.duration, timing.delta, is_remote, is_slow, timing.is_high_bitrate)

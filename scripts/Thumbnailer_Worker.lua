@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-08
+-- deus0ww - 2020-03-12
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -73,11 +73,8 @@ local function get_os()
 		else return OS_NIX end
 	end
 	if (package.config:sub(1,1) ~= '/') then return OS_WIN end
-	local success, file = pcall(io.popen, 'uname -s')
-	if not (success and file) then return OS_MAC end
-	local line = file:read('*l')
-	file:close()
-	return (line and line:lower() ~= 'darwin') and OS_NIX or OS_MAC
+	local res = mp.command_native({ name = 'subprocess', args = {'uname', '-s'}, playback_only = false, capture_stdout = true, capture_stderr = true, })
+	return (res and res.stdout and res.stdout:lower():find('darwin') ~= nil) and OS_MAC or OS_NIX
 end
 local OPERATING_SYSTEM = get_os()
 

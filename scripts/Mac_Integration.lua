@@ -7,11 +7,11 @@ local utils   = require 'mp.utils'
 
 
 local function subprocess(label, args)
-	msg.debug(label..'-Arg', utils.to_string(args))
-	local res, err = mp.command_native({name='subprocess', args=args, capture_stdout=true, capture_stderr=true})
-	msg.debug(label..'-Res', utils.to_string(res))
-	msg.debug(label..'-Err', utils.to_string(err))
-	return ((err == nil) and (res.stderr == nil or res.stderr == "") and (res.error_string == nil or res.error_string == ""))
+	-- msg.debug(label..'-Arg', utils.to_string(args))
+	local res, err = mp.command_native({name='subprocess', args=args, playback_only = false, capture_stdout = true, capture_stderr = true,})
+	-- msg.debug(label..'-Res', utils.to_string(res))
+	-- msg.debug(label..'-Err', utils.to_string(err))
+	return ((err == nil) and (res.stderr == nil or res.stderr == '') and (res.error_string == nil or res.error_string == '')), res
 end
 
 
@@ -56,7 +56,7 @@ mp.register_script_message('MoveToTrash', function()
 	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
 	msg.debug('Moving to Trash:', path)
 	if path and path ~= '' then
-		local success = subprocess('MoveToTrash', {'trash', '-vF', path })
+		local success = subprocess('MoveToTrash', {'trash', '-v', path })
 		mp.osd_message(success and 'Trashed.' or 'Trashing failed.')
 	else
 		mp.osd_message('Nothing to trash.')
@@ -66,30 +66,30 @@ end)
 
 
 -- Open From Clipboard - One URL per line
+function lines(s)
+	if s:sub(-1) ~= '\n' then s = s..'\n' end
+	return s:gmatch('(.-)\n')
+end
+
 mp.register_script_message('OpenFromClipboard', function()
 	local osd_msg = 'Opening From Clipboard: '
 	
-	local success, result = pcall(io.popen, 'pbpaste')
-	if not success or not result then 
-		mp.osd_message(osd_msg .. 'n/a')
+	local success, res = subprocess('OpenFromClipboard', {'pbpaste'})
+	if not success or res == nil or res.stdout == nil or res.stdout == '' then
+		mp.osd_message(osd_msg .. 'failed.')
 		return
 	end
-	local lines = {}
-	for line in result:lines() do lines[#lines+1] = line end
-	if #lines == 0 then
-		mp.osd_message(osd_msg .. 'n/a')
-		return
-	end
-
-	local mode = 'replace'
-	for _, line in ipairs(lines) do
+	
+	local mode, paste = 'replace', {}
+	for line in lines(res.stdout) do 
 		msg.debug('loadfile', line, mode)
 		mp.commandv('loadfile', line, mode)
 		mode = 'append'
+		paste[#paste+1] = line
 	end
-
+	
 	local msg = osd_msg
-	if #lines > 0 then msg = msg .. '\n' .. lines[1] end
-	if #lines > 1 then msg = msg .. (' ... and %d other URL(s).'):format(#lines-1) end
+	if #paste > 0 then msg = msg .. '\n' .. paste[1] end
+	if #paste > 1 then msg = msg .. (' ... and %d other URL(s).'):format(#paste-1) end
 	mp.osd_message(msg, 6.0)
 end)

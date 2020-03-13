@@ -66,7 +66,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2020-02-29
+-- deus0ww - 2020-03-12
 
 ------------
 -- tn_osc --
@@ -98,11 +98,8 @@ local function get_os()
 		else return OS_NIX end
 	end
 	if (package.config:sub(1,1) ~= '/') then return OS_WIN end
-	local success, file = pcall(io.popen, 'uname -s')
-	if not (success and file) then return OS_MAC end
-	local line = file:read('*l')
-	file:close()
-	return (line and line:lower() ~= 'darwin') and OS_NIX or OS_MAC
+	local res = mp.command_native({ name = 'subprocess', args = {'uname', '-s'}, playback_only = false, capture_stdout = true, capture_stderr = true, })
+	return (res and res.stdout and res.stdout:lower():find('darwin') ~= nil) and OS_MAC or OS_NIX
 end
 local OPERATING_SYSTEM = get_os()
 
