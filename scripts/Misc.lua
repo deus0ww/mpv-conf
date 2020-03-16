@@ -1,4 +1,4 @@
--- deus0ww - 2020-02-08
+-- deus0ww - 2020-03-16
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -72,7 +72,8 @@ end)
 
 
 -- Pause on Minimize
-local was_paused = mp.get_property_native('pause', false)
+local start_paused = mp.get_property_native('pause', false)
+local was_paused   = start_paused
 mp.observe_property('window-minimized', 'native', function(_, minimized)
 	msg.debug('Minimized:', minimized)
 	if minimized then
@@ -85,9 +86,11 @@ mp.observe_property('window-minimized', 'native', function(_, minimized)
 	end
 end)
 mp.register_event('file-loaded', function()
+	was_paused = start_paused
 	if mp.get_property_native('window-minimized', false) then
 		mp.set_property_native('pause', true)
-		last_pause = false
+	else
+		mp.set_property_native('pause', start_paused)		
 	end
 end)
 	
