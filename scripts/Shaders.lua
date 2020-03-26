@@ -111,6 +111,7 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
+-- Anime4K 1.0
 sets[#sets+1] = function()
 	local s, o, scale, label = {}, default_options(), get_scale()
 	if scale < 1 then
@@ -137,6 +138,7 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = label }
 end
 
+-- Anime4K 2.0
 sets[#sets+1] = function()
 	local s, o, scale, label = {}, default_options(), get_scale()
 	if scale < 1 then
@@ -163,29 +165,45 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = label }
 end
 
+-- Anime4K 2.1a
 sets[#sets+1] = function()
 	local s, o, scale, label = {}, default_options(), get_scale()
-	if scale < 1 then
-		s[#s+1] = 'SSimDownscaler.glsl'
-		o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
-		o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
-		label   = 'Krig + SSimDS + AdaptiveSharpen'
-	elseif scale <= 2 then
-		s[#s+1] = 'Anime4K_Hybrid_v2.0RC5x.glsl'
-		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
-		label   = 'Anime4K2x + FSRCNNX + Krig + AdaptiveSharpen'
-	else
-		s[#s+1] = 'Anime4K_Hybrid_v2.0RC5x.glsl'
-		s[#s+1] = 'FSRCNNX_x2_8-0-4-1.glsl'
-		s[#s+1] = 'ravu-lite-r4.hook'
-		s[#s+1] = 'SSimSuperRes.glsl'
-		label   = 'FSRCNNX + Anime4K2x + RAVU-Lite + Krig + SSimSR + AdaptiveSharpen'
-	end
-	s[#s+1] = 'KrigBilateral.glsl'
-	-- s[#s+1] = 'adaptive-sharpen.glsl'
 	
+	s[#s+1] = 'KrigBilateral.glsl'
+	s[#s+1] = 'Anime4K_Hybrid_v2.1a.glsl'
+	
+	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
+	s[#s+1] = 'adaptive-sharpen.glsl'
+	
+	-- Options
+	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
+	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	
+	label   = 'Anime4K2.1 + Krig + SSimSR/DS + AdaptiveSharpen'
+
+	return { shaders = s, options = o, label = label }
+end
+
+-- Anime4K 2.1a-L
+sets[#sets+1] = function()
+	local s, o, scale, label = {}, default_options(), get_scale()
+	
+	s[#s+1] = 'KrigBilateral.glsl'
+	s[#s+1] = 'Anime4K_Hybrid_v2.1a_L.glsl'
+	
+	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
+	s[#s+1] = 'adaptive-sharpen.glsl'
+	
+	-- Options
+	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
+	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
+	
+	label   = 'Anime4K2.1L + Krig + SSimSR/DS + AdaptiveSharpen'
+
 	return { shaders = s, options = o, label = label }
 end
 

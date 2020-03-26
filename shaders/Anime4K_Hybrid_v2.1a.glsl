@@ -1,4 +1,4 @@
-//Anime4K Hybrid + CAS GLSL v2.1
+//Anime4K Hybrid GLSL v2.1a
 
 // MIT License
 
@@ -24,7 +24,7 @@
 // SOFTWARE.
 
 
-//!DESC Anime4K-Hybrid-Chroma-Upscale-v2.1
+//!DESC Anime4K-Hybrid-Chroma-Upscale-v2.1a
 //!HOOK CHROMA
 //!BIND HOOKED
 //!BIND LUMA
@@ -49,15 +49,15 @@ float gaussian(float x, float s, float m) {
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	float vc = LUMA_tex(HOOKED_pos).x;
-	
+
 	float s = vc * STRENGTH + 0.0001;
 	float ss = SPREAD_STRENGTH + 0.0001;
-	
+
 	vec4 valsum = vec4(0);
 	float normsum = 0.000001; //Avoid divide by zero
-	
+
 	for (int i=0; i<KERNELLEN; i++) {
 		vec2 ipos = vec2((i % KERNELSIZE) - KERNELHALFSIZE, (i / KERNELSIZE) - KERNELHALFSIZE);
 		float l = LUMA_tex(HOOKED_pos + ipos * d).x;
@@ -65,12 +65,12 @@ vec4 hook() {
 		valsum += HOOKED_tex(HOOKED_pos + ipos * d) * w;
 		normsum += w;
 	}
-	
+
 	return valsum / normsum;
 }
 
 
-//!DESC Anime4K-Hybrid-Luma-Denoise-v2.1
+//!DESC Anime4K-Hybrid-Luma-Denoise-v2.1a
 //!HOOK LUMA
 //!BIND HOOKED
 
@@ -95,53 +95,53 @@ float gaussian(float x, float s, float m) {
 vec4 getMode(vec4 histogram_v[KERNELLEN], float histogram_w[KERNELLEN]) {
 	vec4 maxv = vec4(0);
 	float maxw = 0;
-	
+
 	for (int i=0; i<KERNELLEN; i++) {
 		if (histogram_w[i] > maxw) {
 			maxw = histogram_w[i];
 			maxv = histogram_v[i];
 		}
 	}
-	
+
 	return maxv;
 }
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	float sharpval = clamp(HOOKED_size.x / 1920, 0, 1);
-	
+
 	vec4 histogram_v[KERNELLEN];
 	float histogram_w[KERNELLEN];
 	float histogram_wn[KERNELLEN];
-	
+
 	float vc = HOOKED_tex(HOOKED_pos).x;
-	
+
 	float s = vc * STRENGTH + 0.0001;
 	float ss = SPREAD_STRENGTH * sharpval + 0.0001;
-	
+
 	for (int i=0; i<KERNELLEN; i++) {
 		vec2 ipos = GETOFFSET(i);
 		histogram_v[i] = HOOKED_tex(HOOKED_pos + ipos * d);
 		histogram_w[i] = gaussian(vc - histogram_v[i].x, s, 0) * gaussian(distance(vec2(0), ipos), ss, 0);
 		histogram_wn[i] = 0;
 	}
-	
+
 	float sr = MODE_REGULARIZATION / 255.0;
-	
+
 	for (int i=0; i<KERNELLEN; i++) {
 		for (int j=0; j<KERNELLEN; j++) {
 			histogram_wn[j] += gaussian(histogram_v[j].x, sr, histogram_v[i].x) * histogram_w[i];
 		}
 	}
-	
+
 	return vec4(getMode(histogram_v, histogram_wn).x, 0, 0, 0);
 }
 
 
 /* ---------------------- x2 PRESCALER ---------------------- */
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x1-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x1-v2.1a
 //!HOOK LUMA
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 1.400 > OUTPUT.h LUMA.h / 1.400 > *
@@ -172,7 +172,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1a
 //!HOOK LUMA
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 1.400 > OUTPUT.h LUMA.h / 1.400 > *
@@ -193,7 +193,7 @@ vec4 hook() {
 	vec4 g = L_tex(HOOKED_pos + vec2(dp.x, -dp.y));
 	vec4 h = L_tex(HOOKED_pos + vec2(dp.x, 0));
 	vec4 i = L_tex(HOOKED_pos + vec2(dp.x, dp.y));
-	
+
 	vec4 na = -min(a, 0);
 	vec4 nb = -min(b, 0);
 	vec4 nc = -min(c, 0);
@@ -203,7 +203,7 @@ vec4 hook() {
 	vec4 ng = -min(g, 0);
 	vec4 nh = -min(h, 0);
 	vec4 ni = -min(i, 0);
-	
+
 	a = max(a, 0);
 	b = max(b, 0);
 	c = max(c, 0);
@@ -213,7 +213,7 @@ vec4 hook() {
 	g = max(g, 0);
 	h = max(h, 0);
 	i = max(i, 0);
-	
+
 	float s = -0.078850485*a.x + 0.008778143*b.x + 0.09409134*c.x + 0.17980288*d.x + -0.13836896*e.x + 0.041511726*f.x + 0.111073226*g.x + 0.24465907*h.x + -0.2613636*i.x;
 	float t = 0.04978624*a.y + -0.043356195*b.y + -0.08137738*c.y + -0.028674556*d.y + -0.0042590224*e.y + -0.06741321*f.y + 0.04029311*g.y + -0.069561794*h.y + 0.067619696*i.y;
 	float u = -0.0061189956*a.z + 0.051833455*b.z + -0.042832106*c.z + 0.26535267*d.z + 0.36819696*e.z + 0.03438765*f.z + 0.22989632*g.z + -0.487135*h.z + 0.15665813*i.z;
@@ -254,7 +254,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1a
 //!HOOK LUMA
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 1.400 > OUTPUT.h LUMA.h / 1.400 > *
@@ -275,7 +275,7 @@ vec4 hook() {
 	vec4 g = L_tex(HOOKED_pos + vec2(dp.x, -dp.y));
 	vec4 h = L_tex(HOOKED_pos + vec2(dp.x, 0));
 	vec4 i = L_tex(HOOKED_pos + vec2(dp.x, dp.y));
-	
+
 	vec4 na = -min(a, 0);
 	vec4 nb = -min(b, 0);
 	vec4 nc = -min(c, 0);
@@ -285,7 +285,7 @@ vec4 hook() {
 	vec4 ng = -min(g, 0);
 	vec4 nh = -min(h, 0);
 	vec4 ni = -min(i, 0);
-	
+
 	a = max(a, 0);
 	b = max(b, 0);
 	c = max(c, 0);
@@ -295,7 +295,7 @@ vec4 hook() {
 	g = max(g, 0);
 	h = max(h, 0);
 	i = max(i, 0);
-	
+
 	float s = -0.076375276*a.x + -0.16192478*b.x + -0.3435801*c.x + -0.102615885*d.x + -0.34291154*e.x + -0.3715771*f.x + -0.040065594*g.x + -0.031282134*h.x + -0.14007968*i.x;
 	float t = 0.0672231*a.y + -0.04764941*b.y + 0.098419875*c.y + 0.25985655*d.y + -0.38082376*e.y + 0.49276826*f.y + 0.08231613*g.y + 0.110389665*h.y + 0.12316233*i.y;
 	float u = 0.062234916*a.z + -0.08981316*b.z + 0.035350677*c.z + 0.3298534*d.z + -0.53112257*e.z + 0.07900975*f.z + -0.5878461*g.z + 0.3894751*h.z + 0.14318523*i.z;
@@ -332,12 +332,12 @@ vec4 hook() {
 	y = -0.076973915*na.z + -0.19071229*nb.z + -0.055816684*nc.z + -0.11463048*nd.z + -0.07194704*ne.z + -0.14436463*nf.z + -0.35647246*ng.z + 0.14373139*nh.z + 0.08208823*ni.z;
 	z = 0.16350232*na.w + 0.24001768*nb.w + 0.1772575*nc.w + 0.08607296*nd.w + -0.08327933*ne.w + 0.33616975*nf.w + 0.09244664*ng.w + -0.026265353*nh.w + 0.04598941*ni.w;
 	float r = s+t+u+v+w+x+y+z+0.00076911174;
-	
+
 	return vec4(o, p, q, r);
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1a
 //!HOOK LUMA
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 1.400 > OUTPUT.h LUMA.h / 1.400 > *
@@ -358,7 +358,7 @@ vec4 hook() {
 	vec4 g = L_tex(HOOKED_pos + vec2(dp.x, -dp.y));
 	vec4 h = L_tex(HOOKED_pos + vec2(dp.x, 0));
 	vec4 i = L_tex(HOOKED_pos + vec2(dp.x, dp.y));
-	
+
 	vec4 na = -min(a, 0);
 	vec4 nb = -min(b, 0);
 	vec4 nc = -min(c, 0);
@@ -368,7 +368,7 @@ vec4 hook() {
 	vec4 ng = -min(g, 0);
 	vec4 nh = -min(h, 0);
 	vec4 ni = -min(i, 0);
-	
+
 	a = max(a, 0);
 	b = max(b, 0);
 	c = max(c, 0);
@@ -415,26 +415,8 @@ vec4 hook() {
 	y = 0.002453317*na.z + -0.0026645362*nb.z + -0.0037308321*nc.z + -0.026038155*nd.z + 0.027270524*ne.z + 0.009217475*nf.z + -0.015977709*ng.z + -0.023630898*nh.z + -0.03964392*ni.z;
 	z = 0.0229635*na.w + 0.0007620235*nb.w + 0.03816787*nc.w + 0.012008527*nd.w + -0.16997801*ne.w + 0.048762847*nf.w + 0.0011025064*ng.w + 0.064071506*nh.w + 0.0049902974*ni.w;
 	float r = s+t+u+v+w+x+y+z+-0.00035512418;
-	
+
 	return vec4(o, p, q, r);
-}
-
-
-//!HOOK LUMA
-//!BIND HOOKED
-//!WHEN OUTPUT.w LUMA.w / 1.400 > OUTPUT.h LUMA.h / 1.400 > *
-//!WIDTH LUMA.w 2 *
-//!HEIGHT LUMA.h 2 *
-//!DESC Anime4K-Hybrid-ML-PixelShuffle-v2.1
-//!BIND LUMAN0
-//!SAVE LUMANE
-//!COMPONENTS 2
-
-vec4 hook() {
-	vec2 f = fract(LUMAN0_pos * LUMAN0_size);
-	ivec2 i = ivec2(f * vec2(2));
-	vec4 residual = LUMAN0_tex((vec2(0.5) - f) * LUMAN0_pt + LUMAN0_pos);
-	return vec4(residual[i.y * 2 + i.x], 0, 0, 0);
 }
 
 
@@ -444,10 +426,13 @@ vec4 hook() {
 //!WIDTH LUMA.w 2 *
 //!HEIGHT LUMA.h 2 *
 //!DESC Anime4K-Hybrid-ML-Upscale(x2)-v2.1
-//!BIND LUMANE
+//!BIND LUMAN0
 
 vec4 hook() {
-	return vec4(LUMANE_tex(HOOKED_pos).x + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yz, 0);
+	vec2 f = fract(LUMAN0_pos * LUMAN0_size);
+	ivec2 i = ivec2(f * vec2(2));
+	vec4 residual = LUMAN0_tex((vec2(0.5) - f) * LUMAN0_pt + LUMAN0_pos);
+	return vec4(residual[i.y * 2 + i.x] + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yz, 0);
 }
 
 
@@ -475,15 +460,15 @@ float gaussian(float x, float s, float m) {
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	vec4 vc = HOOKED_tex(HOOKED_pos);
-	
+
 	float s = vc.x * STRENGTH + 0.0001;
 	float ss = SPREAD_STRENGTH + 0.0001;
-	
+
 	vec4 valsum = vec4(0);
 	float normsum = 0.000001; //Avoid divide by zero
-	
+
 	for (int i=0; i<KERNELLEN; i++) {
 		vec2 ipos = vec2((i % KERNELSIZE) - KERNELHALFSIZE, (i / KERNELSIZE) - KERNELHALFSIZE);
 		vec4 l = HOOKED_tex(HOOKED_pos + ipos * d);
@@ -491,17 +476,27 @@ vec4 hook() {
 		valsum += l * w;
 		normsum += w;
 	}
-	
+
 	return vec4(vc.x, (valsum / normsum).yz, 0);
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x1-v2.1
+//!DESC Anime4K-Hybrid-ML-Downscale-v2.1a
+//!HOOK NATIVE
+//!BIND HOOKED
+//!WHEN OUTPUT.w LUMA.w / 4 < OUTPUT.h LUMA.h / 4 < * OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > * *
+//!WIDTH OUTPUT.w 2 /
+//!HEIGHT OUTPUT.h 2 /
+
+vec4 hook() {
+	return HOOKED_tex(HOOKED_pos);
+}
+
+
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x1-v2.1a
 //!HOOK NATIVE
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
-//!WIDTH LUMA.w 2 *
-//!HEIGHT LUMA.h 2 *
 //!SAVE LUMAN1
 //!COMPONENTS 4
 
@@ -529,12 +524,10 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1a
 //!HOOK NATIVE
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
-//!WIDTH LUMA.w 2 *
-//!HEIGHT LUMA.h 2 *
 //!BIND LUMAN1
 //!SAVE LUMAN1
 //!COMPONENTS 4
@@ -552,7 +545,7 @@ vec4 hook() {
 	vec4 g = L_tex(HOOKED_pos + vec2(dp.x, -dp.y));
 	vec4 h = L_tex(HOOKED_pos + vec2(dp.x, 0));
 	vec4 i = L_tex(HOOKED_pos + vec2(dp.x, dp.y));
-	
+
 	vec4 na = -min(a, 0);
 	vec4 nb = -min(b, 0);
 	vec4 nc = -min(c, 0);
@@ -562,7 +555,7 @@ vec4 hook() {
 	vec4 ng = -min(g, 0);
 	vec4 nh = -min(h, 0);
 	vec4 ni = -min(i, 0);
-	
+
 	a = max(a, 0);
 	b = max(b, 0);
 	c = max(c, 0);
@@ -572,7 +565,7 @@ vec4 hook() {
 	g = max(g, 0);
 	h = max(h, 0);
 	i = max(i, 0);
-	
+
 	float s = -0.078850485*a.x + 0.008778143*b.x + 0.09409134*c.x + 0.17980288*d.x + -0.13836896*e.x + 0.041511726*f.x + 0.111073226*g.x + 0.24465907*h.x + -0.2613636*i.x;
 	float t = 0.04978624*a.y + -0.043356195*b.y + -0.08137738*c.y + -0.028674556*d.y + -0.0042590224*e.y + -0.06741321*f.y + 0.04029311*g.y + -0.069561794*h.y + 0.067619696*i.y;
 	float u = -0.0061189956*a.z + 0.051833455*b.z + -0.042832106*c.z + 0.26535267*d.z + 0.36819696*e.z + 0.03438765*f.z + 0.22989632*g.z + -0.487135*h.z + 0.15665813*i.z;
@@ -613,12 +606,10 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1a
 //!HOOK NATIVE
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
-//!WIDTH LUMA.w 2 *
-//!HEIGHT LUMA.h 2 *
 //!BIND LUMAN1
 //!SAVE LUMAN1
 //!COMPONENTS 4
@@ -636,7 +627,7 @@ vec4 hook() {
 	vec4 g = L_tex(HOOKED_pos + vec2(dp.x, -dp.y));
 	vec4 h = L_tex(HOOKED_pos + vec2(dp.x, 0));
 	vec4 i = L_tex(HOOKED_pos + vec2(dp.x, dp.y));
-	
+
 	vec4 na = -min(a, 0);
 	vec4 nb = -min(b, 0);
 	vec4 nc = -min(c, 0);
@@ -646,7 +637,7 @@ vec4 hook() {
 	vec4 ng = -min(g, 0);
 	vec4 nh = -min(h, 0);
 	vec4 ni = -min(i, 0);
-	
+
 	a = max(a, 0);
 	b = max(b, 0);
 	c = max(c, 0);
@@ -656,7 +647,7 @@ vec4 hook() {
 	g = max(g, 0);
 	h = max(h, 0);
 	i = max(i, 0);
-	
+
 	float s = -0.076375276*a.x + -0.16192478*b.x + -0.3435801*c.x + -0.102615885*d.x + -0.34291154*e.x + -0.3715771*f.x + -0.040065594*g.x + -0.031282134*h.x + -0.14007968*i.x;
 	float t = 0.0672231*a.y + -0.04764941*b.y + 0.098419875*c.y + 0.25985655*d.y + -0.38082376*e.y + 0.49276826*f.y + 0.08231613*g.y + 0.110389665*h.y + 0.12316233*i.y;
 	float u = 0.062234916*a.z + -0.08981316*b.z + 0.035350677*c.z + 0.3298534*d.z + -0.53112257*e.z + 0.07900975*f.z + -0.5878461*g.z + 0.3894751*h.z + 0.14318523*i.z;
@@ -693,17 +684,15 @@ vec4 hook() {
 	y = -0.076973915*na.z + -0.19071229*nb.z + -0.055816684*nc.z + -0.11463048*nd.z + -0.07194704*ne.z + -0.14436463*nf.z + -0.35647246*ng.z + 0.14373139*nh.z + 0.08208823*ni.z;
 	z = 0.16350232*na.w + 0.24001768*nb.w + 0.1772575*nc.w + 0.08607296*nd.w + -0.08327933*ne.w + 0.33616975*nf.w + 0.09244664*ng.w + -0.026265353*nh.w + 0.04598941*ni.w;
 	float r = s+t+u+v+w+x+y+z+0.00076911174;
-	
+
 	return vec4(o, p, q, r);
 }
 
 
-//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1
+//!DESC Anime4K-Hybrid-ML-Conv-4x3x3x8-v2.1a
 //!HOOK NATIVE
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
-//!WIDTH LUMA.w 2 *
-//!HEIGHT LUMA.h 2 *
 //!BIND LUMAN1
 //!SAVE LUMAN1
 //!COMPONENTS 4
@@ -721,7 +710,7 @@ vec4 hook() {
 	vec4 g = L_tex(HOOKED_pos + vec2(dp.x, -dp.y));
 	vec4 h = L_tex(HOOKED_pos + vec2(dp.x, 0));
 	vec4 i = L_tex(HOOKED_pos + vec2(dp.x, dp.y));
-	
+
 	vec4 na = -min(a, 0);
 	vec4 nb = -min(b, 0);
 	vec4 nc = -min(c, 0);
@@ -731,7 +720,7 @@ vec4 hook() {
 	vec4 ng = -min(g, 0);
 	vec4 nh = -min(h, 0);
 	vec4 ni = -min(i, 0);
-	
+
 	a = max(a, 0);
 	b = max(b, 0);
 	c = max(c, 0);
@@ -778,7 +767,7 @@ vec4 hook() {
 	y = 0.002453317*na.z + -0.0026645362*nb.z + -0.0037308321*nc.z + -0.026038155*nd.z + 0.027270524*ne.z + 0.009217475*nf.z + -0.015977709*ng.z + -0.023630898*nh.z + -0.03964392*ni.z;
 	z = 0.0229635*na.w + 0.0007620235*nb.w + 0.03816787*nc.w + 0.012008527*nd.w + -0.16997801*ne.w + 0.048762847*nf.w + 0.0011025064*ng.w + 0.064071506*nh.w + 0.0049902974*ni.w;
 	float r = s+t+u+v+w+x+y+z+-0.00035512418;
-	
+
 	return vec4(o, p, q, r);
 }
 
@@ -788,36 +777,20 @@ vec4 hook() {
 //!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
 //!WIDTH LUMA.w 4 *
 //!HEIGHT LUMA.h 4 *
-//!DESC Anime4K-Hybrid-ML-PixelShuffle-v2.1
+//!DESC Anime4K-Hybrid-ML-Upscale(x4)-v2.1
 //!BIND LUMAN1
-//!BIND LUMANE
-//!SAVE LUMANE
-//!COMPONENTS 2
 
 vec4 hook() {
 	vec2 f = fract(LUMAN1_pos * LUMAN1_size);
 	ivec2 i = ivec2(f * vec2(2));
 	vec4 residual = LUMAN1_tex((vec2(0.5) - f) * LUMAN1_pt + LUMAN1_pos);
-	return vec4(LUMANE_tex(LUMANE_pos).x, residual[i.y * 2 + i.x], 0, 0);
-}
-
-
-//!HOOK NATIVE
-//!BIND HOOKED
-//!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
-//!WIDTH LUMA.w 4 *
-//!HEIGHT LUMA.h 4 *
-//!DESC Anime4K-Hybrid-ML-Upscale(x4)-v2.1
-//!BIND LUMANE
-
-vec4 hook() {
-	return vec4(LUMANE_tex(HOOKED_pos).y + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(residual[i.y * 2 + i.x] + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yz, 0);
 }
 
 
 /* ---------------------- Gradient Push ---------------------- */
 
-//!DESC Anime4K-Hybrid-ComputeGradientX-v2.1
+//!DESC Anime4K-Hybrid-ComputeGradientX-v2.1a
 //!HOOK SCALED
 //!BIND HOOKED
 //!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
@@ -825,37 +798,41 @@ vec4 hook() {
 //!COMPONENTS 2
 
 float getLum(vec4 rgb) {
-	return 0.299*rgb.r + 0.587*rgb.g + 0.114*rgb.b;
+	return sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(rgb.rgb, vec3(2.0)))); // 709
+	// return sqrt(dot(vec3(0.255800, 0.651100, 0.093100), pow(rgb.rgb, vec3(2.0)))); // Avg
+	// return sqrt(dot(vec3(0.299000, 0.587000, 0.114000), pow(rgb.rgb, vec3(2.0)))); // 601
+	// return sqrt(dot(vec3(0.212655, 0.715158, 0.072187), pow(rgb.rgb, vec3(2.0)))); // 709
+	// return 0.299*rgb.r + 0.587*rgb.g + 0.114*rgb.b;
 }
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	//[tl  t tr]
 	//[ l  c  r]
 	//[bl  b br]
 	float l = getLum(HOOKED_tex(HOOKED_pos + vec2(-d.x, 0)));
 	float c = getLum(HOOKED_tex(HOOKED_pos));
 	float r = getLum(HOOKED_tex(HOOKED_pos + vec2(d.x, 0)));
-	
+
 	//Horizontal Gradient
 	//[-1  0  1]
 	//[-2  0  2]
 	//[-1  0  1]
 	float xgrad = (-l + r);
-	
+
 	//Vertical Gradient
 	//[-1 -2 -1]
 	//[ 0  0  0]
 	//[ 1  2  1]
 	float ygrad = (l + c + c + r);
-	
+
 	//Computes the luminance's gradient
 	return vec4(xgrad, ygrad, 0, 0);
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeGradientY-v2.1
+//!DESC Anime4K-Hybrid-ComputeGradientY-v2.1a
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMA
@@ -892,52 +869,52 @@ float power_function(float x) {
 	float x3 = x2 * x;
 	float x4 = x2 * x2;
 	float x5 = x2 * x3;
-	
+
 	return P5*x5 + P4*x4 + P3*x3 + P2*x2 + P1*x + P0;
 }
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	//[tl  t tr]
 	//[ l cc  r]
 	//[bl  b br]
 	float tx = LUMAD_tex(HOOKED_pos + vec2(0, -d.y)).x;
 	float cx = LUMAD_tex(HOOKED_pos).x;
 	float bx = LUMAD_tex(HOOKED_pos + vec2(0, d.y)).x;
-	
+
 	float ty = LUMAD_tex(HOOKED_pos + vec2(0, -d.y)).y;
 	//float cy = LUMAD_tex(HOOKED_pos).y;
 	float by = LUMAD_tex(HOOKED_pos + vec2(0, d.y)).y;
-	
+
 	//Horizontal Gradient
 	//[-1  0  1]
 	//[-2  0  2]
 	//[-1  0  1]
 	float xgrad = (tx + cx + cx + bx);
-	
+
 	//Vertical Gradient
 	//[-1 -2 -1]
 	//[ 0  0  0]
 	//[ 1  2  1]
 	float ygrad = (-ty + by);
-	
+
 	//Computes the luminance's gradient
 	float sobel_norm = clamp(sqrt(xgrad * xgrad + ygrad * ygrad), 0, 1);
-	
+
 	float upratio = clamp(SCALED_size.x / LUMA_size.x - 1, 0, 6);
-	
+
 	float dval = clamp(power_function(clamp(sobel_norm * max(pow(upratio, UPSCALE_RATIO_HYSTERESIS), 1), 0, 1)) * REFINE_STRENGTH + REFINE_BIAS, 0, 1);
-	
+
 	if (upratio < 1) {
 		dval = dval * pow(upratio, UPSCALE_RATIO_HYSTERESIS);
 	}
-	
+
 	return vec4(sobel_norm, dval, 0, 0);
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeSecondGradientX-v2.1
+//!DESC Anime4K-Hybrid-ComputeSecondGradientX-v2.1a
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -947,35 +924,36 @@ vec4 hook() {
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	if (LUMAD_tex(HOOKED_pos).y < 0.1) {
 		return vec4(0);
 	}
-	
+
 	//[tl  t tr]
 	//[ l  c  r]
 	//[bl  b br]
 	float l = LUMAD_tex(HOOKED_pos + vec2(-d.x, 0)).x;
 	float c = LUMAD_tex(HOOKED_pos).x;
 	float r = LUMAD_tex(HOOKED_pos + vec2(d.x, 0)).x;
-	
+
 	//Horizontal Gradient
 	//[-1  0  1]
 	//[-2  0  2]
 	//[-1  0  1]
 	float xgrad = (-l + r);
-	
+
 	//Vertical Gradient
 	//[-1 -2 -1]
 	//[ 0  0  0]
 	//[ 1  2  1]
 	float ygrad = (l + c + c + r);
-	
+
+
 	return vec4(xgrad, ygrad, 0, 0);
 }
 
 
-//!DESC Anime4K-Hybrid-ComputeSecondGradientY-v2.1
+//!DESC Anime4K-Hybrid-ComputeSecondGradientY-v2.1a
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMAD
@@ -986,78 +964,77 @@ vec4 hook() {
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
+
 	if (LUMAD_tex(HOOKED_pos).y < 0.1) {
 		return vec4(0);
 	}
-	
+
 	//[tl  t tr]
 	//[ l cc  r]
 	//[bl  b br]
 	float tx = LUMAMM_tex(HOOKED_pos + vec2(0, -d.y)).x;
 	float cx = LUMAMM_tex(HOOKED_pos).x;
 	float bx = LUMAMM_tex(HOOKED_pos + vec2(0, d.y)).x;
-	
+
 	float ty = LUMAMM_tex(HOOKED_pos + vec2(0, -d.y)).y;
 	//float cy = LUMAMM_tex(HOOKED_pos).y;
 	float by = LUMAMM_tex(HOOKED_pos + vec2(0, d.y)).y;
-	
+
 	//Horizontal Gradient
 	//[-1  0  1]
 	//[-2  0  2]
 	//[-1  0  1]
 	float xgrad = (tx + cx + cx + bx);
-	
+
 	//Vertical Gradient
 	//[-1 -2 -1]
 	//[ 0  0  0]
 	//[ 1  2  1]
 	float ygrad = (-ty + by);
-	
+
 	float norm = sqrt(xgrad * xgrad + ygrad * ygrad);
 	if (norm <= 0.001) {
 		xgrad = 0;
 		ygrad = 0;
 		norm = 1;
 	}
-	
+
 	return vec4(xgrad/norm, ygrad/norm, 0, 0);
 }
 
 
-//!DESC Anime4K-Hybrid-Refine-v2.1
+//!DESC Anime4K-Hybrid-Refine-v2.1a
 //!HOOK SCALED
 //!BIND HOOKED
 //!BIND LUMA
 //!BIND LUMAD
 //!BIND LUMAMM
-//!BIND LUMANE
 //!WHEN OUTPUT.w LUMA.w / 1.200 > OUTPUT.h LUMA.h / 1.200 > *
 
-#define ML_SENSITIVITY 0.4 //Sensitivity for not applying refine step on pixels already refined by prior steps
+#define SHARPNESS_FACTOR 0.9 //Algorithm strength
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
-	
-	float dval = (1 - clamp(abs(LUMANE_tex(HOOKED_pos).x + LUMANE_tex(HOOKED_pos).y) / ML_SENSITIVITY, 0, 1)) * LUMAD_tex(HOOKED_pos).y;
-	
+
+	float dval = LUMAD_tex(HOOKED_pos).y * SHARPNESS_FACTOR;
+
 	if (dval < 0.1) {
 		return SCALED_tex(HOOKED_pos);
 	}
-	
+
 	vec4 dc = LUMAMM_tex(HOOKED_pos);
 	if (abs(dc.x + dc.y) <= 0.0001) {return SCALED_tex(HOOKED_pos);
 	}
-	
+
 	float xpos = -sign(dc.x);
 	float ypos = -sign(dc.y);
-	
+
 	vec4 xval = SCALED_tex(HOOKED_pos + vec2(d.x * xpos, 0));
 	vec4 yval = SCALED_tex(HOOKED_pos + vec2(0, d.y * ypos));
-	
+
 	float xyratio = abs(dc.x) / (abs(dc.x) + abs(dc.y));
-	
+
 	vec4 avg = xyratio * xval + (1-xyratio) * yval;
-	
+
 	return avg * dval + SCALED_tex(HOOKED_pos) * (1 - dval);
 }
