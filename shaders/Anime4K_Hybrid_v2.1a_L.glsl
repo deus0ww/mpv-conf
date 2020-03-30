@@ -1657,13 +1657,13 @@ vec4 hook() {
 }
 
 
+//!DESC Anime4K-Hybrid-ML-Upscale(x4)-v2.1
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAN10
 //!WHEN OUTPUT.w LUMA.w / 2.400 > OUTPUT.h LUMA.h / 2.400 > *
 //!WIDTH LUMAN10.w 2 *
 //!HEIGHT LUMAN10.h 2 *
-//!DESC Anime4K-Hybrid-ML-Upscale(x4)-v2.1
 
 vec4 hook() {
 	vec2 f = fract(LUMAN10_pos * LUMAN10_size);
