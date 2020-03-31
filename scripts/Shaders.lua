@@ -123,7 +123,7 @@ sets[#sets+1] = function()
 	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	
-	label   = 'Anime4K-2.1L + Krig + SSimSR/DS'
+	label   = 'Anime4K-2.1a-L + Krig + SSimSR/DS'
 
 	return { shaders = s, options = o, label = label }
 end
