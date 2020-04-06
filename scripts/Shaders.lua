@@ -1,4 +1,4 @@
--- deus0ww - 2020-03-31
+-- deus0ww - 2020-04-06
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -80,7 +80,7 @@ local function default_options()
 	return {
 		['scale']  = 'ewa_lanczossharp',
 		['cscale'] = 'ewa_robidouxsharp',
-		['dscale'] = 'robidouxsharp',      -- ewa_* causes artifacts
+		['dscale'] = 'ewa_robidoux',
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
 	}
@@ -104,7 +104,6 @@ sets[#sets+1] = function()
 	s[#s+1] = 'SSimDownscaler.glsl'
 	s[#s+1] = 'adaptive-sharpen.glsl'
 	-- Options
-	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	
@@ -114,18 +113,16 @@ end
 -- Anime4K 2.1a-L
 sets[#sets+1] = function()
 	local s, o, scale, label = {}, default_options(), get_scale()
+	-- Luma & Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
 	s[#s+1] = 'Anime4K_Hybrid_v2.1a_L.glsl'
+	-- RGB
 	s[#s+1] = 'SSimSuperRes.glsl'
 	s[#s+1] = 'SSimDownscaler.glsl'
-	
 	-- Options
-	o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	
-	label   = 'Anime4K-2.1a-L + Krig + SSimSR/DS'
-
-	return { shaders = s, options = o, label = label }
+	return { shaders = s, options = o, label = 'Anime4K-2.1a-L + Krig + SSimSR/DS' }
 end
 
 -- Anime4K 1.0
@@ -133,7 +130,6 @@ sets[#sets+1] = function()
 	local s, o, scale, label = {}, default_options(), get_scale()
 	if scale < 1 then
 		s[#s+1] = 'SSimDownscaler.glsl'
-		o['dscale'] = 'robidoux'        -- For SSimDownscaler.glsl
 		o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 		label   = 'Krig + SSimDS + AdaptiveSharpen'
 	elseif scale <= 2 then
