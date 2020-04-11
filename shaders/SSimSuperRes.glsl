@@ -102,12 +102,12 @@ vec4 hook() {
 
 //!HOOK POSTKERNEL
 //!BIND PREKERNEL
-//!SAVE mL
+//!SAVE varL
 //!WIDTH NATIVE_CROPPED.w
 //!HEIGHT NATIVE_CROPPED.h
 //!WHEN NATIVE_CROPPED.w OUTPUT.w <
 //!COMPONENTS 4
-//!DESC SSSR meanL & var
+//!DESC SSSR varL
 
 #define spread      1.0 / 1000.0
 
@@ -132,20 +132,19 @@ vec4 hook() {
     }
     varL /= (spread + 4.0*spread + 4.0*spread*spread);
 
-    return vec4((meanL), varL);
+    return vec4(GetL(0,0), varL);
 }
 
 //!HOOK POSTKERNEL
 //!BIND LOWRES
-//!SAVE mH
+//!SAVE varH
 //!WIDTH NATIVE_CROPPED.w
 //!HEIGHT NATIVE_CROPPED.h
 //!WHEN NATIVE_CROPPED.w OUTPUT.w <
-//!COMPONENTS 4
-//!DESC SSSR meanH & var
+//!COMPONENTS 1
+//!DESC SSSR varH
 
-#define locality    1000.0
-#define spread      1.0 / locality
+#define spread      1.0 / 1000.0
 
 #define sqr(x)      pow(x, 2.0)
 #define GetH(x,y)   LOWRES_texOff(vec2(x,y)).rgb
@@ -168,14 +167,14 @@ vec4 hook() {
     }
     varH /= (spread + 4.0*spread + 4.0*spread*spread);
 
-    return vec4((meanH.rgb), varH);
+    return vec4(varH, 0, 0, 0);
 }
 
 //!HOOK POSTKERNEL
 //!BIND HOOKED
 //!BIND LOWRES
-//!BIND mL
-//!BIND mH
+//!BIND varL
+//!BIND varH
 //!WHEN NATIVE_CROPPED.w OUTPUT.w <
 //!DESC SSSR final pass
 
@@ -191,8 +190,8 @@ vec4 hook() {
 #define sqr(x)      dot(x,x)
 
 // -- Input processing --
-#define meanL(x,y)  ( mL_tex(mL_pt*(pos+vec2(x,y)+0.5)) )
-#define meanH(x,y)  ( mH_tex(mH_pt*(pos+vec2(x,y)+0.5)) )
+#define L(x,y)      ( varL_tex(varL_pt*(pos+vec2(x,y)+0.5)) )
+#define H(x,y)      ( varH_tex(varH_pt*(pos+vec2(x,y)+0.5)) )
 #define Lowres(x,y) ( LOWRES_tex(LOWRES_pt*(pos+vec2(x,y)+0.5)) )
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
@@ -222,15 +221,14 @@ vec4 hook() {
     for (int X = minX; X <= maxX; X++)
     for (int Y = minX; Y <= maxX; Y++)
     {
-        vec4 l = meanL(X,Y);
-        vec4 h = meanH(X,Y);
-        float R = -sqrt((l.a + sqr(0.5/255.0)) / (h.a + mVar.r + sqr(0.5/255.0)));
-        float Var = Lowres(X,Y).a;
+        float varL = L(X,Y).a;
+        float varH = H(X,Y).r;
+        float R = -sqrt((varL + sqr(0.5/255.0)) / (varH + mVar.r + sqr(0.5/255.0)));
 
         vec2 krnl = Kernel(vec2(X,Y) - offset);
-        float weight = krnl.r * krnl.g / (Luma(c0.rgb - Lowres(X,Y).rgb) + Var + sqr(0.5/255.0));
+        float weight = krnl.r * krnl.g / (Luma(c0.rgb - Lowres(X,Y).rgb) + Lowres(X,Y).a + sqr(0.5/255.0));
 
-        diff += weight * (l.rgb + h.rgb * R + (-1.0 - R) * (c0.rgb));
+        diff += weight * (L(X,Y).rgb + Lowres(X,Y).rgb * R + (-1.0 - R) * (c0.rgb));
         weightSum += weight;
     }
     diff /= weightSum;
