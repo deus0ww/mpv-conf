@@ -266,7 +266,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		args[worker_extra.index_skip_idct]  = '--vd-lavc-skipidct='          .. (accurate_seek and 'nonref' or 'nonkey')
 		args[worker_extra.index_skip_frame] = '--vd-lavc-skipframe='         .. (accurate_seek and 'nonref' or 'nonkey')
 		args[worker_extra.index_time]       = '--start=' .. tostring(is_last_thumbnail and floor(time) or time)
-		args[worker_extra.index_output]     = output
+		args[worker_extra.index_output]     = '--o=' .. output
 	else
 		local width, height = state.width, state.height
 		local vf_scale = (scale_mpv):format(width, height, worker_options.ffmpeg_scaler)
@@ -322,8 +322,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		-- Output
 		concat_args(args, '--of=rawvideo')
 		concat_args(args, '--ocopy-metadata=no')
-		concat_args(args, '--o')
-		worker_extra.index_output = concat_args(args, output)
+		worker_extra.index_output = concat_args(args, '--o=' .. output)
 	end
 	return args, args[worker_extra.index_name]
 end
