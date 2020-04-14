@@ -1,4 +1,4 @@
--- deus0ww - 2020-04-12
+-- deus0ww - 2020-04-15
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -8,7 +8,7 @@ local utils   = require 'mp.utils'
 
 local opts = {
 	enabled          = false,    -- Master switch to enable/disable shaders
-	set_timer        = 0.5,
+	set_timer        = 1,
 	hifps_threshold  = 27,
 
 	default_index    = 1,        -- Default shader set
@@ -79,7 +79,7 @@ local function fsrcnnx() return (is_high_fps() or (get_scale() > 2.82843024)) an
 local function default_options()
 	return {
 		['scale']  = 'ewa_lanczos',
-		['cscale'] = 'ewa_robidoux',
+		['cscale'] = 'ewa_lanczos',
 		['dscale'] = 'ewa_robidoux',
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
