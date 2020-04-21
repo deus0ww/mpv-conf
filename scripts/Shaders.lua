@@ -24,7 +24,7 @@ local opts = {
 
 	preset_3_enabled = false,
 	preset_3_path    = 'cartoon',
-	preset_3_index   = 3,
+	preset_3_index   = 2,
 }
 
 local current_index, enabled
