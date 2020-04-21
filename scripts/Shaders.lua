@@ -79,10 +79,10 @@ local function fsrcnnx() return (is_high_fps() or (get_scale() > 2.82843024)) an
 local function default_options()
 	return {
 		['scale']  = 'ewa_lanczos',
-		['cscale'] = 'ewa_lanczos',
-		['dscale'] = 'ewa_robidoux',
 		['scale-radius']  = 3.2383154841662362,
+		['cscale'] = 'ewa_lanczos',
 		['cscale-radius'] = 3.2383154841662362,
+		['dscale'] = 'ewa_robidoux',
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
 	}
