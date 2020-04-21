@@ -1,4 +1,4 @@
--- deus0ww - 2020-04-15
+-- deus0ww - 2020-04-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -81,6 +81,8 @@ local function default_options()
 		['scale']  = 'ewa_lanczos',
 		['cscale'] = 'ewa_lanczos',
 		['dscale'] = 'ewa_robidoux',
+		['scale-radius']  = 3.2383154841662362,
+		['cscale-radius'] = 3.2383154841662362,
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
 	}
