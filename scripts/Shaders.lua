@@ -1,4 +1,4 @@
--- deus0ww - 2020-04-21
+-- deus0ww - 2020-04-29
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -114,7 +114,7 @@ end
 
 -- Anime4K 2.1a-L
 sets[#sets+1] = function()
-	local s, o, scale, label = {}, default_options(), get_scale()
+	local s, o = {}, default_options()
 	-- Luma & Chroma
 	s[#s+1] = 'KrigBilateral.glsl'
 	s[#s+1] = 'Anime4K_Hybrid_v2.1a_L.glsl'
@@ -127,18 +127,80 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = 'Anime4K-2.1a-L + Krig + SSimSR/DS' }
 end
 
--- Anime4K 3.0
-sets[#sets+1] = function()
-	local s, o, scale, label = {}, default_options(), get_scale()
-	if scale < 1 then
-
-	elseif scale <= 2 then
-
-	else
-
-	end
+local a4k3 = {
+	['upscale']         = 'anime4k3/Anime4K_3.0_Upscale_CNN_UL_x2.glsl',
+	['upscale_denoise'] = 'anime4k3/Anime4K_3.0_Upscale_CNN_UL_x2_Denoise.glsl',
+	['upscale_deblur']  = 'anime4k3/Anime4K_3.0_Upscale_CNN_UL_x2_Deblur.glsl',
+	['downscale']       = 'anime4k3/Anime4K_3.0_Auto_Downscale_Pre_x4.glsl',
 	
-	return { shaders = s, options = o, label = label }
+	['denoise']         = 'anime4k3/Anime4K_3.0_Denoise_Bilateral_Mode.glsl',
+	['deblur']          = 'anime4k3/Anime4K_3.0_Deblur_DoG.glsl',
+	['darklines']       = 'anime4k3/Anime4K_3.0_DarkLines_HQ.glsl',
+	['thinlines']       = 'anime4k3/Anime4K_3.0_ThinLines_HQ.glsl',
+}
+
+-- Anime4K 3.0 (Remain as faithful to the original while enhancing details)
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	if scale <= 2 then
+		s[#s+1] = a4k3['denoise']
+		s[#s+1] = a4k3['upscale_deblur']
+	else
+		s[#s+1] = a4k3['upscale_denoise']
+		s[#s+1] = a4k3['downscale']
+		s[#s+1] = a4k3['upscale_deblur']
+	end
+	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
+	-- Options
+	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+	return { shaders = s, options = o, label = 'Anime4K-3.0 Faithful' }
+end
+
+-- Anime4K 3.0 (Improve perceptual quality)
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	if scale <= 2 then
+		s[#s+1] = a4k3['denoise']
+		s[#s+1] = a4k3['darklines']
+		s[#s+1] = a4k3['thinlines']
+		s[#s+1] = a4k3['upscale_deblur']
+	else
+		s[#s+1] = a4k3['upscale_denoise']
+		s[#s+1] = a4k3['downscale']
+		s[#s+1] = a4k3['darklines']
+		s[#s+1] = a4k3['thinlines']
+		s[#s+1] = a4k3['upscale_deblur']
+	end
+	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
+	-- Options
+	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+	return { shaders = s, options = o, label = 'Anime4K-3.0 Enhance' }
+end
+
+-- Anime4K 3.0 (Improve perceptual quality + deblur)
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	if scale <= 2 then
+		s[#s+1] = a4k3['denoise']
+		s[#s+1] = a4k3['deblur']
+		s[#s+1] = a4k3['darklines']
+		s[#s+1] = a4k3['thinlines']
+		s[#s+1] = a4k3['upscale_deblur']
+	else
+		s[#s+1] = a4k3['upscale_denoise']
+		s[#s+1] = a4k3['downscale']
+		s[#s+1] = a4k3['deblur']
+		s[#s+1] = a4k3['darklines']
+		s[#s+1] = a4k3['thinlines']
+		s[#s+1] = a4k3['upscale_deblur']
+	end
+	s[#s+1] = 'SSimSuperRes.glsl'
+	s[#s+1] = 'SSimDownscaler.glsl'
+	-- Options
+	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+	return { shaders = s, options = o, label = 'Anime4K-3.0 Enhance+Deblur' }
 end
 
 
