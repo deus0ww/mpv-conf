@@ -89,7 +89,7 @@ end
 --------------------
 --- Shader Files ---
 --------------------
--- igv's
+-- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
 local igv_path = 'igv/'
 local igv = { 
 	fsrcnnx_8  = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl', 
@@ -102,14 +102,16 @@ local igv = {
 }
 igv.fsrcnnx = function() return (is_high_fps() or (get_scale() > 2.82843024)) and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
 
--- RAVU
+-- RAVU - https://github.com/bjin/mpv-prescalers
 local ravu_path = 'ravu/'
 local ravu = {
 	lite_r4 = ravu_path .. 'ravu-lite-r4.hook',
+	zoom_r4 = ravu_path .. 'ravu-zoom-r4.hook',
 }
+ravu.r4 = function() return (is_high_fps() or (get_scale() >= 4)) and ravu.lite_r4 or ravu.zoom_r4 end
 
--- Anime4K
-local anime4k_path    = 'anime4k3/'
+-- Anime4K - https://github.com/bloc97/Anime4K/
+local anime4k_path    = 'anime4k/'
 local anime4k = {
 	downscale         = anime4k_path .. 'Anime4K_3.0_Auto_Downscale_Pre_x4.glsl',
 	
@@ -146,7 +148,7 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	-- Luma
 	s[#s+1] = igv.fsrcnnx()
-	s[#s+1] = ravu.lite_r4
+	s[#s+1] = ravu.r4()
 	-- Chroma
 	s[#s+1] = igv.krig
 	-- RGB
@@ -160,7 +162,7 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
--- Anime4K 3.0 (Custom)
+-- Anime4K 3.0 (Custom - HQ Enhance & Deblur)
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.krig
