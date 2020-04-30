@@ -90,7 +90,7 @@ end
 --- Shader Files ---
 --------------------
 -- igv's
-local igv_path = ''
+local igv_path = 'igv/'
 local igv = { 
 	fsrcnnx_8  = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl', 
 	fsrcnnx_16 = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
@@ -103,7 +103,7 @@ local igv = {
 igv.fsrcnnx = function() return (is_high_fps() or (get_scale() > 2.82843024)) and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
 
 -- RAVU
-local ravu_path = ''
+local ravu_path = 'ravu/'
 local ravu = {
 	lite_r4 = ravu_path .. 'ravu-lite-r4.hook',
 }
