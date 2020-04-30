@@ -89,8 +89,10 @@ end
 --------------------
 --- Shader Files ---
 --------------------
+local shaders_path = '~~/shaders/'
+
 -- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
-local igv_path = 'igv/'
+local igv_path = shaders_path .. 'igv/'
 local igv = { 
 	fsrcnnx_8  = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl', 
 	fsrcnnx_16 = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
@@ -103,7 +105,7 @@ local igv = {
 igv.fsrcnnx = function() return (is_high_fps() or (get_scale() > 2.82843024)) and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
 
 -- RAVU - https://github.com/bjin/mpv-prescalers
-local ravu_path = 'ravu/'
+local ravu_path = shaders_path .. 'ravu/'
 local ravu = {
 	lite_r4 = ravu_path .. 'ravu-lite-r4.hook',
 	zoom_r4 = ravu_path .. 'ravu-zoom-r4.hook',
@@ -111,7 +113,7 @@ local ravu = {
 ravu.r4 = function() return (is_high_fps() or (get_scale() >= 4)) and ravu.lite_r4 or ravu.zoom_r4 end
 
 -- Anime4K - https://github.com/bloc97/Anime4K/
-local anime4k_path    = 'anime4k/'
+local anime4k_path    = shaders_path .. 'anime4k/'
 local anime4k = {
 	downscale         = anime4k_path .. 'Anime4K_3.0_Auto_Downscale_Pre_x4.glsl',
 	
@@ -135,7 +137,8 @@ local anime4k = {
 	
 	thinlines_1       = anime4k_path .. 'Anime4K_3.0_ThinLines_VeryFast.glsl',
 	thinlines_2       = anime4k_path .. 'Anime4K_3.0_ThinLines_Fast.glsl',
-	thinlines_3       = anime4k_path .. 'Anime4K_3.0_thinlines_HQ.glsl',
+	thinlines_3       = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ.glsl',
+	thinlines_4       = anime4k_path .. 'Anime4K_3.0_ThinerLines_HQ.glsl',
 }
 
 
@@ -172,12 +175,18 @@ sets[#sets+1] = function()
 		s[#s+1] = anime4k.darklines_3
 		s[#s+1] = anime4k.thinlines_3
 		s[#s+1] = anime4k.upscale_deblur_2
-	else
-		s[#s+1] = anime4k.upscale_denoise_2
+	elseif scale < 4 then
+		s[#s+1] = anime4k.upscale_denoise_1
 		s[#s+1] = anime4k.downscale
 		s[#s+1] = anime4k.deblur_1
 		s[#s+1] = anime4k.darklines_3
 		s[#s+1] = anime4k.thinlines_3
+		s[#s+1] = anime4k.upscale_deblur_1
+	else
+		s[#s+1] = anime4k.upscale_denoise_2
+		s[#s+1] = anime4k.deblur_1
+		s[#s+1] = anime4k.darklines_3
+		s[#s+1] = anime4k.thinlines_4
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
 	return { shaders = s, options = o, label = 'Anime4K-3.0 (HQ Enhance & Deblur) + Krig' }
@@ -267,7 +276,7 @@ local function mpv_set_shaders(shaders)
 	mpv_clear_shaders()
 	msg.debug('Setting Shaders:', utils.to_string(shaders))
 	for _, shader in ipairs(shaders) do
-		if shader and shader ~= '' then mp.commandv('change-list', 'glsl-shaders', 'append', '~~/shaders/' .. shader) end
+		if shader and shader ~= '' then mp.commandv('change-list', 'glsl-shaders', 'append', shader) end
 	end
 end
 
