@@ -9,7 +9,7 @@ local utils   = require 'mp.utils'
 local opts = {
 	enabled          = false,    -- Master switch to enable/disable shaders
 	set_timer        = 1/3,
-	hifps_threshold  = 27,
+	hifps_threshold  = 30,
 
 	default_index    = 1,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
@@ -102,7 +102,7 @@ local igv = {
 	ssds       = igv_path .. 'SSimDownscaler.glsl',
 	asharpen   = igv_path .. 'adaptive-sharpen.glsl',
 }
-igv.fsrcnnx = function() return (is_high_fps() or (get_scale() > 2.82843024)) and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
+igv.fsrcnnx = function() return is_high_fps() and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
 
 -- RAVU - https://github.com/bjin/mpv-prescalers
 local ravu_path = shaders_path .. 'ravu/'
