@@ -102,7 +102,7 @@ local igv = {
 	ssds       = igv_path .. 'SSimDownscaler.glsl',
 	asharpen   = igv_path .. 'adaptive-sharpen.glsl',
 }
-igv.fsrcnnx = function() return is_high_fps() and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
+igv.fsrcnnx = function() return (is_high_fps() or (get_scale() > 3)) and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
 
 -- RAVU - https://github.com/bjin/mpv-prescalers
 local ravu_path = shaders_path .. 'ravu/'
@@ -117,9 +117,9 @@ local anime4k_path    = shaders_path .. 'anime4k/'
 local anime4k = {
 	downscale         = anime4k_path .. 'Anime4K_3.0_Auto_Downscale_Pre_x4.glsl',
 	
-	upscale_1 = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_M_x2.glsl',
-	upscale_2 = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_L_x2.glsl',
-	upscale_3 = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_UL_x2.glsl',
+	upscale_1         = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_M_x2.glsl',
+	upscale_2         = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_L_x2.glsl',
+	upscale_3         = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_UL_x2.glsl',
 	
 	upscale_denoise_1 = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_M_x2_Denoise.glsl',
 	upscale_denoise_2 = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_L_x2_Denoise.glsl',
