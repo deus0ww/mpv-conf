@@ -1,4 +1,4 @@
--- deus0ww - 2020-03-12
+-- deus0ww - 2020-05-11
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -417,7 +417,7 @@ local function create_workers()
 	if missing_workers > 0 and worker_script_path ~= nil and worker_script_path ~= '' then
 		for _ = 1, missing_workers do
 			-- msg.debug('Recruiting Worker...')
-			mp.command_native({'load-script', worker_script_path})
+			mp.command_native({'load-script', '~~/scripts/' .. worker_script_path .. '.lua'})
 		end
 	end
 end
