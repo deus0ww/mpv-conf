@@ -417,7 +417,7 @@ local function create_workers()
 	if missing_workers > 0 and worker_script_path ~= nil and worker_script_path ~= '' then
 		for _ = 1, missing_workers do
 			-- msg.debug('Recruiting Worker...')
-			mp.command_native({'load-script', '~~/scripts/' .. worker_script_path .. '.lua'})
+			mp.command_native({'load-script', worker_script_path})
 		end
 	end
 end

@@ -170,7 +170,7 @@ end
 ------------
 -- Worker --
 ------------
-mp.command_native({'script-message', message.worker.registration, format_json({name = script_name, script_path = script_name})})
+mp.command_native({'script-message', message.worker.registration, format_json({name = script_name, script_path = debug.getinfo(1).source})})
 
 local function stop_file_exist()
 	local file = io.open(join_paths(state.cache_dir, 'stop'), 'r')
