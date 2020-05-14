@@ -23,7 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!DESC Anime4K-v3.0-ThinLines-SD-Kernel(X)
+//!DESC Anime4K-v3.0-ThinLines-S1-Kernel(X)
 //!HOOK NATIVE
 //!BIND HOOKED
 //!SAVE LUMAD
@@ -59,7 +59,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-v3.0-ThinLines-SD-Kernel(Y)
+//!DESC Anime4K-v3.0-ThinLines-S1-Kernel(Y)
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD
@@ -100,7 +100,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-v3.0-ThinLines-SD-Kernel(X)
+//!DESC Anime4K-v3.0-ThinLines-S1-Kernel(X)
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD
@@ -131,7 +131,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-v3.0-ThinLines-SD-Kernel(Y)
+//!DESC Anime4K-v3.0-ThinLines-S1-Kernel(Y)
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD
@@ -166,7 +166,7 @@ vec4 hook() {
 
 
 
-//!DESC Anime4K-v3.0-ThinLines-SD-Kernel(X)
+//!DESC Anime4K-v3.0-ThinLines-S1-Kernel(X)
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD
@@ -201,7 +201,7 @@ vec4 hook() {
 }
 
 
-//!DESC Anime4K-v3.0-ThinLines-SD-Kernel(Y)
+//!DESC Anime4K-v3.0-ThinLines-S1-Kernel(Y)
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD2
@@ -240,13 +240,13 @@ vec4 hook() {
 	return vec4(xgrad, ygrad, 0, 0);
 }
 
-//!DESC Anime4K-v3.0-ThinLines-SD
+//!DESC Anime4K-v3.0-ThinLines-S1
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD
 //!BIND LUMAD2
 
-#define STRENGTH 0.5 //Strength of warping for each iteration
+#define STRENGTH 0.3 //Strength of warping for each iteration
 #define ITERATIONS 2 //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
 
 #define L_tex HOOKED_tex

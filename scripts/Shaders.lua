@@ -131,8 +131,10 @@ local anime4k = {
 	upscale_deblur_3  = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_UL_x2_Deblur.glsl',
 	
 	denoise           = anime4k_path .. 'Anime4K_3.0_Denoise_Bilateral_Mode.glsl',
+	denoise_luma      = anime4k_path .. 'Anime4K_3.0_Denoise_Bilateral_Mode_Luma.glsl',
 	
 	deblur_1          = anime4k_path .. 'Anime4K_3.0_Deblur_DoG.glsl',
+	deblur_1_luma     = anime4k_path .. 'Anime4K_3.0_Deblur_DoG_Luma.glsl',
 	deblur_2          = anime4k_path .. 'Anime4K_3.0_Deblur_CNN_M.glsl',
 	deblur_3          = anime4k_path .. 'Anime4K_3.0_Deblur_CNN_L.glsl',
 	
@@ -143,9 +145,10 @@ local anime4k = {
 	thinlines_1       = anime4k_path .. 'Anime4K_3.0_ThinLines_VeryFast.glsl',
 	thinlines_2       = anime4k_path .. 'Anime4K_3.0_ThinLines_Fast.glsl',
 	thinlines_3       = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ.glsl',
-	thinlines_3_SD    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_SD.glsl',
-	thinlines_3_HD    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_HD.glsl',
-	thinlines_3_FHD   = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_FHD.glsl',
+	thinlines_3_s1    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S1.glsl',
+	thinlines_3_s2    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S2.glsl',
+	thinlines_3_s3    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S3.glsl',
+	thinlines_3_s4    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S4.glsl',
 }
 
 
@@ -172,107 +175,126 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
--- Anime4K 3.0 (Custom - Enhance & Deblur)
-sets[#sets+1] = function()
+sets[#sets+1] = function() --  FSRCNNX + Anime4K 3.0 Enhance & Deblur
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = igv.krig
+	if scale <= 2 then
+		s[#s+1] = anime4k.denoise_luma
+		s[#s+1] = anime4k.deblur_1_luma
+		s[#s+1] = igv.fsrcnnx_8l
+		s[#s+1] = anime4k.darklines_3
+		s[#s+1] = anime4k.thinlines_3_s2
+	elseif scale < 4 then
+		s[#s+1] = igv.fsrcnnx_8l
+		s[#s+1] = anime4k.darklines_3
+		s[#s+1] = anime4k.thinlines_3_s3
+		s[#s+1] = anime4k.upscale_deblur_1
+	else
+		s[#s+1] = igv.fsrcnnx_8l
+		s[#s+1] = anime4k.deblur_2
+		s[#s+1] = anime4k.darklines_3
+		s[#s+1] = anime4k.thinlines_3_s4
+		s[#s+1] = anime4k.upscale_deblur_1
+	end
+	o['dscale'] = 'ewa_robidouxsharp'
+	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K-3.0 Enhance & Deblur' }
+end
+
+sets[#sets+1] = function() -- FSRCNNX +  Anime4K 3.0  Deblur)
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = igv.krig
+	if scale <= 2 then
+		s[#s+1] = anime4k.deblur_3
+		s[#s+1] = anime4k.upscale_deblur_2
+	elseif scale < 4 then
+		s[#s+1] = igv.fsrcnnx_8l
+		s[#s+1] = anime4k.deblur_3
+		s[#s+1] = anime4k.upscale_deblur_2
+	else
+		s[#s+1] = igv.fsrcnnx_8l
+		s[#s+1] = anime4k.deblur_3
+		s[#s+1] = anime4k.upscale_deblur_2
+	end
+	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K-3.0 Deblur' }
+end
+
+sets[#sets+1] = function() --  Anime4K 3.0 Enhance & Deblur
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.krig
 	if scale <= 2 then
 		s[#s+1] = anime4k.denoise
 		s[#s+1] = anime4k.deblur_2
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_FHD
+		s[#s+1] = anime4k.thinlines_3_s1
 		s[#s+1] = anime4k.upscale_deblur_2
 	elseif scale < 4 then
 		s[#s+1] = anime4k.upscale_denoise_1
 		s[#s+1] = anime4k.downscale
 		s[#s+1] = anime4k.deblur_2
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_HD
+		s[#s+1] = anime4k.thinlines_3_s2
 		s[#s+1] = anime4k.upscale_deblur_1
 	else
 		s[#s+1] = anime4k.upscale_denoise_2
 		s[#s+1] = anime4k.deblur_2
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_SD
+		s[#s+1] = anime4k.thinlines_3_s3
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
-	return { shaders = s, options = o, label = 'Anime4K-3.0 (2D Enhance & Deblur) + Krig' }
+	return { shaders = s, options = o, label = 'Krig + Anime4K-3.0 Enhance & Deblur' }
 end
 
--- Anime4K 3.0 (Custom - Deblur)
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = igv.krig
-	if scale <= 2 then
-		s[#s+1] = anime4k.deblur_3
-		s[#s+1] = anime4k.upscale_deblur_2
-	elseif scale < 4 then
-		s[#s+1] = anime4k.upscale_2
-		s[#s+1] = anime4k.downscale
-		s[#s+1] = anime4k.deblur_3
-		s[#s+1] = anime4k.upscale_deblur_2
-	else
-		s[#s+1] = anime4k.upscale_2
-		s[#s+1] = anime4k.deblur_3
-		s[#s+1] = anime4k.upscale_deblur_2
-	end
-	return { shaders = s, options = o, label = 'Anime4K-3.0 (3D Deblur) + Krig' }
-end
-
--- Anime4K 3.0 (Improve perceptual quality + deblur)
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = igv.krig
-	if scale <= 2 then
-		s[#s+1] = anime4k.denoise
-		s[#s+1] = anime4k.deblur_1
-		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3
-		s[#s+1] = anime4k.upscale_deblur_1
-	else
-		s[#s+1] = anime4k.upscale_denoise_1
-		s[#s+1] = anime4k.downscale
-		s[#s+1] = anime4k.deblur_1
-		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3
-		s[#s+1] = anime4k.upscale_deblur_1
-	end
-	return { shaders = s, options = o, label = 'Anime4K-3.0 (Enhance & Deblur) + Krig' }
-end
-
--- Anime4K 3.0 (Improve perceptual quality)
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = igv.krig
-	if scale <= 2 then
-		s[#s+1] = anime4k.denoise
-		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3
-		s[#s+1] = anime4k.upscale_deblur_1
-	else
-		s[#s+1] = anime4k.upscale_denoise_1
-		s[#s+1] = anime4k.downscale
-		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3
-		s[#s+1] = anime4k.upscale_deblur_1
-	end
-	return { shaders = s, options = o, label = 'Anime4K-3.0 (Enhance) + Krig' }
-end
-
--- Anime4K 3.0 (Remain as faithful to the original while enhancing details)
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = igv.krig
-	if scale <= 2 then
-		s[#s+1] = anime4k.denoise
-		s[#s+1] = anime4k.upscale_deblur_1
-	else
-		s[#s+1] = anime4k.upscale_denoise_1
-		s[#s+1] = anime4k.downscale
-		s[#s+1] = anime4k.upscale_deblur_1
-	end
-	return { shaders = s, options = o, label = 'Anime4K-3.0 (Faithful) + Krig' }
-end
+--sets[#sets+1] = function() -- Anime4K 3.0 (Improve perceptual quality + deblur)
+--	local s, o, scale = {}, default_options(), get_scale()
+--	s[#s+1] = igv.krig
+--	if scale <= 2 then
+--		s[#s+1] = anime4k.denoise
+--		s[#s+1] = anime4k.deblur_1
+--		s[#s+1] = anime4k.darklines_3
+--		s[#s+1] = anime4k.thinlines_3
+--		s[#s+1] = anime4k.upscale_deblur_1
+--	else
+--		s[#s+1] = anime4k.upscale_denoise_1
+--		s[#s+1] = anime4k.downscale
+--		s[#s+1] = anime4k.deblur_1
+--		s[#s+1] = anime4k.darklines_3
+--		s[#s+1] = anime4k.thinlines_3
+--		s[#s+1] = anime4k.upscale_deblur_1
+--	end
+--	return { shaders = s, options = o, label = 'Anime4K-3.0 (Enhance & Deblur) + Krig' }
+--end
+--
+--sets[#sets+1] = function() -- Anime4K 3.0 (Improve perceptual quality)
+--	local s, o, scale = {}, default_options(), get_scale()
+--	s[#s+1] = igv.krig
+--	if scale <= 2 then
+--		s[#s+1] = anime4k.denoise
+--		s[#s+1] = anime4k.darklines_3
+--		s[#s+1] = anime4k.thinlines_3
+--		s[#s+1] = anime4k.upscale_deblur_1
+--	else
+--		s[#s+1] = anime4k.upscale_denoise_1
+--		s[#s+1] = anime4k.downscale
+--		s[#s+1] = anime4k.darklines_3
+--		s[#s+1] = anime4k.thinlines_3
+--		s[#s+1] = anime4k.upscale_deblur_1
+--	end
+--	return { shaders = s, options = o, label = 'Anime4K-3.0 (Enhance) + Krig' }
+--end
+--
+--sets[#sets+1] = function() -- Anime4K 3.0 (Remain as faithful to the original while enhancing details)
+--	local s, o, scale = {}, default_options(), get_scale()
+--	s[#s+1] = igv.krig
+--	if scale <= 2 then
+--		s[#s+1] = anime4k.denoise
+--		s[#s+1] = anime4k.upscale_deblur_1
+--	else
+--		s[#s+1] = anime4k.upscale_denoise_1
+--		s[#s+1] = anime4k.downscale
+--		s[#s+1] = anime4k.upscale_deblur_1
+--	end
+--	return { shaders = s, options = o, label = 'Anime4K-3.0 (Faithful) + Krig' }
+--end
 
 
 --------------------
