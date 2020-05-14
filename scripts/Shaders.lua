@@ -148,7 +148,6 @@ local anime4k = {
 	thinlines_3_s1    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S1.glsl',
 	thinlines_3_s2    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S2.glsl',
 	thinlines_3_s3    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S3.glsl',
-	thinlines_3_s4    = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S4.glsl',
 }
 
 
@@ -187,13 +186,13 @@ sets[#sets+1] = function() --  FSRCNNX + Anime4K 3.0 Enhance & Deblur
 	elseif scale < 4 then
 		s[#s+1] = igv.fsrcnnx_8l
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s3
+		s[#s+1] = anime4k.thinlines_3_s2
 		s[#s+1] = anime4k.upscale_deblur_1
 	else
 		s[#s+1] = igv.fsrcnnx_8l
 		s[#s+1] = anime4k.deblur_2
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s4
+		s[#s+1] = anime4k.thinlines_3_s3
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
 	o['dscale'] = 'ewa_robidouxsharp'
