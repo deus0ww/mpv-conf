@@ -94,7 +94,8 @@ local shaders_path = '~~/shaders/'
 -- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
 local igv_path = shaders_path .. 'igv/'
 local igv = { 
-	fsrcnnx_8  = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl', 
+	fsrcnnx_8  = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
+	fsrcnnx_8l = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
 	fsrcnnx_16 = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
 	
 	krig       = igv_path .. 'KrigBilateral.glsl',
