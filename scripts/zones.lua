@@ -40,11 +40,15 @@ local HORZ = {'left', 'middle', 'right'}
 
 local msg = mp.msg
 
+local mouseX, mouseY = nil, nil
+mp.add_key_binding('mouse_move', function() mouseX, mouseY = mp.get_mouse_pos() end)
+mp.register_event( 'start-file', function() mouseX, mouseY = nil, nil end)
+
 function getMouseZone()
     -- returns the mouse zone as two strings [top/middle/bottom], [left/middle/right], e.g. "middle", "right"
 
     local screenW, screenH = mp.get_osd_size()
-    local mouseX, mouseY   = mp.get_mouse_pos()
+    if mouseX == nil or mouseY == nil then return nil, nil end
 
     local threshY = screenH * ZONE_THRESH_PERCENTAGE / 100
     local threshX = screenW * ZONE_THRESH_PERCENTAGE / 100
@@ -118,6 +122,7 @@ mp.register_script_message("zonecommands", function (...)
 
     local keyY, keyX = getMouseZone()
     msg.debug(string.format("mouse at: %s-%s", keyY, keyX))
+    if not (keyY and keyX) then return end
 
     local cmd = nil
     local commands = getZonesData(arg)
