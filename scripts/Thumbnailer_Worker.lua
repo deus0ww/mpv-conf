@@ -230,9 +230,9 @@ local function add_timeout(args)
 	local timeout = worker_options.worker_timeout and worker_options.worker_timeout or 0
 	if timeout == 0 then return #args end
 	if OPERATING_SYSTEM == OS_MAC then
-		add_args(args, 'gtimeout', ('--kill-after=%d'):format(timeout), ('%d'):format(timeout + 2))
+		add_args(args, 'gtimeout', ('--kill-after=%d'):format(timeout + 1), ('%d'):format(timeout + 3))
 	elseif OPERATING_SYSTEM == OS_NIX then
-		add_args(args, 'timeout',  ('--kill-after=%d'):format(timeout), ('%d'):format(timeout + 2))
+		add_args(args, 'timeout',  ('--kill-after=%d'):format(timeout + 1), ('%d'):format(timeout + 3))
 	elseif OPERATING_SYSTEM == OS_WIN then
 		-- unimplemented
 	end
@@ -240,7 +240,13 @@ local function add_timeout(args)
 end
 
 local function add_nice(args)
-	add_args(args, 'nice', '-19')
+	if OPERATING_SYSTEM == OS_MAC then
+		add_args(args, 'gnice', '-19')
+	elseif OPERATING_SYSTEM == OS_NIX then
+		add_args(args, 'nice', '19')
+	elseif OPERATING_SYSTEM == OS_WIN then
+		-- unimplemented
+	end
 end
 
 local pix_fmt   = 'bgr0'
@@ -474,15 +480,15 @@ local function process_thumbnail()
 		return
 	end
 	-- Switch to MPV when FFMPEG fails
-	if worker_options.encoder == 'ffmpeg' then
-		set_encoder('mpv')
-		if create_thumbnail(time, fullpath) then
-			worker_stats.success = worker_stats.success + 1
-			worker_stats.queued = worker_stats.queued - 1
-			report_progress (time, message.ready)
-			return
-		end
-	end
+--	if worker_options.encoder == 'ffmpeg' then
+--		set_encoder('mpv')
+--		if create_thumbnail(time, fullpath) then
+--			worker_stats.success = worker_stats.success + 1
+--			worker_stats.queued = worker_stats.queued - 1
+--			report_progress (time, message.ready)
+--			return
+--		end
+--	end
 	-- If the thumbnail is incomplete, pad it
 	if not check_existing(fullpath) then pad_file(fullpath) end
 	-- Final check
