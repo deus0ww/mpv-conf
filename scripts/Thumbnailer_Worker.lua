@@ -468,15 +468,15 @@ local function process_thumbnail()
 		return
 	end
 	-- Switch to MPV when FFMPEG fails
-	if worker_options.encoder == 'ffmpeg' then
-		set_encoder('mpv')
-		if create_thumbnail(time, fullpath) then
-			worker_stats.success = worker_stats.success + 1
-			worker_stats.queued = worker_stats.queued - 1
-			report_progress (time, message.ready)
-			return
-		end
-	end
+--	if worker_options.encoder == 'ffmpeg' then
+--		set_encoder('mpv')
+--		if create_thumbnail(time, fullpath) then
+--			worker_stats.success = worker_stats.success + 1
+--			worker_stats.queued = worker_stats.queued - 1
+--			report_progress (time, message.ready)
+--			return
+--		end
+--	end
 	-- If the thumbnail is incomplete, pad it
 	if not check_existing(fullpath) then pad_file(fullpath) end
 	-- Final check
