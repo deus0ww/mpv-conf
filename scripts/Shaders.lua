@@ -173,11 +173,10 @@ sets[#sets+1] = function()
 	-- Options
 	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
-	
-	return { shaders = s, options = o, label = 'FSRCNNX + RAVU-Lite + Krig + SSimSR/DS + AdaptiveSharpen' }
+	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + SSimSR/DS + AdaptiveSharpen' }
 end
 
-sets[#sets+1] = function() --  FSRCNNX + Anime4K3 Enhance & Deblur
+sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.krig
 	if scale <= 2 then
@@ -203,7 +202,7 @@ sets[#sets+1] = function() --  FSRCNNX + Anime4K3 Enhance & Deblur
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Enhance & Deblur' }
 end
 
-sets[#sets+1] = function() -- FSRCNNX +  Anime4K3  Deblur)
+sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Deblur)
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.krig
 	if scale <= 2 then
@@ -222,7 +221,7 @@ sets[#sets+1] = function() -- FSRCNNX +  Anime4K3  Deblur)
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Deblur' }
 end
 
-sets[#sets+1] = function() --  Anime4K3 Enhance & Deblur
+sets[#sets+1] = function() -- Anime4K3 Enhance & Deblur
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.krig
 	if scale <= 2 then
