@@ -133,7 +133,7 @@ end
 local function run_subprocess(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
-	msg.debug('Subprocess', subprocess_name, 'Starting...', utils.to_string(command))
+	-- msg.debug('Subprocess', subprocess_name, 'Starting...', utils.to_string(command))
 	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
 	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
