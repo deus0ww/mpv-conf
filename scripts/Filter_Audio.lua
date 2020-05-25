@@ -13,7 +13,7 @@ add({
 	reset_on_load = true,
 	filters = {
 	-- https://mpv.io/manual/master/#audio-filters-format
-		'format=float:srate=96000',
+		'format=float:srate=48000',
 	},
 })
 
