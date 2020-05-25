@@ -172,7 +172,7 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
 	-- Options
-	o['deband-grain'] = 24
+	o['deband-grain'] = 32
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
 	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + SSimSR + AdaptiveSharpen' }
 end
@@ -199,7 +199,7 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 		s[#s+1] = anime4k.thinlines_3_s3
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
-	o['deband-grain'] = 12
+	o['deband-grain'] = 16
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Enhance & Deblur' }
 end
 
@@ -219,7 +219,7 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Deblur)
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.upscale_deblur_2
 	end
-	o['deband-grain'] = 12
+	o['deband-grain'] = 16
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Deblur' }
 end
 
@@ -246,7 +246,7 @@ sets[#sets+1] = function() -- Anime4K3 Enhance & Deblur
 		s[#s+1] = anime4k.thinlines_3_s3
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
-	o['deband-grain'] = 12
+	o['deband-grain'] = 16
 	return { shaders = s, options = o, label = 'Krig + Anime4K3 Enhance & Deblur' }
 end
 
