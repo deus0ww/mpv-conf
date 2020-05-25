@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-19
+-- deus0ww - 2020-05-25
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -71,9 +71,11 @@ local function default_options()
 		['scale-radius']  = 3.2383154841662362,
 		['cscale'] = 'ewa_lanczos',
 		['cscale-radius'] = 3.2383154841662362,
-		['dscale'] = 'ewa_robidoux',
+		['dscale'] = 'ewa_lanczos',
+		['dscale-radius'] = 3.2383154841662362,
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
+		['deband-grain']  = 16,
 	}
 end
 
@@ -111,7 +113,7 @@ local ravu = {
 	lite_r4 = ravu_path .. 'ravu-lite-r4.hook',
 	zoom_r4 = ravu_path .. 'ravu-zoom-r4.hook',
 }
-ravu.r4 = function() return (is_high_fps() or (get_scale() >= 4)) and ravu.lite_r4 or ravu.zoom_r4 end
+ravu.r4 = function() return ((get_scale() >= 4)) and ravu.lite_r4 or ravu.zoom_r4 end
 
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local anime4k_path      = shaders_path .. 'anime4k/'
@@ -168,12 +170,11 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.krig
 	-- RGB
 	s[#s+1] = igv.sssr
-	s[#s+1] = igv.ssds
 	s[#s+1] = igv.asharpen
 	-- Options
-	o['linear-downscaling'] = 'no'  -- For SSimDownscaler.glsl
+	o['deband-grain'] = 24
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
-	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + SSimSR/DS + AdaptiveSharpen' }
+	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + SSimSR + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
@@ -198,7 +199,7 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 		s[#s+1] = anime4k.thinlines_3_s3
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
-	o['dscale'] = 'ewa_robidouxsharp'
+	o['deband-grain'] = 12
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Enhance & Deblur' }
 end
 
@@ -218,6 +219,7 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Deblur)
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.upscale_deblur_2
 	end
+	o['deband-grain'] = 12
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Deblur' }
 end
 
@@ -244,6 +246,7 @@ sets[#sets+1] = function() -- Anime4K3 Enhance & Deblur
 		s[#s+1] = anime4k.thinlines_3_s3
 		s[#s+1] = anime4k.upscale_deblur_1
 	end
+	o['deband-grain'] = 12
 	return { shaders = s, options = o, label = 'Krig + Anime4K3 Enhance & Deblur' }
 end
 
