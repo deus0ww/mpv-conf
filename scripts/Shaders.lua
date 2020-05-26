@@ -373,6 +373,7 @@ local function set_shaders(no_osd)
 end
 
 
+
 --------------------------
 --- Observers & Events ---
 --------------------------
@@ -389,15 +390,18 @@ local function observe_prop(k, v)
 	end
 end
 
-local function start()
-	reset()
+local function set_default_index()
 	if not opts.auto_switch then return end
 	local path = mp.get_property_native('path', ''):lower()
 	current_index = opts.default_index
 	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
 	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
 	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
-	
+end
+
+local function start()
+	reset()
+	set_default_index()
 	for prop, _ in pairs(props) do
 		mp.observe_property(prop, 'native', observe_prop)
 	end
@@ -427,6 +431,7 @@ local function toggle_set(no_osd)
 	msg.debug('Shader - Toggling:', current_index)
 	if not is_initialized() then return end
 	enabled = not enabled
+	set_default_index()
 	if enabled then set_shaders(no_osd) else clear_shaders(no_osd) end
 end
 
@@ -434,6 +439,7 @@ local function enable_set(no_osd)
 	msg.debug('Shader - Enabling:', current_index)
 	if not is_initialized() then return end
 	enabled = true
+	set_default_index()
 	set_shaders(no_osd)
 end
 
