@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-25
+-- deus0ww - 2020-05-27
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -75,7 +75,7 @@ local function default_options()
 		['dscale-radius'] = 3.2383154841662362,
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
-		['deband-grain']  = 16,
+		['deband-grain']  = 24,
 	}
 end
 
