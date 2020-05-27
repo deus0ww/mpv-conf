@@ -67,12 +67,9 @@ end
 --------------------
 local function default_options()
 	return {
-		['scale']  = 'ewa_lanczos',
-		['scale-radius']  = 3.2383154841662362,
-		['cscale'] = 'ewa_lanczos',
-		['cscale-radius'] = 3.2383154841662362,
-		['dscale'] = 'ewa_lanczos',
-		['dscale-radius'] = 3.2383154841662362,
+		['scale']  = 'ewa_lanczossharp',
+		['cscale'] = 'ewa_lanczossharp',
+		['dscale'] = 'ewa_lanczossharp',
 		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
 		['deband-grain']  = 24,
