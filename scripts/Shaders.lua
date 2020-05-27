@@ -70,7 +70,6 @@ local function default_options()
 		['scale']  = 'ewa_lanczossharp',
 		['cscale'] = 'ewa_lanczossharp',
 		['dscale'] = 'ewa_lanczossharp',
-		['linear-downscaling'] = 'yes',
 		['sigmoid-upscaling']  = 'yes',
 		['deband-grain']  = 24,
 	}
@@ -166,7 +165,6 @@ sets[#sets+1] = function()
 	-- Chroma
 	s[#s+1] = igv.krig
 	-- RGB
-	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
 	-- Options
 	o['deband-grain'] = 32
