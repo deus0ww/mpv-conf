@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-11
+-- deus0ww - 2020-05-27
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -191,7 +191,7 @@ local user_opts = {
 	auto_gen              = true,               -- Auto generate thumbnails
 	auto_show             = true,               -- Show thumbnails by default
 	auto_delete           = 0,                  -- Delete the thumbnail cache. Use at your own risk. 0=No, 1=On file close, 2=When quiting
-	start_delay           = 2,                  -- Delay the start of the thumbnailer (seconds)
+	start_delay           = 3,                  -- Delay the start of the thumbnailer (seconds)
 
 	-- Paths
 	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
@@ -199,8 +199,8 @@ local user_opts = {
 
 	-- Thumbnail
 	dimension             = 320,                -- Max width and height before scaling
-	thumbnail_count       = 192,                -- Try to create this many thumbnails within the delta limits below
-	min_delta             = 3,                  -- Minimum time between thumbnails (seconds)
+	thumbnail_count       = 120,                -- Try to create this many thumbnails within the delta limits below
+	min_delta             = 5,                  -- Minimum time between thumbnails (seconds)
 	max_delta             = 30,                 -- Maximum time between thumbnails (seconds)
 	remote_delta_factor   = 2,                  -- Multiply delta by this for remote sources
 	stream_delta_factor   = 2,                  -- Multiply delta by this for streams (youtube, etc)
