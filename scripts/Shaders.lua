@@ -67,9 +67,9 @@ end
 --------------------
 local function default_options()
 	return {
-		['scale']  = 'ewa_lanczossharp',
-		['cscale'] = 'ewa_lanczossharp',
-		['dscale'] = 'ewa_lanczossharp',
+		['scale']  = 'ewa_lanczossoft',
+		['cscale'] = 'ewa_lanczossoft',
+		['dscale'] = 'ewa_lanczossoft',
 		['sigmoid-upscaling']  = 'yes',
 		['deband-grain']  = 24,
 	}
@@ -148,9 +148,9 @@ local anime4k = {
 	thinlines_1         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_VeryFast.glsl',
 	thinlines_2         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_Fast.glsl',
 	thinlines_3         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ.glsl',
-	thinlines_3_s1      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_S1.glsl',
-	thinlines_3_s2      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_S2.glsl',
-	thinlines_3_s3      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_S3.glsl',
+	thinlines_3_fhd     = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_FHD.glsl',
+	thinlines_3_hd      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_HD.glsl',
+	thinlines_3_sd      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_SD.glsl',
 
 	reduce_1            = anime4k_path .. 'RA_Reduce/Anime4K_RA_DoG.glsl',
 	reduce_3            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_M.glsl',
@@ -187,18 +187,18 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 		s[#s+1] = igv.fsrcnnx_8l
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s1
+		s[#s+1] = anime4k.thinlines_3_fhd
 	elseif scale < 4 then
 		s[#s+1] = igv.fsrcnnx_8l
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s2
+		s[#s+1] = anime4k.thinlines_3_hd
 		s[#s+1] = anime4k.upscale_deblur_3
 	else
 		s[#s+1] = igv.fsrcnnx_8l
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s3
+		s[#s+1] = anime4k.thinlines_3_sd
 		s[#s+1] = anime4k.upscale_deblur_3
 	end
 	o['deband-grain'] = 16
@@ -232,20 +232,20 @@ sets[#sets+1] = function() -- Anime4K3 Enhance & Deblur
 		s[#s+1] = anime4k.denoise_mode
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s1
+		s[#s+1] = anime4k.thinlines_3_fhd
 		s[#s+1] = anime4k.upscale_deblur_4
 	elseif scale < 4 then
 		s[#s+1] = anime4k.upscale_denoise_3
 		s[#s+1] = anime4k.downscale
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s2
+		s[#s+1] = anime4k.thinlines_3_hd
 		s[#s+1] = anime4k.upscale_deblur_3
 	else
 		s[#s+1] = anime4k.upscale_denoise_4
 		s[#s+1] = anime4k.deblur_3
 		s[#s+1] = anime4k.darklines_3
-		s[#s+1] = anime4k.thinlines_3_s3
+		s[#s+1] = anime4k.thinlines_3_sd
 		s[#s+1] = anime4k.upscale_deblur_3
 	end
 	o['deband-grain'] = 16
