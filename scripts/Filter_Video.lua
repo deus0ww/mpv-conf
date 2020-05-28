@@ -45,10 +45,11 @@ add({
 		-- s: Frames for averaging			(9)				(5 - 129 odd-only)
 		-- a: (p)arallel, (s)erial			(p)
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '5')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '7')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.02'):gsub('B', '0.04'):gsub('S', '9')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '5')),
-		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.08'):gsub('B', '0.16'):gsub('S', '7')),
-		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.16'):gsub('B', '0.32'):gsub('S', '9')),
-		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.32'):gsub('B', '0.64'):gsub('S', '11')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '7')),
+		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '9')),
 		
 		-- Too Blurry:   hqdn3d
 		-- Not Temporal: removegrain
@@ -62,14 +63,14 @@ add({
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#noise
 		-- alls, c#s: Noise strength		(0)				(0, 100)
-		-- allf, c#f: (a)verage, (p)attern, (t)temporal, (u)niform
+	-- allf, c#f: (a)verage, (p)attern, (t)temporal, (u)niform
 		'noise=c0_strength=02:all_flags=t',
+		'noise=c0_strength=03:all_flags=t',
 		'noise=c0_strength=04:all_flags=t',
+		'noise=c0_strength=05:all_flags=t',
 		'noise=c0_strength=06:all_flags=t',
+		'noise=c0_strength=07:all_flags=t',
 		'noise=c0_strength=08:all_flags=t',
-		'noise=c0_strength=12:all_flags=t',
-		'noise=c0_strength=16:all_flags=t',
-		'noise=c0_strength=24:all_flags=t',
 	},
 })
 
