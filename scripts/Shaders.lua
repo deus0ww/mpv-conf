@@ -114,80 +114,48 @@ ravu.r4 = function() return ((get_scale() >= 4)) and ravu.lite_r4 or ravu.zoom_r
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local anime4k_path      = shaders_path .. 'anime4k/'
 local anime4k = {
-	downscale           = anime4k_path .. 'Anime4K_3.0_Auto_Downscale_Pre_x4.glsl',
-	
-	upscale_3           = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_M_x2.glsl',
-	upscale_4           = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_L_x2.glsl',
-	upscale_5           = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_UL_x2.glsl',
-	
-	upscale_deblur_3    = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_M_x2_Deblur.glsl',
-	upscale_deblur_4    = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_L_x2_Deblur.glsl',
-	upscale_deblur_5    = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_UL_x2_Deblur.glsl',
-	
-	upscale_denoise_3   = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_M_x2_Denoise.glsl',
-	upscale_denoise_4   = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_L_x2_Denoise.glsl',
-	upscale_denoise_5   = anime4k_path .. 'Anime4K_3.0_Upscale_CNN_UL_x2_Denoise.glsl',
-	
-	denoise_mean        = anime4k_path .. 'Anime4K_3.1_Denoise_Bilateral_Mean.glsl',
-	denoise_median      = anime4k_path .. 'Anime4K_3.1_Denoise_Bilateral_Median.glsl',
-	denoise_median_luma = anime4k_path .. 'Anime4K_3.1_Denoise_Bilateral_Median_Luma.glsl',
-	denoise_mode        = anime4k_path .. 'Anime4K_3.1_Denoise_Bilateral_Mode.glsl',
-	denoise_mode_luma   = anime4k_path .. 'Anime4K_3.1_Denoise_Bilateral_Mode_Luma.glsl',
-	
-	deblur_1            = anime4k_path .. 'Anime4K_3.0_Deblur_DoG.glsl',
-	deblur_1_luma       = anime4k_path .. 'Anime4K_3.0_Deblur_DoG_Luma.glsl',
-	deblur_3            = anime4k_path .. 'Anime4K_3.0_Deblur_CNN_M.glsl',
-	deblur_4            = anime4k_path .. 'Anime4K_3.0_Deblur_CNN_L.glsl',
-	
-	darklines_1         = anime4k_path .. 'Anime4K_3.0_DarkLines_VeryFast.glsl',
-	darklines_2         = anime4k_path .. 'Anime4K_3.0_DarkLines_Fast.glsl',
-	darklines_3         = anime4k_path .. 'Anime4K_3.0_DarkLines_HQ.glsl',
-	
-	thinlines_1         = anime4k_path .. 'Anime4K_3.0_ThinLines_VeryFast.glsl',
-	thinlines_2         = anime4k_path .. 'Anime4K_3.0_ThinLines_Fast.glsl',
-	thinlines_3         = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ.glsl',
-	thinlines_3_s1      = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S1.glsl',
-	thinlines_3_s2      = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S2.glsl',
-	thinlines_3_s3      = anime4k_path .. 'Anime4K_3.0_ThinLines_HQ_S3.glsl',
+	downscale           = anime4k_path .. 'Upscale/Anime4K_Auto_Downscale_Pre_x4.glsl',
+	upscale_1           = anime4k_path .. 'Upscale/Anime4K_Upscale_DoG_x2.glsl',
+	upscale_2           = anime4k_path .. 'Upscale/Anime4K_Upscale_Original_x2.glsl',
+	upscale_3           = anime4k_path .. 'Upscale/Anime4K_Upscale_CNN_M_x2.glsl',
+	upscale_4           = anime4k_path .. 'Upscale/Anime4K_Upscale_CNN_L_x2.glsl',
+	upscale_5           = anime4k_path .. 'Upscale/Anime4K_Upscale_CNN_UL_x2.glsl',
 
---	downscale           = anime4k_path .. 'Upscale/Anime4K_Auto_Downscale_Pre_x4.glsl',
---	upscale_1           = anime4k_path .. 'Upscale/Anime4K_Upscale_DoG_x2.glsl',
---	upscale_2           = anime4k_path .. 'Upscale/Anime4K_Upscale_Original_x2.glsl',
---	upscale_3           = anime4k_path .. 'Upscale/Anime4K_Upscale_CNN_M_x2.glsl',
---	upscale_4           = anime4k_path .. 'Upscale/Anime4K_Upscale_CNN_L_x2.glsl',
---	upscale_5           = anime4k_path .. 'Upscale/Anime4K_Upscale_CNN_UL_x2.glsl',
---
---	upscale_deblur_1    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
---	upscale_deblur_2    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
---	upscale_deblur_3    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',
---	upscale_deblur_4    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_L_x2_Deblur.glsl',
---	upscale_deblur_5    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_UL_x2_Deblur.glsl',
---
---	upscale_denoise_3   = anime4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl',
---	upscale_denoise_4   = anime4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_L_x2_Denoise.glsl',
---	upscale_denoise_5   = anime4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_UL_x2_Denoise.glsl',
---
---	deblur_1            = anime4k_path .. 'Deblur/Anime4K_Deblur_DoG.glsl',
---	deblur_2            = anime4k_path .. 'Deblur/Anime4K_Deblur_Original.glsl',
---	deblur_3            = anime4k_path .. 'Deblur/Anime4K_Deblur_CNN_M.glsl',
---	deblur_4            = anime4k_path .. 'Deblur/Anime4K_Deblur_CNN_L.glsl',
---
---	denoise_mean        = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
---	denoise_median      = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
---	denoise_mode        = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
---
---	darklines_1         = anime4k_path .. 'Experimental_Effects/Anime4K_DarkLines_VeryFast.glsl',
---	darklines_2         = anime4k_path .. 'Experimental_Effects/Anime4K_DarkLines_Fast.glsl',
---	darklines_3         = anime4k_path .. 'Experimental_Effects/Anime4K_DarkLines_HQ.glsl',
---
---	thinlines_1         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_VeryFast.glsl',
---	thinlines_2         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_Fast.glsl',
---	thinlines_3         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ.glsl',
---
---	reduce_1            = anime4k_path .. 'RA_Reduce/Anime4K_RA_DoG.glsl',
---	reduce_3            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_M.glsl',
---	reduce_4            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_L.glsl',
---	reduce_5            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_UL.glsl',
+	upscale_deblur_1    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
+	upscale_deblur_2    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
+	upscale_deblur_3    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',
+	upscale_deblur_4    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_L_x2_Deblur.glsl',
+	upscale_deblur_5    = anime4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_UL_x2_Deblur.glsl',
+
+	upscale_denoise_3   = anime4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl',
+	upscale_denoise_4   = anime4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_L_x2_Denoise.glsl',
+	upscale_denoise_5   = anime4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_UL_x2_Denoise.glsl',
+
+	deblur_1            = anime4k_path .. 'Deblur/Anime4K_Deblur_DoG.glsl',
+	deblur_2            = anime4k_path .. 'Deblur/Anime4K_Deblur_Original.glsl',
+	deblur_3            = anime4k_path .. 'Deblur/Anime4K_Deblur_CNN_M.glsl',
+	deblur_4            = anime4k_path .. 'Deblur/Anime4K_Deblur_CNN_L.glsl',
+
+	denoise_mean        = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
+	denoise_median_luma = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean_Luma.glsl',
+	denoise_median      = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
+	denoise_mode        = anime4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
+
+	darklines_1         = anime4k_path .. 'Experimental_Effects/Anime4K_DarkLines_VeryFast.glsl',
+	darklines_2         = anime4k_path .. 'Experimental_Effects/Anime4K_DarkLines_Fast.glsl',
+	darklines_3         = anime4k_path .. 'Experimental_Effects/Anime4K_DarkLines_HQ.glsl',
+
+	thinlines_1         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_VeryFast.glsl',
+	thinlines_2         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_Fast.glsl',
+	thinlines_3         = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ.glsl',
+	thinlines_3_s1      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_S1.glsl',
+	thinlines_3_s2      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_S2.glsl',
+	thinlines_3_s3      = anime4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ_S3.glsl',
+
+	reduce_1            = anime4k_path .. 'RA_Reduce/Anime4K_RA_DoG.glsl',
+	reduce_3            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_M.glsl',
+	reduce_4            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_L.glsl',
+	reduce_5            = anime4k_path .. 'RA_Reduce/Anime4K_RA_CNN_UL.glsl',
 }
 
 

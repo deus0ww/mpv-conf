@@ -24,7 +24,7 @@
 // SOFTWARE.
 
 //!DESC Anime4K-v3.1-Denoise-Bilateral-Mean
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 
 #define INTENSITY_SIGMA 0.1 //Intensity window size, higher is stronger denoise, must be a positive real number
