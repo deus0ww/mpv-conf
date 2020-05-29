@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-27
+-- deus0ww - 2020-05-30
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -67,9 +67,9 @@ end
 --------------------
 local function default_options()
 	return {
-		['scale']  = 'ewa_lanczossoft',
-		['cscale'] = 'ewa_lanczossoft',
-		['dscale'] = 'ewa_lanczossoft',
+		['scale']  = 'ewa_robidouxsharp',
+		['cscale'] = 'ewa_robidouxsharp',
+		['dscale'] = 'ewa_robidouxsharp',
 		['sigmoid-upscaling']  = 'yes',
 		['deband-grain']  = 24,
 	}
