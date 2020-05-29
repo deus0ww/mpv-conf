@@ -23,7 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x1
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x1
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -47,7 +47,7 @@ vec4 hook() {
     return vec4(s, t, u, v);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -127,7 +127,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -207,7 +207,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -287,7 +287,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -367,7 +367,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -447,7 +447,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -527,7 +527,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -607,7 +607,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -687,7 +687,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-4x3x3x8
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-4x3x3x8
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -767,7 +767,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 
-//!DESC Anime4K-v3.1-Deblur-CNN-(L)-Conv-Reduce
+//!DESC Anime4K-v3.1-Deblur-CNN(L)-Conv-Reduce
 //!HOOK NATIVE
 //!BIND HOOKED
 //!WIDTH LUMA.w
