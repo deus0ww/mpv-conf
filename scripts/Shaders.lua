@@ -36,6 +36,7 @@ opt.read_options(opts, mp.get_script_name(), on_opts_update)
 on_opts_update()
 
 
+
 ------------------
 --- Properties ---
 ------------------
@@ -62,6 +63,7 @@ local function is_initialized()
 end
 
 
+
 --------------------
 --- Shader Utils ---
 --------------------
@@ -82,6 +84,7 @@ local function get_scale()
 	local x_scale, y_scale = props['osd-width'] / dwidth, props['osd-height'] / dheight
 	return (x_scale > 0 and y_scale > 0) and math.min(x_scale, y_scale) or 1
 end
+
 
 
 --------------------
@@ -161,6 +164,7 @@ local a4k = {
 }
 
 
+
 -------------------
 --- Shader Sets ---
 -------------------
@@ -178,7 +182,7 @@ sets[#sets+1] = function()
 	-- Options
 	o['deband-grain'] = 32
 	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
-	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + SSimSR + AdaptiveSharpen' }
+	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
