@@ -191,18 +191,18 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 	if scale <= 2 then
 		s[#s+1] = a4k.denoise_median_luma
 		s[#s+1] = igv.fsrcnnx_8l
-		s[#s+1] = a4k.deblur_3
+		-- s[#s+1] = a4k.deblur_3
 		s[#s+1] = a4k.darklines_3
 		s[#s+1] = a4k.thinlines_3_fhd
 	elseif scale < 4 then
 		s[#s+1] = igv.fsrcnnx_8l
-		s[#s+1] = a4k.deblur_3
+		-- s[#s+1] = a4k.deblur_3
 		s[#s+1] = a4k.darklines_3
 		s[#s+1] = a4k.thinlines_3_hd
 		s[#s+1] = a4k.upscale_deblur_3
 	else
 		s[#s+1] = igv.fsrcnnx_8l
-		s[#s+1] = a4k.deblur_3
+		-- s[#s+1] = a4k.deblur_3
 		s[#s+1] = a4k.darklines_3
 		s[#s+1] = a4k.thinlines_3_sd
 		s[#s+1] = a4k.upscale_deblur_3
