@@ -142,7 +142,6 @@ local a4k = {
 	deblur_4            = a4k_path .. 'Deblur/Anime4K_Deblur_CNN_L.glsl',
 
 	denoise_mean        = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
-	denoise_median_luma = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean_Luma.glsl',
 	denoise_median      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
 	denoise_mode        = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
 
@@ -189,20 +188,16 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.krig
 	if scale <= 2 then
-		s[#s+1] = a4k.denoise_median_luma
 		s[#s+1] = igv.fsrcnnx_8l
-		-- s[#s+1] = a4k.deblur_3
 		s[#s+1] = a4k.darklines_3
 		s[#s+1] = a4k.thinlines_3_fhd
 	elseif scale < 4 then
 		s[#s+1] = igv.fsrcnnx_8l
-		-- s[#s+1] = a4k.deblur_3
 		s[#s+1] = a4k.darklines_3
 		s[#s+1] = a4k.thinlines_3_hd
 		s[#s+1] = a4k.upscale_deblur_3
 	else
 		s[#s+1] = igv.fsrcnnx_8l
-		-- s[#s+1] = a4k.deblur_3
 		s[#s+1] = a4k.darklines_3
 		s[#s+1] = a4k.thinlines_3_sd
 		s[#s+1] = a4k.upscale_deblur_3
@@ -211,20 +206,19 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Enhance & Deblur' }
 end
 
-sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Deblur
-	local s, o, scale = {}, default_options(), get_scale()
+sets[#sets+1] = function()
+	local s, o = {}, default_options()
+	-- Luma
+	s[#s+1] = igv.fsrcnnx_8l
+	s[#s+1] = ravu.r4()
+	-- Chroma
 	s[#s+1] = igv.krig
-	if scale <= 2 then
-		s[#s+1] = a4k.denoise_median_luma
-		s[#s+1] = igv.fsrcnnx_8l
-		s[#s+1] = a4k.deblur_4
-	else
-		s[#s+1] = igv.fsrcnnx_8l
-		s[#s+1] = a4k.deblur_4
-		s[#s+1] = a4k.upscale_deblur_4
-	end
+	-- RGB
+	s[#s+1] = igv.asharpen
+	-- Options
 	o['deband-grain'] = 16
-	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Deblur' }
+	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
+	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + RAVU + Krig + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function() -- Anime4K3 Enhance & Deblur

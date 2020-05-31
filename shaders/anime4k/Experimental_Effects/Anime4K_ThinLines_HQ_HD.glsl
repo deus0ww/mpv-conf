@@ -246,7 +246,7 @@ vec4 hook() {
 //!BIND LUMAD
 //!BIND LUMAD2
 
-#define STRENGTH 0.15 //Strength of warping for each iteration
+#define STRENGTH 0.18 //Strength of warping for each iteration
 #define ITERATIONS 3  //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
 
 #define L_tex HOOKED_tex
