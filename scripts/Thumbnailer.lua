@@ -255,7 +255,7 @@ end
 
 local function worker_set_options()
 	return {
-		encoder        = (not state.is_remote and (user_opts.use_ffmpeg and exec_exist('ffmpeg') and (user_opts.prefer_ffmpeg or not state.is_slow))) and 'ffmpeg' or 'mpv',
+		encoder        = (not state.is_remote and user_opts.use_ffmpeg and exec_exist('ffmpeg')) and 'ffmpeg' or 'mpv',
 		worker_timeout = state.worker_timeout,
 		accurate_seek  = user_opts.accurate_seek,
 		use_ffmpeg     = user_opts.use_ffmpeg,
