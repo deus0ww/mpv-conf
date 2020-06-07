@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-30
+-- deus0ww - 2020-06-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -16,15 +16,15 @@ local opts = {
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 2,        -- Shader set index to enable
+	preset_1_index   = 3,        -- Shader set index to enable
 
 	preset_2_enabled = false,
 	preset_2_path    = '%[.+%]',
-	preset_2_index   = 2,
+	preset_2_index   = 3,
 
 	preset_3_enabled = true,
 	preset_3_path    = 'cartoon',
-	preset_3_index   = 2,
+	preset_3_index   = 3,
 }
 
 local current_index, enabled
@@ -104,7 +104,7 @@ local igv = {
 	ssds       = igv_path .. 'SSimDownscaler.glsl',
 	asharpen   = igv_path .. 'adaptive-sharpen.glsl',
 }
-igv.fsrcnnx = function() return (is_high_fps() or (get_scale() > 3)) and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
+igv.fsrcnnx = function() return is_high_fps() and igv.fsrcnnx_8 or igv.fsrcnnx_16 end
 
 -- RAVU - https://github.com/bjin/mpv-prescalers
 local ravu_path = shaders_path .. 'ravu/'
@@ -112,7 +112,7 @@ local ravu = {
 	lite_r4 = ravu_path .. 'ravu-lite-r4.hook',
 	zoom_r4 = ravu_path .. 'ravu-zoom-r4.hook',
 }
-ravu.r4 = function() return ((get_scale() >= 4)) and ravu.lite_r4 or ravu.zoom_r4 end
+ravu.r4 = function() return (get_scale() > 3) and ravu.lite_r4 or ravu.zoom_r4 end
 
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local a4k_path          = shaders_path .. 'anime4k/'
@@ -170,18 +170,29 @@ local a4k = {
 local sets = {}
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
-	-- Luma
+	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx()
-	s[#s+1] = ravu.r4()
-	-- Chroma
 	s[#s+1] = igv.krig
-	-- RGB
-	s[#s+1] = igv.asharpen
-	-- Options
+	s[#s+1] = igv.sssr
+	if (scale > 2) then
+		s[#s+1] = igv.asharpen
+		o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
+	end
 	o['deband-grain'] = 32
-	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
-	return { shaders = s, options = o, label = 'FSRCNNX + RAVU + Krig + AdaptiveSharpen' }
+	return { shaders = s, options = o, label = 'FSRCNNX + Krig + SSSR + AdaptiveSharpen' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = igv.fsrcnnx_8l
+	s[#s+1] = igv.krig
+	s[#s+1] = igv.sssr
+	if (scale > 2) then
+		s[#s+1] = igv.asharpen
+		o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
+	end
+	o['deband-grain'] = 32
+	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + SSSR + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
@@ -204,21 +215,6 @@ sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
 	end
 	o['deband-grain'] = 16
 	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Anime4K3 Enhance & Deblur' }
-end
-
-sets[#sets+1] = function()
-	local s, o = {}, default_options()
-	-- Luma
-	s[#s+1] = igv.fsrcnnx_8l
-	s[#s+1] = ravu.r4()
-	-- Chroma
-	s[#s+1] = igv.krig
-	-- RGB
-	s[#s+1] = igv.asharpen
-	-- Options
-	o['deband-grain'] = 16
-	o['sigmoid-upscaling']  = 'no'  -- For adaptive-sharpen.glsl
-	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + RAVU + Krig + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function() -- Anime4K3 Enhance & Deblur
