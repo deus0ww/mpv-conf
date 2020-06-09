@@ -171,28 +171,26 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = igv.fsrcnnx()
+	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = igv.krig
+	s[#s+1] = a4k.denoise_mean
 	s[#s+1] = igv.sssr
-	if (scale > 2) then
-		s[#s+1] = igv.asharpen
-		o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
-	end
+	s[#s+1] = igv.asharpen
+	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
 	o['deband-grain'] = 32
-	return { shaders = s, options = o, label = 'FSRCNNX + Krig + SSSR + AdaptiveSharpen' }
+	return { shaders = s, options = o, label = 'FSRCNNX + Krig + Denoise + SSSR + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
+	s[#s+1] = a4k.denoise_mean
 	s[#s+1] = igv.sssr
-	if (scale > 2) then
-		s[#s+1] = igv.asharpen
-		o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
-	end
+	s[#s+1] = igv.asharpen
+	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
 	o['deband-grain'] = 32
-	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + SSSR + AdaptiveSharpen' }
+	return { shaders = s, options = o, label = 'FSRCNNX-LineArt + Krig + Denoise + SSSR + AdaptiveSharpen' }
 end
 
 sets[#sets+1] = function() -- FSRCNNX + Anime4K3 Enhance & Deblur
