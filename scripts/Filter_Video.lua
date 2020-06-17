@@ -1,4 +1,4 @@
--- deus0ww - 2020-02-15
+-- deus0ww - 2020-06-17
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -39,6 +39,19 @@ add({
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#median
+	-- http://avisynth.nl/index.php/RemoveGrain
+		'removegrain=5',
+		'removegrain=2',
+		'removegrain=3',
+	},
+})
+
+add({
+	name = 'TempDenoiseVideo',
+	filter_type = 'video',
+	reset_on_load = false,
+	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#atadenoise
 		-- 0a, 1a, 2a: threshold A			(0.02)			(0 - 0.3)
 		-- 0b, 1b, 2b: threshold B			(0.04)			(0 - 5)
@@ -52,7 +65,6 @@ add({
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '9')),
 		
 		-- Too Blurry:   hqdn3d
-		-- Not Temporal: removegrain
 		-- Not Slow:     bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 	},
 })
@@ -63,7 +75,7 @@ add({
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#noise
 		-- alls, c#s: Noise strength		(0)				(0, 100)
-	-- allf, c#f: (a)verage, (p)attern, (t)temporal, (u)niform
+		-- allf, c#f: (a)verage, (p)attern, (t)temporal, (u)niform
 		'noise=c0_strength=02:all_flags=t',
 		'noise=c0_strength=03:all_flags=t',
 		'noise=c0_strength=04:all_flags=t',

@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-21
+-- deus0ww - 2020-06-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -88,7 +88,7 @@ end
 local function register_filter(filter)
 	if filter.default_on_load == nil then filter.default_on_load = defaults.default_on_load end
 	if filter.reset_on_load   == nil then filter.reset_on_load   = defaults.reset_on_load   end
-	filter.current_index = 1
+	filter.current_index = filter.default_index and math.min(math.max(1, filter.default_index), #filter.filters) or 1
 	filter.enabled = filter.default_on_load
 	table.insert(filter_list, filter)
 	if filter.enabled then cmd.enable(filter) else cmd.add(filter) end
@@ -106,7 +106,7 @@ mp.register_event('file-loaded', function()
 	for _, filter in ipairs(filter_list) do
 		if filter.reset_on_load then
 			filter.enabled = filter.default_on_load
-			filter.current_index = filter.default_index and filter.default_index or 1
+			filter.current_index = filter.default_index and math.min(math.max(1, filter.default_index), #filter.filters) or 1
 		end
 	end
 	apply_all()
