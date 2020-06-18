@@ -222,7 +222,7 @@ local user_opts = {
 	accurate_seek         = false,              -- Use accurate timing instead of closest keyframe for thumbnails. (Slower)
 	use_ffmpeg            = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
 	prefer_ffmpeg         = false,              -- Use FFMPEG when available
-	ffmpeg_threads        = 1,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
+	ffmpeg_threads        = 8,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
 	ffmpeg_scaler         = 'bicubic',          -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
 }
 
