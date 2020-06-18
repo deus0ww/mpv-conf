@@ -69,9 +69,9 @@ end
 --------------------
 local function default_options()
 	return {
-		['scale']  = 'ewa_robidoux',
-		['cscale'] = 'ewa_robidoux',
-		['dscale'] = 'ewa_robidoux',
+		['scale']  = 'ewa_hanning',
+		['cscale'] = 'ewa_hanning',
+		['dscale'] = 'ewa_hanning',
 		['sigmoid-upscaling']  = 'yes',
 		['deband-grain']  = 24,
 	}
