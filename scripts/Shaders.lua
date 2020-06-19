@@ -161,7 +161,7 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = igv.krig
-	s[#s+1] = a4k.denoise_mean
+	s[#s+1] = a4k.denoise_median
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
 	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
@@ -170,11 +170,11 @@ sets[#sets+1] = function()
 end
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
+	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
-	s[#s+1] = a4k.denoise_mean
-	s[#s+1] = (get_scale() <= 2) and a4k.deblur_4 or a4k.upscale_deblur_4
+	s[#s+1] = a4k.denoise_median
+	s[#s+1] = (scale <= 2) and a4k.deblur_4 or a4k.upscale_deblur_4
 	s[#s+1] = igv.asharpen
 	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
 	o['deband-grain'] = 24
@@ -185,10 +185,10 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
-	s[#s+1] = a4k.denoise_mean
+	s[#s+1] = a4k.denoise_median
 	s[#s+1] = a4k.darklines_3
 	s[#s+1] = a4k.thinlines_3
-	s[#s+1] = a4k.upscale_deblur_3
+	s[#s+1] = (scale <= 2) and a4k.deblur_1 or a4k.upscale_deblur_3
 	o['deband-grain'] = 16
 	return { shaders = s, options = o, label = ' [ 2D Animated ]  FSRCNNX-LineArt + Krig + Anime4K Enhance & Deblur' }
 end

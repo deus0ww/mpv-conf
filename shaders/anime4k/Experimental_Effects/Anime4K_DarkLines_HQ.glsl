@@ -175,7 +175,7 @@ vec4 hook() {
 //!BIND HOOKED
 //!BIND MMKERNEL
 
-#define STRENGTH 1.5 //Line darken proportional strength, higher is darker.
+#define STRENGTH 1.4 //Line darken proportional strength, higher is darker.
 #define L_tex HOOKED_tex
 
 vec4 hook() {
