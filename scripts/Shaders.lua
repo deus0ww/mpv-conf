@@ -69,9 +69,9 @@ end
 --------------------
 local function default_options()
 	return {
-		['scale']  = 'ewa_hanning',
-		['cscale'] = 'ewa_hanning',
-		['dscale'] = 'ewa_hanning',
+		['scale']  = 'haasnsoft',
+		['cscale'] = 'haasnsoft',
+		['dscale'] = 'haasnsoft',
 		['sigmoid-upscaling']  = 'yes',
 		['deband-grain']  = 24,
 	}
@@ -164,6 +164,7 @@ sets[#sets+1] = function()
 	s[#s+1] = a4k.denoise_median
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
+	o['scale']  = 'ewa_lanczossoft'
 	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
 	o['deband-grain'] = 32
 	return { shaders = s, options = o, label = ' [ Live Action ]  FSRCNNX + Krig + SSSR + ASharpen' }
