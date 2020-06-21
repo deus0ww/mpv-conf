@@ -110,15 +110,16 @@ local a4k_path        = shaders_path .. 'anime4k/'
 local a4k             = {
 	downscale         = a4k_path .. 'Upscale/Anime4K_Auto_Downscale_Pre_x4.glsl',
 
-	upscale_0         = a4k_path .. 'Upscale/Anime4K_Upscale_Original_x2.glsl',
-	upscale_1         = a4k_path .. 'Upscale/Anime4K_Upscale_DoG_x2.glsl',
-	upscale_2         = a4k_path .. 'Upscale/Anime4K_Upscale_DTD_x2.glsl',
+	upscale_1         = a4k_path .. 'Upscale/Anime4K_Upscale_Original_x2.glsl',
+	upscale_2         = a4k_path .. 'Upscale/Anime4K_Upscale_DoG_x2.glsl',
 	upscale_3         = a4k_path .. 'Upscale/Anime4K_Upscale_CNN_M_x2.glsl',
 	upscale_4         = a4k_path .. 'Upscale/Anime4K_Upscale_CNN_L_x2.glsl',
 	upscale_5         = a4k_path .. 'Upscale/Anime4K_Upscale_CNN_UL_x2.glsl',
 
-	upscale_deblur_0  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
-	upscale_deblur_1  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
+	upscale_dtd       = a4k_path .. 'Upscale/Anime4K_Upscale_DTD_x2.glsl',
+
+	upscale_deblur_1  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
+	upscale_deblur_2  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
 	upscale_deblur_3  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',
 	upscale_deblur_4  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_L_x2_Deblur.glsl',
 	upscale_deblur_5  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_UL_x2_Deblur.glsl',
@@ -127,8 +128,8 @@ local a4k             = {
 	upscale_denoise_4 = a4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_L_x2_Denoise.glsl',
 	upscale_denoise_5 = a4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_UL_x2_Denoise.glsl',
 
-	deblur_0          = a4k_path .. 'Deblur/Anime4K_Deblur_Original.glsl',
-	deblur_1          = a4k_path .. 'Deblur/Anime4K_Deblur_DoG.glsl',
+	deblur_1          = a4k_path .. 'Deblur/Anime4K_Deblur_Original.glsl',
+	deblur_2          = a4k_path .. 'Deblur/Anime4K_Deblur_DoG.glsl',
 	deblur_3          = a4k_path .. 'Deblur/Anime4K_Deblur_CNN_M.glsl',
 	deblur_4          = a4k_path .. 'Deblur/Anime4K_Deblur_CNN_L.glsl',
 
@@ -189,7 +190,7 @@ sets[#sets+1] = function()
 	s[#s+1] = a4k.denoise_median
 	s[#s+1] = a4k.darklines_3
 	s[#s+1] = a4k.thinlines_3
-	s[#s+1] = (scale <= 2) and a4k.deblur_1 or a4k.upscale_deblur_3
+	s[#s+1] = (scale <= 2) and a4k.deblur_2 or a4k.upscale_deblur_3
 	o['deband-grain'] = 16
 	return { shaders = s, options = o, label = ' [ 2D Animated ]  FSRCNNX-LineArt + Krig + Anime4K Enhance & Deblur' }
 end
@@ -226,14 +227,14 @@ end
 --	s[#s+1] = igv.krig
 --	if scale <= 2 then
 --		s[#s+1] = a4k.denoise_mode
---		s[#s+1] = a4k.deblur_1
+--		s[#s+1] = a4k.deblur_2
 --		s[#s+1] = a4k.darklines_3
 --		s[#s+1] = a4k.thinlines_3
 --		s[#s+1] = a4k.upscale_deblur_3
 --	else
 --		s[#s+1] = a4k.upscale_denoise_4
 --		s[#s+1] = a4k.downscale
---		s[#s+1] = a4k.deblur_1
+--		s[#s+1] = a4k.deblur_2
 --		s[#s+1] = a4k.darklines_3
 --		s[#s+1] = a4k.thinlines_3
 --		s[#s+1] = a4k.upscale_deblur_3
