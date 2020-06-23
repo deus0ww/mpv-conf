@@ -165,7 +165,6 @@ sets[#sets+1] = function()
 	s[#s+1] = a4k.denoise_median
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
-	o['scale']  = 'ewa_hanning'
 	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
 	o['deband-grain'] = 32
 	return { shaders = s, options = o, label = ' [ Live Action ]  FSRCNNX + Krig + SSSR + ASharpen' }
