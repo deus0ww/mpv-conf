@@ -10,16 +10,23 @@ add({
 	name = 'Deinterlace',
 	filter_type = 'video',
 	filters = {
+	-- Too Slow:     nnedi
+
 	-- https://ffmpeg.org/ffmpeg-filters.html#bwdif
 		-- mode: send_frame, send_field 	(send_field)
 		-- parity: ttf, bff, auto			(auto)
 		-- deint: all, interlaced			(all)
-		'bwdif=mode=send_frame:parity=auto',
-		'bwdif=mode=send_field:parity=auto',
-    	'bwdif=mode=send_frame:parity=tff',
-    	'bwdif=mode=send_field:parity=tff',
-    	'bwdif=mode=send_frame:parity=bff',
-    	'bwdif=mode=send_field:parity=bff',
+	-- https://ffmpeg.org/ffmpeg-filters.html#fieldmatch
+		-- order: ttf, bff, auto			(auto)
+		-- mode: pc, pc_n, pc_u, pc_n_ub, pcn, pcn_ub	(pc_n)
+		-- combmatch: none, sc, full		(sc)
+	-- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
+		'bwdif',
+		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif]',
+		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate]',
+		'bwdif=mode=send_frame',
+		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame]',
+		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate]',
 	},
 })
 
@@ -52,6 +59,9 @@ add({
 	filter_type = 'video',
 	reset_on_load = false,
 	filters = {
+	-- Too Blurry:   hqdn3d
+	-- Too Slow:     bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
+
 	-- https://ffmpeg.org/ffmpeg-filters.html#atadenoise
 		-- 0a, 1a, 2a: threshold A			(0.02)			(0 - 0.3)
 		-- 0b, 1b, 2b: threshold B			(0.04)			(0 - 5)
@@ -63,9 +73,6 @@ add({
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '5')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '7')),
 		(('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '9')),
-		
-		-- Too Blurry:   hqdn3d
-		-- Not Slow:     bm3d, dctdnoiz, fftdnoiz, nlmeans, owdenoise, vaguedenoiser
 	},
 })
 
