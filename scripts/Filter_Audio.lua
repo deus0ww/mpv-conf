@@ -18,38 +18,21 @@ add({
 })
 
 add({
-	name = 'HighPass',
+	name = 'VoicePass',
 	filter_type = 'audio',
 	reset_on_load = true,
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#highpass
-		-- f: Frequency in Hz. 				(3000)
-		-- p: Number of poles.				(2)
-		-- t: Type band-width of filter.
-		-- w: Band-width.					(0.707q)
-		-- n: Normalize						(disabled)
-		'highpass=frequency=120',
-		'highpass=frequency=240',
-		'highpass=frequency=360',
-		'highpass=frequency=480',
-	},
-})
-
-add({
-	name = 'LowPass',
-	filter_type = 'audio',
-	reset_on_load = true,
-	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#lowpass
 		-- f: Frequency in Hz. 				(3000)
 		-- p: Number of poles.				(2)
 		-- t: Type band-width of filter.
 		-- w: Band-width.					(0.707q)
 		-- n: Normalize						(disabled)
-		'lowpass=frequency=8400',
-		'lowpass=frequency=7200',
-		'lowpass=frequency=6000',
-		'lowpass=frequency=4800',
+		'lavfi=graph=[lowpass=frequency=8400,highpass=frequency=120]',
+		'lavfi=graph=[lowpass=frequency=7200,highpass=frequency=240]',
+		'lavfi=graph=[lowpass=frequency=6000,highpass=frequency=360]',
+		'lavfi=graph=[lowpass=frequency=4800,highpass=frequency=480]',
 	},
 })
 
