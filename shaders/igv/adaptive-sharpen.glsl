@@ -27,14 +27,15 @@
 
 //!HOOK SCALED
 //!BIND HOOKED
-//!SAVE ASSD
-//!COMPONENTS 2
 //!DESC Adaptive-Sharpen
 
 //--------------------------------------- Settings ------------------------------------------------
 
 #define curve_height    0.4                  // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
+
+#define video_level_out false                // True to preserve BTB & WTW (minor summation error)
+                                             // Normally it should be set to false
 
 // Defined values under this row are "optimal" DO NOT CHANGE IF YOU DO NOT KNOW WHAT YOU ARE DOING!
 
@@ -222,25 +223,10 @@ vec4 hook() {
     sharpdiff = wpmean(max(sharpdiff, 0.0), soft_lim( max(sharpdiff, 0.0), pos_scale ), L_compr_low )
               - wpmean(min(sharpdiff, 0.0), soft_lim( min(sharpdiff, 0.0), neg_scale ), D_compr_low );
 
-    return vec4(sharpdiff, c0_Y, 0, 1);
-}
-
-//!HOOK SCALED
-//!BIND HOOKED
-//!BIND ASSD
-//!DESC Adaptive-Sharpen Equalization
-
-#define video_level_out false                // True to preserve BTB & WTW (minor summation error)
-                                             // Normally it should be set to false
-#define SD(x,y)         ASSD_texOff(vec2(x,y)).r
-
-vec4 hook() {
-    vec4 o = HOOKED_texOff(0);
-    float sharpdiff = SD( 0, 0) - 0.6 * 0.25 * (SD(-0.5,-0.5) + SD( 0.5,-0.5) + SD(-0.5, 0.5) + SD( 0.5, 0.5));
-    float c0_Y = ASSD_texOff(vec2(0)).g;
-    float sharpdiff_lim = clamp(c0_Y + sharpdiff, 0.0, 1.0) - c0_Y;
+    float sharpdiff_lim = sat(c0_Y + sharpdiff) - c0_Y;
     float satmul = (c0_Y + max(sharpdiff_lim*0.9, sharpdiff_lim)*1.03 + 0.03)/(c0_Y + 0.03);
-    vec3 res = c0_Y + (sharpdiff_lim*3 + sharpdiff)/4 + (clamp(o.rgb, 0.0, 1.0) - c0_Y)*satmul;
-    o.rgb = video_level_out == true ? res + o.rgb - clamp(o.rgb, 0.0, 1.0) : res;
+    vec3 res = c0_Y + (sharpdiff_lim*3 + sharpdiff)/4 + (sat(o.rgb) - c0_Y)*satmul;
+    o.rgb = video_level_out == true ? res + o.rgb - sat(o.rgb) : res;
+
     return o;
 }
