@@ -1,4 +1,4 @@
--- deus0ww - 2020-06-12
+-- deus0ww - 2020-07-22
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -151,6 +151,7 @@ local a4k             = {
 	reduce_5          = a4k_path .. 'RA_Reduce/Anime4K_RA_CNN_UL.glsl',
 }
 
+local cas = shaders_path .. 'CAS.glsl'
 
 
 -------------------
@@ -161,13 +162,13 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = igv.fsrcnnx_8
+	s[#s+1] = cas
 	s[#s+1] = igv.krig
-	s[#s+1] = a4k.denoise_median
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
 	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
 	o['deband-grain'] = 32
-	return { shaders = s, options = o, label = ' [ Live Action ]  FSRCNNX + Krig + SSSR + ASharpen' }
+	return { shaders = s, options = o, label = ' [ Live Action ]  FSRCNNX + CAS + Krig + SSSR + ASharpen' }
 end
 
 sets[#sets+1] = function()
