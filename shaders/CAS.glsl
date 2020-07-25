@@ -2,7 +2,7 @@
 //!HOOK LUMA
 //!BIND HOOKED
 
-#define SHARPNESS 0.36  // Sharpening strength
+#define SHARPNESS 0.3  // Sharpening strength
 
 float lerp(float x, float y, float a) {
 	return mix(x, y, a);
