@@ -1,8 +1,8 @@
-//!DESC Contrast Adaptive Sharpening
+//!DESC Contrast Adaptive Sharpening [0.333]
 //!HOOK LUMA
 //!BIND HOOKED
 
-#define SHARPNESS 0.3  // Sharpening strength
+#define SHARPNESS 0.333333333  // Sharpening strength
 
 float lerp(float x, float y, float a) {
 	return mix(x, y, a);

@@ -20,7 +20,7 @@
 //!WIDTH NATIVE_CROPPED.w
 //!WHEN NATIVE_CROPPED.h POSTKERNEL.h >
 //!COMPONENTS 3
-//!DESC SSimDownscaler calc L2 pass 1
+//!DESC SSimDownscaler calc L2 1 [robidoux]
 
 #define axis 1
 
@@ -60,7 +60,7 @@ vec4 hook() {
 //!SAVE L2
 //!WHEN NATIVE_CROPPED.w POSTKERNEL.w >
 //!COMPONENTS 3
-//!DESC SSimDownscaler calc L2 pass 2
+//!DESC SSimDownscaler calc L2 2 [robidoux]
 
 #define axis 0
 
@@ -217,7 +217,7 @@ vec4 hook() {
 //!BIND M
 //!BIND R
 //!WHEN NATIVE_CROPPED.h POSTKERNEL.h >
-//!DESC SSimDownscaler final pass
+//!DESC SSimDownscaler Final
 
 #define locality    8.0
 

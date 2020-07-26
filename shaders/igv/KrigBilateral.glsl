@@ -19,7 +19,7 @@
 //!SAVE LOWRES_Y
 //!WIDTH LUMA.w
 //!WHEN CHROMA.w LUMA.w <
-//!DESC KrigBilateral Downscaling Y pass 1
+//!DESC KrigBilateral Downscaling Y 1
 
 #define offset      vec2(0,0)
 
@@ -56,7 +56,7 @@ vec4 hook() {
 //!BIND LOWRES_Y
 //!SAVE LOWRES_Y
 //!WHEN CHROMA.w LUMA.w <
-//!DESC KrigBilateral Downscaling Y pass 2
+//!DESC KrigBilateral Downscaling Y 2
 
 #define offset      vec2(0,0)
 

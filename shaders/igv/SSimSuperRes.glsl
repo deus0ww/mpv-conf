@@ -19,7 +19,7 @@
 //!HEIGHT NATIVE_CROPPED.h
 //!WHEN NATIVE_CROPPED.h OUTPUT.h <
 //!COMPONENTS 4
-//!DESC SSSR Downscaling I
+//!DESC SSSR Downscaling 1 [robidoux]
 
 #define axis 1
 
@@ -63,7 +63,7 @@ vec4 hook() {
 //!HEIGHT NATIVE_CROPPED.h
 //!WHEN NATIVE_CROPPED.w OUTPUT.w <
 //!COMPONENTS 4
-//!DESC SSSR Downscaling II
+//!DESC SSSR Downscaling 2 [robidoux]
 
 #define axis 0
 
@@ -176,7 +176,7 @@ vec4 hook() {
 //!BIND varL
 //!BIND varH
 //!WHEN NATIVE_CROPPED.h OUTPUT.h <
-//!DESC SSSR final pass
+//!DESC SSSR Final
 
 // -- Window Size --
 #define taps        3.0
