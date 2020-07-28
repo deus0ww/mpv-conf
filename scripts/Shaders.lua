@@ -1,4 +1,4 @@
--- deus0ww - 2020-07-22
+-- deus0ww - 2020-07-28
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -16,15 +16,15 @@ local opts = {
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 3,        -- Shader set index to enable
+	preset_1_index   = 4,        -- Shader set index to enable
 
 	preset_2_enabled = false,
 	preset_2_path    = '%[.+%]',
-	preset_2_index   = 3,
+	preset_2_index   = 4,
 
 	preset_3_enabled = true,
 	preset_3_path    = 'cartoon',
-	preset_3_index   = 3,
+	preset_3_index   = 4,
 }
 
 local current_index, enabled
@@ -162,24 +162,35 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = igv.fsrcnnx_8
+	s[#s+1] = igv.fsrcnnx_8
+	s[#s+1] = cas
+	s[#s+1] = igv.krig
+	s[#s+1] = igv.sssr
+	s[#s+1] = igv.ssds
+	s[#s+1] = igv.asharpen
+	o['dscale'] = 'robidoux'       -- For igv.ssds
+	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
+	return { shaders = s, options = o, label = ' [ Live Action (Full) ]  FSRCNNX^2 + CAS + Krig + SSSR/DS + ASharpen' }
+end
+
+sets[#sets+1] = function()
+	local s, o = {}, default_options()
+	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = cas
 	s[#s+1] = igv.krig
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
-	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
-	o['deband-grain'] = 32
-	return { shaders = s, options = o, label = ' [ Live Action ]  FSRCNNX + CAS + Krig + SSSR + ASharpen' }
+	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
+	return { shaders = s, options = o, label = ' [ Live Action (Lite) ]  FSRCNNX + CAS + Krig + SSSR + ASharpen' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
-	s[#s+1] = a4k.denoise_median
 	s[#s+1] = (scale <= 2) and a4k.deblur_4 or a4k.upscale_deblur_4
 	s[#s+1] = igv.asharpen
-	o['sigmoid-upscaling'] = 'no'  -- For adaptive-sharpen.glsl
-	o['deband-grain'] = 24
+	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
 	return { shaders = s, options = o, label = ' [ 3D Animated ]  FSRCNNX-LineArt + Krig + Anime4K Deblur + ASharpen' }
 end
 
@@ -187,7 +198,6 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
-	s[#s+1] = a4k.denoise_median
 	s[#s+1] = a4k.darklines_3
 	s[#s+1] = a4k.thinlines_3
 	s[#s+1] = (scale <= 2) and a4k.deblur_2 or a4k.upscale_deblur_3
