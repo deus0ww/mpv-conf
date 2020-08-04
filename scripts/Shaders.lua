@@ -1,4 +1,4 @@
--- deus0ww - 2020-07-28
+-- deus0ww - 2020-08-04
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -151,7 +151,11 @@ local a4k             = {
 	reduce_5          = a4k_path .. 'RA_Reduce/Anime4K_RA_CNN_UL.glsl',
 }
 
-local cas = shaders_path .. 'CAS.glsl'
+local cas_path        = shaders_path .. 'cas/'
+local cas             = {
+	luma              = cas_path .. 'CAS_luma.glsl',
+	rgb               = cas_path .. 'CAS_rgb.glsl',
+}
 
 
 -------------------
@@ -163,25 +167,25 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = igv.fsrcnnx_8
-	s[#s+1] = cas
 	s[#s+1] = igv.krig
+	s[#s+1] = cas.rgb
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.ssds
 	s[#s+1] = igv.asharpen
 	o['dscale'] = 'robidoux'       -- For igv.ssds
 	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
-	return { shaders = s, options = o, label = ' [ Live Action (Full) ]  FSRCNNX^2 + CAS + Krig + SSSR/DS + ASharpen' }
+	return { shaders = s, options = o, label = ' [ Live Action (Full) ]  FSRCNNX^2 + Krig + CAS + SSSR/DS + ASharpen' }
 end
 
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = igv.fsrcnnx_8
-	s[#s+1] = cas
 	s[#s+1] = igv.krig
+	s[#s+1] = cas.rgb
 	s[#s+1] = igv.sssr
 	s[#s+1] = igv.asharpen
 	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
-	return { shaders = s, options = o, label = ' [ Live Action (Lite) ]  FSRCNNX + CAS + Krig + SSSR + ASharpen' }
+	return { shaders = s, options = o, label = ' [ Live Action (Lite) ]  FSRCNNX + Krig + CAS + SSSR + ASharpen' }
 end
 
 sets[#sets+1] = function()
