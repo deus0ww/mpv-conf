@@ -1,4 +1,4 @@
--- deus0ww - 2020-02-15
+-- deus0ww - 2020-08-06
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -143,6 +143,9 @@ add({
 	name = 'ScaleTempo',
 	filter_type = 'audio',
 	filters = {
+	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
+		'scaletempo2=search-interval=30:window-size=20',
+		
 	-- https://mpv.io/manual/master/#audio-filters-scaletempo[
 		'scaletempo=stride=9:overlap=0.9:search=28',
 		
