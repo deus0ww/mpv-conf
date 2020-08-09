@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-27
+-- deus0ww - 2020-08-08
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -191,7 +191,7 @@ local user_opts = {
 	auto_gen              = true,               -- Auto generate thumbnails
 	auto_show             = true,               -- Show thumbnails by default
 	auto_delete           = 0,                  -- Delete the thumbnail cache. Use at your own risk. 0=No, 1=On file close, 2=When quiting
-	start_delay           = 3,                  -- Delay the start of the thumbnailer (seconds)
+	start_delay           = 2,                  -- Delay the start of the thumbnailer (seconds)
 
 	-- Paths
 	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
@@ -214,7 +214,7 @@ local user_opts = {
 	update_time           = 0.5,                -- Fastest time interval between updating the OSC with new thumbnails
 
 	-- Worker
-	max_workers           = 4,                  -- Number of active workers. Must have at least one copy of the worker script alongside this script.
+	max_workers           = 3,                  -- Number of active workers. Must have at least one copy of the worker script alongside this script.
 	worker_remote_factor  = 0.5,                -- Multiply max_workers by this for remote streams or when MPV enables cache
 	worker_bitrate_factor = 0.5,                -- Multiply max_workers by this for high bitrate sources. Set threshold with bitrate_threshold
 	worker_delay          = 0.5,                -- Delay between starting workers (seconds)
