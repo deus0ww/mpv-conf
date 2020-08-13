@@ -141,14 +141,14 @@ local a4k             = {
 	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
 	darklines_3       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_HQ.glsl',
 
-	thinlines_1       = a4k_path .. 'Experimental_Effects/Anime4K_ThinLines_VeryFast.glsl',
-	thinlines_2       = a4k_path .. 'Experimental_Effects/Anime4K_ThinLines_Fast.glsl',
-	thinlines_3       = a4k_path .. 'Experimental_Effects/Anime4K_ThinLines_HQ.glsl',
+	thinlines_1       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_VeryFast.glsl',
+	thinlines_2       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_Fast.glsl',
+	thinlines_3       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_HQ.glsl',
 
-	reduce_2          = a4k_path .. 'RA_Reduce/Anime4K_RA_DoG.glsl',
-	reduce_3          = a4k_path .. 'RA_Reduce/Anime4K_RA_CNN_M.glsl',
-	reduce_4          = a4k_path .. 'RA_Reduce/Anime4K_RA_CNN_L.glsl',
-	reduce_5          = a4k_path .. 'RA_Reduce/Anime4K_RA_CNN_UL.glsl',
+	reduce_2          = a4k_path .. 'RA-Reduce/Anime4K_RA_DoG.glsl',
+	reduce_3          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_M.glsl',
+	reduce_4          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_L.glsl',
+	reduce_5          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_UL.glsl',
 }
 
 local cas_path        = shaders_path .. 'cas/'
