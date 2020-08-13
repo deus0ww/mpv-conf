@@ -38,27 +38,39 @@ mp.register_script_message('get-demuxer-via-network', function()
 	show_value('get-demuxer-via-network: ', (get('demuxer-via-network') and 'yes' or 'no'))
 end)
 
+--mp.register_script_message('get-sub-lang', function()
+--	local test = (function()
+--		for _, track in ipairs(get('track-list', {})) do
+--			if track.lang and track.type == 'sub' and track.selected then
+--				return track.lang:lower()
+--			end
+--		end
+--		return ''
+--	end)()
+--	show_value('get-sub-lang', test)
+--end)
+
 mp.register_script_message('get-sub-lang', function()
-	local test = (function()
-		for _, track in ipairs(get('track-list', {})) do
-			if track.lang and track.type == 'sub' and (tostring(track.id) == tostring(get('sid','')) or (tostring(get('sid','')) == 'auto' and track.default)) then
-				return track.lang:lower()
-			end
-			msg.debug(track.lang, track.type == 'sub', tostring(track.id) == sid)
-		end
-		return ''
-	end)()
-	show_value('get-sub-lang', test)
+	show_value('get-sub-lang', get('current-tracks/sub/lang', ''):lower())
 end)
 
+mp.observe_property('current-tracks/sub/lang', 'native', function(_, lang) msg.debug(lang) end)
+
+
+
+
+--mp.register_script_message('get-sub-type', function()
+--	local test = (function()
+--		for _, track in ipairs(get('track-list', {})) do
+--			if track.lang and track.type == 'sub' and track.selected then
+--				return track.codec:lower()
+--			end
+--		end
+--		return ''
+--	end)()
+--	show_value('get-sub-type', test)
+--end)
+
 mp.register_script_message('get-sub-type', function()
-	local test = (function()
-		for _, track in ipairs(get('track-list', {})) do
-			if track.codec and track.type == 'sub' and (tostring(track.id) == tostring(get('sid','')) or (tostring(get('sid','')) == 'auto' and track.default)) then
-				return track.codec:lower()
-			end
-		end
-		return ''
-	end)()
-	show_value('get-sub-type', test)
+	show_value('get-sub-lang', get('current-tracks/sub/codec', ''):lower())
 end)
