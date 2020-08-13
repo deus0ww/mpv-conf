@@ -118,15 +118,15 @@ local a4k             = {
 
 	upscale_dtd       = a4k_path .. 'Upscale/Anime4K_Upscale_DTD_x2.glsl',
 
-	upscale_deblur_1  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
-	upscale_deblur_2  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
-	upscale_deblur_3  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',
-	upscale_deblur_4  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_L_x2_Deblur.glsl',
-	upscale_deblur_5  = a4k_path .. 'Upscale_Deblur/Anime4K_Upscale_CNN_UL_x2_Deblur.glsl',
+	upscale_deblur_1  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
+	upscale_deblur_2  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
+	upscale_deblur_3  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',
+	upscale_deblur_4  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_CNN_L_x2_Deblur.glsl',
+	upscale_deblur_5  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_CNN_UL_x2_Deblur.glsl',
 
-	upscale_denoise_3 = a4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl',
-	upscale_denoise_4 = a4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_L_x2_Denoise.glsl',
-	upscale_denoise_5 = a4k_path .. 'Upscale_Denoise/Anime4K_Upscale_CNN_UL_x2_Denoise.glsl',
+	upscale_denoise_3 = a4k_path .. 'Upscale+Denoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl',
+	upscale_denoise_4 = a4k_path .. 'Upscale+Denoise/Anime4K_Upscale_CNN_L_x2_Denoise.glsl',
+	upscale_denoise_5 = a4k_path .. 'Upscale+Denoise/Anime4K_Upscale_CNN_UL_x2_Denoise.glsl',
 
 	deblur_1          = a4k_path .. 'Deblur/Anime4K_Deblur_Original.glsl',
 	deblur_2          = a4k_path .. 'Deblur/Anime4K_Deblur_DoG.glsl',
@@ -137,9 +137,9 @@ local a4k             = {
 	denoise_median    = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
 	denoise_mode      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
 
-	darklines_1       = a4k_path .. 'Experimental_Effects/Anime4K_DarkLines_VeryFast.glsl',
-	darklines_2       = a4k_path .. 'Experimental_Effects/Anime4K_DarkLines_Fast.glsl',
-	darklines_3       = a4k_path .. 'Experimental_Effects/Anime4K_DarkLines_HQ.glsl',
+	darklines_1       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_VeryFast.glsl',
+	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
+	darklines_3       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_HQ.glsl',
 
 	thinlines_1       = a4k_path .. 'Experimental_Effects/Anime4K_ThinLines_VeryFast.glsl',
 	thinlines_2       = a4k_path .. 'Experimental_Effects/Anime4K_ThinLines_Fast.glsl',
