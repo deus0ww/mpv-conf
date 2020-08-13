@@ -27,11 +27,11 @@
 
 //!HOOK SCALED
 //!BIND HOOKED
-//!DESC Adaptive Sharpen [0.36]
+//!DESC Adaptive Sharpen [0.34]
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    0.36                 // Main control of sharpening strength [>0]
+#define curve_height    0.34                 // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define video_level_out false                // True to preserve BTB & WTW (minor summation error)
