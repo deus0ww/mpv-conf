@@ -36,7 +36,7 @@
 
 #define saturate(x) clamp(x, 0.0, 1.0)
 
-uniform float peak = -1.0 / mix(8.0, 5.0, saturate(SHARPNESS));
+const float peak = -1.0 / mix(8.0, 5.0, saturate(SHARPNESS));
 
 vec4 hook() {
 	// fetch a 3x3 neighborhood around the pixel 'e',
