@@ -134,7 +134,7 @@ local function run_subprocess(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
 	-- msg.debug('Subprocess', subprocess_name, 'Starting...', utils.to_string(command))
-	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
+	local result, mpv_error = mp.command_native( {name='subprocess', args=command, playback_only=false} )
 	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
 end
@@ -143,7 +143,7 @@ local function run_subprocess_async(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
 	-- msg.debug('Subprocess', subprocess_name, 'Starting (async)...')
-	mp.command_native_async( {name='subprocess', args=command}, function(s, r, e) subprocess_result(s, r, e, subprocess_name, start_time) end )
+	mp.command_native_async( {name='subprocess', args=command, playback_only=false}, function(s, r, e) subprocess_result(s, r, e, subprocess_name, start_time) end )
 	return nil
 end
 
