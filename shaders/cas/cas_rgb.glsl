@@ -43,15 +43,15 @@ vec4 hook() {
 	//	a b c
 	//	d(e)f
 	//	g h i
-	vec3 a = HOOKED_texOff(vec2(-1, -1)).rgb;
-	vec3 b = HOOKED_texOff(vec2( 0, -1)).rgb;
-	vec3 c = HOOKED_texOff(vec2( 1, -1)).rgb;
-	vec3 d = HOOKED_texOff(vec2(-1,  0)).rgb;
-	vec3 e = HOOKED_texOff(vec2( 0,  0)).rgb;
-	vec3 f = HOOKED_texOff(vec2( 1,  0)).rgb;
-	vec3 g = HOOKED_texOff(vec2(-1,  1)).rgb;
-	vec3 h = HOOKED_texOff(vec2( 0,  1)).rgb;
-	vec3 i = HOOKED_texOff(vec2( 1,  1)).rgb;
+	vec3 a = HOOKED_texOff(ivec2(-1, -1)).rgb;
+	vec3 b = HOOKED_texOff(ivec2( 0, -1)).rgb;
+	vec3 c = HOOKED_texOff(ivec2( 1, -1)).rgb;
+	vec3 d = HOOKED_texOff(ivec2(-1,  0)).rgb;
+	vec3 e = HOOKED_texOff(ivec2( 0,  0)).rgb;
+	vec3 f = HOOKED_texOff(ivec2( 1,  0)).rgb;
+	vec3 g = HOOKED_texOff(ivec2(-1,  1)).rgb;
+	vec3 h = HOOKED_texOff(ivec2( 0,  1)).rgb;
+	vec3 i = HOOKED_texOff(ivec2( 1,  1)).rgb;
 
 	// Soft min and max.
 	//	a b c			  b
@@ -78,5 +78,5 @@ vec4 hook() {
 	//  0 w 0  
 	vec3 weightRGB = 1.0 + 4.0 * wRGB;
 	vec3 window = (b + d) + (f + h);
-	return vec4(saturate((window * wRGB + e) / weightRGB).rgb, 0);
+	return vec4(saturate((window * wRGB + e) / weightRGB).rgb, 0.0);
 }
