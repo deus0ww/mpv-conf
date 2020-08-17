@@ -92,19 +92,6 @@ end
 --------------------
 local shaders_path = '~~/shaders/'
 
--- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
-local igv_path        = shaders_path .. 'igv/'
-local igv             = { 
-	fsrcnnx_8         = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
-	fsrcnnx_8l        = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
-	fsrcnnx_16        = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
-	
-	krig              = igv_path .. 'KrigBilateral.glsl',
-	sssr              = igv_path .. 'SSimSuperRes.glsl',
-	ssds              = igv_path .. 'SSimDownscaler.glsl',
-	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
-}
-
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local a4k_path        = shaders_path .. 'anime4k/'
 local a4k             = {
@@ -151,12 +138,25 @@ local a4k             = {
 	reduce_5          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_UL.glsl',
 }
 
+-- Contrast Adaptive Sharpening
 local cas_path        = shaders_path .. 'cas/'
 local cas             = {
 	luma              = cas_path .. 'CAS_luma.glsl',
 	rgb               = cas_path .. 'CAS_rgb.glsl',
 }
 
+-- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
+local igv_path        = shaders_path .. 'igv/'
+local igv             = { 
+	fsrcnnx_8         = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
+	fsrcnnx_8l        = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
+	fsrcnnx_16        = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
+	
+	krig              = igv_path .. 'KrigBilateral.glsl',
+	sssr              = igv_path .. 'SSimSuperRes.glsl',
+	ssds              = igv_path .. 'SSimDownscaler.glsl',
+	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
+}
 
 -------------------
 --- Shader Sets ---
