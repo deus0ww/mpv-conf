@@ -30,9 +30,9 @@
 
 //!HOOK SCALED
 //!BIND HOOKED
-//!DESC Contrast Adaptive Sharpening [0.36]
+//!DESC Contrast Adaptive Sharpening [0.33]
 
-#define SHARPNESS 0.36  // Sharpening strength
+#define SHARPNESS 1/3  // Sharpening strength
 
 #define saturate(x) clamp(x, 0.0, 1.0)
 
