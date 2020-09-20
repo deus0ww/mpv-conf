@@ -1,4 +1,4 @@
--- deus0ww - 2020-08-04
+-- deus0ww - 2020-09-20
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -123,6 +123,7 @@ local a4k             = {
 	denoise_mean      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
 	denoise_median    = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
 	denoise_mode      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
+	denoise_cnn       = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
 
 	darklines_1       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_VeryFast.glsl',
 	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
@@ -157,6 +158,8 @@ local igv             = {
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
 	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
 }
+
+
 
 -------------------
 --- Shader Sets ---
@@ -209,84 +212,84 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = ' [ 2D Animated ]  FSRCNNX-LineArt + Krig + Anime4K Enhance & Deblur' }
 end
 
---sets[#sets+1] = function() -- Anime4K Custom Enhance & Deblur
---	local s, o, scale = {}, default_options(), get_scale()
---	s[#s+1] = igv.krig
---	if scale <= 2 then
---		s[#s+1] = a4k.denoise_median
---		s[#s+1] = a4k.deblur_3
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_4
---	elseif scale < 4 then
---		s[#s+1] = a4k.upscale_denoise_3
---		s[#s+1] = a4k.downscale
---		s[#s+1] = a4k.deblur_3
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_3
---	else
---		s[#s+1] = a4k.upscale_denoise_4
---		s[#s+1] = a4k.deblur_3
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_3
+--	sets[#sets+1] = function() -- Anime4K Custom Enhance & Deblur
+--		local s, o, scale = {}, default_options(), get_scale()
+--		s[#s+1] = igv.krig
+--		if scale <= 2 then
+--			s[#s+1] = a4k.denoise_median
+--			s[#s+1] = a4k.deblur_3
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_4
+--		elseif scale < 4 then
+--			s[#s+1] = a4k.upscale_denoise_3
+--			s[#s+1] = a4k.downscale
+--			s[#s+1] = a4k.deblur_3
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_3
+--		else
+--			s[#s+1] = a4k.upscale_denoise_4
+--			s[#s+1] = a4k.deblur_3
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_3
+--		end
+--		o['deband-grain'] = 16
+--		return { shaders = s, options = o, label = ' [ 2D Animated ] Krig + Anime4K Enhance & Deblur' }
 --	end
---	o['deband-grain'] = 16
---	return { shaders = s, options = o, label = 'Krig + Anime4K Enhance & Deblur' }
---end
-
---sets[#sets+1] = function() -- Anime4K Enhance & Deblur
---	local s, o, scale = {}, default_options(), get_scale()
---	s[#s+1] = igv.krig
---	if scale <= 2 then
---		s[#s+1] = a4k.denoise_mode
---		s[#s+1] = a4k.deblur_2
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_3
---	else
---		s[#s+1] = a4k.upscale_denoise_4
---		s[#s+1] = a4k.downscale
---		s[#s+1] = a4k.deblur_2
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_3
---	end
---	return { shaders = s, options = o, label = 'Krig + Anime4K Enhance & Deblur' }
---end
 --
---sets[#sets+1] = function() -- Anime4K Enhance
---	local s, o, scale = {}, default_options(), get_scale()
---	s[#s+1] = igv.krig
---	if scale <= 2 then
---		s[#s+1] = a4k.denoise_mode
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_3
---	else
---		s[#s+1] = a4k.upscale_denoise_4
---		s[#s+1] = a4k.downscale
---		s[#s+1] = a4k.darklines_3
---		s[#s+1] = a4k.thinlines_3
---		s[#s+1] = a4k.upscale_deblur_3
+--	sets[#sets+1] = function() -- Anime4K Enhance & Deblur
+--		local s, o, scale = {}, default_options(), get_scale()
+--		s[#s+1] = igv.krig
+--		if scale <= 2 then
+--			s[#s+1] = a4k.denoise_mode
+--			s[#s+1] = a4k.deblur_2
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_3
+--		else
+--			s[#s+1] = a4k.upscale_denoise_4
+--			s[#s+1] = a4k.downscale
+--			s[#s+1] = a4k.deblur_2
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_3
+--		end
+--		return { shaders = s, options = o, label = 'Krig + Anime4K Enhance & Deblur' }
 --	end
---	return { shaders = s, options = o, label = 'Krig + Anime4K Enhance' }
---end
 --
---sets[#sets+1] = function() -- Anime4K Deblur
---	local s, o, scale = {}, default_options(), get_scale()
---	s[#s+1] = igv.krig
---	if scale <= 2 then
---		s[#s+1] = a4k.denoise_mode
---		s[#s+1] = a4k.upscale_deblur_3
---	else
---		s[#s+1] = a4k.upscale_denoise_4
---		s[#s+1] = a4k.downscale
---		s[#s+1] = a4k.upscale_deblur_3
+--	sets[#sets+1] = function() -- Anime4K Enhance
+--		local s, o, scale = {}, default_options(), get_scale()
+--		s[#s+1] = igv.krig
+--		if scale <= 2 then
+--			s[#s+1] = a4k.denoise_mode
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_3
+--		else
+--			s[#s+1] = a4k.upscale_denoise_4
+--			s[#s+1] = a4k.downscale
+--			s[#s+1] = a4k.darklines_3
+--			s[#s+1] = a4k.thinlines_3
+--			s[#s+1] = a4k.upscale_deblur_3
+--		end
+--		return { shaders = s, options = o, label = 'Krig + Anime4K Enhance' }
 --	end
---	return { shaders = s, options = o, label = 'Krig + Anime4K Deblur' }
---end
+--
+--	sets[#sets+1] = function() -- Anime4K Deblur
+--		local s, o, scale = {}, default_options(), get_scale()
+--		s[#s+1] = igv.krig
+--		if scale <= 2 then
+--			s[#s+1] = a4k.denoise_mode
+--			s[#s+1] = a4k.upscale_deblur_3
+--		else
+--			s[#s+1] = a4k.upscale_denoise_4
+--			s[#s+1] = a4k.downscale
+--			s[#s+1] = a4k.upscale_deblur_3
+--		end
+--		return { shaders = s, options = o, label = 'Krig + Anime4K Deblur' }
+--	end
 
 
 
