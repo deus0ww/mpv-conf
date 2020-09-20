@@ -55,6 +55,7 @@ local user_opts = {
     
     font = "sans",
     font_mono = "monospace",
+    font_bold = 600,
 }
 
 -- read options from config and command-line
@@ -66,7 +67,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2020-03-12
+-- deus0ww - 2020-09-20
 
 ------------
 -- tn_osc --
@@ -529,20 +530,20 @@ local osc_param = { -- calculated by osc_init()
 local osc_styles = {
     bigButtons = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs50\\fnmpv-osd-symbols}",
     smallButtonsL = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs19\\fnmpv-osd-symbols}",
-    smallButtonsLlabel = "{\\fscx105\\fscy105\\fn" .. user_opts.font_mono .. "}",
+    smallButtonsLlabel = ("{\\fscx105\\fscy105\\b%d\\fn%s}"):format(user_opts.font_bold, user_opts.font_mono),
     smallButtonsR = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs30\\fnmpv-osd-symbols}",
     topButtons = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\fnmpv-osd-symbols}",
 
     elementDown = "{\\1c&H999999}",
-    timecodes = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs20\\fn" .. user_opts.font_mono .. "}",
-    vidtitle = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\q2\\fn" .. user_opts.font .. "}",
+    timecodes = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs20\\b%d\\fn%s}"):format(user_opts.font_bold, user_opts.font_mono),
+    vidtitle = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\b%d\\q2\\fn%s}"):format(user_opts.font_bold, user_opts.font),
     box = "{\\rDefault\\blur0\\bord1\\1c&H000000\\3c&HFFFFFF}",
 
     topButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\fnmpv-osd-symbols}",
     smallButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs28\\fnmpv-osd-symbols}",
-    timecodesBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs27\\fn" .. user_opts.font_mono .. "}",
-    timePosBar = "{\\blur0.54\\bord".. user_opts.tooltipborder .."\\1c&HFFFFFF\\3c&H000000\\fs27\\fn" .. user_opts.font_mono .. "}",
-    vidtitleBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\q2\\fn" .. user_opts.font .. "}",
+    timecodesBar = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs27\\b%d\\fn%s}"):format(user_opts.font_bold, user_opts.font_mono),
+    timePosBar = ("{\\blur0.54\\bord%s\\1c&HFFFFFF\\3c&H000000\\fs27\\b%d\\fn%s}"):format(user_opts.tooltipborder, user_opts.font_bold, user_opts.font_mono),
+    vidtitleBar = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\b%d\\q2\\fn%s}"):format(user_opts.font_bold, user_opts.font),
 
     wcButtons = "{\\1c&HFFFFFF\\fs24\\fnmpv-osd-symbols}",
     wcTitle = "{\\1c&HFFFFFF\\fs24\\q2}",
