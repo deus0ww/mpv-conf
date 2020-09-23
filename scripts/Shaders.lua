@@ -16,15 +16,15 @@ local opts = {
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 4,        -- Shader set index to enable
+	preset_1_index   = 3,        -- Shader set index to enable
 
-	preset_2_enabled = false,
-	preset_2_path    = '%[.+%]',
-	preset_2_index   = 4,
+	preset_2_enabled = true,
+	preset_2_path    = 'cartoon',
+	preset_2_index   = 3,
 
-	preset_3_enabled = true,
-	preset_3_path    = 'cartoon',
-	preset_3_index   = 4,
+	preset_3_enabled = false,
+	preset_3_path    = '%[.+%]',
+	preset_3_index   = 3,
 }
 
 local current_index, enabled
@@ -72,12 +72,12 @@ local function default_options()
 		['scale']  = 'haasnsoft',
 		['cscale'] = 'haasnsoft',
 		['dscale'] = 'haasnsoft',
-		['sigmoid-upscaling']  = 'yes',
-		['deband-grain']  = 24,
+		['sigmoid-upscaling'] = 'yes',
 	}
 end
 
 local function is_high_fps() return props['container-fps'] > opts.hifps_threshold end
+local function is_low_fps()  return not is_high_fps() end
 local function get_scale()
 	local dwidth, dheight = props['dwidth'], props['dheight']
 	if (props['video-params/rotate'] % 180) ~= 0 then dwidth, dheight = dheight, dwidth end
@@ -123,7 +123,9 @@ local a4k             = {
 	denoise_mean      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
 	denoise_median    = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
 	denoise_mode      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
-	denoise_cnn       = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
+	denoise_cnn_high  = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
+	denoise_cnn_mid   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
+	denoise_cnn_low   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_low.glsl',
 
 	darklines_1       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_VeryFast.glsl',
 	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
@@ -169,47 +171,38 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = igv.fsrcnnx_8
-	s[#s+1] = igv.fsrcnnx_8
+	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
 	s[#s+1] = igv.krig
+	s[#s+1] = a4k.denoise_cnn_low
 	s[#s+1] = igv.sssr
-	s[#s+1] = igv.ssds
-	s[#s+1] = cas.rgb
+	s[#s+1] = is_low_fps() and igv.ssds or nil
 	s[#s+1] = igv.asharpen
-	o['dscale'] = 'robidoux'       -- For igv.ssds
-	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
-	return { shaders = s, options = o, label = ' [ Live Action (Full) ]  FSRCNNX^2 + Krig + CAS + SSSR/DS + ASharpen' }
-end
-
-sets[#sets+1] = function()
-	local s, o = {}, default_options()
-	s[#s+1] = igv.fsrcnnx_8
-	s[#s+1] = igv.krig
 	s[#s+1] = cas.rgb
-	s[#s+1] = igv.sssr
-	s[#s+1] = igv.asharpen
+	o['dscale'] = is_low_fps() and 'robidoux' or 'haasnsoft'  -- For igv.ssds
 	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
-	return { shaders = s, options = o, label = ' [ Live Action (Lite) ]  FSRCNNX + Krig + CAS + SSSR + ASharpen' }
+	return { shaders = s, options = o, label = 'Live Action' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
-	s[#s+1] = (scale <= 2) and a4k.deblur_4 or a4k.upscale_deblur_4
+	s[#s+1] = (scale <= 2) and a4k.denoise_cnn_mid or a4k.upscale_denoise_3
 	s[#s+1] = igv.asharpen
 	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
-	return { shaders = s, options = o, label = ' [ 3D Animated ]  FSRCNNX-LineArt + Krig + Anime4K Deblur + ASharpen' }
+	return { shaders = s, options = o, label = '3D Animated' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = igv.krig
+	s[#s+1] = (scale <= 2) and a4k.denoise_cnn_high or a4k.upscale_denoise_3
 	s[#s+1] = a4k.darklines_3
 	s[#s+1] = a4k.thinlines_3
-	s[#s+1] = (scale <= 2) and a4k.deblur_2 or a4k.upscale_deblur_3
-	o['deband-grain'] = 16
-	return { shaders = s, options = o, label = ' [ 2D Animated ]  FSRCNNX-LineArt + Krig + Anime4K Enhance & Deblur' }
+	s[#s+1] = igv.asharpen
+	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
+	return { shaders = s, options = o, label = '2D Animated' }
 end
 
 --	sets[#sets+1] = function() -- Anime4K Custom Enhance & Deblur

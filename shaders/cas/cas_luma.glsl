@@ -30,9 +30,9 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC Contrast Adaptive Sharpening [0.36]
+//!DESC Contrast Adaptive Sharpening [0.50]
 
-#define SHARPNESS 0.36  // Sharpening strength
+#define SHARPNESS 0.50  // Sharpening strength
 
 #define saturate(x) clamp(x, 0.0, 1.0)
 
@@ -78,5 +78,5 @@ vec4 hook() {
 	//  0 w 0  
 	vec3 weightRGB = 1.0 + 4.0 * wRGB;
 	vec3 window = (b + d) + (f + h);
-	return vec4(saturate((window * wRGB + e) / weightRGB).rgb, 0.0);
+	return vec4(saturate((window * wRGB + e) / weightRGB).rgb, HOOKED_tex(HOOKED_pos).a);
 }

@@ -240,13 +240,13 @@ vec4 hook() {
 	return vec4(xgrad, ygrad, 0, 0);
 }
 
-//!DESC Anime4K-v3.1-ThinLines
+//!DESC Anime4K-v3.1-ThinLines [0.15|3]
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND LUMAD
 //!BIND LUMAD2
 
-#define STRENGTH 0.12 //Strength of warping for each iteration
+#define STRENGTH 0.15 //Strength of warping for each iteration
 #define ITERATIONS 3  //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
 
 #define L_tex HOOKED_tex

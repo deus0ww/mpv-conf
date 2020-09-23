@@ -493,7 +493,7 @@ vec4 hook() {
     float r0 = i+j+k+l+m+n+o+p+-0.070800774;
     return vec4(o0, p0, q0, r0);
 }
-//!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-Reduce [1.00]
+//!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-Reduce [0.67]
 //!HOOK NATIVE
 //!BIND HOOKED
 //!COMPONENTS 4
@@ -524,5 +524,5 @@ vec4 hook() {
     e = max(e, vec4(0));
     f = max(f, vec4(0));
     float o = -0.09435159*a.x + 0.09081991*a.y + 0.16816233*a.z + 0.14728227*a.w + 0.10000784*na.x + 0.014674008*na.y + -0.13752535*na.z + -0.08828458*na.w + 0.0038588494*b.x + 0.06961669*b.y + 0.15027532*b.z + -0.01914487*b.w + -0.031350534*nb.x + -0.092034675*nb.y + -0.15491991*nb.z + -0.1188485*nb.w + -0.03946322*c.x + 0.11187343*c.y + 0.027793778*c.z + -0.042292103*c.w + 0.06912006*nc.x + -0.12517752*nc.y + -0.019732121*nc.z + 0.04384535*nc.w + -0.009137028*d.x + 0.010548887*d.y + 0.0018490136*d.z + 0.02217183*d.w + 0.028376345*nd.x + -0.02243233*nd.y + 0.013049007*nd.z + -0.02719539*nd.w + -0.0076311044*e.x + 0.031047171*e.y + 0.018862661*e.z + -0.010395154*e.w + 0.04074566*ne.x + -0.03483764*ne.y + -0.011265274*ne.z + 0.0075280746*ne.w + -0.0050522494*f.x + 0.013989493*f.y + -0.0065913876*f.z + 0.0138480365*f.w + -0.019120917*nf.x + 0.0008136707*nf.y + -0.0018455017*nf.z + -0.012974287*nf.w + -0.07801065;
-    return vec4(o + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yzw);
+    return vec4(o * 0.67 + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yzw);
 }

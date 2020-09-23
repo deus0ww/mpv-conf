@@ -170,7 +170,7 @@ vec4 hook() {
     return vec4(lumGaussian(HOOKED_pos, vec2(0, HOOKED_pt.y)));
 }
 
-//!DESC Anime4K-v3.1-DarkLines
+//!DESC Anime4K-v3.1-DarkLines [1.5]
 //!HOOK NATIVE
 //!BIND HOOKED
 //!BIND MMKERNEL
