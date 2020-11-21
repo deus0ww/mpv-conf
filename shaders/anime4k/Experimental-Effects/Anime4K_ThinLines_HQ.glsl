@@ -29,7 +29,7 @@
 //!SAVE LUMAD
 //!COMPONENTS 2
 
-#define L_tex NATIVE_tex
+#define L_tex HOOKED_tex
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;

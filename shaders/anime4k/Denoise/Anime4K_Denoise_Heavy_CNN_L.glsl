@@ -496,7 +496,6 @@ vec4 hook() {
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-Reduce [1.00]
 //!HOOK NATIVE
 //!BIND HOOKED
-//!COMPONENTS 4
 //!BIND LUMAN0
 //!BIND LUMAN1
 //!BIND LUMAN2
