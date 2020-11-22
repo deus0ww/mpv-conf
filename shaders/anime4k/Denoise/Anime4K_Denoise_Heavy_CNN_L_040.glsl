@@ -24,7 +24,7 @@
 // SOFTWARE.
 
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-16x3x3x1-Conv-4x1x1x32
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!COMPONENTS 4
 //!SAVE LUMAN0
@@ -99,7 +99,7 @@ vec4 hook() {
     return vec4(s, t, u, v);
 }
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-4x3x3x8
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!COMPONENTS 4
 //!BIND LUMAN0
@@ -178,7 +178,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-4x3x3x8
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!COMPONENTS 4
 //!BIND LUMAN1
@@ -257,7 +257,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-4x3x3x8
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!COMPONENTS 4
 //!BIND LUMAN2
@@ -336,7 +336,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-4x3x3x8
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!COMPONENTS 4
 //!BIND LUMAN3
@@ -415,7 +415,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-4x3x3x8
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!COMPONENTS 4
 //!BIND LUMAN4
@@ -494,7 +494,7 @@ vec4 hook() {
     return vec4(o0, p0, q0, r0);
 }
 //!DESC Anime4K-v3.2-Denoise-CNN-L-Conv-Reduce [0.40]
-//!HOOK NATIVE
+//!HOOK LUMA
 //!BIND HOOKED
 //!BIND LUMAN0
 //!BIND LUMAN1

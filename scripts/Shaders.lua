@@ -124,8 +124,6 @@ local a4k             = {
 	denoise_median    = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
 	denoise_mode      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
 	denoise_cnn_100   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
-	denoise_cnn_060   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_060.glsl',
-	denoise_cnn_050   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_050.glsl',
 	denoise_cnn_040   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_040.glsl',
 	denoise_cnn_030   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_030.glsl',
 	denoise_cnn_020   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_020.glsl',
@@ -133,10 +131,12 @@ local a4k             = {
 	darklines_1       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_VeryFast.glsl',
 	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
 	darklines_3       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_HQ.glsl',
+	darklines_3l      = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_HQ_Luma.glsl',
 
 	thinlines_1       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_VeryFast.glsl',
 	thinlines_2       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_Fast.glsl',
 	thinlines_3       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_HQ.glsl',
+	thinlines_3l      = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_HQ_Luma.glsl',
 
 	reduce_2          = a4k_path .. 'RA-Reduce/Anime4K_RA_DoG.glsl',
 	reduce_3          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_M.glsl',
@@ -171,21 +171,12 @@ local igv             = {
 -------------------
 local sets = {}
 
-local function pick_denoise(scale)
-	if     scale <= 1 then return nil
-	elseif scale <= 2 then return a4k.denoise_cnn_020
-	elseif scale <= 3 then return a4k.denoise_cnn_030
-	elseif scale <= 4 then return a4k.denoise_cnn_040
-	elseif scale <= 5 then return a4k.denoise_cnn_050
-	else                   return a4k.denoise_cnn_060 end
-end
-
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = a4k.denoise_cnn_020
 	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
 	s[#s+1] = igv.krig
-	s[#s+1] = pick_denoise(scale)
 	s[#s+1] = igv.sssr
 	s[#s+1] = is_low_fps() and igv.ssds or nil
 	s[#s+1] = igv.asharpen
@@ -197,21 +188,27 @@ end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = igv.fsrcnnx_8l
+	s[#s+1] = a4k.denoise_cnn_030
+	s[#s+1] = igv.fsrcnnx_8
+	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
 	s[#s+1] = igv.krig
-	s[#s+1] = (scale <= 2) and a4k.denoise_cnn_020 or a4k.upscale_denoise_4
+	s[#s+1] = igv.sssr
+	s[#s+1] = is_low_fps() and igv.ssds or nil
 	s[#s+1] = igv.asharpen
+	s[#s+1] = cas.rgb
+	o['dscale'] = is_low_fps() and 'robidoux' or 'haasnsoft'  -- For igv.ssds
 	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
 	return { shaders = s, options = o, label = '3D Animated' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = a4k.denoise_cnn_040
 	s[#s+1] = igv.fsrcnnx_8l
+	s[#s+1] = is_low_fps() and igv.fsrcnnx_8l or nil
+	s[#s+1] = a4k.darklines_3l
+	s[#s+1] = a4k.thinlines_3l
 	s[#s+1] = igv.krig
-	s[#s+1] = (scale <= 2) and a4k.denoise_cnn_060 or a4k.upscale_denoise_3
-	s[#s+1] = a4k.darklines_3
-	s[#s+1] = a4k.thinlines_3
 	s[#s+1] = igv.asharpen
 	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
 	return { shaders = s, options = o, label = '2D Animated' }
