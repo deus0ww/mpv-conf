@@ -1,4 +1,4 @@
--- deus0ww - 2020-05-20
+-- deus0ww - 2020-12-16
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -371,7 +371,7 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_args(args, '-threads', worker_options.ffmpeg_threads)
 		add_args(args, '-fflags', 'fastseek')
 		add_args(args, '-flags2', 'fast')
-		if worker_options.worker_timeout > 0 then add_args(args, '-timelimit', ceil(worker_options.worker_timeout)) end
+		if OPERATING_SYSTEM ~= OS_WIN and worker_options.worker_timeout > 0 then add_args(args, '-timelimit', ceil(worker_options.worker_timeout)) end
 		add_args(args, '-analyzeduration', '500000')  -- Default: 5000000
 		add_args(args, '-probesize', '500000')        -- Default: 5000000
 		worker_extra.index_fastseek   = add_args(args, '-fflags',           accurate_seek and '+discardcorrupt+nobuffer' or '+fastseek+discardcorrupt+nobuffer')
