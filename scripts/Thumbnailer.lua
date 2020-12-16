@@ -1,4 +1,4 @@
--- deus0ww - 2020-08-08
+-- deus0ww - 2020-12-17
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -169,7 +169,7 @@ local function dir_exist(path)
 end
 
 local function create_dir(path)
-	return run_subprocess(    OPERATING_SYSTEM == OS_WIN and {'cmd', '/c', 'mkdir', path}    or {'mkdir', '-p', path} ) and dir_exist(path)
+	return dir_exist(path) or run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', '/c', 'mkdir', path} or {'mkdir', '-p', path} )
 end
 
 local function delete_dir(path)
