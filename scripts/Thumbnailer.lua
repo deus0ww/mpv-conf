@@ -1,4 +1,4 @@
--- deus0ww - 2020-12-17
+-- deus0ww - 2020-12-18
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -444,13 +444,6 @@ local function create_ouput_dir(filepath, filename, dimension, rotate)
 	return {basepath = basepath, fullpath = fullpath}
 end
 
-local function is_slow_source()
-	local demux_state   = mp.get_property_native('demuxer-cache-state', {})
-	local demux_ranges  = demux_state['seekable-ranges'] and #demux_state['seekable-ranges'] or 0
-	local cache_enabled = (demux_ranges > 0) -- Using MPV's logic for enabling the cache to detect slow sources.
-	return cache_enabled
-end
-
 local function calculate_timing(is_remote)
 	local duration, file_size  = mp.get_property_native('duration', 0), mp.get_property_native('file-size', 0)
 	if duration == 0 then return { duration = 0, delta = huge, high_bitrate = false } end
@@ -492,17 +485,17 @@ local function calculate_geometry(scale)
 	return geometry
 end
 
-local function calculate_worker_limit(duration, delta, is_remote, is_slow, is_high_bitrate)
-	local remote_factor  = (is_remote or is_slow) and user_opts.worker_remote_factor or 1
+local function calculate_worker_limit(duration, delta, is_remote, is_high_bitrate)
+	local remote_factor  = is_remote and user_opts.worker_remote_factor or 1
 	local bitrate_factor = is_high_bitrate and user_opts.worker_bitrate_factor or 1
 	return max(floor(min(user_opts.max_workers, duration / delta) * remote_factor * bitrate_factor), 1)
 end
 
-local function calculate_worker_timeout(width, height, is_remote, is_slow, is_high_bitrate)
+local function calculate_worker_timeout(width, height, is_remote, is_high_bitrate)
 	if user_opts.worker_timeout == 0 then return 0 end
 	local worker_timeout = ((width * height) / 921600) * user_opts.worker_timeout
-	if (is_remote or is_slow) then worker_timeout = worker_timeout * 2 end
-	if is_high_bitrate        then worker_timeout = worker_timeout * 2 end
+	if is_remote       then worker_timeout = worker_timeout * 2 end
+	if is_high_bitrate then worker_timeout = worker_timeout * 2 end
 	return ceil(worker_timeout)
 end
 
@@ -520,15 +513,14 @@ local function state_init()
 	local input_filename  = saved_state.input_filename
 	local cache_format    = '%.5d'
 	local cache_extension = '.bgra'
-    local is_remote       = input_fullpath:find('://') ~= nil
+    local is_remote       = (input_fullpath:find('://') ~= nil) and mp.get_property_native('demuxer-via-network', false)
 	local timing          = calculate_timing(is_remote)
 	local scale           = calculate_scale()
 	local geometry        = calculate_geometry(scale)
 	local meta_rotated    = saved_state.meta_rotated
 	local cache_dir       = create_ouput_dir(input_fullpath, input_filename, geometry.dimension, geometry.rotate)
-	local is_slow         = is_slow_source()
-	local worker_timeout  = calculate_worker_timeout(geometry.width, geometry.height, is_remote, is_slow, timing.is_high_bitrate)
-	local max_workers     = calculate_worker_limit(timing.duration, timing.delta, is_remote, is_slow, timing.is_high_bitrate)
+	local worker_timeout  = calculate_worker_timeout(geometry.width, geometry.height, is_remote, timing.is_high_bitrate)
+	local max_workers     = calculate_worker_limit(timing.duration, timing.delta, is_remote, timing.is_high_bitrate)
 	local tn_max          = floor(timing.duration / timing.delta) + 1
 	local tn_per_worker   = tn_max / max_workers
 	local worker_buffer   = 2
@@ -553,7 +545,6 @@ local function state_init()
 		meta_rotated    = meta_rotated,
 		is_rotated      = geometry.is_rotated,
 		is_remote       = is_remote,
-		is_slow         = is_slow,
 		tn_max          = tn_max,
 		tn_per_worker   = tn_per_worker,
 		max_workers     = max_workers,
