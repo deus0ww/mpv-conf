@@ -601,7 +601,8 @@ end
 local auto_delete = nil
 
 local function delete_cache_dir()
-	if auto_delete or ((auto_delete == nil) and (user_opts.auto_delete > 0)) then 
+	if auto_delete == nil then auto_delete = user_opts.auto_delete end
+	if auto_delete > 0 then 
 		local path = user_opts.cache_dir
 		msg.debug('Clearing Cache on Shutdown:', path)
 		if path:len() < 16 then return end
@@ -610,7 +611,9 @@ local function delete_cache_dir()
 end
 
 local function delete_cache_subdir()
-	if (auto_delete or ((auto_delete == nil) and (user_opts.auto_delete == 1))) and state then
+	if not state then return end
+	if auto_delete == nil then auto_delete = user_opts.auto_delete end
+	if auto_delete == 1 then
 		local path = state.cache_dir_base
 		msg.debug('Clearing Cache for File:', path)
 		if path:len() < 16 then return end
@@ -719,10 +722,11 @@ mp.register_script_message(message.enlarge, function()
 end)
 
 -- Binding - Toggle Auto Delete
+local auto_delete_message = { [0] = '', [1] = ' (on file close)', [2] = ' (on quit)' }
 mp.register_script_message(message.auto_delete, function()
 	if auto_delete == nil then auto_delete = user_opts.auto_delete end
-	auto_delete = not auto_delete
-	mp.osd_message( (auto_delete and '■' or '□') .. ' Thumbnail Auto Delete')
+	auto_delete = (auto_delete + 1) % 3
+	mp.osd_message( (auto_delete > 0 and '■' or '□') .. ' Thumbnail Auto Delete' .. auto_delete_message[auto_delete])
 end)
 
 
@@ -757,6 +761,9 @@ mp.observe_property('fullscreen', 'native', function(_, fullscreen)
 		return
 	end
 end)
+
+-- On file close
+mp.register_event('end-file', delete_cache_subdir)
 
 -- On Shutdown
 mp.register_event('shutdown', delete_cache_dir)
@@ -847,6 +854,7 @@ mp.register_script_message(message.debug, function()
 	msg.info('track-list', utils.to_string(mp.get_property_native('track-list', {})))
 	msg.info('duration', mp.get_property_native('duration', 0))
 	msg.info('file-size', mp.get_property_native('file-size', 0))
+	msg.info('auto_delete', auto_delete)
 	
 	msg.info('============================')
 	msg.info('Thumbnailer Internal States:')
