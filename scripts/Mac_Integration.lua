@@ -1,4 +1,4 @@
--- deus0ww - 2020-03-12
+-- deus0ww - 2020-12-18
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -47,20 +47,20 @@ end)
 
 -- Move to Trash -- Requires: https://github.com/ali-rantakari/trash
 mp.register_script_message('MoveToTrash', function()
-	local demux_state  = mp.get_property_native('demuxer-cache-state', {})
-	local demux_ranges = demux_state['seekable-ranges'] and #demux_state['seekable-ranges'] or 1
-	if demux_ranges > 0 then 
-		mp.osd_message('Trashing not supported.')
+	if mp.get_property_native('demuxer-via-network', true) then 
+		mp.osd_message('Trashing failed: File is remote.')
 		return
 	end
+	 
 	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
-	msg.debug('Moving to Trash:', path)
-	if path and path ~= '' then
-		local success = subprocess('MoveToTrash', {'trash', '-v', path })
-		mp.osd_message(success and 'Trashed.' or 'Trashing failed.')
-	else
-		mp.osd_message('Nothing to trash.')
+	if not path or path == '' then
+		mp.osd_message('Trashing failed: Invalid Path')
+		return
 	end
+
+	msg.debug('Moving to Trash:', path)
+	local success, res = subprocess('MoveToTrash', {'trash', '-v',path })
+	mp.osd_message(success and 'Trashed' or 'Trashing failed: ' .. res.stderr)
 end)
 
 
