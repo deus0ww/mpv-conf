@@ -30,7 +30,7 @@
 #define Kernel(x)   MN(0.3782158, 0.3108921, abs(x))
 #define taps        2.0
 
-#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(rgb*rgb, vec3(0.212655, 0.715158, 0.072187)) )
 
 vec4 hook() {
     // Calculate bounds
@@ -74,7 +74,7 @@ vec4 hook() {
 #define Kernel(x)   MN(0.3782158, 0.3108921, abs(x))
 #define taps        2.0
 
-#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(rgb*rgb, vec3(0.212655, 0.715158, 0.072187)) )
 
 vec4 hook() {
     // Calculate bounds
@@ -116,7 +116,7 @@ vec4 hook() {
 #define GetL(x,y)   PREKERNEL_tex(PREKERNEL_pt*(PREKERNEL_pos * input_size + tex_offset + vec2(x,y))).rgb
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
-#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(rgb*rgb, vec3(0.212655, 0.715158, 0.072187)) )
 
 vec4 hook() {
     vec3 meanL = vec3(0);
@@ -151,7 +151,7 @@ vec4 hook() {
 #define GetH(x,y)   LOWRES_texOff(vec2(x,y)).rgb
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
-#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(rgb*rgb, vec3(0.212655, 0.715158, 0.072187)) )
 
 vec4 hook() {
     vec3 meanH = vec3(0);
