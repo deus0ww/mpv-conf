@@ -47,7 +47,7 @@ vec4 hook() {
         W += w;
     }
     avg /= W;
-    avg.y = abs(avg.y - pow(avg.x, 2.0));
+    avg.y = abs(avg.y - avg.x * avg.x);
     return avg;
 }
 
@@ -84,7 +84,7 @@ vec4 hook() {
         W += w;
     }
     avg /= W;
-    avg.y = abs(avg.y - pow(avg.x, 2.0)) + LOWRES_Y_texOff(0).y;
+    avg.y = abs(avg.y - avg.x * avg.x) + LOWRES_Y_texOff(0).y;
     return avg;
 }
 
@@ -140,10 +140,10 @@ vec4 hook() {
     for (int i=0; i<N+1; i++) {
         X[i] = vec4(GetY(coords[i]), GetUV(coords[i]));
         vec2 w = clamp(1.5 - abs(coords[i] - offset), 0.0, 1.0);
-        total += w.x*w.y*vec4(X[i].x, pow(X[i].x, 2.0), X[i].y, 1.0);
+        total += w.x*w.y*vec4(X[i].x, X[i].x * X[i].x, X[i].y, 1.0);
     }
     total.xyz /= total.w;
-    float localVar = sqr(noise) + abs(total.y - pow(total.x, 2.0)) + total.z;
+    float localVar = sqr(noise) + abs(total.y - total.x * total.x) + total.z;
     float radius = 1.0;
 
     float Mx[N*(N+1)/2];
@@ -218,5 +218,5 @@ vec4 hook() {
     b[N-1-7] -= M(N-1-7, 1) * b[1]; b[N-1-7] -= M(N-1-7, 2) * b[2]; b[N-1-7] -= M(N-1-7, 3) * b[3]; b[N-1-7] -= M(N-1-7, 4) * b[4]; b[N-1-7] -= M(N-1-7, 5) * b[5]; b[N-1-7] -= M(N-1-7, 6) * b[6]; b[N-1-7] -= M(N-1-7, 7) * b[7]; b[N-1-7] /= M(N-1-7, N-1-7);
     interp += b[N-1-7] * (X[N-1-7] - X[N]);
 
-    return interp.zwxx;
+    return interp.zwzw;
 }
