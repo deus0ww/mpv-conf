@@ -1,4 +1,4 @@
--- deus0ww - 2020-12-18
+-- deus0ww - 2020-12-25
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -117,7 +117,7 @@ local function run_subprocess(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
 	-- msg.debug('Subprocess', subprocess_name, 'Starting...')
-	local result, mpv_error = mp.command_native( {name='subprocess', args=command} )
+	local result, mpv_error = mp.command_native( {name='subprocess', args=command, playback_only = false, capture_stdout = true, capture_stderr = true} )
 	local success, _, _, _ = subprocess_result(nil, result, mpv_error, subprocess_name, start_time)
 	return success
 end
@@ -126,7 +126,7 @@ local function run_subprocess_async(command, name)
 	if not command then return false end
 	local subprocess_name, start_time = name or command[1], os.time()
 	-- msg.debug('Subprocess', subprocess_name, 'Starting (async)...')
-	mp.command_native_async( {name='subprocess', args=command}, function(s, r, e) subprocess_result(s, r, e, subprocess_name, start_time) end )
+	mp.command_native_async( {name='subprocess', args=command, playback_only = false, capture_stdout = true, capture_stderr = true}, function(s, r, e) subprocess_result(s, r, e, subprocess_name, start_time) end )
 	return nil
 end
 
@@ -175,7 +175,7 @@ end
 local function delete_dir(path)
 	if is_empty(path) then return end
 	msg.warn('Deleting Dir:', path)
-	return mp.command_native( OPERATING_SYSTEM == OS_WIN and {'run', 'rd', '/S', '/Q', path} or {'run', 'rm', '-r', path} )
+	return run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', 'rd', '/s', '/q', path} or {'rm', '-r', path} )
 end
 
 
