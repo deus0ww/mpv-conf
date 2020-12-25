@@ -169,13 +169,13 @@ local function dir_exist(path)
 end
 
 local function create_dir(path)
-	return dir_exist(path) or run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', '/c', 'mkdir', path} or {'mkdir', '-p', path} )
+	return dir_exist(path) or run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', '/e:on', '/c', 'mkdir', path} or {'mkdir', '-p', path} )
 end
 
 local function delete_dir(path)
 	if is_empty(path) then return end
 	msg.warn('Deleting Dir:', path)
-	return run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', 'rd', '/s', '/q', path} or {'rm', '-r', path} )
+	return run_subprocess( OPERATING_SYSTEM == OS_WIN and {'cmd', '/e:on', '/c', 'rd', '/s', '/q', path} or {'rm', '-r', path} )
 end
 
 
