@@ -129,7 +129,7 @@ vec4 hook() {
     float varL = 0.0;
     for (int X=-1; X<=1; X++)
     for (int Y=-1; Y<=1; Y++) {
-        varL += Luma(GetL(X,Y) - meanL) * pow(spread, sqr(float(X)) + sqr(float(Y)));
+        varL += Luma(abs(GetL(X,Y) - meanL)) * pow(spread, sqr(float(X)) + sqr(float(Y)));
     }
     varL /= (spread + 4.0*spread + 4.0*spread*spread);
 
@@ -164,7 +164,7 @@ vec4 hook() {
     float varH = 0.0;
     for (int X=-1; X<=1; X++)
     for (int Y=-1; Y<=1; Y++) {
-        varH += Luma(GetH(X,Y) - meanH) * pow(spread, sqr(float(X)) + sqr(float(Y)));
+        varH += Luma(abs(GetH(X,Y) - meanH)) * pow(spread, sqr(float(X)) + sqr(float(Y)));
     }
     varH /= (spread + 4.0*spread + 4.0*spread*spread);
 
@@ -197,7 +197,7 @@ vec4 hook() {
 
 #define Gamma(x)    ( pow(clamp(x, 0.0, 1.0), vec3(1.0/2.0)) )
 #define GammaInv(x) ( pow(clamp(x, 0.0, 1.0), vec3(2.0)) )
-#define Luma(rgb)   ( dot(vec3(0.212655, 0.715158, 0.072187), pow(abs(rgb), vec3(2.0))) )
+#define Luma(rgb)   ( dot(rgb*rgb, vec3(0.212655, 0.715158, 0.072187)) )
 
 vec4 hook() {
     vec4 c0 = HOOKED_tex(HOOKED_pos);
@@ -227,7 +227,7 @@ vec4 hook() {
         float R = -sqrt((varL + sqr(0.5/255.0)) / (varH + mVar.r + sqr(0.5/255.0)));
 
         vec2 krnl = Kernel(vec2(X,Y) - offset);
-        float weight = krnl.r * krnl.g / (Luma(c0.rgb - Lowres(X,Y).rgb) + Lowres(X,Y).a + sqr(0.5/255.0));
+        float weight = krnl.r * krnl.g / (Luma(abs(c0.rgb - Lowres(X,Y).rgb)) + Lowres(X,Y).a + sqr(0.5/255.0));
 
         diff += weight * (L(X,Y).rgb + Lowres(X,Y).rgb * R + (-1.0 - R) * (c0.rgb));
         weightSum += weight;
