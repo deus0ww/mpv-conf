@@ -97,10 +97,10 @@ add({
 	filters = { 
 	-- https://ffmpeg.org/ffmpeg-filters.html#pan
 		-- -3dB=0.707, -6dB=0.500, -9dB=0.353, -12dB=0.250, -15dB=0.177
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.500*SL + 0.500*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.500*SR + 0.500*BR + 0.500*LFE"',
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.500*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.500*LFE"', -- ATSC + LFE
-		'pan="stereo| FL < 0.707*FC + 1.000*FL + 0.707*SL + 0.707*BL + 0.000*LFE | FR < 0.707*FC + 1.000*FR + 0.707*SR + 0.707*BR + 0.000*LFE"', -- ATSC
-		'pan="stereo| FL < 1.000*FC + 0.707*FL + 0.500*SL + 0.500*BL + 0.000*LFE | FR < 1.000*FC + 0.707*FR + 0.500*SR + 0.500*BR + 0.000*LFE"', -- Nightmode
+		'pan=stereo|FL<0.707*FC+1.000*FL+0.500*SL+0.500*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.500*SR+0.500*BR+0.500*LFE',
+		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.500*LFE', -- ATSC + LFE
+		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.000*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.000*LFE', -- ATSC
+		'pan=stereo|FL<1.000*FC+0.707*FL+0.500*SL+0.500*BL+0.000*LFE|FR<1.000*FC+0.707*FR+0.500*SR+0.500*BR+0.000*LFE', -- Nightmode
 		
 	-- https://ffmpeg.org/ffmpeg-filters.html#sofalizer
 		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:interpolate=yes',
