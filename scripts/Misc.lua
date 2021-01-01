@@ -1,4 +1,4 @@
--- deus0ww - 2020-03-16
+-- deus0ww - 2020-12-31
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -111,3 +111,15 @@ mp.observe_property('interpolation', 'native', function(_, interpolation)
 	mp.osd_message( ('%s Interpolation: [Filter=%s  Window=%s Radius=%s Clamp=%d]'):format((interpolation and '■' or '□'), tscale, window, radius, clamp) )
 end)
 
+
+
+-- Workaround for setting default volume
+mp.register_event('file-loaded', function()
+	local vol
+	mp.add_timeout(0.05, function()
+		msg.debug('Resetting Volume')
+		vol = mp.get_property_native('volume')
+		mp.set_property_native('volume', vol - 5)
+		mp.set_property_native('volume', vol)	
+	end)
+end)
