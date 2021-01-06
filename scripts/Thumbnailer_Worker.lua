@@ -1,4 +1,4 @@
--- deus0ww - 2020-12-16
+-- deus0ww - 2021-01-07
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -249,7 +249,7 @@ local function add_nice(args)
 	end
 end
 
-local pix_fmt   = 'bgr0'
+local pix_fmt   = 'bgra'
 local scale_ff  = 'scale=w=%d:h=%d:sws_flags=%s:dst_format=' .. pix_fmt
 local scale_mpv = 'scale=w=%d:h=%d:flags=%s'
 local vf_format = ',format=fmt=' .. pix_fmt
@@ -332,6 +332,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, video_filters)
 		-- Output
 		concat_args(args, '--of=rawvideo')
+		concat_args(args, '--ovcopts=pixel_format=', pix_fmt)
 		concat_args(args, '--ocopy-metadata=no')
 		worker_extra.index_output = concat_args(args, '--o=' .. output)
 	end
