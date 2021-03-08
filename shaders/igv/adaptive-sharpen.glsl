@@ -34,6 +34,8 @@
 #define curve_height    0.40                 // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
+#define anime_mode      false                // Only darken edges
+
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel
                                              // is surrounded by similar edge pixels
 
@@ -74,7 +76,7 @@
 #define sat(x)         ( clamp(x, 0.0, 1.0) )
 #define dxdy(val)      ( length(fwidth(val)) ) // edgemul = 2.2
 
-#define CtL(RGB)       ( dot(RGB*RGB, vec3(0.212655, 0.715158, 0.072187)) )
+#define CtL(RGB)       ( dot(RGB*RGB, vec3(0.2126, 0.7152, 0.0722)) )
 
 #define b_diff(pix)    ( abs(blur-c[pix]) )
 
@@ -141,7 +143,7 @@ vec4 hook() {
                              CtL(c[7]),  CtL(c[8]),  CtL(c[9]),  CtL(c[10]), CtL(c[11]), CtL(c[12]),
                              CtL(c[13]), CtL(c[14]), CtL(c[15]), CtL(c[16]), CtL(c[17]), CtL(c[18]),
                              CtL(c[19]), CtL(c[20]), CtL(c[21]), CtL(c[22]), CtL(c[23]), CtL(c[24]));
-                             
+
     float c0_Y = sqrt(luma[0]);
 
     // Precalculated default squared kernel weights
@@ -156,12 +158,12 @@ vec4 hook() {
     float modif_e0 = 3.0 * e[0] + 0.0090909;
 
     float weights[12]  = float[](( min(modif_e0/e[1],  dW.y) ),
-                                 ( dW.x ),                  
+                                 ( dW.x ),
                                  ( min(modif_e0/e[3],  dW.y) ),
-                                 ( dW.x ),                  
-                                 ( dW.x ),                  
+                                 ( dW.x ),
+                                 ( dW.x ),
                                  ( min(modif_e0/e[6],  dW.y) ),
-                                 ( dW.x ),                  
+                                 ( dW.x ),
                                  ( min(modif_e0/e[8],  dW.y) ),
                                  ( min(modif_e0/e[9],  dW.z) ),
                                  ( min(modif_e0/e[10], dW.z) ),
@@ -245,7 +247,8 @@ vec4 hook() {
     neg_scale = min(neg_scale, scale_lim*(1.0 - scale_cs) + neg_scale*scale_cs);
 
     // Soft limited anti-ringing with tanh, wpmean to control compression slope
-    sharpdiff = wpmean(max(sharpdiff, 0.0), soft_lim( max(sharpdiff, 0.0), pos_scale ), cs.x )
+    sharpdiff = (anime_mode ? 0. :
+                wpmean(max(sharpdiff, 0.0), soft_lim( max(sharpdiff, 0.0), pos_scale ), cs.x ))
               - wpmean(min(sharpdiff, 0.0), soft_lim( min(sharpdiff, 0.0), neg_scale ), cs.y );
 
     float sharpdiff_lim = sat(c0_Y + sharpdiff) - c0_Y;
