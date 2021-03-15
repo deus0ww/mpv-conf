@@ -127,7 +127,7 @@ vec4 hook() {
 	} else {
 		c_t = c;
 	}
-	return vec4(clamp(c_t + L_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y, MMKERNEL_tex(HOOKED_pos).z), HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(clamp(c_t + L_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y, MMKERNEL_tex(HOOKED_pos).z), HOOKED_tex(HOOKED_pos).yzw);
 }
 
 

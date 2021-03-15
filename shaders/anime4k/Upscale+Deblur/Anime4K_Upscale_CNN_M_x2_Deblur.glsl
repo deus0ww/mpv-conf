@@ -595,9 +595,9 @@ vec4 hook() {
 		c_t = pow(c_t, BLUR_CURVE);
 		c_t = c_t * t_range + NOISE_THRESHOLD;
 		c_t = c_t * sign(c);
-		return vec4(clamp(c_t + HOOKED_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y), HOOKED_tex(HOOKED_pos).yz, 0);
+		return vec4(clamp(c_t + HOOKED_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y), HOOKED_tex(HOOKED_pos).yzw);
 	} else {
-		return vec4(c + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yz, 0);
+		return vec4(c + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yzw);
 	}
 	
 }

@@ -186,7 +186,7 @@ vec4 hook() {
 
 vec4 hook() {
 	float c = (MMKERNEL_tex(HOOKED_pos).x) * STRENGTH;
-	return vec4(clamp(c + L_tex(HOOKED_pos).x, 0.0, L_tex(HOOKED_pos).x), HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(clamp(c + L_tex(HOOKED_pos).x, 0.0, L_tex(HOOKED_pos).x), HOOKED_tex(HOOKED_pos).yzw);
 }
 
 
@@ -198,7 +198,7 @@ vec4 hook() {
 //!SAVE LUMAD
 //!COMPONENTS 2
 
-#define L_tex NATIVE_tex
+#define L_tex HOOKED_tex
 
 vec4 hook() {
 	vec2 d = HOOKED_pt;
@@ -558,7 +558,7 @@ vec4 hook() {
 		c_t = c;
 	}
 	
-	return vec4(clamp(c_t + L_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y, MMKERNEL_tex(HOOKED_pos).z), HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(clamp(c_t + L_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y, MMKERNEL_tex(HOOKED_pos).z), HOOKED_tex(HOOKED_pos).yzw);
 }
 
 

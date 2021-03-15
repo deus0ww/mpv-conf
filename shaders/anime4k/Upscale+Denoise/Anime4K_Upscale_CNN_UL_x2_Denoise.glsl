@@ -3990,6 +3990,6 @@ vec4 hook() {
 	vec2 f = fract(LUMAN0_pos * LUMAN0_size);
 	ivec2 i = ivec2(f * vec2(2));
 	float c = LUMAN0_tex((vec2(0.5) - f) * LUMAN0_pt + LUMAN0_pos)[i.y * 2 + i.x];
-	return vec4(c + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(c + HOOKED_tex(HOOKED_pos).x, HOOKED_tex(HOOKED_pos).yzw);
 }
 

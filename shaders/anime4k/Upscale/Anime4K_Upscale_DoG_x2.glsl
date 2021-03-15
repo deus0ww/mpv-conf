@@ -117,7 +117,7 @@ vec4 hook() {
 
 vec4 hook() {
 	float c = (L_tex(HOOKED_pos).x - GAUSS_X2_tex(HOOKED_pos).x) * STRENGTH;
-	return vec4(clamp(c + L_tex(HOOKED_pos).x, GAUSS_X2_tex(HOOKED_pos).y, GAUSS_X2_tex(HOOKED_pos).z), HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(clamp(c + L_tex(HOOKED_pos).x, GAUSS_X2_tex(HOOKED_pos).y, GAUSS_X2_tex(HOOKED_pos).z), HOOKED_tex(HOOKED_pos).yzw);
 }
 
 

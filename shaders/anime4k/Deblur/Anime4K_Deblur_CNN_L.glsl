@@ -907,5 +907,5 @@ vec4 hook() {
 		c_t = c;
 	}
 	
-	return vec4(clamp(c_t + L_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y), HOOKED_tex(HOOKED_pos).yz, 0);
+	return vec4(clamp(c_t + L_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).x, MMKERNEL_tex(HOOKED_pos).y), HOOKED_tex(HOOKED_pos).yzw);
 }
