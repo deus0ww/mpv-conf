@@ -76,7 +76,7 @@
 #define sat(x)         ( clamp(x, 0.0, 1.0) )
 #define dxdy(val)      ( length(fwidth(val)) ) // edgemul = 2.2
 
-#define CtL(RGB)       ( dot(RGB*RGB, vec3(0.2126, 0.7152, 0.0722)) )
+#define CtL(RGB)       ( dot(RGB*RGB, vec3(0.212655, 0.715158, 0.072187)) )
 
 #define b_diff(pix)    ( abs(blur-c[pix]) )
 

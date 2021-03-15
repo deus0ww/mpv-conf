@@ -36,7 +36,7 @@
 #define SIGMA 1.0
 
 float gaussian(float x, float s, float m) {
-	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
+	return (1.0 / (s * sqrt(2.0 * 3.141592653589793))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
 }
 
 float lumGaussian(vec2 pos, vec2 d) {
@@ -75,7 +75,7 @@ vec4 hook() {
 #define SIGMA 1.0
 
 float gaussian(float x, float s, float m) {
-	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
+	return (1.0 / (s * sqrt(2.0 * 3.141592653589793))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
 }
 
 float lumGaussian(vec2 pos, vec2 d) {
@@ -114,7 +114,7 @@ vec4 hook() {
 #define SIGMA 1.0
 
 float gaussian(float x, float s, float m) {
-	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
+	return (1.0 / (s * sqrt(2.0 * 3.141592653589793))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
 }
 
 float lumGaussian(vec2 pos, vec2 d) {
@@ -153,7 +153,7 @@ vec4 hook() {
 #define SIGMA 1.0
 
 float gaussian(float x, float s, float m) {
-	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
+	return (1.0 / (s * sqrt(2.0 * 3.141592653589793))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
 }
 
 float lumGaussian(vec2 pos, vec2 d) {
