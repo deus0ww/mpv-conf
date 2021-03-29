@@ -21,9 +21,9 @@
 //!WHEN CHROMA.w LUMA.w <
 //!DESC KrigBilateral Downscaling Y 1
 
-#define offset      vec2(0,0)
+#define offset      vec2(0)
 
-#define axis 1
+#define axis        1
 
 #define Kernel(x)   dot(vec3(0.426590713671539, -0.496560619088564, 0.0768486672398968), cos(vec3(0, 1, 2) * acos(-1.) * (x + 1.)))
 
@@ -58,9 +58,9 @@ vec4 hook() {
 //!WHEN CHROMA.w LUMA.w <
 //!DESC KrigBilateral Downscaling Y 2
 
-#define offset      vec2(0,0)
+#define offset      vec2(0)
 
-#define axis 0
+#define axis        0
 
 #define Kernel(x)   dot(vec3(0.426590713671539, -0.496560619088564, 0.0768486672398968), cos(vec3(0, 1, 2) * acos(-1.) * (x + 1.)))
 
@@ -99,8 +99,7 @@ vec4 hook() {
 //!DESC KrigBilateral Upscaling UV
 
 #define sqr(x)      dot(x,x)
-#define bitnoise    1.0/(2.0*255.0)
-#define noise       0.05//5.0*bitnoise
+#define sigma_nsq   256.0/(255.0*255.0)
 
 #define N           8
 
@@ -114,8 +113,8 @@ vec4 hook() {
                     w = clamp(1.5 - abs(coords[i] - offset), 0.0, 1.0); \
                     total += w.x*w.y*vec4(X[i].x, X[i].x * X[i].x, X[i].y, 1.0);
 
-#define I3(f, n) f(n) f(n+1) f(n+2)
-#define I9(f, n) I3(f, n) I3(f, n+3) I3(f, n+6)
+#define I3(f, n)    f(n) f(n+1) f(n+2)
+#define I9(f, n)    I3(f, n) I3(f, n+3) I3(f, n+6)
 
 vec4 hook() {
     vec2 pos = CHROMA_pos * HOOKED_size - vec2(0.5);
@@ -134,7 +133,7 @@ vec4 hook() {
     I9(getnsum, 0)
 
     total.xyz /= total.w;
-    float localVar = sqr(noise) + abs(total.y - total.x * total.x) + total.z;
+    float localVar = sigma_nsq + abs(total.y - total.x * total.x) + total.z;
     float radius = 1.0;
 
     float y = LUMA_texOff(0).x;
