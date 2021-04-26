@@ -67,7 +67,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2020-09-20
+-- deus0ww - 2021-04-26
 
 ------------
 -- tn_osc --
@@ -2706,6 +2706,7 @@ end
 
 function render_wipe()
     msg.trace("render_wipe()")
+    state.osd.data = "" -- allows set_osd to immediately update on enable
     state.osd:remove()
 end
 
@@ -3020,7 +3021,7 @@ function tick()
         render()
     else
         -- Flush OSD
-        set_osd(osc_param.playresy, osc_param.playresy, "")
+        render_wipe()
     end
 
     state.tick_last_time = mp.get_time()
