@@ -1,4 +1,4 @@
--- deus0ww - 2021-01-29
+-- deus0ww - 2021-05-03
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -150,7 +150,7 @@ end
 local function exec_exist(name)
 	local delim = ':'
 	if OPERATING_SYSTEM == OS_WIN then delim, name = ';', name .. '.exe' end
-	local env_path = (os.getenv('PWD') or utils.getcwd()) .. delim .. os.getenv('PATH')
+	local env_path = (os.getenv('PWD') or mp.get_property('working-directory')) .. delim .. os.getenv('PATH')
 	for path_dir in env_path:gmatch('[^'..delim..']+') do
 		if file_exists(join_paths(path_dir, name)) then return true end
 	end

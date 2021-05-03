@@ -1,4 +1,4 @@
--- deus0ww - 2020-01-09
+-- deus0ww - 2021-05-03
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -82,7 +82,7 @@ local as_set  = 'set %s of every window of (every process whose unix id = %d) to
 local as_post = 'end tell'
 local as_get  = 'tell app "System Events" to get {position, size} of every window of (every process whose unix id = %d)'
 local cmd     = { name = 'subprocess', capture_stdout = true, capture_stderr = true, }
-local pid     = utils.getpid()
+local pid     = mp.get_property_number('pid')
 
 local function handle_error(desc, script, res)
 	if (res.error_string == 'killed') then
