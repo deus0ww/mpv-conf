@@ -1,4 +1,4 @@
--- deus0ww - 2020-03-12
+-- deus0ww - 2021-05-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -21,6 +21,7 @@ local host_profile = {
 	['WW-MP2008']  = 'ww-macpro-2008',
 	['WW-MBP2009'] = 'ww-mbp-2009',
 	['WW-MBP2012'] = 'ww-mbp-2012',
+	['WW-MINI']    = 'ww-mini',
 	['MAC']        = 'ww-mac',
 	['WIN']        = 'ww-pc',
 	['NIX']        = 'ww-nix',
