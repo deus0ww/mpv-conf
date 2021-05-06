@@ -8,7 +8,12 @@
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
 local utils   = require 'mp.utils'
+local opt     = require 'mp.options'
 
+local user_opts = {
+	exec_path = '',
+}
+opt.read_options(user_opts, mp.get_script_name())
 
 --------------
 -- Tag Info --
@@ -67,9 +72,9 @@ local function run_tag(cmd)
 	return results
 end
 
-local function add_tag(path, tag)  return run_tag({'tag', '-a', tag, path}) end
-local function del_tag(path, tag)  return run_tag({'tag', '-r', tag, path}) end
-local function read_tag(path)      return run_tag({'tag', '-l', '-N', '-g', path}) end
+local function add_tag(path, tag)  return run_tag({user_opts.exec_path .. 'tag', '-a', tag, path}) end
+local function del_tag(path, tag)  return run_tag({user_opts.exec_path .. 'tag', '-r', tag, path}) end
+local function read_tag(path)      return run_tag({user_opts.exec_path .. 'tag', '-l', '-N', '-g', path}) end
 
 
 ------------------
@@ -77,6 +82,7 @@ local function read_tag(path)      return run_tag({'tag', '-l', '-N', '-g', path
 ------------------
 local path = ''
 mp.register_event('file-loaded', function()
+	opt.read_options(user_opts, mp.get_script_name())
 	path = mp.get_property_native('path', '')
 	msg.debug('Tagger Loaded:', path)
 end)

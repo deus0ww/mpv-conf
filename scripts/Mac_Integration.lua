@@ -3,8 +3,12 @@
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
 local utils   = require 'mp.utils'
+local opt     = require 'mp.options'
 
-
+local user_opts = {
+	exec_path = '',
+}
+opt.read_options(user_opts, mp.get_script_name())
 
 local function subprocess(label, args)
 	-- msg.debug(label..'-Arg', utils.to_string(args))
@@ -47,6 +51,7 @@ end)
 
 -- Move to Trash -- Requires: https://github.com/ali-rantakari/trash
 mp.register_script_message('MoveToTrash', function()
+	opt.read_options(user_opts, mp.get_script_name())
 	if mp.get_property_native('demuxer-via-network', true) then 
 		mp.osd_message('Trashing failed: File is remote.')
 		return
@@ -59,7 +64,7 @@ mp.register_script_message('MoveToTrash', function()
 	end
 
 	msg.debug('Moving to Trash:', path)
-	local success, res = subprocess('MoveToTrash', {'trash', '-v',path })
+	local success, res = subprocess('MoveToTrash', {user_opts.exec_path .. 'trash', '-v',path })
 	mp.osd_message(success and 'Trashed' or 'Trashing failed: ' .. res.stderr)
 end)
 

@@ -1,4 +1,4 @@
--- deus0ww - 2019-11-08
+-- deus0ww - 2021-05-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -24,6 +24,7 @@ end
 local user_opts = {
 	-- General Options
 	exec       = 'subliminal',
+	exec_path  = '',
 	cache_dir  = '',
 	workers    = 4,
 	debug      = false,
@@ -60,7 +61,7 @@ end
 local function create_command()
 	local args = {}   -- https://subliminal.readthedocs.io/en/latest/user/cli.html
 	-- General Options
-	add_args(args, user_opts.exec)
+	add_args(args, user_opts.exec_path .. user_opts.exec)
 	add_args(args, '--cache-dir', user_opts.cache_dir)
 	add_args(args, '--addic7ed',      user_opts.addic7ed_username,      user_opts.addic7ed_password)
 	add_args(args, '--legendastv',    user_opts.legendastv_username,    user_opts.legendastv_password)
