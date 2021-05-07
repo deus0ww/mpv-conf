@@ -1,4 +1,4 @@
--- deus0ww - 2020-09-20
+-- deus0ww - 2021-05-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -69,8 +69,6 @@ end
 --------------------
 local function default_options()
 	return {
-		['scale']  = 'haasnsoft',
-		['cscale'] = 'haasnsoft',
 		['dscale'] = 'haasnsoft',
 		['sigmoid-upscaling'] = 'yes',
 	}
