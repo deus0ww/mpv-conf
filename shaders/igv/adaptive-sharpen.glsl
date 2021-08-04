@@ -50,14 +50,14 @@
 #define L_compr_low     0.167                // Light compression, default (0.167=~6x)
 #define L_compr_high    0.334                // Light compression, surrounded by edges (0.334=~3x)
 
-#define D_overshoot     0.009                // Max dark overshoot before compression [>0.001]
+#define D_overshoot     0.003                // Max dark overshoot before compression [>0.001]
 #define D_compr_low     0.250                // Dark compression, default (0.250=4x)
 #define D_compr_high    0.500                // Dark compression, surrounded by edges (0.500=2x)
 
 #define scale_lim       0.1                  // Abs max change before compression [>0.01]
 #define scale_cs        0.056                // Compression slope above scale_lim
 
-#define pm_p            0.5                  // Power mean p-value [>0-1.0]
+#define pm_p            1.0                  // Power mean p-value [>0-1.0]
 //-------------------------------------------------------------------------------------------------
 
 #define max4(a,b,c,d)  ( max(max(a, b), max(c, d)) )
@@ -76,7 +76,7 @@
 #define sat(x)         ( clamp(x, 0.0, 1.0) )
 #define dxdy(val)      ( length(fwidth(val)) ) // edgemul = 2.2
 
-#define CtL(RGB)       ( dot(RGB*RGB, vec3(0.212655, 0.715158, 0.072187)) )
+#define CtL(RGB)       ( sqrt(dot(RGB*RGB, vec3(0.212655, 0.715158, 0.072187))) )
 
 #define b_diff(pix)    ( abs(blur-c[pix]) )
 
@@ -144,7 +144,7 @@ vec4 hook() {
                              CtL(c[13]), CtL(c[14]), CtL(c[15]), CtL(c[16]), CtL(c[17]), CtL(c[18]),
                              CtL(c[19]), CtL(c[20]), CtL(c[21]), CtL(c[22]), CtL(c[23]), CtL(c[24]));
 
-    float c0_Y = sqrt(luma[0]);
+    float c0_Y = luma[0];
 
     // Precalculated default squared kernel weights
     const vec3 w1 = vec3(0.5,           1.0, 1.41421356237); // 0.25, 1.0, 2.0
@@ -189,7 +189,7 @@ vec4 hook() {
         lowthrsum   += lowthr / 12.0;
     }
 
-    neg_laplace = inversesqrt(weightsum / neg_laplace);
+    neg_laplace = neg_laplace / weightsum;
 
     // Compute sharpening magnitude function
     float sharpen_val = curve_height/(curve_height*curveslope*pow(edge, 3.5) + 0.625);
@@ -236,8 +236,8 @@ vec4 hook() {
         luma[i2-1] = min(temp, luma[i2-1]);
     }
 
-    float nmax = (max(sqrt(luma[23]), c0_Y)*2.0 + sqrt(luma[24]))/3.0;
-    float nmin = (min(sqrt(luma[1]),  c0_Y)*2.0 + sqrt(luma[0]))/3.0;
+    float nmax = (max(luma[23], c0_Y)*3.0 + luma[24])/4.0;
+    float nmin = (min(luma[1],  c0_Y)*3.0 + luma[0])/4.0;
 
     float min_dist  = min(abs(nmax - c0_Y), abs(c0_Y - nmin));
     float pos_scale = min_dist + L_overshoot;
