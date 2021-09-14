@@ -1,4 +1,4 @@
--- deus0ww - 2020-08-06
+-- deus0ww - 2021-08-18
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -104,9 +104,6 @@ add({
 		
 	-- https://ffmpeg.org/ffmpeg-filters.html#sofalizer
 		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:interpolate=yes',
-		
-	-- https://ffmpeg.org/ffmpeg-filters.html#bs2b
-		'bs2b=profile=jmeier',
 	},
 })
 
@@ -134,8 +131,9 @@ add({
 		-- m: Difference coefficient.		(2.5)
 		'extrastereo=m=1.25',
 		'extrastereo=m=1.50',
-		'extrastereo=m=1.75',
-		'extrastereo=m=2.00',
+		
+	-- https://ffmpeg.org/ffmpeg-filters.html#bs2b
+		'bs2b=profile=jmeier',
 	},
 })
 
