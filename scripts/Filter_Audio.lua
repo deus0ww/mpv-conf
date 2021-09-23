@@ -125,6 +125,7 @@ add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
 	default_on_load = false,
+	default_index = 1,
 	reset_on_load = false,
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#extrastereo
