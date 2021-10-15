@@ -443,10 +443,10 @@ local function create_ouput_dir(filepath, filename, dimension, rotate)
 	name = filename      -- Try unmodified path
 	msg.debug('Creating Output Dir: Trying', name)
 	basepath = join_paths(user_opts.cache_dir, name:sub(1, max_char))
-	success = create_dir(basepath)
+	-- success = create_dir(basepath)
 	
-	if not success then  -- Try path with only alphanumeric
-		name = filename:gsub('[^%w]+', ''):sub(1, max_char)
+	if not success then  -- Try path without two-bytes UTF-8 char and only alphanumerics
+		name = filename:gsub('[\192-\255][\128-\191]*', ''):gsub('[^%w]+', ''):sub(1, max_char)
 		msg.debug('Creating Output Dir: Trying', name)
 		basepath = join_paths(user_opts.cache_dir, name)
 		success = create_dir(basepath)
