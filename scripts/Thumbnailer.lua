@@ -443,9 +443,11 @@ local function create_ouput_dir(filepath, filename, dimension, rotate)
 	-- Try path without two-bytes UTF-8 char and only alphanumerics
 	name = filename:gsub('[\192-\255][\128-\191]*', ''):gsub('[^%w]+', ''):sub(1, max_char)
 	msg.debug('Creating Output Dir: Trying', name)
-	basepath = join_paths(user_opts.cache_dir, name)
-	success = create_dir(basepath)
-
+	if not is_empty(name) then
+		basepath = join_paths(user_opts.cache_dir, name)
+		success = create_dir(basepath)
+	end
+	
 	if not success then  -- Try hashed path
 		name = hash_string(filepath, filename):sub(1, max_char)
 		msg.debug('Creating Output Dir: Trying', name)
