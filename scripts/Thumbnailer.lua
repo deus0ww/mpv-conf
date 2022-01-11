@@ -1,4 +1,4 @@
--- deus0ww - 2021-10-15
+-- deus0ww - 2022-01-11
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -340,7 +340,7 @@ local function osc_set_options(is_visible)
 	return {
 		spacer        = user_opts.spacer,
 		show_progress = user_opts.show_progress,
-		scale         = state.scale,
+		scale         = state and state.scale or 1,
 		centered      = user_opts.centered,
 		visible       = osc_visible,
 	}
