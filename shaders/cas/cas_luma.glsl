@@ -35,7 +35,8 @@
 #define CONTRAST   0.4  // Adjusts the range the shader adapts to high contrast (0 is not all the way off).  Higher values = more high contrast sharpening.
 #define SHARPENING 1.0  // Adjusts sharpening intensity by averaging the original pixels to the sharpened result.
 
-const float peak = -1.0 / mix(8.0, 5.0, clamp(CONTRAST, 0.0, 1.0));
+const float peak       = -1.0 / (-3.0 * clamp(CONTRAST, 0.0, 1.0) + 8.0);
+const float sharpening = clamp(SHARPENING, 0.0, 1.0);
 
 vec4 hook() {
 	// fetch a 3x3 neighborhood around the pixel 'e',
@@ -70,7 +71,7 @@ vec4 hook() {
 	
 	// Shaping amount of sharpening.
 	vec3 wRGB = sqrt(ampRGB) * peak;
-	vec3 weightRGB = 1.0 + 4.0 * wRGB;
+	vec3 weightRGB = 4.0 * wRGB + 1.0;
 	
 	// Filter shape.
 	//  0 w 0
@@ -79,5 +80,5 @@ vec4 hook() {
 	vec3 window = (b + d) + (f + h);
 	vec3 outColor = clamp((window * wRGB + e.rgb) / weightRGB, 0.0, 1.0);
 	
-	return vec4(mix(e.rgb, outColor, SHARPENING), e.a);
+	return vec4(mix(e.rgb, outColor, sharpening), e.a);
 }
