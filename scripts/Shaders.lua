@@ -180,7 +180,6 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.asharpen
 	s[#s+1] = cas.rgb
 	o['dscale'] = is_low_fps() and 'robidoux' or 'haasnsoft'  -- For igv.ssds
-	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
 	return { shaders = s, options = o, label = 'Live Action' }
 end
 
@@ -195,7 +194,6 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.asharpen
 	s[#s+1] = cas.rgb
 	o['dscale'] = is_low_fps() and 'robidoux' or 'haasnsoft'  -- For igv.ssds
-	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
 	return { shaders = s, options = o, label = '3D Animated' }
 end
 
@@ -208,7 +206,6 @@ sets[#sets+1] = function()
 	s[#s+1] = a4k.thinlines_3l
 	s[#s+1] = igv.krig
 	s[#s+1] = igv.asharpen
-	o['sigmoid-upscaling'] = 'no'  -- For igv.asharpen
 	return { shaders = s, options = o, label = '2D Animated' }
 end
 

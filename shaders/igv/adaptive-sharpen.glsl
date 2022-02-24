@@ -25,7 +25,7 @@
 // Adaptive sharpen - version 2021-10-17
 // Tuned for use post-resize
 
-//!HOOK OUTPUT
+//!HOOK SCALED
 //!BIND HOOKED
 //!DESC Adaptive Sharpen [0.40]
 
