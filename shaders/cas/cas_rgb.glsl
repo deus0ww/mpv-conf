@@ -28,7 +28,7 @@
 // ============================================================================
 
 
-//!HOOK SCALED
+//!HOOK OUTPUT
 //!BIND HOOKED
 //!DESC Contrast Adaptive Sharpening [0.40]
 
