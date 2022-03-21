@@ -1,4 +1,4 @@
--- deus0ww - 2021-05-07
+-- deus0ww - 2022-03-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -160,6 +160,19 @@ local igv             = {
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
 	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
+}
+
+-- agyild's - https://gist.github.com/agyild
+local amd_path        = shaders_path .. 'agyild/amd/'
+local amd             = {
+	cas               = amd_path .. 'CAS.glsl',
+	cas_scaler        = amd_path .. 'CAS-scaled.glsl',
+	fsr               = amd_path .. 'fsr.glsl',
+}
+local nv_path         = shaders_path .. 'agyild/nvidia/'
+local nv              = {
+	scaler            = nv_path .. 'NVScaler.glsl',
+	sharpen           = nv_path .. 'NVSharpen.glsl',
 }
 
 
