@@ -761,7 +761,8 @@ end)
 -- On Video Params Change
 mp.observe_property('video-params', 'native', function(_, video_params)
 	if video_params and is_empty(video_params.dw, video_params.dh) then return end
-	if not video_params or not saved_state or (saved_state.input_fullpath ~= mp.get_property_native('path', '')) then
+	if not video_params then reset_all() end
+	if not saved_state or (saved_state.input_fullpath ~= mp.get_property_native('path', '')) then
 		delete_cache_subdir()
 		reset_all()
 		saved_state.video_params = video_params
