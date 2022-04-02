@@ -619,7 +619,6 @@ local function is_thumbnailable()
 			return false 
 		end
 	end
-	osc_update(nil, osc_set_options(true), nil)
 	return true
 end
 
