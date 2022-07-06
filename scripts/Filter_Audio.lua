@@ -1,4 +1,4 @@
--- deus0ww - 2021-08-18
+-- deus0ww - 2022-06-25
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -13,7 +13,8 @@ add({
 	reset_on_load = true,
 	filters = {
 	-- https://mpv.io/manual/master/#audio-filters-format
-		'format=float:srate=96000',
+		--'format=float:srate=96000',
+		'aresample=osr=96000:osf=fltp:cutoff=0.96:resampler=soxr:precision=33:dither_method=low_shibata:cheby=1',
 	},
 })
 
@@ -62,6 +63,7 @@ add({
 	name = 'Crystalizer',
 	filter_type = 'audio',
 	default_on_load = true,
+	default_index = 2,
 	reset_on_load = false,
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
@@ -124,7 +126,7 @@ add({
 add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
-	default_on_load = false,
+	default_on_load = true,
 	default_index = 1,
 	reset_on_load = false,
 	filters = {
