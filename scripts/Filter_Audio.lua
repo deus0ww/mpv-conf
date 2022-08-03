@@ -1,4 +1,4 @@
--- deus0ww - 2022-06-25
+-- deus0ww - 2022-08-04
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -30,10 +30,10 @@ add({
 		-- t: Type band-width of filter.
 		-- w: Band-width.					(0.707q)
 		-- n: Normalize						(disabled)
-		'lavfi=graph=[lowpass=frequency=8400,highpass=frequency=120]',
-		'lavfi=graph=[lowpass=frequency=7200,highpass=frequency=240]',
-		'lavfi=graph=[lowpass=frequency=6000,highpass=frequency=360]',
-		'lavfi=graph=[lowpass=frequency=4800,highpass=frequency=480]',
+		'lavfi=graph=[highpass=frequency=100,lowpass=frequency=12000]',
+		'lavfi=graph=[highpass=frequency=200,lowpass=frequency=10000]',
+		'lavfi=graph=[highpass=frequency=300,lowpass=frequency=8000]',
+		'lavfi=graph=[highpass=frequency=400,lowpass=frequency=6000]',
 	},
 })
 
@@ -60,34 +60,31 @@ add({
 })
 
 add({
-	name = 'Crystalizer',
-	filter_type = 'audio',
-	default_on_load = true,
-	default_index = 2,
-	reset_on_load = false,
-	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
-		-- i: Intensity of effect.			(2)				(0.0 - 10.0)
-		-- c: Enable Clipping.				(enabled)
-		'crystalizer=i=0.5',
-		'crystalizer=i=1.0',
-		'crystalizer=i=2.0',
-		'crystalizer=i=4.0',
-	},
-})
-
-add({
 	name = 'Compressor',
 	filter_type = 'audio',
 	reset_on_load = false,
 	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#compand
+	-- igh 
 		-- attack/decays					(0.3/0.8)		(ms)
 		-- soft-knee: Curve radius			(0.01)			(dB)
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|020/0', --  2:1
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|060/0', --  4:1
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|140/0', --  8:1
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|300/0', -- 16:1
+	},
+})
+
+add({
+	name = 'Normalize',
+	filter_type = 'audio',
+	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#dynaudnorm
+		-- f: Frame length.					(500)			(10 - 8000 ms)
+		-- g: Gaussian window size.			(31)			(3 - 301 odd-only)
+		-- p: Target Peak					(0.95)
+		-- m: Max gain factor				(10)			(1.0 - 100.0)
+		-- r: Target RMS					(0.0)			(0.0 - 1.0)
+		'dynaudnorm=framelen=250:gausssize=11:maxgain=12:peak=0.8:targetrms=0.8',
 	},
 })
 
@@ -110,16 +107,14 @@ add({
 })
 
 add({
-	name = 'Normalize',
+	name = 'ScaleTempo',
 	filter_type = 'audio',
 	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#dynaudnorm
-		-- f: Frame length.					(500)			(10 - 8000 ms)
-		-- g: Gaussian window size.			(31)			(3 - 301 odd-only)
-		-- p: Target Peak					(0.95)
-		-- m: Max gain factor				(10)			(1.0 - 100.0)
-		-- r: Target RMS					(0.0)			(0.0 - 1.0)
-		'dynaudnorm=framelen=250:gausssize=11:maxgain=12:peak=0.8:targetrms=0.8',
+	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
+		'scaletempo2=search-interval=30:window-size=20',
+		
+	-- https://mpv.io/manual/master/#audio-filters-rubberband
+		'rubberband=engine=finer:pitch=quality',
 	},
 })
 
@@ -133,7 +128,7 @@ add({
 	-- https://ffmpeg.org/ffmpeg-filters.html#extrastereo
 		-- m: Difference coefficient.		(2.5)
 		'extrastereo=m=1.25',
-		'extrastereo=m=1.50',
+		'extrastereo=m=2.50',
 		
 	-- https://ffmpeg.org/ffmpeg-filters.html#bs2b
 		'bs2b=profile=jmeier',
@@ -141,18 +136,17 @@ add({
 })
 
 add({
-	name = 'ScaleTempo',
+	name = 'Crystalizer',
 	filter_type = 'audio',
+	default_on_load = true,
+	default_index = 1,
+	reset_on_load = false,
 	filters = {
-	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
-		'scaletempo2=search-interval=30:window-size=20',
-		
-	-- https://mpv.io/manual/master/#audio-filters-scaletempo[
-		'scaletempo=stride=9:overlap=0.9:search=28',
-		
-	-- https://mpv.io/manual/master/#audio-filters-rubberband
-		'rubberband=pitch=quality:transients=crisp',
-		'rubberband=pitch=quality:transients=mixed',
+	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
+		-- i: Intensity of effect.			(2)				(0.0 - 10.0)
+		-- c: Enable Clipping.				(enabled)
+		'crystalizer=i=1.0',
+		'crystalizer=i=2.0',
 	},
 })
 
