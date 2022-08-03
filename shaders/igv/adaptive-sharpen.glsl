@@ -27,11 +27,11 @@
 
 //!HOOK SCALED
 //!BIND HOOKED
-//!DESC adaptive-sharpen
+//!DESC Adaptive Sharpen [0.60]
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    0.40                 // Main control of sharpening strength [>0]
+#define curve_height    0.60                 // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel
