@@ -1,4 +1,4 @@
--- deus0ww - 2022-08-04
+-- deus0ww - 2022-10-12
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -15,25 +15,6 @@ add({
 	-- https://mpv.io/manual/master/#audio-filters-format
 		--'format=float:srate=96000',
 		'aresample=osr=96000:osf=fltp:cutoff=0.96:resampler=soxr:precision=33:dither_method=low_shibata:cheby=1',
-	},
-})
-
-add({
-	name = 'VoicePass',
-	filter_type = 'audio',
-	reset_on_load = true,
-	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#highpass
-	-- https://ffmpeg.org/ffmpeg-filters.html#lowpass
-		-- f: Frequency in Hz. 				(3000)
-		-- p: Number of poles.				(2)
-		-- t: Type band-width of filter.
-		-- w: Band-width.					(0.707q)
-		-- n: Normalize						(disabled)
-		'lavfi=graph=[highpass=frequency=100,lowpass=frequency=12000]',
-		'lavfi=graph=[highpass=frequency=200,lowpass=frequency=10000]',
-		'lavfi=graph=[highpass=frequency=300,lowpass=frequency=8000]',
-		'lavfi=graph=[highpass=frequency=400,lowpass=frequency=6000]',
 	},
 })
 
@@ -56,6 +37,44 @@ add({
 		--'afftdn=nr=24:nf=-36',
 		--'afftdn=nr=30:nf=-36',
 		--'afftdn=nr=36:nf=-36',
+	},
+})
+
+add({
+	name = 'Crystalizer',
+	filter_type = 'audio',
+	default_on_load = true,
+	default_index = 2,
+	reset_on_load = false,
+	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
+		-- i: Intensity of effect.			(2)				(0.0 - 10.0)
+		-- c: Enable Clipping.				(enabled)
+		'crystalizer=i=1.0',
+		'crystalizer=i=1.2',
+		'crystalizer=i=1.4',
+		'crystalizer=i=1.6',
+		'crystalizer=i=1.8',
+		'crystalizer=i=2.0',
+	},
+})
+
+add({
+	name = 'VoicePass',
+	filter_type = 'audio',
+	reset_on_load = true,
+	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#highpass
+	-- https://ffmpeg.org/ffmpeg-filters.html#lowpass
+		-- f: Frequency in Hz. 				(3000)
+		-- p: Number of poles.				(2)
+		-- t: Type band-width of filter.
+		-- w: Band-width.					(0.707q)
+		-- n: Normalize						(disabled)
+		'lavfi=graph=[highpass=frequency=100,lowpass=frequency=12000]',
+		'lavfi=graph=[highpass=frequency=200,lowpass=frequency=10000]',
+		'lavfi=graph=[highpass=frequency=300,lowpass=frequency=8000]',
+		'lavfi=graph=[highpass=frequency=400,lowpass=frequency=6000]',
 	},
 })
 
@@ -107,18 +126,6 @@ add({
 })
 
 add({
-	name = 'ScaleTempo',
-	filter_type = 'audio',
-	filters = {
-	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
-		'scaletempo2=search-interval=30:window-size=20',
-		
-	-- https://mpv.io/manual/master/#audio-filters-rubberband
-		'rubberband=engine=finer:pitch=quality',
-	},
-})
-
-add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
 	default_on_load = true,
@@ -136,17 +143,14 @@ add({
 })
 
 add({
-	name = 'Crystalizer',
+	name = 'ScaleTempo',
 	filter_type = 'audio',
-	default_on_load = true,
-	default_index = 1,
-	reset_on_load = false,
 	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
-		-- i: Intensity of effect.			(2)				(0.0 - 10.0)
-		-- c: Enable Clipping.				(enabled)
-		'crystalizer=i=1.0',
-		'crystalizer=i=2.0',
+	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
+		'scaletempo2=search-interval=30:window-size=20',
+		
+	-- https://mpv.io/manual/master/#audio-filters-rubberband
+		'rubberband=engine=finer:pitch=quality:window=long:formant=preserved:channels=together',
 	},
 })
 
