@@ -596,15 +596,18 @@ local function append_filters(s, prop, prefix)
         end
 
         if f.label ~= nil then
-            n = "@" .. f.label .. ": " .. n
+            n =("%-18s %-12s"):format("@" .. f.label .. ":", n)
         end
 
+        local temp = {}
+        for key, _ in pairs(f.params) do table.insert(temp, key) end
+        table.sort(temp)
         local p = {}
-        for key,value in pairs(f.params) do
-            p[#p+1] = key .. "=" .. value
+        for _, key in ipairs(temp) do
+            p[#p+1] = key .. "=" .. f.params[key]
         end
         if #p > 0 then
-            p = " [" .. table.concat(p, " ") .. "]"
+            p = " [" .. table.concat(p, " "):gsub("@0=","") .. "]"
         else
             p = ""
         end
@@ -618,7 +621,7 @@ local function append_filters(s, prop, prefix)
         if length < o.filter_params_max_length then
             ret = table.concat(filters, ", ")
         else
-            local sep = format("{\\fn%s}", o.font) .. o.nl .. o.indent .. o.indent .. format("{\\fn%s}", o.font_mono_digits)
+            local sep = format("{\\fn%s}", o.font_mono) .. o.nl .. o.indent .. format("{\\fn%s}", o.font_mono)
             ret = sep .. table.concat(filters, sep)
         end
         s[#s+1] = o.nl .. o.indent .. b(prefix) .. o.prefix_sep .. ret
@@ -690,7 +693,7 @@ local function add_video(s)
     local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
     local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
 
-    append(s, "", {prefix=o.nl .. o.nl .. "Video:", nl="", indent=""})
+    append(s, "", {prefix=o.nl .. o.nl .. o.nl .. "Video:", nl="", indent=""})
     if append_property(s, "video-codec", {prefix_sep="", nl="", indent=""}) then
         append_property(s, "hwdec-current", {prefix="(hwdec:", nl="", indent=" ",
                          no_prefix_markup=true, suffix=")"}, {no=true, [""]=true})
@@ -762,7 +765,7 @@ local function add_audio(s)
         return
     end
 
-    append(s, "", {prefix=o.nl .. o.nl .. "Audio:", nl="", indent=""})
+    append(s, "", {prefix=o.nl .. o.nl .. o.nl .. "Audio:", nl="", indent=""})
     append_property(s, "audio-codec", {prefix_sep="", nl="", indent=""})
     local cc = append(s, r["channel-count"], {prefix="Channels:"})
     append(s, r["format"], {prefix="Format:", nl=cc and "" or o.nl})
