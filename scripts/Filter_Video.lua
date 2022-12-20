@@ -1,4 +1,4 @@
--- deus0ww - 2020-06-17
+-- deus0ww - 2022-12-12
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -48,9 +48,10 @@ add({
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#median
 	-- http://avisynth.nl/index.php/RemoveGrain
-		'removegrain=5',
-		'removegrain=2',
-		'removegrain=3',
+	-- http://web.archive.org/web/20130615165406/http://doom10.org/index.php?topic=2185.0
+		'removegrain=18',
+		'removegrain=17',
+		'removegrain=22',
 	},
 })
 

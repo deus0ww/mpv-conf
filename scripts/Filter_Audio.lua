@@ -1,4 +1,4 @@
--- deus0ww - 2022-10-12
+-- deus0ww - 2022-12-20
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -44,7 +44,7 @@ add({
 	name = 'Crystalizer',
 	filter_type = 'audio',
 	default_on_load = true,
-	default_index = 2,
+	default_index = 3,
 	reset_on_load = false,
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
@@ -129,12 +129,16 @@ add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
 	default_on_load = true,
-	default_index = 1,
+	default_index = 2,
 	reset_on_load = false,
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#extrastereo
 		-- m: Difference coefficient.		(2.5)
 		'extrastereo=m=1.25',
+		'extrastereo=m=1.50',
+		'extrastereo=m=1.75',
+		'extrastereo=m=2.00',
+		'extrastereo=m=2.25',
 		'extrastereo=m=2.50',
 		
 	-- https://ffmpeg.org/ffmpeg-filters.html#bs2b
