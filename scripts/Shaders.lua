@@ -166,7 +166,7 @@ local igv             = {
 local amd_path        = shaders_path .. 'agyild/amd/'
 local amd             = {
 	cas               = amd_path .. 'CAS.glsl',
-	cas_scaler        = amd_path .. 'CAS-scaled.glsl',
+	cas_scaled        = amd_path .. 'CAS-scaled.glsl',
 	fsr               = amd_path .. 'fsr.glsl',
 }
 
