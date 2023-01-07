@@ -1,4 +1,4 @@
--- deus0ww - 2022-03-21
+-- deus0ww - 2023-01-07
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -169,11 +169,6 @@ local amd             = {
 	cas_scaler        = amd_path .. 'CAS-scaled.glsl',
 	fsr               = amd_path .. 'fsr.glsl',
 }
-local nv_path         = shaders_path .. 'agyild/nvidia/'
-local nv              = {
-	scaler            = nv_path .. 'NVScaler.glsl',
-	sharpen           = nv_path .. 'NVSharpen.glsl',
-}
 
 
 
@@ -220,6 +215,21 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.krig
 	s[#s+1] = igv.asharpen
 	return { shaders = s, options = o, label = '2D Animated' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+		s[#s+1] = amd.fsr
+		s[#s+1] = igv.krig
+		s[#s+1] = amd.cas_scaled
+	return { shaders = s, options = o, label = 'Live Action - AMD' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+		s[#s+1] = igv.krig
+		s[#s+1] = (is_low_fps() and get_scale() > math.sqrt(2)) and igv.asharpen or nil
+	return { shaders = s, options = o, label = 'Animated' }
 end
 
 --	sets[#sets+1] = function() -- Anime4K Custom Enhance & Deblur
