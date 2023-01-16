@@ -160,6 +160,7 @@ local igv             = {
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
 	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
+	asharpen_luma     = igv_path .. 'adaptive-sharpen-luma.glsl',
 }
 
 -- agyild's - https://gist.github.com/agyild
@@ -220,8 +221,8 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 		s[#s+1] = amd.fsr
+		s[#s+1] = igv.asharpen_luma
 		s[#s+1] = igv.krig
-		s[#s+1] = amd.cas_scaled
 	return { shaders = s, options = o, label = 'Live Action - AMD' }
 end
 
