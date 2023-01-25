@@ -221,7 +221,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 		s[#s+1] = amd.fsr
-		s[#s+1] = igv.asharpen_luma
+		s[#s+1] = (is_low_fps() and get_scale() > math.sqrt(2)) and igv.asharpen_luma or nil
 		s[#s+1] = igv.krig
 	return { shaders = s, options = o, label = 'Live Action - AMD' }
 end
