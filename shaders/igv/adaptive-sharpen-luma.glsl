@@ -27,11 +27,11 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC Adaptive Sharpen [0.54]
+//!DESC Adaptive Sharpen [0.40]
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    0.54                 // Main control of sharpening strength [>0]
+#define curve_height    0.40                 // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel
@@ -41,14 +41,14 @@
 
 #define curveslope      0.5                  // Sharpening curve slope, high edge values
 
-#define L_compr_low     0.167                // Light compression, default (0.167=~6x)
-#define L_compr_high    0.334                // Light compression, surrounded by edges (0.334=~3x)
+#define L_compr_low     1/6                  // Light compression, default (0.167=~6x)
+#define L_compr_high    1/3                  // Light compression, surrounded by edges (0.334=~3x)
 
-#define D_compr_low     0.250                // Dark compression, default (0.250=4x)
-#define D_compr_high    0.500                // Dark compression, surrounded by edges (0.500=2x)
+#define D_compr_low     1/4                  // Dark compression, default (0.250=4x)
+#define D_compr_high    1/2                  // Dark compression, surrounded by edges (0.500=2x)
 
 #define scale_lim       0.1                  // Abs max change before compression [>0.01]
-#define scale_cs        0.056                // Compression slope above scale_lim
+#define scale_cs        1/18                 // Compression slope above scale_lim
 
 #define pm_p            1.0                  // Power mean p-value [>0-1.0]
 //-------------------------------------------------------------------------------------------------
