@@ -43,23 +43,26 @@ on_opts_update()
 local props, last_shaders
 local function reset()
 	props = {
-		['dwidth']              = -1,
-		['dheight']             = -1,
-		['osd-width']           = -1,
-		['osd-height']          = -1,
-		['container-fps']       = -1,
-		['video-params/rotate'] = -1,
+		['dwidth']                   = -1,
+		['dheight']                  = -1,
+		['osd-width']                = -1,
+		['osd-height']               = -1,
+		['container-fps']            = -1,
+		['video-params/rotate']      = -1,
+		['video-params/colormatrix'] = '',
 	}
 end
 reset()
 
 local function is_initialized()
-	return ((props['dwidth']              >  0) and
-            (props['dheight']             >  0) and
-            (props['osd-width']           >  0) and
-            (props['osd-height']          >  0) and
-            (props['container-fps']       >  0) and
-            (props['video-params/rotate'] >= 0))
+	return ((props['dwidth']                   >   0) and
+			(props['dheight']                  >   0) and
+			(props['osd-width']                >   0) and
+			(props['osd-height']               >   0) and
+			(props['container-fps']            >   0) and
+			(props['video-params/rotate']      >=  0) and
+			(props['video-params/colormatrix'] ~= '')
+			)
 end
 
 
@@ -75,7 +78,8 @@ local function default_options()
 end
 
 local function is_high_fps() return props['container-fps'] > opts.hifps_threshold end
-local function is_low_fps()  return not is_high_fps() end
+local function is_low_fps()  return props['container-fps'] > 0 and not is_high_fps() end
+local function is_rgb()      return props['video-params/colormatrix'] == 'rgb' end
 local function get_scale()
 	local dwidth, dheight = props['dwidth'], props['dheight']
 	if (props['video-params/rotate'] % 180) ~= 0 then dwidth, dheight = dheight, dwidth end
@@ -220,8 +224,9 @@ end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-		s[#s+1] = amd.fsr
-		s[#s+1] = (is_low_fps() and get_scale() > math.sqrt(2)) and igv.asharpen_luma or nil
+		s[#s+1] = is_low_fps() and amd.fsr or nil
+		s[#s+1] = is_low_fps() and igv.asharpen_luma or nil
+		s[#s+1] = (is_low_fps() and is_rgb()) and igv.asharpen or nil
 		s[#s+1] = igv.krig
 	return { shaders = s, options = o, label = 'Live Action - AMD' }
 end
