@@ -21,12 +21,12 @@ add({
 		-- mode: pc, pc_n, pc_u, pc_n_ub, pcn, pcn_ub	(pc_n)
 		-- combmatch: none, sc, full		(sc)
 	-- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
-		'bwdif',
-		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif]',
-		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate]',
 		'bwdif=mode=send_frame',
 		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame]',
 		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate]',
+		'bwdif',
+		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif]',
+		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate]',
 	},
 })
 
