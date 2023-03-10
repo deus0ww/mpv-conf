@@ -172,7 +172,7 @@ local amd_path        = shaders_path .. 'agyild/amd/'
 local amd             = {
 	cas               = amd_path .. 'CAS.glsl',
 	cas_scaled        = amd_path .. 'CAS-scaled.glsl',
-	fsr               = amd_path .. 'fsr.glsl',
+	fsr               = amd_path .. 'FSR.glsl',
 }
 
 
@@ -228,15 +228,10 @@ sets[#sets+1] = function()
 		s[#s+1] = is_low_fps() and igv.asharpen_luma or nil
 		s[#s+1] = (is_low_fps() and is_rgb()) and igv.asharpen or nil
 		s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'Live Action - AMD' }
+	return { shaders = s, options = o, label = 'Live Action - AMD FSR + AS' }
 end
 
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-		s[#s+1] = igv.krig
-		s[#s+1] = (is_low_fps() and get_scale() > math.sqrt(2)) and igv.asharpen or nil
-	return { shaders = s, options = o, label = 'Animated' }
-end
+
 
 --	sets[#sets+1] = function() -- Anime4K Custom Enhance & Deblur
 --		local s, o, scale = {}, default_options(), get_scale()
