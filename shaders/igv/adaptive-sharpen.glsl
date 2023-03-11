@@ -27,7 +27,7 @@
 
 //!HOOK SCALED
 //!BIND HOOKED
-//!DESC Adaptive Sharpen RGB [0.60]
+//!DESC Adaptive Sharpen [0.60]
 
 //--------------------------------------- Settings ------------------------------------------------
 
