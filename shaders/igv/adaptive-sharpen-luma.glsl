@@ -27,7 +27,7 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC Adaptive Sharpen LUMA [0.52]
+//!DESC Adaptive Sharpen [0.52]
 
 //--------------------------------------- Settings ------------------------------------------------
 
