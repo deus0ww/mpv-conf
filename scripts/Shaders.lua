@@ -72,7 +72,7 @@ end
 --------------------
 local function default_options()
 	return {
-		['dscale'] = 'ewa_lanczossoft',
+		['dscale'] = 'haasnsoft',
 		['sigmoid-upscaling'] = 'yes',
 	}
 end
