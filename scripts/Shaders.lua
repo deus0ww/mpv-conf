@@ -80,6 +80,7 @@ end
 local function is_high_fps() return props['container-fps'] > opts.hifps_threshold end
 local function is_low_fps()  return props['container-fps'] > 0 and not is_high_fps() end
 local function is_rgb()      return props['video-params/colormatrix'] == 'rgb' end
+local function is_hdr()      return props['video-params/colormatrix']:find('bt.2020') ~= nil end
 local function get_scale()
 	local dwidth, dheight = props['dwidth'], props['dheight']
 	if (props['video-params/rotate'] % 180) ~= 0 then dwidth, dheight = dheight, dwidth end
@@ -173,6 +174,7 @@ local amd             = {
 	cas               = amd_path .. 'CAS.glsl',
 	cas_scaled        = amd_path .. 'CAS-scaled.glsl',
 	fsr               = amd_path .. 'FSR.glsl',
+	fsr_as            = amd_path .. 'FSR_AS.glsl',
 }
 
 
@@ -222,13 +224,26 @@ sets[#sets+1] = function()
 	return { shaders = s, options = o, label = '2D Animated' }
 end
 
+
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	if is_low_fps() and not is_hdr() then
+		s[#s+1] = scale <= 1 and igv.asharpen_luma or amd.fsr_as
+		s[#s+1] = scale <= 1 and cas.luma or nil
+		s[#s+1] = is_rgb() and igv.asharpen or nil
+	end
+	s[#s+1] = igv.krig
+	return { shaders = s, options = o, label = 'FSR AS Hybrid' }
+end
+
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 		s[#s+1] = is_low_fps() and amd.fsr or nil
 		s[#s+1] = is_low_fps() and igv.asharpen_luma or nil
 		s[#s+1] = (is_low_fps() and is_rgb()) and igv.asharpen or nil
 		s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'Live Action - AMD FSR + AS' }
+	return { shaders = s, options = o, label = 'FSR + AS' }
 end
 
 
