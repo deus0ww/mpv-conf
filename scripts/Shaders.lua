@@ -11,20 +11,20 @@ local opts = {
 	set_timer        = 1/3,
 	hifps_threshold  = 30,
 
-	default_index    = 1,        -- Default shader set
+	default_index    = 4,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 3,        -- Shader set index to enable
+	preset_1_index   = 5,        -- Shader set index to enable
 
 	preset_2_enabled = true,
 	preset_2_path    = 'cartoon',
-	preset_2_index   = 3,
+	preset_2_index   = 5,
 
 	preset_3_enabled = false,
 	preset_3_path    = '%[.+%]',
-	preset_3_index   = 3,
+	preset_3_index   = 5,
 }
 
 local current_index, enabled
@@ -174,7 +174,9 @@ local amd             = {
 	cas               = amd_path .. 'CAS.glsl',
 	cas_scaled        = amd_path .. 'CAS-scaled.glsl',
 	fsr               = amd_path .. 'FSR.glsl',
-	fsr_as            = amd_path .. 'FSR_AS.glsl',
+	fsr_as_low        = amd_path .. 'FSR_AS_low.glsl',
+	fsr_as_high       = amd_path .. 'FSR_AS_high.glsl',
+	fsr_rcas          = amd_path .. 'FSR_RCAS.glsl',
 }
 
 
@@ -229,21 +231,21 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale <= 1 and igv.asharpen_luma or amd.fsr_as
-		s[#s+1] = scale <= 1 and cas.luma or nil
+		s[#s+1] = scale > 1 and amd.fsr_as_low or amd.fsr_rcas
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR AS Hybrid' }
+	return { shaders = s, options = o, label = 'FSR  AS(0.3)  RCAS(0.9)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-		s[#s+1] = is_low_fps() and amd.fsr or nil
-		s[#s+1] = is_low_fps() and igv.asharpen_luma or nil
-		s[#s+1] = (is_low_fps() and is_rgb()) and igv.asharpen or nil
-		s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR + AS' }
+	if is_low_fps() and not is_hdr() then
+		s[#s+1] = scale > 1 and amd.fsr_as_high or amd.fsr_rcas
+		s[#s+1] = is_rgb() and igv.asharpen or nil
+	end
+	s[#s+1] = igv.krig
+	return { shaders = s, options = o, label = 'FSR  AS(0.6)  RCAS(1.2)' }
 end
 
 

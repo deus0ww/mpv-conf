@@ -394,11 +394,11 @@ vec4 hook() {
 //!SAVE EASUTEX
 //!WIDTH EASUTEX.w
 //!HEIGHT EASUTEX.h
-//!DESC Adaptive Sharpen [0.4]
+//!DESC Adaptive Sharpen [0.3]
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    0.4                  // Main control of sharpening strength [>0]
+#define curve_height    0.3                  // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel
@@ -595,14 +595,14 @@ vec4 hook() {
 
 //!HOOK LUMA
 //!BIND EASUTEX
-//!DESC FidelityFX Super Resolution v1.0.2 (RCAS) [0.6]
+//!DESC FidelityFX Super Resolution v1.0.2 (RCAS) [0.9]
 //!WIDTH EASUTEX.w
 //!HEIGHT EASUTEX.h
 //!COMPONENTS 1
 
 // User variables - RCAS
-#define SHARPNESS 0.6 // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
-#define FSR_RCAS_DENOISE 0 // If set to 1, lessens the sharpening on noisy areas. Can be disabled for better performance. 0 or 1.
+#define SHARPNESS 0.9 // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
+#define FSR_RCAS_DENOISE 1 // If set to 1, lessens the sharpening on noisy areas. Can be disabled for better performance. 0 or 1.
 #define FSR_PQ 0 // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
 
 // Shader code
