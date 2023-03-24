@@ -1,4 +1,4 @@
--- deus0ww - 2022-12-20
+-- deus0ww - 2023-03-24
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -41,25 +41,6 @@ add({
 })
 
 add({
-	name = 'Crystalizer',
-	filter_type = 'audio',
-	default_on_load = true,
-	default_index = 3,
-	reset_on_load = false,
-	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
-		-- i: Intensity of effect.			(2)				(0.0 - 10.0)
-		-- c: Enable Clipping.				(enabled)
-		'crystalizer=i=1.0',
-		'crystalizer=i=1.2',
-		'crystalizer=i=1.4',
-		'crystalizer=i=1.6',
-		'crystalizer=i=1.8',
-		'crystalizer=i=2.0',
-	},
-})
-
-add({
 	name = 'VoicePass',
 	filter_type = 'audio',
 	reset_on_load = true,
@@ -75,6 +56,24 @@ add({
 		'lavfi=graph=[highpass=frequency=200,lowpass=frequency=10000]',
 		'lavfi=graph=[highpass=frequency=300,lowpass=frequency=8000]',
 		'lavfi=graph=[highpass=frequency=400,lowpass=frequency=6000]',
+	},
+})
+
+add({
+	name = 'Downmix',
+	filter_type = 'audio',
+	default_on_load = true,
+	reset_on_load = false,
+	filters = { 
+	-- https://ffmpeg.org/ffmpeg-filters.html#pan
+		-- -3dB=0.707, -6dB=0.500, -9dB=0.353, -12dB=0.250, -15dB=0.177
+		'pan=stereo|FL<0.707*FC+1.000*FL+0.500*SL+0.500*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.500*SR+0.500*BR+0.500*LFE',
+		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.500*LFE', -- ATSC + LFE
+		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.000*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.000*LFE', -- ATSC
+		'pan=stereo|FL<1.000*FC+0.707*FL+0.500*SL+0.500*BL+0.000*LFE|FR<1.000*FC+0.707*FR+0.500*SR+0.500*BR+0.000*LFE', -- Nightmode
+		
+	-- https://ffmpeg.org/ffmpeg-filters.html#sofalizer
+		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:interpolate=yes',
 	},
 })
 
@@ -108,24 +107,6 @@ add({
 })
 
 add({
-	name = 'Downmix',
-	filter_type = 'audio',
-	default_on_load = true,
-	reset_on_load = false,
-	filters = { 
-	-- https://ffmpeg.org/ffmpeg-filters.html#pan
-		-- -3dB=0.707, -6dB=0.500, -9dB=0.353, -12dB=0.250, -15dB=0.177
-		'pan=stereo|FL<0.707*FC+1.000*FL+0.500*SL+0.500*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.500*SR+0.500*BR+0.500*LFE',
-		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.500*LFE', -- ATSC + LFE
-		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.000*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.000*LFE', -- ATSC
-		'pan=stereo|FL<1.000*FC+0.707*FL+0.500*SL+0.500*BL+0.000*LFE|FR<1.000*FC+0.707*FR+0.500*SR+0.500*BR+0.000*LFE', -- Nightmode
-		
-	-- https://ffmpeg.org/ffmpeg-filters.html#sofalizer
-		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:interpolate=yes',
-	},
-})
-
-add({
 	name = 'ExtraStereo',
 	filter_type = 'audio',
 	default_on_load = true,
@@ -143,6 +124,25 @@ add({
 		
 	-- https://ffmpeg.org/ffmpeg-filters.html#bs2b
 		'bs2b=profile=jmeier',
+	},
+})
+
+add({
+	name = 'Crystalizer',
+	filter_type = 'audio',
+	default_on_load = true,
+	default_index = 3,
+	reset_on_load = false,
+	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
+		-- i: Intensity of effect.			(2)				(0.0 - 10.0)
+		-- c: Enable Clipping.				(enabled)
+		'crystalizer=i=1.0',
+		'crystalizer=i=1.2',
+		'crystalizer=i=1.4',
+		'crystalizer=i=1.6',
+		'crystalizer=i=1.8',
+		'crystalizer=i=2.0',
 	},
 })
 
