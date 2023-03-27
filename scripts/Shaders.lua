@@ -77,7 +77,10 @@ local function default_options()
 	}
 end
 
-local function is_high_fps() return props['container-fps'] > opts.hifps_threshold end
+local function is_high_fps()
+	return props['container-fps']    > opts.hifps_threshold or 
+		   (mp.get_property_native('estimated-vf-fps') or 0) > opts.hifps_threshold
+end
 local function is_low_fps()  return props['container-fps'] > 0 and not is_high_fps() end
 local function is_rgb()      return props['video-params/colormatrix'] == 'rgb' end
 local function is_hdr()      return props['video-params/colormatrix']:find('bt.2020') ~= nil end
