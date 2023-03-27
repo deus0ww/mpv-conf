@@ -692,6 +692,7 @@ local function add_video(s)
     local osd_dims = mp.get_property_native("osd-dimensions")
     local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
     local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
+    local actual_scale = ('%.3f'):format(math.sqrt((scaled_width * scaled_height) / (r["w"] * r["h"])))
 
     append(s, "", {prefix=o.nl .. o.nl .. o.nl .. "Video:", nl="", indent=""})
     if append_property(s, "video-codec", {prefix_sep="", nl="", indent=""}) then
@@ -728,6 +729,7 @@ local function add_video(s)
         append(s, scaled_height, {prefix="x", nl="", indent=" ", prefix_sep=" ", no_prefix_markup=true})
     end
     append_property(s, "current-window-scale", {prefix="Window Scale:"})
+    append(s, actual_scale, {prefix="Actual Scale:"})
     if r["aspect"] ~= nil then
         append(s, format("%.2f", r["aspect"]), {prefix="Aspect Ratio:"})
     end
