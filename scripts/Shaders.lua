@@ -168,7 +168,8 @@ local igv             = {
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
 	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
-	asharpen_luma     = igv_path .. 'adaptive-sharpen-luma.glsl',
+	asharpen_luma_low = igv_path .. 'adaptive-sharpen_luma_low.glsl',
+	asharpen_luma_high= igv_path .. 'adaptive-sharpen_luma_high.glsl',
 }
 
 -- agyild's - https://gist.github.com/agyild
@@ -177,9 +178,10 @@ local amd             = {
 	cas               = amd_path .. 'CAS.glsl',
 	cas_scaled        = amd_path .. 'CAS-scaled.glsl',
 	fsr               = amd_path .. 'FSR.glsl',
-	fsr_as_low        = amd_path .. 'FSR_AS_low.glsl',
-	fsr_as_high       = amd_path .. 'FSR_AS_high.glsl',
-	fsr_rcas          = amd_path .. 'FSR_RCAS.glsl',
+	fsr_easu          = amd_path .. 'FSR_EASU.glsl',
+	fsr_rcas_low      = amd_path .. 'FSR_RCAS_low.glsl',
+	fsr_rcas_mid      = amd_path .. 'FSR_RCAS_mid.glsl',
+	fsr_rcas_high     = amd_path .. 'FSR_RCAS_high.glsl',
 }
 
 
@@ -234,21 +236,25 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale > 1 and amd.fsr_as_low or amd.fsr_rcas
+		s[#s+1] = amd.fsr_easu
+		s[#s+1] = scale > 1 and igv.asharpen_luma_low or nil
+		s[#s+1] = scale > 1 and amd.fsr_rcas_mid or amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR  AS(0.3)  RCAS(0.9)' }
+	return { shaders = s, options = o, label = 'FSR  AS(low)  RCAS(mid)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale > 1 and amd.fsr_as_high or amd.fsr_rcas
+		s[#s+1] = amd.fsr_easu
+		s[#s+1] = scale > 1 and igv.asharpen_luma_high or nil
+		s[#s+1] = scale > 1 and amd.fsr_rcas_low or amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR  AS(0.6)  RCAS(1.2)' }
+	return { shaders = s, options = o, label = 'FSR  AS(high)  RCAS(low)' }
 end
 
 

@@ -24,6 +24,7 @@
 //!HOOK LUMA
 //!BIND HOOKED
 //!DESC FidelityFX Super Resolution v1.0.2 (RCAS) [0.4]
+//!COMPONENTS 1
 
 // User variables - RCAS
 #define SHARPNESS 0.4 // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
