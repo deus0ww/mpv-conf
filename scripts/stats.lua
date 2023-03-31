@@ -693,6 +693,7 @@ local function add_video(s)
     local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
     local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
     local actual_scale = ('%.3f'):format(math.sqrt((scaled_width * scaled_height) / (r["w"] * r["h"])))
+    local frametime = 1000 / (mp.get_property_native("container-fps") or mp.get_property_native("estimated-vf-fps"))
 
     append(s, "", {prefix=o.nl .. o.nl .. o.nl .. "Video:", nl="", indent=""})
     if append_property(s, "video-codec", {prefix_sep="", nl="", indent=""}) then
@@ -718,6 +719,7 @@ local function add_video(s)
         append_property(s, "estimated-vf-fps",
                         {prefix="FPS:", suffix=" (estimated)"})
     end
+    append(s, frametime, {prefix="Frame Time:", nl="", suffix=" ms"})
 
     append_display_sync(s)
     append_perfdata(s, o.print_perfdata_passes)
@@ -725,11 +727,11 @@ local function add_video(s)
     if append(s, r["w"], {prefix="Native Resolution:"}) then
         append(s, r["h"], {prefix="x", nl="", indent=" ", prefix_sep=" ", no_prefix_markup=true})
     end
-    if append(s, scaled_width, {prefix="Scaled Resolution:"}) then
+    if append(s, scaled_width, {prefix="Scaled Resolution:", nl=""}) then
         append(s, scaled_height, {prefix="x", nl="", indent=" ", prefix_sep=" ", no_prefix_markup=true})
     end
     append_property(s, "current-window-scale", {prefix="Window Scale:"})
-    append(s, actual_scale, {prefix="Actual Scale:"})
+    append(s, actual_scale, {prefix="Actual Scale:", nl=""})
     if r["aspect"] ~= nil then
         append(s, format("%.2f", r["aspect"]), {prefix="Aspect Ratio:"})
     end
