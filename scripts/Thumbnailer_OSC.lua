@@ -915,7 +915,7 @@ local elements = {}
 
 function prepare_elements()
 
-    -- remove elements without layout or invisble
+    -- remove elements without layout or invisible
     local elements2 = {}
     for n, element in pairs(elements) do
         if not (element.layout == nil) and (element.visible) then
@@ -2665,11 +2665,13 @@ function update_margins()
 
     utils.shared_script_property_set("osc-margins",
         string.format("%f,%f,%f,%f", margins.l, margins.r, margins.t, margins.b))
+    mp.set_property_native("user-data/osc/margins", margins)
 end
 
 function shutdown()
     reset_margins()
     utils.shared_script_property_set("osc-margins", nil)
+    mp.del_property("user-data/osc")
 end
 
 --
@@ -2793,7 +2795,7 @@ function render()
 
     -- init management
     if state.active_element then
-        -- mouse is held down on some element - keep ticking and igore initReq
+        -- mouse is held down on some element - keep ticking and ignore initReq
         -- till it's released, or else the mouse-up (click) will misbehave or
         -- get ignored. that's because osc_init() recreates the osc elements,
         -- but mouse handling depends on the elements staying unmodified
@@ -3325,6 +3327,7 @@ function visibility_mode(mode, no_osd)
 
     user_opts.visibility = mode
     utils.shared_script_property_set("osc-visibility", mode)
+    mp.set_property_native("user-data/osc/visibility", mode)
 
     if not no_osd and tonumber(mp.get_property("osd-level")) >= 1 then
         mp.osd_message("OSC visibility: " .. mode)
@@ -3357,6 +3360,7 @@ function idlescreen_visibility(mode, no_osd)
     end
 
     utils.shared_script_property_set("osc-idlescreen", mode)
+    mp.set_property_native("user-data/osc/idlescreen", user_opts.idlescreen)
 
     if not no_osd and tonumber(mp.get_property("osd-level")) >= 1 then
         mp.osd_message("OSC logo visibility: " .. tostring(mode))
