@@ -693,7 +693,7 @@ local function add_video(s)
     local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
     local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
     local actual_scale = ('%.3f'):format(math.sqrt((scaled_width * scaled_height) / (r["w"] * r["h"])))
-    local frametime = 1000 / (mp.get_property_native("container-fps") or mp.get_property_native("estimated-vf-fps"))
+    local frametime = ("%2.0f"):format(1000 / (mp.get_property_native("container-fps") or mp.get_property_native("estimated-vf-fps")))
 
     append(s, "", {prefix=o.nl .. o.nl .. o.nl .. "Video:", nl="", indent=""})
     if append_property(s, "video-codec", {prefix_sep="", nl="", indent=""}) then
