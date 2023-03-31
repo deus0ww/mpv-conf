@@ -236,6 +236,8 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
+		s[#s+1] = scale >= 3 and a4k.denoise_cnn_020 or nil
+		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_low or nil
 		s[#s+1] = scale > 1 and amd.fsr_rcas_mid or amd.fsr_rcas_high
@@ -248,9 +250,11 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
+		s[#s+1] = scale >= 3 and a4k.denoise_cnn_040 or nil
+		s[#s+1] = scale >= 4 and igv.fsrcnnx_8l or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_high or nil
-		s[#s+1] = scale > 1 and amd.fsr_rcas_low or amd.fsr_rcas_high
+		s[#s+1] = scale > 1 and amd.fsr_rcas_low or amd.fsr_rcas_mid
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
