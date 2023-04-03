@@ -250,7 +250,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale >= 3 and a4k.denoise_cnn_high or nil
+		s[#s+1] = scale >= 3 and a4k.denoise_cnn_mid or nil
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8l or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_high or nil
