@@ -129,10 +129,10 @@ local a4k             = {
 	denoise_mean      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
 	denoise_median    = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
 	denoise_mode      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
-	denoise_cnn_100   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
-	denoise_cnn_040   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_040.glsl',
-	denoise_cnn_030   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_030.glsl',
-	denoise_cnn_020   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_020.glsl',
+	denoise_cnn_full  = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
+	denoise_cnn_high  = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_high.glsl',
+	denoise_cnn_mid   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
+	denoise_cnn_low   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_low.glsl',
 
 	darklines_1       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_VeryFast.glsl',
 	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
@@ -193,7 +193,7 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = a4k.denoise_cnn_020
+	s[#s+1] = a4k.denoise_cnn_low
 	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
 	s[#s+1] = igv.krig
@@ -207,7 +207,7 @@ end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = a4k.denoise_cnn_030
+	s[#s+1] = a4k.denoise_cnn_mid
 	s[#s+1] = igv.fsrcnnx_8
 	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
 	s[#s+1] = igv.krig
@@ -221,7 +221,7 @@ end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = a4k.denoise_cnn_040
+	s[#s+1] = a4k.denoise_cnn_high
 	s[#s+1] = igv.fsrcnnx_8l
 	s[#s+1] = is_low_fps() and igv.fsrcnnx_8l or nil
 	s[#s+1] = a4k.darklines_3l
@@ -236,7 +236,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale >= 3 and a4k.denoise_cnn_020 or nil
+		s[#s+1] = scale >= 3 and a4k.denoise_cnn_low or nil
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_low or nil
@@ -250,7 +250,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale >= 3 and a4k.denoise_cnn_040 or nil
+		s[#s+1] = scale >= 3 and a4k.denoise_cnn_high or nil
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8l or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_high or nil
