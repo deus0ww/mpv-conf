@@ -11,20 +11,20 @@ local opts = {
 	set_timer        = 1/3,
 	hifps_threshold  = 30,
 
-	default_index    = 4,        -- Default shader set
+	default_index    = 1,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 5,        -- Shader set index to enable
+	preset_1_index   = 2,        -- Shader set index to enable
 
 	preset_2_enabled = true,
 	preset_2_path    = 'cartoon',
-	preset_2_index   = 5,
+	preset_2_index   = 2,
 
 	preset_3_enabled = false,
 	preset_3_path    = '%[.+%]',
-	preset_3_index   = 5,
+	preset_3_index   = 2,
 }
 
 local current_index, enabled
@@ -101,53 +101,28 @@ local shaders_path = '~~/shaders/'
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local a4k_path        = shaders_path .. 'anime4k/'
 local a4k             = {
-	downscale         = a4k_path .. 'Upscale/Anime4K_Auto_Downscale_Pre_x4.glsl',
+	clamp             = a4k_path .. 'Anime4K_Clamp_Highlights.glsl',
+	darken_1          = a4k_path .. 'Anime4K_Darken_VeryFast.glsl',
+	darken_2          = a4k_path .. 'Anime4K_Darken_Fast.glsl',
+	darken_3          = a4k_path .. 'Anime4K_Darken_HQ.glsl',
+	deblur_1          = a4k_path .. 'Anime4K_Deblur_Original.glsl',
+	deblur_2          = a4k_path .. 'Anime4K_Deblur_DoG.glsl',
+	thin_1            = a4k_path .. 'Anime4K_Thin_VeryFast.glsl',
+	thin_2            = a4k_path .. 'Anime4K_Thin_Fast.glsl',
+	thin_3            = a4k_path .. 'Anime4K_Thin_HQ.glsl',
 
-	upscale_1         = a4k_path .. 'Upscale/Anime4K_Upscale_Original_x2.glsl',
-	upscale_2         = a4k_path .. 'Upscale/Anime4K_Upscale_DoG_x2.glsl',
-	upscale_3         = a4k_path .. 'Upscale/Anime4K_Upscale_CNN_M_x2.glsl',
-	upscale_4         = a4k_path .. 'Upscale/Anime4K_Upscale_CNN_L_x2.glsl',
-	upscale_5         = a4k_path .. 'Upscale/Anime4K_Upscale_CNN_UL_x2.glsl',
+	denoise_mean      = a4k_path .. 'Anime4K_Denoise_Bilateral_Mean.glsl',
+	denoise_median    = a4k_path .. 'Anime4K_Denoise_Bilateral_Median.glsl',
+	denoise_mode      = a4k_path .. 'Anime4K_Denoise_Bilateral_Mode.glsl',
+	denoise_1         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_low.glsl',
+	denoise_2         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
+	denoise_3         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_high.glsl',
+	denoise_4         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L.glsl',
 
-	upscale_dtd       = a4k_path .. 'Upscale/Anime4K_Upscale_DTD_x2.glsl',
-
-	upscale_deblur_1  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_Original_x2_Deblur_x2.glsl',
-	upscale_deblur_2  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_DoG_x2_Deblur.glsl',
-	upscale_deblur_3  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',
-	upscale_deblur_4  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_CNN_L_x2_Deblur.glsl',
-	upscale_deblur_5  = a4k_path .. 'Upscale+Deblur/Anime4K_Upscale_CNN_UL_x2_Deblur.glsl',
-
-	upscale_denoise_3 = a4k_path .. 'Upscale+Denoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl',
-	upscale_denoise_4 = a4k_path .. 'Upscale+Denoise/Anime4K_Upscale_CNN_L_x2_Denoise.glsl',
-	upscale_denoise_5 = a4k_path .. 'Upscale+Denoise/Anime4K_Upscale_CNN_UL_x2_Denoise.glsl',
-
-	deblur_1          = a4k_path .. 'Deblur/Anime4K_Deblur_Original.glsl',
-	deblur_2          = a4k_path .. 'Deblur/Anime4K_Deblur_DoG.glsl',
-	deblur_3          = a4k_path .. 'Deblur/Anime4K_Deblur_CNN_M.glsl',
-	deblur_4          = a4k_path .. 'Deblur/Anime4K_Deblur_CNN_L.glsl',
-
-	denoise_mean      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mean.glsl',
-	denoise_median    = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Median.glsl',
-	denoise_mode      = a4k_path .. 'Denoise/Anime4K_Denoise_Bilateral_Mode.glsl',
-	denoise_cnn_full  = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L.glsl',
-	denoise_cnn_high  = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_high.glsl',
-	denoise_cnn_mid   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
-	denoise_cnn_low   = a4k_path .. 'Denoise/Anime4K_Denoise_Heavy_CNN_L_low.glsl',
-
-	darklines_1       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_VeryFast.glsl',
-	darklines_2       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_Fast.glsl',
-	darklines_3       = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_HQ.glsl',
-	darklines_3l      = a4k_path .. 'Experimental-Effects/Anime4K_DarkLines_HQ_Luma.glsl',
-
-	thinlines_1       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_VeryFast.glsl',
-	thinlines_2       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_Fast.glsl',
-	thinlines_3       = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_HQ.glsl',
-	thinlines_3l      = a4k_path .. 'Experimental-Effects/Anime4K_ThinLines_HQ_Luma.glsl',
-
-	reduce_2          = a4k_path .. 'RA-Reduce/Anime4K_RA_DoG.glsl',
-	reduce_3          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_M.glsl',
-	reduce_4          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_L.glsl',
-	reduce_5          = a4k_path .. 'RA-Reduce/Anime4K_RA_CNN_UL.glsl',
+	restore_1         = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
+	restore_2         = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
+	restore_1s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
+	restore_1s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
 }
 
 -- Contrast Adaptive Sharpening
@@ -191,52 +166,17 @@ local amd             = {
 -------------------
 local sets = {}
 
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = a4k.denoise_cnn_low
-	s[#s+1] = igv.fsrcnnx_8
-	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
-	s[#s+1] = igv.krig
-	s[#s+1] = igv.sssr
-	s[#s+1] = is_low_fps() and igv.ssds or nil
-	s[#s+1] = igv.asharpen
-	s[#s+1] = cas.rgb
-	o['dscale'] = is_low_fps() and 'robidoux' or 'haasnsoft'  -- For igv.ssds
-	return { shaders = s, options = o, label = 'Live Action' }
+local function get_a4k_restore(scale)
+	if     scale >= 3 then return a4k.restore_2
+	elseif scale >= 2 then return a4k.restore_1
+	else   return nil
+	end
 end
-
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = a4k.denoise_cnn_mid
-	s[#s+1] = igv.fsrcnnx_8
-	s[#s+1] = is_low_fps() and igv.fsrcnnx_8 or nil
-	s[#s+1] = igv.krig
-	s[#s+1] = igv.sssr
-	s[#s+1] = is_low_fps() and igv.ssds or nil
-	s[#s+1] = igv.asharpen
-	s[#s+1] = cas.rgb
-	o['dscale'] = is_low_fps() and 'robidoux' or 'haasnsoft'  -- For igv.ssds
-	return { shaders = s, options = o, label = '3D Animated' }
-end
-
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = a4k.denoise_cnn_high
-	s[#s+1] = igv.fsrcnnx_8l
-	s[#s+1] = is_low_fps() and igv.fsrcnnx_8l or nil
-	s[#s+1] = a4k.darklines_3l
-	s[#s+1] = a4k.thinlines_3l
-	s[#s+1] = igv.krig
-	s[#s+1] = igv.asharpen
-	return { shaders = s, options = o, label = '2D Animated' }
-end
-
-
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale >= 3 and a4k.denoise_cnn_low or nil
+		s[#s+1] = get_a4k_restore(scale)
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_low or nil
@@ -250,7 +190,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = scale >= 3 and a4k.denoise_cnn_mid or nil
+		s[#s+1] = get_a4k_restore(scale)
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8l or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1 and igv.asharpen_luma_high or nil
@@ -260,87 +200,6 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.krig
 	return { shaders = s, options = o, label = 'FSR  AS(high)  RCAS(low)' }
 end
-
-
-
---	sets[#sets+1] = function() -- Anime4K Custom Enhance & Deblur
---		local s, o, scale = {}, default_options(), get_scale()
---		s[#s+1] = igv.krig
---		if scale <= 2 then
---			s[#s+1] = a4k.denoise_median
---			s[#s+1] = a4k.deblur_3
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_4
---		elseif scale < 4 then
---			s[#s+1] = a4k.upscale_denoise_3
---			s[#s+1] = a4k.downscale
---			s[#s+1] = a4k.deblur_3
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_3
---		else
---			s[#s+1] = a4k.upscale_denoise_4
---			s[#s+1] = a4k.deblur_3
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_3
---		end
---		o['deband-grain'] = 16
---		return { shaders = s, options = o, label = ' [ 2D Animated ] Krig + Anime4K Enhance & Deblur' }
---	end
---
---	sets[#sets+1] = function() -- Anime4K Enhance & Deblur
---		local s, o, scale = {}, default_options(), get_scale()
---		s[#s+1] = igv.krig
---		if scale <= 2 then
---			s[#s+1] = a4k.denoise_mode
---			s[#s+1] = a4k.deblur_2
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_3
---		else
---			s[#s+1] = a4k.upscale_denoise_4
---			s[#s+1] = a4k.downscale
---			s[#s+1] = a4k.deblur_2
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_3
---		end
---		return { shaders = s, options = o, label = 'Krig + Anime4K Enhance & Deblur' }
---	end
---
---	sets[#sets+1] = function() -- Anime4K Enhance
---		local s, o, scale = {}, default_options(), get_scale()
---		s[#s+1] = igv.krig
---		if scale <= 2 then
---			s[#s+1] = a4k.denoise_mode
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_3
---		else
---			s[#s+1] = a4k.upscale_denoise_4
---			s[#s+1] = a4k.downscale
---			s[#s+1] = a4k.darklines_3
---			s[#s+1] = a4k.thinlines_3
---			s[#s+1] = a4k.upscale_deblur_3
---		end
---		return { shaders = s, options = o, label = 'Krig + Anime4K Enhance' }
---	end
---
---	sets[#sets+1] = function() -- Anime4K Deblur
---		local s, o, scale = {}, default_options(), get_scale()
---		s[#s+1] = igv.krig
---		if scale <= 2 then
---			s[#s+1] = a4k.denoise_mode
---			s[#s+1] = a4k.upscale_deblur_3
---		else
---			s[#s+1] = a4k.upscale_denoise_4
---			s[#s+1] = a4k.downscale
---			s[#s+1] = a4k.upscale_deblur_3
---		end
---		return { shaders = s, options = o, label = 'Krig + Anime4K Deblur' }
---	end
 
 
 
