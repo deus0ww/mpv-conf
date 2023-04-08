@@ -122,7 +122,7 @@ local a4k             = {
 	restore_1         = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
 	restore_2         = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
 	restore_1s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
-	restore_1s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
+	restore_2s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
 }
 
 -- Contrast Adaptive Sharpening
@@ -155,7 +155,6 @@ local amd             = {
 	fsr               = amd_path .. 'FSR.glsl',
 	fsr_easu          = amd_path .. 'FSR_EASU.glsl',
 	fsr_rcas_low      = amd_path .. 'FSR_RCAS_low.glsl',
-	fsr_rcas_mid      = amd_path .. 'FSR_RCAS_mid.glsl',
 	fsr_rcas_high     = amd_path .. 'FSR_RCAS_high.glsl',
 }
 
@@ -179,12 +178,12 @@ sets[#sets+1] = function()
 		s[#s+1] = get_a4k_restore(scale)
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = scale > 1 and igv.asharpen_luma_low or nil
-		s[#s+1] = scale > 1 and amd.fsr_rcas_mid or amd.fsr_rcas_high
+		s[#s+1] = scale >  1 and igv.asharpen_luma_low or nil
+		s[#s+1] = amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR  AS(low)  RCAS(mid)' }
+	return { shaders = s, options = o, label = 'FSR  AS(low)  RCAS(high)' }
 end
 
 sets[#sets+1] = function()
@@ -193,8 +192,8 @@ sets[#sets+1] = function()
 		s[#s+1] = get_a4k_restore(scale)
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8l or nil
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = scale > 1 and igv.asharpen_luma_high or nil
-		s[#s+1] = scale > 1 and amd.fsr_rcas_low or amd.fsr_rcas_mid
+		s[#s+1] = scale >  1 and igv.asharpen_luma_high or nil
+		s[#s+1] = amd.fsr_rcas_low
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
