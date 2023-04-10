@@ -16,15 +16,15 @@ local opts = {
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 2,        -- Shader set index to enable
+	preset_1_index   = 3,        -- Shader set index to enable
 
 	preset_2_enabled = true,
 	preset_2_path    = 'cartoon',
-	preset_2_index   = 2,
+	preset_2_index   = 3,
 
 	preset_3_enabled = false,
 	preset_3_path    = '%[.+%]',
-	preset_3_index   = 2,
+	preset_3_index   = 3,
 }
 
 local current_index, enabled
