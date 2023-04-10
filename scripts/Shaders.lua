@@ -155,7 +155,7 @@ local amd             = {
 	fsr               = amd_path .. 'FSR.glsl',
 	fsr_easu          = amd_path .. 'FSR_EASU.glsl',
 	fsr_rcas_low      = amd_path .. 'FSR_RCAS_low.glsl',
-	fsr_rcas_mid    = amd_path .. 'FSR_RCAS_mid.glsl',
+	fsr_rcas_mid      = amd_path .. 'FSR_RCAS_mid.glsl',
 	fsr_rcas_high     = amd_path .. 'FSR_RCAS_high.glsl',
 }
 
