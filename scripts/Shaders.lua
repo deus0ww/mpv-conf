@@ -155,6 +155,7 @@ local amd             = {
 	fsr               = amd_path .. 'FSR.glsl',
 	fsr_easu          = amd_path .. 'FSR_EASU.glsl',
 	fsr_rcas_low      = amd_path .. 'FSR_RCAS_low.glsl',
+	fsr_rcas_mid    = amd_path .. 'FSR_RCAS_mid.glsl',
 	fsr_rcas_high     = amd_path .. 'FSR_RCAS_high.glsl',
 }
 
@@ -178,12 +179,25 @@ sets[#sets+1] = function()
 		s[#s+1] = get_a4k_restore(scale)
 		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = scale >  1 and igv.asharpen_luma_low or nil
 		s[#s+1] = amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR  AS(low)  RCAS(high)' }
+	return { shaders = s, options = o, label = 'Live - FSRCNNX/FSR_EASU + RCAS(high)' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	if is_low_fps() and not is_hdr() then
+		s[#s+1] = get_a4k_restore(scale)
+		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
+		s[#s+1] = amd.fsr_easu
+		s[#s+1] = scale >  1 and igv.asharpen_luma_low or nil
+		s[#s+1] = amd.fsr_rcas_mid
+		s[#s+1] = is_rgb() and igv.asharpen or nil
+	end
+	s[#s+1] = igv.krig
+	return { shaders = s, options = o, label = '3D - FSRCNNX/FSR_EASU + AS(low) + RCAS(mid)' }
 end
 
 sets[#sets+1] = function()
@@ -197,7 +211,7 @@ sets[#sets+1] = function()
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = 'FSR  AS(high)  RCAS(low)' }
+	return { shaders = s, options = o, label = '2D - FSRCNNX/FSR_EASU + AS(high) + RCAS(low)' }
 end
 
 
