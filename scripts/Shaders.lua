@@ -174,7 +174,7 @@ sets[#sets+1] = function()
 		s[#s+1] = ({nil, a4k.restore_1, a4k.restore_2, a4k.restore_3})[math.min(math.floor(scale), 4)]
 		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = amd.fsr_rcas_high
+		s[#s+1] = scale > 1.5 and amd.fsr_rcas_high or nil
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
@@ -188,7 +188,7 @@ sets[#sets+1] = function()
 		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_low or nil
-		s[#s+1] = amd.fsr_rcas_mid
+		s[#s+1] = scale > 1.5 and amd.fsr_rcas_mid or nil
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
