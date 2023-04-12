@@ -121,8 +121,10 @@ local a4k             = {
 
 	restore_1         = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
 	restore_2         = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
+	restore_3         = a4k_path .. 'Anime4K_Restore_CNN_L.glsl',
 	restore_1s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
 	restore_2s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
+	restore_3s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_L.glsl',
 }
 
 -- Contrast Adaptive Sharpening
@@ -166,18 +168,11 @@ local amd             = {
 -------------------
 local sets = {}
 
-local function get_a4k_restore(scale)
-	if     scale >= 3 then return a4k.restore_2
-	elseif scale >= 2 then return a4k.restore_1
-	else   return nil
-	end
-end
-
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
+	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = get_a4k_restore(scale)
-		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
+		s[#s+1] = ({nil, a4k.restore_1, a4k.restore_2, a4k.restore_3})[math.min(math.floor(scale), 4)]
+		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
@@ -187,12 +182,12 @@ sets[#sets+1] = function()
 end
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
+	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = get_a4k_restore(scale)
-		s[#s+1] = scale >= 4 and igv.fsrcnnx_8 or nil
+		s[#s+1] = ({nil, nil, a4k.restore_1, a4k.restore_2})[math.min(math.floor(scale), 4)]
+		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8 or nil
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = scale >  1 and igv.asharpen_luma_low or nil
+		s[#s+1] = scale > 1.5 and igv.asharpen_luma_low or nil
 		s[#s+1] = amd.fsr_rcas_mid
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
@@ -201,17 +196,16 @@ sets[#sets+1] = function()
 end
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
+	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = get_a4k_restore(scale)
-		s[#s+1] = scale >= 4 and igv.fsrcnnx_8l or nil
+		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 4)]
+		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8l or nil
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = scale >  1 and igv.asharpen_luma_high or nil
-		s[#s+1] = amd.fsr_rcas_low
+		s[#s+1] = scale > 1.5 and igv.asharpen_luma_high or nil
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
-	return { shaders = s, options = o, label = '2D - FSRCNNX/FSR_EASU + AS(high) + RCAS(low)' }
+	return { shaders = s, options = o, label = '2D - FSRCNNX/FSR_EASU + AS(high)' }
 end
 
 
