@@ -1,4 +1,4 @@
--- deus0ww - 2023-01-07
+-- deus0ww - 2023-04-17
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -85,10 +85,19 @@ local function is_low_fps()  return props['container-fps'] > 0 and not is_high_f
 local function is_rgb()      return props['video-params/colormatrix'] == 'rgb' end
 local function is_hdr()      return props['video-params/colormatrix']:find('bt.2020') ~= nil end
 local function get_scale()
-	local dwidth, dheight = props['dwidth'], props['dheight']
-	if (props['video-params/rotate'] % 180) ~= 0 then dwidth, dheight = dheight, dwidth end
-	local x_scale, y_scale = props['osd-width'] / dwidth, props['osd-height'] / dheight
-	return (x_scale > 0 and y_scale > 0) and math.min(x_scale, y_scale) or 1
+    local osd_dims = mp.get_property_native("osd-dimensions")
+    local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
+    local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
+    return math.sqrt((scaled_width * scaled_height) / (props['dwidth'] * props['dheight']))
+end
+
+local function format_status()
+	local temp = ''
+	temp = temp .. ('Scale: %.3f'):format(get_scale())
+	if is_hdr()      then temp = temp .. ' HDR' end
+	if is_high_fps() then temp = temp .. ' HighFPS' end
+	if is_rgb()      then temp = temp .. ' RGB' end
+	return temp
 end
 
 
@@ -140,6 +149,8 @@ local igv             = {
 	fsrcnnx_8         = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
 	fsrcnnx_8l        = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
 	fsrcnnx_16        = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
+	fsrcnnx_16e       = igv_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
+	fsrcnnx_16l       = igv_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
 	
 	krig              = igv_path .. 'KrigBilateral.glsl',
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
@@ -172,7 +183,7 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
 		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
-		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
@@ -185,7 +196,7 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
 		s[#s+1] = ({nil, nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
-		s[#s+1] = ({nil, nil, nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil, nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_low or nil
 		s[#s+1] = amd.fsr_rcas_mid
@@ -199,7 +210,7 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
 		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
-		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16l})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_high or nil
 		s[#s+1] = is_rgb() and igv.asharpen or nil
@@ -215,7 +226,7 @@ end
 --------------------
 local function show_osd(no_osd, label)
 	if no_osd then return end
-	mp.osd_message(('%s Shaders Set %d: %s'):format(enabled and '■' or '□', current_index, label or 'n/a'), 6)
+	mp.osd_message(('%s Shaders Set %d: %s'):format(enabled and '■' or '□', current_index, (label or 'n/a') .. ' [' .. format_status() .. ']'), 6)
 end
 
 local function mpv_set_options(options)
@@ -236,6 +247,7 @@ end
 
 local function mpv_set_shaders(shaders)
 	mpv_clear_shaders()
+	msg.debug(format_status())
 	msg.debug('Setting Shaders:', utils.to_string(shaders))
 	for _, shader in ipairs(shaders) do
 		if shader and shader ~= '' then mp.commandv('change-list', 'glsl-shaders', 'append', shader) end
@@ -357,8 +369,15 @@ local function disable_set(no_osd)
 	clear_shaders(no_osd)
 end
 
+local function show_set(no_osd)
+	msg.debug('Shader - Showing:', current_index)
+	if not is_initialized() then return end
+	show_osd(no_osd, sets[current_index]().label)
+end
+
 mp.register_script_message('Shaders-cycle+',  function(no_osd) cycle_set_up(no_osd == 'yes') end)
 mp.register_script_message('Shaders-cycle-',  function(no_osd) cycle_set_dn(no_osd == 'yes') end)
 mp.register_script_message('Shaders-toggle',  function(no_osd) toggle_set(no_osd   == 'yes') end)
 mp.register_script_message('Shaders-enable',  function(no_osd) enable_set(no_osd   == 'yes') end)
 mp.register_script_message('Shaders-disable', function(no_osd) disable_set(no_osd  == 'yes') end)
+mp.register_script_message('Shaders-show',    function(no_osd) show_set(no_osd     == 'yes') end)
