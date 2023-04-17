@@ -82,20 +82,18 @@ local function is_high_fps()
 		   (mp.get_property_native('estimated-vf-fps') or 0) > opts.hifps_threshold
 end
 local function is_low_fps()  return props['container-fps'] > 0 and not is_high_fps() end
-local function is_rgb()      return props['video-params/colormatrix'] == 'rgb' end
 local function is_hdr()      return props['video-params/colormatrix']:find('bt.2020') ~= nil end
+local function is_rgb()      return props['video-params/colormatrix'] == 'rgb' end
 local function get_scale()
     local osd_dims = mp.get_property_native("osd-dimensions")
     local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
     local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
     return math.sqrt((scaled_width * scaled_height) / (props['dwidth'] * props['dheight']))
 end
-
 local function format_status()
-	local temp = ''
-	temp = temp .. ('Scale: %.3f'):format(get_scale())
-	if is_hdr()      then temp = temp .. ' HDR' end
+	local temp = ('Scale: %.3f'):format(get_scale())
 	if is_high_fps() then temp = temp .. ' HighFPS' end
+	if is_hdr()      then temp = temp .. ' HDR' end
 	if is_rgb()      then temp = temp .. ' RGB' end
 	return temp
 end
@@ -182,7 +180,7 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale), 6)]
 		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = amd.fsr_rcas_high
@@ -195,7 +193,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = ({nil, nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale), 6)]
 		s[#s+1] = ({nil, nil, nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_low or nil
@@ -209,7 +207,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale), 6)]
 		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16l})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_high or nil
