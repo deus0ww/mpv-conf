@@ -9,7 +9,7 @@ local utils   = require 'mp.utils'
 local opts = {
 	enabled          = false,    -- Master switch to enable/disable shaders
 	set_timer        = 1/3,
-	hifps_threshold  = 30,
+	hifps_threshold  = 31,
 
 	default_index    = 1,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
@@ -171,10 +171,10 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = ({nil, a4k.restore_1, a4k.restore_2, a4k.restore_3})[math.min(math.floor(scale), 4)]
-		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8 or nil
+		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
-		s[#s+1] = scale > 1.5 and amd.fsr_rcas_high or nil
+		s[#s+1] = amd.fsr_rcas_high
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
@@ -184,11 +184,11 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = ({nil, nil, a4k.restore_1, a4k.restore_2})[math.min(math.floor(scale), 4)]
-		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8 or nil
+		s[#s+1] = ({nil, nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil, nil,            igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_low or nil
-		s[#s+1] = scale > 1.5 and amd.fsr_rcas_mid or nil
+		s[#s+1] = amd.fsr_rcas_mid
 		s[#s+1] = is_rgb() and igv.asharpen or nil
 	end
 	s[#s+1] = igv.krig
@@ -198,8 +198,8 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_low_fps() and not is_hdr() then
-		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 4)]
-		s[#s+1] = scale > 4.0 and igv.fsrcnnx_8l or nil
+		s[#s+1] = ({nil, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s})[math.min(math.floor(scale), 6)]
+		s[#s+1] = ({nil, nil,            nil,            igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16})[math.min(math.floor(scale), 6)]
 		s[#s+1] = amd.fsr_easu
 		s[#s+1] = scale > 1.5 and igv.asharpen_luma_high or nil
 		s[#s+1] = is_rgb() and igv.asharpen or nil
