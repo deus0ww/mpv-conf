@@ -1,4 +1,4 @@
--- deus0ww - 2023-03-24
+-- deus0ww - 2023-04-14
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -13,7 +13,7 @@ add({
 	reset_on_load = true,
 	filters = {
 	-- https://mpv.io/manual/master/#audio-filters-format
-		--'format=float:srate=96000',
+		'format=float:srate=96000',
 		'aresample=osr=96000:osf=fltp:cutoff=0.96:resampler=soxr:precision=33:dither_method=low_shibata:cheby=1',
 	},
 })
