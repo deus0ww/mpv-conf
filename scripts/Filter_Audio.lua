@@ -131,7 +131,7 @@ add({
 	name = 'Crystalizer',
 	filter_type = 'audio',
 	default_on_load = true,
-	default_index = 3,
+	default_index = 4,
 	reset_on_load = false,
 	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
