@@ -1,4 +1,4 @@
--- deus0ww - 2021-05-03
+-- deus0ww - 2023-06-29
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -11,9 +11,6 @@ local utils   = require 'mp.utils'
 -- User Options --
 ------------------
 local o = {
-	display_w           = 2560,
-	display_h           = 1440,
-
 	default_resize_type = 3,     -- 0=Off, 1=Absolute, 2=Percent of display, 3=Percent of display (one-axis), 4=Percent of Video
 	default_resize_w    = 50, 
 	default_resize_h    = 50,
@@ -26,13 +23,27 @@ local o = {
 }
 
 local menubar_h   = 23   -- 22px + 1px border
-local display, align_current
+local align_current
 local function on_opts_update()
-	display       = { w = o.display_w, h = o.display_h - menubar_h }
 	align_current = o.default_align
 end
 opt.read_options(o, mp.get_script_name(), on_opts_update)
 on_opts_update()
+
+
+
+----------------
+-- Properties --
+----------------
+local osd            = {w = 0, h = 0}
+local video          = {w = 0, h = 0}
+local display        = {w = 0, h = 0}
+local dpi_scale      =  0
+local rotate_initial = -1
+local rotate_current = -1
+
+local function is_fullscreen()  return mp.get_property_native('fullscreen', true) end
+local function is_rotated()     return not ((((rotate_current - rotate_initial) % 180) ~= 0) == ((rotate_initial % 180) ~= 0)) end
 
 
 
@@ -57,20 +68,6 @@ end
 local function format_log(message, window)
 	return ('%-11s | Position: %4d %4d | Size: %4d %4d |'):format(message, window.x, window.y, window.w, window.h)
 end
-
-
-
-----------------
--- Properties --
-----------------
-local osd            = { w = 0, h = 0 }
-local video          = { w = 0, h = 0}
-local dpi_scale      = 0
-local rotate_initial = -1
-local rotate_current = -1
-
-local function is_fullscreen()  return mp.get_property_native('fullscreen', true) end
-local function is_rotated()     return not ((((rotate_current - rotate_initial) % 180) ~= 0) == ((rotate_initial % 180) ~= 0)) end
 
 
 
@@ -386,22 +383,27 @@ local function observe_prop(k, v)
 	elseif k == 'dwidth'              then video.w   = v or 0
 	elseif k == 'dheight'             then video.h   = v or 0
 	elseif k == 'display-hidpi-scale' then dpi_scale = v or 0
+	elseif k == 'display-width'       then display.w = v or 0
+	elseif k == 'display-height'      then display.h = v or 0
 	elseif k == 'video-params/rotate' then
 		rotate_initial = v or -1
 		rotate_current = rotate_initial
 	else msg.debug('Unknown Property')
 	end
 	
-	if osd.w   > 0 and osd.h   > 0 and
-	   video.w > 0 and video.h > 0 and
-	   dpi_scale > 0 and
-	   rotate_initial >= 0 then
-		mp.unobserve_property(observe_prop)
-		msg.debug(('OSD Size:   %4d %4d'):format(osd.w, osd.h))
-		msg.debug(('Video Size: %4d %4d'):format(video.w, video.h))
-		msg.debug( 'Rotation:  ', rotate_initial)
-		initialized = true
-		set_defaults()
+	if  osd.w     > 0 and osd.h     > 0 and
+		video.w   > 0 and video.h   > 0 and
+		display.w > 0 and display.h > 0 and
+		dpi_scale > 0 and rotate_initial >= 0 then
+			mp.unobserve_property(observe_prop)
+			msg.debug(('OSD Size:   %4d %4d'):format(osd.w, osd.h))
+			msg.debug(('Video Size: %4d %4d'):format(video.w, video.h))
+			msg.debug(('Display Size: %4d %4d'):format(display.w, display.h))
+			msg.debug( 'Rotation:  ', rotate_initial)
+			display.w = display.w / dpi_scale
+			display.h = display.h / dpi_scale - menubar_h
+			initialized = true
+			set_defaults()
 	else
 		msg.debug('Waiting...')
 	end
@@ -415,6 +417,8 @@ mp.register_event('file-loaded', function()
 	mp.observe_property('dheight',             'native', observe_prop)
 	mp.observe_property('display-hidpi-scale', 'native', observe_prop)
 	mp.observe_property('video-params/rotate', 'native', observe_prop)
+	mp.observe_property('display-width',       'native', observe_prop)
+	mp.observe_property('display-height',      'native', observe_prop)
 end)
 
 mp.observe_property('video-params/rotate', 'native', function(_, rotate)

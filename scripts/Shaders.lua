@@ -1,4 +1,4 @@
--- deus0ww - 2023-06-14
+-- deus0ww - 2023-06-29
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -13,6 +13,8 @@ local opts = {
 
 	default_index    = 1,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
+
+	always_fs_scale  = true,     -- Always set scale relative to fullscreen resolution
 
 	preset_1_enabled = true,     -- Enable this preset
 	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
@@ -45,8 +47,17 @@ local function reset()
 	props = {
 		['dwidth']                   = -1,
 		['dheight']                  = -1,
-		['osd-width']                = -1,
-		['osd-height']               = -1,
+
+		['display-width']            = -1,
+		['display-height']           = -1,
+
+		['osd-dimensions/w']         = -1,
+		['osd-dimensions/h']         = -1,
+		['osd-dimensions/mt']        = -1,
+		['osd-dimensions/mb']        = -1,
+		['osd-dimensions/ml']        = -1,
+		['osd-dimensions/mr']        = -1,
+
 		['container-fps']            = -1,
 		['video-params/rotate']      = -1,
 		['video-params/colormatrix'] = '',
@@ -57,12 +68,21 @@ reset()
 local function is_initialized()
 	return ((props['dwidth']                   >   0) and
 			(props['dheight']                  >   0) and
-			(props['osd-width']                >   0) and
-			(props['osd-height']               >   0) and
+
+			(props['display-width']            >   0) and
+			(props['display-height']           >   0) and
+
+			(props['osd-dimensions/w']         >   0) and
+			(props['osd-dimensions/h']         >   0) and
+			(props['osd-dimensions/mt']        >=  0) and
+			(props['osd-dimensions/mb']        >=  0) and
+			(props['osd-dimensions/ml']        >=  0) and
+			(props['osd-dimensions/mr']        >=  0) and
+
 			(props['container-fps']            >   0) and
 			(props['video-params/rotate']      >=  0) and
-			(props['video-params/colormatrix'] ~= '')
-			)
+			(props['video-params/colormatrix'] ~= '') and
+			true)
 end
 
 
@@ -85,13 +105,19 @@ local function is_low_fps() return props['container-fps'] > 0 and not is_high_fp
 local function is_hdr()     return props['video-params/colormatrix']:find('bt.2020') ~= nil end
 local function is_rgb()     return props['video-params/colormatrix']:find('rgb')     ~= nil end
 local function get_scale()
-    local osd_dims = mp.get_property_native("osd-dimensions")
-    local scaled_width  = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
-    local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]
-    return math.sqrt((scaled_width * scaled_height) / (props['dwidth'] * props['dheight']))
+	local scaled_width, scaled_height, video_width, video_height = 0, 0, props['dwidth'], props['dheight']
+	if opts.always_fs_scale then
+		scaled_width  = props['display-width']
+		scaled_height = props['display-height'] 
+		return math.min(scaled_width/video_width, scaled_height/video_height)
+	else
+		scaled_width  = props['osd-dimensions/w'] - props['osd-dimensions/ml'] - props['osd-dimensions/mr']
+		scaled_height = props['osd-dimensions/h'] - props['osd-dimensions/mt'] - props['osd-dimensions/mb']
+		return math.sqrt((scaled_width * scaled_height) / (video_width * video_height))
+    end
 end
 local function format_status()
-	local temp = ('Scale: %.3f'):format(get_scale())
+	local temp = (opts.always_fs_scale and 'FS ' or '') .. ('Scale: %.3f'):format(get_scale())
 	if is_high_fps() then temp = temp .. ' HighFPS' end
 	if is_hdr()      then temp = temp .. ' HDR' end
 	if is_rgb()      then temp = temp .. ' RGB' end
