@@ -134,19 +134,6 @@ local shaders_path = '~~/shaders/'
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local a4k_path        = shaders_path .. 'anime4k/'
 local a4k             = {
-	clamp             = a4k_path .. 'Anime4K_Clamp_Highlights.glsl',
-	darken_1          = a4k_path .. 'Anime4K_Darken_VeryFast.glsl',
-	darken_2          = a4k_path .. 'Anime4K_Darken_Fast.glsl',
-	darken_3          = a4k_path .. 'Anime4K_Darken_HQ.glsl',
-	deblur_1          = a4k_path .. 'Anime4K_Deblur_Original.glsl',
-	deblur_2          = a4k_path .. 'Anime4K_Deblur_DoG.glsl',
-	thin_1            = a4k_path .. 'Anime4K_Thin_VeryFast.glsl',
-	thin_2            = a4k_path .. 'Anime4K_Thin_Fast.glsl',
-	thin_3            = a4k_path .. 'Anime4K_Thin_HQ.glsl',
-
-	denoise_mean      = a4k_path .. 'Anime4K_Denoise_Bilateral_Mean.glsl',
-	denoise_median    = a4k_path .. 'Anime4K_Denoise_Bilateral_Median.glsl',
-	denoise_mode      = a4k_path .. 'Anime4K_Denoise_Bilateral_Mode.glsl',
 	denoise_1         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_low.glsl',
 	denoise_2         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
 	denoise_3         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_high.glsl',
