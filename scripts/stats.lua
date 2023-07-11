@@ -44,7 +44,7 @@ local o = {
     plot_color = "FFFFFF",
 
     -- Text style
-    font = "sans",
+    font = "sans-serif",
     font_mono = "monospace",
     font_mono_digits = "monospace",
     font_size = 8,
