@@ -23,7 +23,7 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution v1.0.2 (RCAS) [1.2]
+//!DESC FidelityFX Super Resolution RCAS [1.2]
 //!COMPONENTS 1
 
 // User variables - RCAS

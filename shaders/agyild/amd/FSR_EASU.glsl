@@ -33,7 +33,7 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution v1.0.2 (EASU)
+//!DESC FidelityFX Super Resolution EASU
 //!WHEN OUTPUT.w OUTPUT.h * LUMA.w LUMA.h * / 1.0 >
 //!WIDTH OUTPUT.w OUTPUT.w LUMA.w 2 * < * LUMA.w 2 * OUTPUT.w LUMA.w 2 * > * + OUTPUT.w OUTPUT.w LUMA.w 2 * = * +
 //!HEIGHT OUTPUT.h OUTPUT.h LUMA.h 2 * < * LUMA.h 2 * OUTPUT.h LUMA.h 2 * > * + OUTPUT.h OUTPUT.h LUMA.h 2 * = * +
