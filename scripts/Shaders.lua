@@ -204,7 +204,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale() + 0.1
 	if is_high_fps() then scale = math.max(0, scale - 1.5) end
-	s[#s+1] = ({nil,      a4k.restore_2s, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale), 6)]
+	s[#s+1] = ({nil,      a4k.restore_1s, a4k.restore_1s, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale), 6)]
 	s[#s+1] = ({nil,      ravu.lite_r4,   ravu.lite_r4,   igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale), 6)]
 	s[#s+1] = ({igv.krig, igv.krig,       igv.krig,       igv.krig,       igv.krig,       igv.krig       })[math.min(math.floor(scale), 6)]
 	s[#s+1] = amd.fsr_easu
