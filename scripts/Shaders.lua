@@ -147,13 +147,6 @@ local a4k             = {
 	restore_3s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_L.glsl',
 }
 
--- Contrast Adaptive Sharpening
-local cas_path        = shaders_path .. 'cas/'
-local cas             = {
-	luma              = cas_path .. 'CAS_luma.glsl',
-	rgb               = cas_path .. 'CAS_rgb.glsl',
-}
-
 -- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
 local igv_path        = shaders_path .. 'igv/'
 local igv             = { 
@@ -174,8 +167,6 @@ local igv             = {
 -- agyild's - https://gist.github.com/agyild
 local amd_path        = shaders_path .. 'agyild/amd/'
 local amd             = {
-	cas               = amd_path .. 'CAS.glsl',
-	cas_scaled        = amd_path .. 'CAS-scaled.glsl',
 	fsr               = amd_path .. 'FSR.glsl',
 	fsr_easu          = amd_path .. 'FSR_EASU.glsl',
 	fsr_rcas_low      = amd_path .. 'FSR_RCAS_low.glsl',
@@ -189,8 +180,6 @@ local ravu            = {
 	lite_r2           = ravu_path .. 'ravu-lite-r2.hook',
 	lite_r3           = ravu_path .. 'ravu-lite-r3.hook',
 	lite_r4           = ravu_path .. 'ravu-lite-r4.hook',
-	zoom_r2           = ravu_path .. 'ravu-zoom-r2.hook',
-	zoom_r3           = ravu_path .. 'ravu-zoom-r3.hook',
 }
 
 
