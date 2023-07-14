@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(S)-Conv-4x3x3x3
+//!DESC Anime4K Restore-Soft CNN-S-4x3x3x3
 //!HOOK LUMA
 //!BIND LUMA
 //!SAVE conv2d_tf
@@ -42,7 +42,7 @@ vec4 hook() {
     result += vec4(0.0113532655, -0.06449327, 0.035503868, 0.5683031);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(S)-Conv-4x3x3x8
+//!DESC Anime4K Restore-Soft CNN-S-4x3x3x8
 //!HOOK LUMA
 //!BIND conv2d_tf
 //!SAVE conv2d_1_tf
@@ -73,7 +73,7 @@ vec4 hook() {
     result += vec4(-0.106538564, -0.065693766, -0.03790106, 0.04776706);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(S)-Conv-4x3x3x8
+//!DESC Anime4K Restore-Soft CNN-S-4x3x3x8
 //!HOOK LUMA
 //!BIND conv2d_1_tf
 //!SAVE conv2d_2_tf
@@ -104,7 +104,7 @@ vec4 hook() {
     result += vec4(-0.0063428865, 0.0057986965, -0.12526293, -0.059240736);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(S)-Conv-3x3x3x8 [0.7]
+//!DESC Anime4K Restore-Soft CNN-S-3x3x3x8 [0.7]
 //!HOOK LUMA
 //!BIND LUMA
 //!BIND conv2d_2_tf

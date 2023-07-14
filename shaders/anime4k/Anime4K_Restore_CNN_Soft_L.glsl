@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x3
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x3
 //!HOOK LUMA
 //!BIND LUMA
 //!SAVE conv2d_tf
@@ -42,7 +42,7 @@ vec4 hook() {
     result += vec4(-0.55533427, -0.05231614, -0.032685343, -0.027457517);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x3
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x3
 //!HOOK LUMA
 //!BIND LUMA
 //!SAVE conv2d_tf1
@@ -63,7 +63,7 @@ vec4 hook() {
     result += vec4(0.029685514, 0.066621915, 0.03600017, -0.03497038);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x16
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x16
 //!HOOK LUMA
 //!BIND conv2d_tf
 //!BIND conv2d_tf1
@@ -115,7 +115,7 @@ vec4 hook() {
     result += vec4(-0.045150407, -0.034128085, 0.10230384, 0.074793644);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x16
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x16
 //!HOOK LUMA
 //!BIND conv2d_tf
 //!BIND conv2d_tf1
@@ -167,7 +167,7 @@ vec4 hook() {
     result += vec4(0.0031252617, 0.028414045, -0.018389644, 0.011216021);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x16
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x16
 //!HOOK LUMA
 //!BIND conv2d_1_tf
 //!BIND conv2d_1_tf1
@@ -219,7 +219,7 @@ vec4 hook() {
     result += vec4(-0.16255508, -0.041602854, 0.09628627, 0.12747966);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x16
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x16
 //!HOOK LUMA
 //!BIND conv2d_1_tf
 //!BIND conv2d_1_tf1
@@ -271,7 +271,7 @@ vec4 hook() {
     result += vec4(-0.07366732, -0.06278686, 0.11547288, -0.04786791);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x16
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x16
 //!HOOK LUMA
 //!BIND conv2d_2_tf
 //!BIND conv2d_2_tf1
@@ -323,7 +323,7 @@ vec4 hook() {
     result += vec4(0.03128986, -0.070663765, -0.056307543, -0.043389197);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-4x3x3x16
+//!DESC Anime4K Restore-Soft CNN-L-4x3x3x16
 //!HOOK LUMA
 //!BIND conv2d_2_tf
 //!BIND conv2d_2_tf1
@@ -375,7 +375,7 @@ vec4 hook() {
     result += vec4(-0.014193535, -0.035853464, -0.0019574068, 0.035060503);
     return result;
 }
-//!DESC Anime4K-v4.0-Restore-CNN-Soft-(L)-Conv-3x3x3x16 [0.7]
+//!DESC Anime4K Restore-Soft CNN-L-3x3x3x16 [0.7]
 //!HOOK LUMA
 //!BIND LUMA
 //!BIND conv2d_3_tf
