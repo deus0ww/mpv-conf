@@ -159,19 +159,19 @@ local igv             = {
 	krig              = igv_path .. 'KrigBilateral.glsl',
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
-	asharpen          = igv_path .. 'adaptive-sharpen.glsl',
-	asharpen_luma_low = igv_path .. 'adaptive-sharpen_luma_low.glsl',
-	asharpen_luma_high= igv_path .. 'adaptive-sharpen_luma_high.glsl',
+	as_rgb            = igv_path .. 'adaptive-sharpen.glsl',
+	as_luma_low       = igv_path .. 'adaptive-sharpen_luma_low.glsl',
+	as_luma_high      = igv_path .. 'adaptive-sharpen_luma_high.glsl',
 }
 
 -- agyild's - https://gist.github.com/agyild
 local amd_path        = shaders_path .. 'agyild/amd/'
-local amd             = {
+local fsr             = {
 	fsr               = amd_path .. 'FSR.glsl',
-	fsr_easu          = amd_path .. 'FSR_EASU.glsl',
-	fsr_rcas_low      = amd_path .. 'FSR_RCAS_low.glsl',
-	fsr_rcas_mid      = amd_path .. 'FSR_RCAS_mid.glsl',
-	fsr_rcas_high     = amd_path .. 'FSR_RCAS_high.glsl',
+	easu              = amd_path .. 'FSR_EASU.glsl',
+	rcas_low          = amd_path .. 'FSR_RCAS_low.glsl',
+	rcas_mid          = amd_path .. 'FSR_RCAS_mid.glsl',
+	rcas_high         = amd_path .. 'FSR_RCAS_high.glsl',
 }
 
 -- bjin's - https://github.com/bjin/mpv-prescalers
@@ -191,42 +191,42 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	if is_high_fps() then scale = math.max(0, scale - 1.5) end
-	s[#s+1] = ({nil, nil, nil, a4k.restore_2,  a4k.restore_2,  a4k.restore_3  })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, nil, nil, igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >= 2.0 and ravu.lite_r4 or nil
-	s[#s+1] = amd.fsr_easu
-	s[#s+1] = amd.fsr_rcas_high
+	if is_high_fps() then scale = math.max(0, scale - 1.0) end
+	s[#s+1] = ({nil, nil,            nil,            a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu.lite_r4,   igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
+	s[#s+1] = fsr.easu
+	s[#s+1] = fsr.rcas_high
 	s[#s+1] = igv.krig
-	s[#s+1] = is_rgb() and igv.asharpen or nil
-	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU + FSR_EASU + RCAS(high)' }
+	s[#s+1] = is_rgb() and igv.as_rgb or nil
+	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU + EASU + RCAS(high)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.5) end
-	s[#s+1] = ({nil, nil, nil, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, nil, nil, igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >= 2.0 and ravu.lite_r4 or nil
-	s[#s+1] = amd.fsr_easu
-	s[#s+1] = scale >  1.5 and igv.asharpen_luma_low or nil
-	s[#s+1] = scale >  2.0 and amd.fsr_rcas_mid or nil
+	s[#s+1] = ({nil, nil,            nil,            a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu.lite_r4,   igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
+	s[#s+1] = fsr.easu
+	s[#s+1] = scale >  1.5 and igv.as_luma_low or nil
+	s[#s+1] = ({nil, fsr.rcas_mid, nil, fsr.rcas_mid})[math.min(math.floor(scale + 0.1), 4)]
 	s[#s+1] = igv.krig
-	s[#s+1] = is_rgb() and igv.asharpen or nil
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU + FSR_EASU + AS(low) + RCAS(mid)' }
+	s[#s+1] = is_rgb() and igv.as_rgb or nil
+	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU + EASU + AS(low) + RCAS(mid)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.5) end
-	s[#s+1] = ({nil, nil, nil, a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, nil, nil, igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16l})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >= 2.0 and ravu.lite_r4 or nil
-	s[#s+1] = amd.fsr_easu
-	s[#s+1] = scale >  1.5 and igv.asharpen_luma_high or nil
+	s[#s+1] = ({nil, a4k.restore_1s, nil,            a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu.lite_r4,   igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16l})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
+	s[#s+1] = fsr.easu
+	s[#s+1] = scale >  1.5 and igv.as_luma_high or nil
 	s[#s+1] = igv.krig
-	s[#s+1] = is_rgb() and igv.asharpen or nil
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU + FSR_EASU + AS(high)' }
+	s[#s+1] = is_rgb() and igv.as_rgb or nil
+	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU + EASU + AS(high)' }
 end
 
 
