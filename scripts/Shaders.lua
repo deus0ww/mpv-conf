@@ -133,35 +133,39 @@ local shaders_path = '~~/shaders/'
 
 -- Anime4K - https://github.com/bloc97/Anime4K/
 local a4k_path        = shaders_path .. 'anime4k/'
-local a4k             = {
-	denoise_1         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_low.glsl',
-	denoise_2         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
-	denoise_3         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_high.glsl',
-	denoise_4         = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L.glsl',
-
-	restore_1         = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
-	restore_2         = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
-	restore_3         = a4k_path .. 'Anime4K_Restore_CNN_L.glsl',
-	restore_1s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
-	restore_2s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
-	restore_3s        = a4k_path .. 'Anime4K_Restore_CNN_Soft_L.glsl',
+local denoise         = {
+	r1                = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_low.glsl',
+	r3                = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_mid.glsl',
+	r3                = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L_high.glsl',
+	r4                = a4k_path .. 'Anime4K_Denoise_Heavy_CNN_L.glsl',
+}
+local restore         = {
+	r1                = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
+	r2                = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
+	r3                = a4k_path .. 'Anime4K_Restore_CNN_L.glsl',
+	r1s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
+	r2s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
+	r3s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_L.glsl',
 }
 
 -- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
 local igv_path        = shaders_path .. 'igv/'
-local igv             = { 
-	fsrcnnx_8         = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
-	fsrcnnx_8l        = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
-	fsrcnnx_16        = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
-	fsrcnnx_16e       = igv_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
-	fsrcnnx_16l       = igv_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
-	
+local igv             = {
 	krig              = igv_path .. 'KrigBilateral.glsl',
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
-	as_rgb            = igv_path .. 'adaptive-sharpen.glsl',
-	as_luma_low       = igv_path .. 'adaptive-sharpen_luma_low.glsl',
-	as_luma_high      = igv_path .. 'adaptive-sharpen_luma_high.glsl',
+}
+local as              = {
+	rgb               = igv_path .. 'adaptive-sharpen.glsl',
+	luma_low          = igv_path .. 'adaptive-sharpen_luma_low.glsl',
+	luma_high         = igv_path .. 'adaptive-sharpen_luma_high.glsl',
+}
+local fsrcnnx         = {
+	r8                = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
+	r8l               = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
+	r16               = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
+	r16e              = igv_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
+	r16l              = igv_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
 }
 
 -- agyild's - https://gist.github.com/agyild
@@ -192,40 +196,40 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
-	s[#s+1] = ({nil, nil,            nil,            a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu.lite_r4,   igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, nil,          nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu.lite_r4, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = fsr.rcas_high
 	s[#s+1] = igv.krig
-	s[#s+1] = is_rgb() and igv.as_rgb or nil
+	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU + EASU + RCAS(high)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.5) end
-	s[#s+1] = ({nil, nil,            nil,            a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu.lite_r4,   igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_8,  igv.fsrcnnx_16e})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, nil,          nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu.lite_r4, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
 	s[#s+1] = fsr.easu
-	s[#s+1] = scale >  1.5 and igv.as_luma_low or nil
+	s[#s+1] = scale >  1.5 and as.luma_low or nil
 	s[#s+1] = ({nil, fsr.rcas_mid, nil, fsr.rcas_mid})[math.min(math.floor(scale + 0.1), 4)]
 	s[#s+1] = igv.krig
-	s[#s+1] = is_rgb() and igv.as_rgb or nil
+	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU + EASU + AS(low) + RCAS(mid)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.5) end
-	s[#s+1] = ({nil, a4k.restore_1s, nil,            a4k.restore_2s, a4k.restore_2s, a4k.restore_3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu.lite_r4,   igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_8l, igv.fsrcnnx_16l})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, restore.r1s,  nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu.lite_r4, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
 	s[#s+1] = fsr.easu
-	s[#s+1] = scale >  1.5 and igv.as_luma_high or nil
+	s[#s+1] = scale >  1.5 and as.luma_high or nil
 	s[#s+1] = igv.krig
-	s[#s+1] = is_rgb() and igv.as_rgb or nil
+	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU + EASU + AS(high)' }
 end
 
