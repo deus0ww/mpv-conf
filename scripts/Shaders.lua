@@ -9,7 +9,7 @@ local utils   = require 'mp.utils'
 local opts = {
 	enabled          = false,    -- Master switch to enable/disable shaders
 	set_timer        = 0,
-	hifps_threshold  = 31,
+	hifps_threshold  = 26,
 
 	default_index    = 1,        -- Default shader set
 	auto_switch      = true,     -- Auto switch shader preset base on path
@@ -200,35 +200,35 @@ sets[#sets+1] = function()
 	s[#s+1] = ({nil, ravu.lite_r4, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
 	s[#s+1] = fsr.easu
-	s[#s+1] = fsr.rcas_high
-	s[#s+1] = igv.krig
+	s[#s+1] = scale >  1.5 and fsr.rcas_high or nil
+	s[#s+1] = scale >= 1.0 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU + EASU + RCAS(high)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	if is_high_fps() then scale = math.max(0, scale - 1.5) end
+	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, nil,          nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu.lite_r4, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = scale >  1.5 and as.luma_low or nil
 	s[#s+1] = ({nil, fsr.rcas_mid, nil, fsr.rcas_mid})[math.min(math.floor(scale + 0.1), 4)]
-	s[#s+1] = igv.krig
+	s[#s+1] = scale >= 1.0 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU + EASU + AS(low) + RCAS(mid)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	if is_high_fps() then scale = math.max(0, scale - 1.5) end
+	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, restore.r1s,  nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu.lite_r4, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >= 4.0 and ravu.lite_r4 or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = scale >  1.5 and as.luma_high or nil
-	s[#s+1] = igv.krig
+	s[#s+1] = scale >= 1.0 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU + EASU + AS(high)' }
 end
