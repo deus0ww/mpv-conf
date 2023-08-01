@@ -154,7 +154,7 @@ add({
 		'scaletempo2=search-interval=30:window-size=20',
 		
 	-- https://mpv.io/manual/master/#audio-filters-rubberband
-		'rubberband=engine=finer:pitch=quality:window=long:formant=preserved:channels=together',
+	--	'rubberband=engine=finer:pitch=quality:window=long:formant=preserved:channels=together',
 	},
 })
 
