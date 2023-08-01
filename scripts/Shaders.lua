@@ -173,7 +173,6 @@ local fsr             = {
 	fsr               = amd_path .. 'FSR.glsl',
 	easu              = amd_path .. 'FSR_EASU.glsl',
 	rcas_low          = amd_path .. 'FSR_RCAS_low.glsl',
-	rcas_mid          = amd_path .. 'FSR_RCAS_mid.glsl',
 	rcas_high         = amd_path .. 'FSR_RCAS_high.glsl',
 }
 
@@ -202,7 +201,7 @@ local sets = {}
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
-	s[#s+1] = ({nil, nil,             nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = fsr.easu
@@ -215,12 +214,12 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
-	s[#s+1] = ({nil, nil,             nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = scale >  1.5 and as.luma_low or nil
-	s[#s+1] = ({nil, fsr.rcas_mid, nil, fsr.rcas_mid})[math.min(math.floor(scale + 0.1), 4)]
+	s[#s+1] = ({nil, fsr.rcas_low, nil, fsr.rcas_low})[math.min(math.floor(scale + 0.1), 4)]
 	s[#s+1] = scale >  0.9 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU_AR + EASU + AS(low) + RCAS(mid)' }
@@ -229,7 +228,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
-	s[#s+1] = ({nil, nil,             nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = fsr.easu

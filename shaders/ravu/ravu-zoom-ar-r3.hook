@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!DESC RAVU-Zoom-AR-R3
+//!DESC RAVU-Zoom-AR-R3 [0.75]
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_zoom_lut3
@@ -20,6 +20,7 @@
 //!HEIGHT OUTPUT.h
 //!OFFSET ALIGN
 //!WHEN HOOKED.w OUTPUT.w < HOOKED.h OUTPUT.h < *
+#define ANTIRING_STRENGTH 0.750000
 #define LUTPOS(x, lut_size) mix(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
 vec4 hook() {
 vec2 pos = HOOKED_pos * HOOKED_size;
@@ -218,7 +219,7 @@ lo += dot(wg, cg_lo);
 wgsum += dot(wg, vec4(1.0));
 lo = sqrt(sqrt(sqrt(lo / wgsum)));
 hi = sqrt(sqrt(sqrt(hi / wgsum)));
-res = mix(res, clamp(res, 1.0 - lo, hi), 0.750000);
+res = mix(res, clamp(res, 1.0 - lo, hi), ANTIRING_STRENGTH);
 return vec4(res, 0.0, 0.0, 0.0);
 }
 //!TEXTURE ravu_zoom_lut3
