@@ -180,14 +180,16 @@ local fsr             = {
 -- bjin's - https://github.com/bjin/mpv-prescalers
 local ravu_path       = shaders_path .. 'ravu/'
 local ravu_lite       = {
-	r2                = ravu_path .. 'ravu-lite-r2.hook',
 	r3                = ravu_path .. 'ravu-lite-r3.hook',
 	r4                = ravu_path .. 'ravu-lite-r4.hook',
+	r3s               = ravu_path .. 'ravu-lite-ar-r3.hook',
+	r4s               = ravu_path .. 'ravu-lite-ar-r4.hook',
 }
-local ravu_lite_ar    = {
-	r2                = ravu_path .. 'ravu-lite-ar-r2.hook',
-	r3                = ravu_path .. 'ravu-lite-ar-r3.hook',
-	r4                = ravu_path .. 'ravu-lite-ar-r4.hook',
+local ravu_zoom       = {
+	r2                = ravu_path .. 'ravu-zoom-r2.hook',
+	r3                = ravu_path .. 'ravu-zoom-r3.hook',
+	r2s               = ravu_path .. 'ravu-zoom-ar-r2.hook',
+	r3s               = ravu_path .. 'ravu-zoom-ar-r3.hook',
 }
 
 
@@ -201,8 +203,8 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, nil,             nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_lite_ar.r4, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite_ar.r4 or nil
+	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = scale >  1.5 and fsr.rcas_high or nil
 	s[#s+1] = scale >  0.9 and igv.krig or nil
@@ -214,8 +216,8 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, nil,             nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_lite_ar.r4, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite_ar.r4 or nil
+	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = scale >  1.5 and as.luma_low or nil
 	s[#s+1] = ({nil, fsr.rcas_mid, nil, fsr.rcas_mid})[math.min(math.floor(scale + 0.1), 4)]
@@ -228,8 +230,8 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, nil,             nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_lite_ar.r4, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite_ar.r4 or nil
+	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = fsr.easu
 	s[#s+1] = scale >  1.5 and as.luma_high or nil
 	s[#s+1] = scale >  0.9 and igv.krig or nil
