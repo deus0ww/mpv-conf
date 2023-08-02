@@ -204,11 +204,11 @@ sets[#sets+1] = function()
 	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
-	s[#s+1] = fsr.easu
+	s[#s+1] = ravu_zoom.r2s
 	s[#s+1] = scale >  1.5 and fsr.rcas_high or nil
 	s[#s+1] = scale >  0.9 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU_AR + EASU + RCAS(high)' }
+	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU_LITE + RAVU_ZOOM + RCAS(high)' }
 end
 
 sets[#sets+1] = function()
@@ -235,7 +235,7 @@ sets[#sets+1] = function()
 	s[#s+1] = scale >  1.5 and as.luma_high or nil
 	s[#s+1] = scale >  0.9 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU_AR + EASU + AS(high)' }
+	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU_LITE + EASU + AS(high)' }
 end
 
 
