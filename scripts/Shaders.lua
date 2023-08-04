@@ -7,26 +7,29 @@ local utils   = require 'mp.utils'
 
 
 local opts = {
-	enabled          = false,    -- Master switch to enable/disable shaders
-	set_timer        = 0,
-	hifps_threshold  = 26,
+	enabled              = false,    -- Master switch to enable/disable shaders
+	set_timer            = 0,
+	hifps_threshold      = 31,
 
-	default_index    = 1,        -- Default shader set
-	auto_switch      = true,     -- Auto switch shader preset base on path
+	default_index        = 2,        -- Default shader set
+	auto_switch          = true,     -- Auto switch shader preset base on path
 
-	always_fs_scale  = true,     -- Always set scale relative to fullscreen resolution
+	always_fs_scale      = true,     -- Always set scale relative to fullscreen resolution
+	
+	preset_hifps_enabled = true,
+	preset_hifps_index   = 1,
 
-	preset_1_enabled = true,     -- Enable this preset
-	preset_1_path    = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index   = 3,        -- Shader set index to enable
+	preset_1_enabled     = true,     -- Enable this preset
+	preset_1_path        = 'anime',  -- Path search string (Lua pattern)
+	preset_1_index       = 4,        -- Shader set index to enable
 
-	preset_2_enabled = true,
-	preset_2_path    = 'cartoon',
-	preset_2_index   = 3,
+	preset_2_enabled     = true,
+	preset_2_path        = 'cartoon',
+	preset_2_index       = 4,
 
-	preset_3_enabled = false,
-	preset_3_path    = '%[.+%]',
-	preset_3_index   = 3,
+	preset_3_enabled     = false,
+	preset_3_path        = '%[.+%]',
+	preset_3_index       = 4,
 }
 
 local current_index, enabled
@@ -200,8 +203,15 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	if is_high_fps() then scale = math.max(0, scale - 1.0) end
-	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu_lite.r3, ravu_lite.r4,  ravu_lite.r4,  fsrcnnx.r8,  fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >  3.9 and ravu_lite.r4 or nil
+	s[#s+1] = fsr.easu
+	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_LITE + EASU' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = ({nil, nil,           nil,         nil,         restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
@@ -213,7 +223,6 @@ end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r2s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
@@ -227,7 +236,6 @@ end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	if is_high_fps() then scale = math.max(0, scale - 1.0) end
 	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r2s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
@@ -312,6 +320,16 @@ end
 --------------------------
 --- Observers & Events ---
 --------------------------
+local function set_default_index()
+	if not opts.auto_switch then return end
+	local path = mp.get_property_native('path', ''):lower()
+	current_index = opts.default_index
+	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
+	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
+	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
+	if opts.preset_hifps_enabled and is_high_fps() then current_index = opts.preset_hifps_index end
+end
+
 local timer = mp.add_timeout(opts.set_timer, function() set_shaders(true) end)
 timer:kill()
 local function observe_prop(k, v)
@@ -319,24 +337,16 @@ local function observe_prop(k, v)
 	props[k] = v or -1
 	
 	if is_initialized() then
+		set_default_index()
 		msg.debug('Resetting Timer')
 		timer:kill()
 		timer:resume()
 	end
 end
 
-local function set_default_index()
-	if not opts.auto_switch then return end
-	local path = mp.get_property_native('path', ''):lower()
-	current_index = opts.default_index
-	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
-	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
-	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
-end
 
 local function start()
 	reset()
-	set_default_index()
 	for prop, _ in pairs(props) do
 		mp.observe_property(prop, 'native', observe_prop)
 	end
