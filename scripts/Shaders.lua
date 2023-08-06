@@ -190,8 +190,10 @@ local fsr             = {
 -- bjin's - https://github.com/bjin/mpv-prescalers
 local ravu_path       = shaders_path .. 'ravu/'
 local ravu_lite       = {
+	r2                = ravu_path .. 'ravu-lite-r2.hook',
 	r3                = ravu_path .. 'ravu-lite-r3.hook',
 	r4                = ravu_path .. 'ravu-lite-r4.hook',
+	r2s               = ravu_path .. 'ravu-lite-ar-r2.hook',
 	r3s               = ravu_path .. 'ravu-lite-ar-r3.hook',
 	r4s               = ravu_path .. 'ravu-lite-ar-r4.hook',
 }
