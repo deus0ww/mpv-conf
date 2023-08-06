@@ -27,11 +27,11 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC Adaptive Sharpen [0.6]
+//!DESC Adaptive Sharpen [0.7]
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    0.6                  // Main control of sharpening strength [>0]
+#define curve_height    0.7                  // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel

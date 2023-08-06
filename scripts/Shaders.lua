@@ -1,4 +1,4 @@
--- deus0ww - 2023-07-11
+-- deus0ww - 2023-08-05
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -7,29 +7,33 @@ local utils   = require 'mp.utils'
 
 
 local opts = {
-	enabled              = false,    -- Master switch to enable/disable shaders
-	set_timer            = 0,
-	hifps_threshold      = 31,
+	enabled               = false,    -- Master switch to enable/disable shaders
+	always_fs_scale       = true,     -- Always set scale relative to fullscreen resolution
+	set_timer             = 0,
 
-	default_index        = 2,        -- Default shader set
-	auto_switch          = true,     -- Auto switch shader preset base on path
+	auto_switch           = true,     -- Auto switch shader preset base on path
+	default_index         = 1,        -- Default shader set
 
-	always_fs_scale      = true,     -- Always set scale relative to fullscreen resolution
+	hifps_threshold       = 30,
+	lowfps_threshold      = 10,
 	
-	preset_hifps_enabled = true,
-	preset_hifps_index   = 1,
+	preset_1_enabled      = true,     -- Enable this preset
+	preset_1_path         = 'anime',  -- Path search string (Lua pattern)
+	preset_1_index        = 3,        -- Shader set index to enable
 
-	preset_1_enabled     = true,     -- Enable this preset
-	preset_1_path        = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index       = 4,        -- Shader set index to enable
+	preset_2_enabled      = true,
+	preset_2_path         = 'cartoon',
+	preset_2_index        = 3,
 
-	preset_2_enabled     = true,
-	preset_2_path        = 'cartoon',
-	preset_2_index       = 4,
+	preset_3_enabled      = false,
+	preset_3_path         = '%[.+%]',
+	preset_3_index        = 3,
 
-	preset_3_enabled     = false,
-	preset_3_path        = '%[.+%]',
-	preset_3_index       = 4,
+	preset_hifps_enabled  = true,
+	preset_hifps_index    = 4,
+	
+	preset_lowfps_enabled = true,
+	preset_lowfps_index   = 5,
 }
 
 local current_index, enabled
@@ -99,11 +103,10 @@ local function default_options()
 	}
 end
 
-local function is_high_fps()
-	return props['container-fps']    > opts.hifps_threshold or 
-		   (mp.get_property_native('estimated-vf-fps') or 0) > opts.hifps_threshold
-end
-local function is_low_fps() return props['container-fps'] > 0 and not is_high_fps() end
+local function get_fps() return math.floor(math.max(props['container-fps'], mp.get_property_native('estimated-vf-fps', 0) + 0.5 )) end
+
+local function is_high_fps()return get_fps() >= opts.hifps_threshold  end
+local function is_low_fps() return get_fps() <= opts.lowfps_threshold end
 local function is_hdr()     return props['video-params/colormatrix']:find('bt.2020') ~= nil end
 local function is_rgb()     return props['video-params/colormatrix']:find('rgb')     ~= nil end
 local function get_scale()
@@ -121,6 +124,7 @@ end
 local function format_status()
 	local temp = (opts.always_fs_scale and 'FS ' or '') .. ('Scale: %.3f'):format(get_scale())
 	if is_high_fps() then temp = temp .. ' HighFPS' end
+	if is_low_fps()  then temp = temp .. ' LowFPS'  end
 	if is_hdr()      then temp = temp .. ' HDR' end
 	if is_rgb()      then temp = temp .. ' RGB' end
 	return temp
@@ -145,9 +149,13 @@ local restore         = {
 	r1                = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
 	r2                = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
 	r3                = a4k_path .. 'Anime4K_Restore_CNN_L.glsl',
+	r4                = a4k_path .. 'Anime4K_Restore_CNN_VL.glsl',
+	r5                = a4k_path .. 'Anime4K_Restore_CNN_UL.glsl',
 	r1s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
 	r2s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
 	r3s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_L.glsl',
+	r4s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_VL.glsl',
+	r5s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_UL.glsl',
 }
 
 -- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
@@ -203,14 +211,6 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, ravu_lite.r3, ravu_lite.r4,  ravu_lite.r4,  fsrcnnx.r8,  fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite.r4 or nil
-	s[#s+1] = fsr.easu
-	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_LITE + EASU' }
-end
-
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = ({nil, nil,           nil,         nil,         restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
@@ -231,7 +231,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({nil, fsr.rcas_low, nil, fsr.rcas_low})[math.min(math.floor(scale + 0.1), 4)]
 	s[#s+1] = scale >  0.9 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU_LITE + EASU/RAVU_ZOOM + AS(low) + RCAS(mid)' }
+	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU_LITE + EASU/RAVU_ZOOM + AS(low) + RCAS(low)' }
 end
 
 sets[#sets+1] = function()
@@ -244,6 +244,28 @@ sets[#sets+1] = function()
 	s[#s+1] = scale >  0.9 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU_LITE + EASU/RAVU_ZOOM + AS(high)' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = ({nil, ravu_lite.r3s, ravu_lite.r4s,  ravu_lite.r4s,  fsrcnnx.r8,  fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
+	s[#s+1] = fsr.easu
+	s[#s+1] = scale >  2.9 and fsr.rcas_high or nil
+	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_LITE + EASU' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = restore.r4s
+	s[#s+1] = fsrcnnx.r16
+	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
+	s[#s+1] = ravu_zoom.r3s
+	s[#s+1] = as.luma_low
+	s[#s+1] = fsr.rcas_low
+	s[#s+1] = scale >  0.9 and igv.krig or nil
+	s[#s+1] = is_rgb() and as.rgb or nil
+	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX/RAVU_LITE + RAVU_ZOOM + AS(low) + RCAS(low)' }
 end
 
 
@@ -327,17 +349,19 @@ local function set_default_index()
 	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
 	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
 	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
-	if opts.preset_hifps_enabled and is_high_fps() then current_index = opts.preset_hifps_index end
+	if opts.preset_lowfps_enabled and is_low_fps()  then current_index = opts.preset_lowfps_index end
+	if opts.preset_hifps_enabled  and is_high_fps() then current_index = opts.preset_hifps_index  end
 end
 
 local timer = mp.add_timeout(opts.set_timer, function() set_shaders(true) end)
 timer:kill()
+local firstrun = true
 local function observe_prop(k, v)
 	-- msg.debug(k, props[k], '->', utils.to_string(v))
 	props[k] = v or -1
 	
 	if is_initialized() then
-		set_default_index()
+		if firstrun then set_default_index(); firstrun = false end
 		msg.debug('Resetting Timer')
 		timer:kill()
 		timer:resume()
@@ -347,6 +371,7 @@ end
 
 local function start()
 	reset()
+	firstrun = true
 	for prop, _ in pairs(props) do
 		mp.observe_property(prop, 'native', observe_prop)
 	end
