@@ -12,14 +12,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!DESC RAVU-Lite-AR R2 1 [0.7]
+//!DESC RAVU-Lite-AR R2 1 [0.8]
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_lut2
 //!SAVE ravu_lite_int
 //!WHEN HOOKED.w OUTPUT.w / 0.707106 < HOOKED.h OUTPUT.h / 0.707106 < *
 //!COMPONENTS 4
-#define ANTIRING_STRENGTH 0.700000
+#define ANTIRING_STRENGTH 0.800000
 vec4 hook() {
 vec4 gather0 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-1, -1), 0);
 vec2 gather2 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-1, 1), 0).wz;
@@ -67,50 +67,65 @@ float strength = mix(mix(0.0, 1.0, lambda >= 0.004), mix(2.0, 3.0, lambda >= 0.0
 float coherence = mix(mix(0.0, 1.0, mu >= 0.25), 2.0, mu >= 0.5);
 float coord_y = ((angle * 4.0 + strength) * 3.0 + coherence + 0.5) / 288.0;
 vec4 res = vec4(0.0), w;
-vec4 lo = vec4(0.0), hi = vec4(0.0), wg, wgsum = vec4(0.0), cg4;
+vec4 lo = vec4(0.0), hi = vec4(0.0), lo2 = vec4(0.0), hi2 = vec4(0.0), wg, cg4, cg4_1;
 w = texture(ravu_lite_lut2, vec2(0.1, coord_y));
 wg = max(vec4(0.0), w);
 res += gather0.w * w + luma8 * w.wzyx;
-cg4 = vec4(gather0.w, 1.0 - gather0.w, luma8, 1.0 - luma8);
-cg4 *= cg4; cg4 *= cg4; cg4 *= cg4;
+cg4 = vec4(1.0 + gather0.w, 2.0 - gather0.w, 1.0 + luma8, 2.0 - luma8);
+cg4_1 = cg4;
+cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;
 hi += cg4.x * wg + cg4.z * wg.wzyx;
 lo += cg4.y * wg + cg4.w * wg.wzyx;
-wgsum += wg + wg.wzyx;
+cg4 *= cg4_1;
+hi2 += cg4.x * wg + cg4.z * wg.wzyx;
+lo2 += cg4.y * wg + cg4.w * wg.wzyx;
 w = texture(ravu_lite_lut2, vec2(0.3, coord_y));
 wg = max(vec4(0.0), w);
 res += gather0.x * w + gather6.y * w.wzyx;
-cg4 = vec4(gather0.x, 1.0 - gather0.x, gather6.y, 1.0 - gather6.y);
-cg4 *= cg4; cg4 *= cg4; cg4 *= cg4;
+cg4 = vec4(1.0 + gather0.x, 2.0 - gather0.x, 1.0 + gather6.y, 2.0 - gather6.y);
+cg4_1 = cg4;
+cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;
 hi += cg4.x * wg + cg4.z * wg.wzyx;
 lo += cg4.y * wg + cg4.w * wg.wzyx;
-wgsum += wg + wg.wzyx;
+cg4 *= cg4_1;
+hi2 += cg4.x * wg + cg4.z * wg.wzyx;
+lo2 += cg4.y * wg + cg4.w * wg.wzyx;
 w = texture(ravu_lite_lut2, vec2(0.5, coord_y));
 wg = max(vec4(0.0), w);
 res += gather2.x * w + gather6.x * w.wzyx;
-cg4 = vec4(gather2.x, 1.0 - gather2.x, gather6.x, 1.0 - gather6.x);
-cg4 *= cg4; cg4 *= cg4; cg4 *= cg4;
+cg4 = vec4(1.0 + gather2.x, 2.0 - gather2.x, 1.0 + gather6.x, 2.0 - gather6.x);
+cg4_1 = cg4;
+cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;
 hi += cg4.x * wg + cg4.z * wg.wzyx;
 lo += cg4.y * wg + cg4.w * wg.wzyx;
-wgsum += wg + wg.wzyx;
+cg4 *= cg4_1;
+hi2 += cg4.x * wg + cg4.z * wg.wzyx;
+lo2 += cg4.y * wg + cg4.w * wg.wzyx;
 w = texture(ravu_lite_lut2, vec2(0.7, coord_y));
 wg = max(vec4(0.0), w);
 res += gather0.z * w + gather2.y * w.wzyx;
-cg4 = vec4(gather0.z, 1.0 - gather0.z, gather2.y, 1.0 - gather2.y);
-cg4 *= cg4; cg4 *= cg4; cg4 *= cg4;
+cg4 = vec4(1.0 + gather0.z, 2.0 - gather0.z, 1.0 + gather2.y, 2.0 - gather2.y);
+cg4_1 = cg4;
+cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;cg4 *= cg4;
 hi += cg4.x * wg + cg4.z * wg.wzyx;
 lo += cg4.y * wg + cg4.w * wg.wzyx;
-wgsum += wg + wg.wzyx;
+cg4 *= cg4_1;
+hi2 += cg4.x * wg + cg4.z * wg.wzyx;
+lo2 += cg4.y * wg + cg4.w * wg.wzyx;
 w = texture(ravu_lite_lut2, vec2(0.9, coord_y));
 wg = max(vec4(0.0), w);
 res += gather0.y * w;
-vec2 cg2 = vec2(gather0.y, 1.0 - gather0.y);
-cg2 *= cg2; cg2 *= cg2; cg2 *= cg2;
+vec2 cg2 = vec2(1.0 + gather0.y, 2.0 - gather0.y);
+vec2 cg2_1 = cg2;
+cg2 *= cg2;cg2 *= cg2;cg2 *= cg2;cg2 *= cg2;cg2 *= cg2;
 hi += cg2.x * wg;
 lo += cg2.y * wg;
-wgsum += wg;
-lo = sqrt(sqrt(sqrt(lo / wgsum)));
-hi = sqrt(sqrt(sqrt(hi / wgsum)));
-res = mix(res, clamp(res, vec4(1.0) - lo, hi), ANTIRING_STRENGTH);
+cg2 *= cg2_1;
+hi2 += cg2.x * wg;
+lo2 += cg2.y * wg;
+lo = 2.0 - lo2 / lo;
+hi = hi2 / hi - 1.0;
+res = mix(res, clamp(res, lo, hi), ANTIRING_STRENGTH);
 return res;
 }
 //!DESC RAVU-Lite-AR R2 2
