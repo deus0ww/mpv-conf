@@ -7,33 +7,37 @@ local utils   = require 'mp.utils'
 
 
 local opts = {
-	enabled               = false,    -- Master switch to enable/disable shaders
-	always_fs_scale       = true,     -- Always set scale relative to fullscreen resolution
+	enabled               = false,      -- Master switch to enable/disable shaders
+	always_fs_scale       = true,       -- Always set scale relative to fullscreen resolution
 	set_timer             = 0,
 
-	auto_switch           = true,     -- Auto switch shader preset base on path
-	default_index         = 1,        -- Default shader set
+	auto_switch           = true,       -- Auto switch shader preset base on path
+	default_index         = 1,          -- Default shader set
 
-	hifps_threshold       = 30,
+	hifps_threshold       = 31,
 	lowfps_threshold      = 10,
-	
-	preset_1_enabled      = true,     -- Enable this preset
-	preset_1_path         = 'anime',  -- Path search string (Lua pattern)
-	preset_1_index        = 3,        -- Shader set index to enable
 
-	preset_2_enabled      = true,
-	preset_2_path         = 'cartoon',
-	preset_2_index        = 3,
+	preset_1_enabled      = true,
+	preset_1_path         = 'rendered',
+	preset_1_index        = 2,
 
-	preset_3_enabled      = false,
-	preset_3_path         = '%[.+%]',
+	preset_2_enabled      = true,       -- Enable this preset
+	preset_2_path         = 'anime',    -- Path search string (Lua pattern)
+	preset_2_index        = 3,          -- Shader set index to enable
+
+	preset_3_enabled      = true,
+	preset_3_path         = 'cartoon',
 	preset_3_index        = 3,
 
-	preset_hifps_enabled  = true,
-	preset_hifps_index    = 4,
+	preset_4_enabled      = false,
+	preset_4_path         = '%[.+%]',
+	preset_4_index        = 3,
+
+	preset_lowfps_enabled = true,       -- Target frame time: 90ms
+	preset_lowfps_index   = 4,
 	
-	preset_lowfps_enabled = true,
-	preset_lowfps_index   = 5,
+	preset_hifps_enabled  = true,       -- Target frame time: 15ms
+	preset_hifps_index    = 5,
 }
 
 local current_index, enabled
@@ -213,61 +217,55 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, nil,           nil,         nil,         restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
+	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
 	s[#s+1] = scale >  1.9 and fsr.rcas_high or nil
-	s[#s+1] = scale >  0.9 and igv.krig or nil
+	s[#s+1] = igv.krig
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Live - FSRCNNX/RAVU_LITE + EASU/RAVU_ZOOM + RCAS(high)' }
+	return { shaders = s, options = o, label = 'Live - FSRCNNX + EASU/RAVU_ZOOM + RCAS(high)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r2s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
+	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
 	s[#s+1] = scale >  1.9 and as.luma_low or nil
 	s[#s+1] = ({nil, fsr.rcas_low, nil, fsr.rcas_low})[math.min(math.floor(scale + 0.1), 4)]
-	s[#s+1] = scale >  0.9 and igv.krig or nil
+	s[#s+1] = igv.krig
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX/RAVU_LITE + EASU/RAVU_ZOOM + AS(low) + RCAS(low)' }
+	return { shaders = s, options = o, label = 'Rendered - FSRCNNX + EASU/RAVU_ZOOM + AS(low) + RCAS(low)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r2s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_lite.r4s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
+	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
 	s[#s+1] = scale >  1.9 and as.luma_high or nil
-	s[#s+1] = scale >  0.9 and igv.krig or nil
+	s[#s+1] = igv.krig
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX/RAVU_LITE + EASU/RAVU_ZOOM + AS(high)' }
+	return { shaders = s, options = o, label = 'Drawn - FSRCNNX + EASU/RAVU_ZOOM + AS(high)' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, ravu_lite.r3s, ravu_lite.r4s,  ravu_lite.r4s,  fsrcnnx.r8,  fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
-	s[#s+1] = fsr.easu
-	s[#s+1] = scale >  2.9 and fsr.rcas_high or nil
-	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_LITE + EASU' }
-end
-
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = restore.r4s
 	s[#s+1] = fsrcnnx.r16
-	s[#s+1] = scale >  3.9 and ravu_lite.r4s or nil
 	s[#s+1] = ravu_zoom.r3s
 	s[#s+1] = as.luma_low
 	s[#s+1] = fsr.rcas_low
 	s[#s+1] = scale >  0.9 and igv.krig or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX/RAVU_LITE + RAVU_ZOOM + AS(low) + RCAS(low)' }
+	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_ZOOM + AS(low) + RCAS(low)' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = ({nil, ravu_lite.r3s, ravu_zoom.r3s, fsrcnnx.r8, fsrcnnx.r8, fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ravu_zoom.r3s
+	s[#s+1] = scale >  3.9 and fsr.rcas_high or nil
+	return { shaders = s, options = o, label = 'HighFPS - FSRCNNXRAVU_LITE + RAVU_ZOOM + RCAS(high)' }
 end
 
 
@@ -348,6 +346,7 @@ local function set_default_index()
 	if not opts.auto_switch then return end
 	local path = mp.get_property_native('path', ''):lower()
 	current_index = opts.default_index
+	if opts.preset_4_enabled and path:find(opts.preset_4_path) ~= nil then current_index = opts.preset_4_index end
 	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
 	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
 	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
