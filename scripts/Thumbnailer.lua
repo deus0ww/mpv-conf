@@ -1,4 +1,4 @@
--- deus0ww - 2022-01-11
+-- deus0ww - 2023-08-08
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -37,6 +37,7 @@ local message = {
 	shrink       = script_name .. '-shrink',
 	enlarge      = script_name .. '-enlarge',
 	auto_delete  = script_name .. '-toggle-auto-delete',
+	no_delete    = script_name .. '-no-delete',
 
 	queued     = 1,
 	processing = 2,
@@ -748,6 +749,18 @@ local auto_delete_message = { [0] = '', [1] = ' (on file close)', [2] = ' (on qu
 mp.register_script_message(message.auto_delete, function()
 	if auto_delete == nil then auto_delete = user_opts.auto_delete end
 	auto_delete = (auto_delete + 1) % 3
+	mp.osd_message( (auto_delete > 0 and '■' or '□') .. ' Thumbnail Auto Delete' .. auto_delete_message[auto_delete])
+end)
+
+mp.register_script_message(message.auto_delete, function()
+	if auto_delete == nil then auto_delete = user_opts.auto_delete end
+	auto_delete = (auto_delete + 1) % 3
+	mp.osd_message( (auto_delete > 0 and '■' or '□') .. ' Thumbnail Auto Delete' .. auto_delete_message[auto_delete])
+end)
+
+mp.register_script_message(message.no_delete, function()
+	if auto_delete == nil then auto_delete = user_opts.auto_delete end
+	auto_delete = 0
 	mp.osd_message( (auto_delete > 0 and '■' or '□') .. ' Thumbnail Auto Delete' .. auto_delete_message[auto_delete])
 end)
 
