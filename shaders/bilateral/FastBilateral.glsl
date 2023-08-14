@@ -20,11 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!PARAM intensity_coeff
-//!TYPE float
-//!MINIMUM 0.0
-64.0
-
 //!HOOK CHROMA
 //!BIND CHROMA
 //!BIND LUMA
@@ -33,6 +28,8 @@
 //!WHEN CHROMA.w LUMA.w <
 //!OFFSET ALIGN
 //!DESC FastBilateral
+
+#define intensity_coeff 64.0
 
 float comp_wi(float distance) {
     return exp(-intensity_coeff * distance * distance);
