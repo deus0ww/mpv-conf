@@ -162,36 +162,26 @@ local restore         = {
 	r5s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_UL.glsl',
 }
 
--- igv's - https://gist.github.com/igv , https://github.com/igv/FSRCNN-TensorFlow
-local igv_path        = shaders_path .. 'igv/'
-local igv             = {
-	krig              = igv_path .. 'KrigBilateral.glsl',
-	sssr              = igv_path .. 'SSimSuperRes.glsl',
-	ssds              = igv_path .. 'SSimDownscaler.glsl',
-}
-local as              = {
-	rgb               = igv_path .. 'adaptive-sharpen.glsl',
-	luma_low          = igv_path .. 'adaptive-sharpen_luma_low.glsl',
-	luma_high         = igv_path .. 'adaptive-sharpen_luma_high.glsl',
-}
-local fsrcnnx         = {
-	r8                = igv_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
-	r8l               = igv_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
-	r16               = igv_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
-	r16e              = igv_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
-	r16l              = igv_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
-}
-
--- agyild's - https://gist.github.com/agyild
-local amd_path        = shaders_path .. 'agyild/amd/'
+-- FSR by agyild - https://gist.github.com/agyild
+local fsr_path        = shaders_path .. 'fsr/'
 local fsr             = {
-	fsr               = amd_path .. 'FSR.glsl',
-	easu              = amd_path .. 'FSR_EASU.glsl',
-	rcas_low          = amd_path .. 'FSR_RCAS_low.glsl',
-	rcas_high         = amd_path .. 'FSR_RCAS_high.glsl',
+	fsr               = fsr_path .. 'FSR.glsl',
+	easu              = fsr_path .. 'FSR_EASU.glsl',
+	rcas_low          = fsr_path .. 'FSR_RCAS_low.glsl',
+	rcas_high         = fsr_path .. 'FSR_RCAS_high.glsl',
 }
 
--- bjin's - https://github.com/bjin/mpv-prescalers
+-- FSRCNNX by igv - https://github.com/igv/FSRCNN-TensorFlow
+local fsrcnnx_path    = shaders_path .. 'fsrcnnx/'
+local fsrcnnx         = {
+	r8                = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
+	r8l               = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
+	r16               = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
+	r16e              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
+	r16l              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
+}
+
+-- RAVU by bjin - https://github.com/bjin/mpv-prescalers
 local ravu_path       = shaders_path .. 'ravu/'
 local ravu_lite       = {
 	r2                = ravu_path .. 'ravu-lite-r2.hook',
@@ -208,6 +198,26 @@ local ravu_zoom       = {
 	r3s               = ravu_path .. 'ravu-zoom-ar-r3.hook',
 }
 
+-- igv's - https://gist.github.com/igv
+local igv_path        = shaders_path .. 'igv/'
+local igv             = {
+	sssr              = igv_path .. 'SSimSuperRes.glsl',
+	ssds              = igv_path .. 'SSimDownscaler.glsl',
+}
+local as              = {
+	rgb               = igv_path .. 'adaptive-sharpen.glsl',
+	luma_low          = igv_path .. 'adaptive-sharpen_luma_low.glsl',
+	luma_high         = igv_path .. 'adaptive-sharpen_luma_high.glsl',
+}
+
+-- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
+local bilateral_path  = shaders_path .. 'bilateral/'
+local bilateral       = {
+	r1                = bilateral_path .. 'FastBilateral.glsl',
+	r2                = bilateral_path .. 'JointBilateral.glsl',
+	r3                = bilateral_path .. 'KrigBilateral.glsl',
+}
+
 
 
 -------------------
@@ -221,7 +231,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
 	s[#s+1] = scale >  1.9 and fsr.rcas_high or nil
-	s[#s+1] = igv.krig
+	s[#s+1] = bilateral.r3
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Live - FSRCNNX + EASU/RAVU_ZOOM + RCAS(high)' }
 end
@@ -233,7 +243,7 @@ sets[#sets+1] = function()
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
 	s[#s+1] = scale >  1.9 and as.luma_low or nil
 	s[#s+1] = ({nil, fsr.rcas_low, nil, fsr.rcas_low})[math.min(math.floor(scale + 0.1), 4)]
-	s[#s+1] = igv.krig
+	s[#s+1] = bilateral.r3
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Rendered - FSRCNNX + EASU/RAVU_ZOOM + AS(low) + RCAS(low)' }
 end
@@ -244,7 +254,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
 	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
 	s[#s+1] = scale >  1.9 and as.luma_high or nil
-	s[#s+1] = igv.krig
+	s[#s+1] = bilateral.r3
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'Drawn - FSRCNNX + EASU/RAVU_ZOOM + AS(high)' }
 end
@@ -255,7 +265,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ravu_zoom.r3s
 	s[#s+1] = as.luma_low
 	s[#s+1] = fsr.rcas_low
-	s[#s+1] = scale >  0.9 and igv.krig or nil
+	s[#s+1] = scale >  0.9 and bilateral.r3 or nil
 	s[#s+1] = is_rgb() and as.rgb or nil
 	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_ZOOM + AS(low) + RCAS(low)' }
 end
