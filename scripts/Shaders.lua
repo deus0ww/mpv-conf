@@ -38,6 +38,9 @@ local opts = {
 	
 	preset_hifps_enabled  = true,       -- Target frame time: 15ms
 	preset_hifps_index    = 5,
+	
+	preset_rgb_enabled    = true,
+	preset_rgb_index      = 6,
 }
 
 local current_index, enabled
@@ -182,20 +185,27 @@ local fsrcnnx         = {
 }
 
 -- RAVU by bjin - https://github.com/bjin/mpv-prescalers
-local ravu_path       = shaders_path .. 'ravu/'
-local ravu_lite       = {
-	r2                = ravu_path .. 'ravu-lite-r2.hook',
-	r3                = ravu_path .. 'ravu-lite-r3.hook',
-	r4                = ravu_path .. 'ravu-lite-r4.hook',
-	r2s               = ravu_path .. 'ravu-lite-ar-r2.hook',
-	r3s               = ravu_path .. 'ravu-lite-ar-r3.hook',
-	r4s               = ravu_path .. 'ravu-lite-ar-r4.hook',
-}
-local ravu_zoom       = {
-	r2                = ravu_path .. 'ravu-zoom-r2.hook',
-	r3                = ravu_path .. 'ravu-zoom-r3.hook',
-	r2s               = ravu_path .. 'ravu-zoom-ar-r2.hook',
-	r3s               = ravu_path .. 'ravu-zoom-ar-r3.hook',
+local ravu_luma_path  = shaders_path .. 'ravu/luma/'
+local ravu_rgb_path   = shaders_path .. 'ravu/rgb/'
+local ravu            = {
+	lite              = {
+		r2            = ravu_luma_path .. 'ravu-lite-r2.hook',
+		r3            = ravu_luma_path .. 'ravu-lite-r3.hook',
+		r4            = ravu_luma_path .. 'ravu-lite-r4.hook',
+		r2s           = ravu_luma_path .. 'ravu-lite-ar-r2.hook',
+		r3s           = ravu_luma_path .. 'ravu-lite-ar-r3.hook',
+		r4s           = ravu_luma_path .. 'ravu-lite-ar-r4.hook',
+	},
+	zoom              = {
+		r2            = ravu_luma_path .. 'ravu-zoom-r2.hook',
+		r3            = ravu_luma_path .. 'ravu-zoom-r3.hook',
+		r2s           = ravu_luma_path .. 'ravu-zoom-ar-r2.hook',
+		r3s           = ravu_luma_path .. 'ravu-zoom-ar-r3.hook',
+		rgb_r2        = ravu_rgb_path  .. 'ravu-zoom-r2-rgb.hook',
+		rgb_r3        = ravu_rgb_path  .. 'ravu-zoom-r3-rgb.hook',
+		rgb_r2s       = ravu_rgb_path  .. 'ravu-zoom-ar-r2-rgb.hook',
+		rgb_r3s       = ravu_rgb_path  .. 'ravu-zoom-ar-r3-rgb.hook',
+	},
 }
 
 -- igv's - https://gist.github.com/igv
@@ -203,11 +213,8 @@ local igv_path        = shaders_path .. 'igv/'
 local igv             = {
 	sssr              = igv_path .. 'SSimSuperRes.glsl',
 	ssds              = igv_path .. 'SSimDownscaler.glsl',
-}
-local as              = {
-	rgb               = igv_path .. 'adaptive-sharpen.glsl',
-	luma_low          = igv_path .. 'adaptive-sharpen_luma_low.glsl',
-	luma_high         = igv_path .. 'adaptive-sharpen_luma_high.glsl',
+	as_rgb            = igv_path .. 'adaptive-sharpen.glsl',
+	as_luma           = igv_path .. 'adaptive-sharpen_luma.glsl',
 }
 
 -- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
@@ -227,55 +234,55 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
-	s[#s+1] = scale >  1.9 and fsr.rcas_high or nil
-	s[#s+1] = bilateral.r3
-	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Live - FSRCNNX + EASU/RAVU_ZOOM + RCAS(high)' }
+	s[#s+1] = ({nil,          nil,          nil,          restore.r1s, restore.r2s,  restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil,          fsrcnnx.r8,   fsrcnnx.r8,   fsrcnnx.r8,  fsrcnnx.r16,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ravu.zoom.r3s
+	s[#s+1] = igv.as_luma
+	s[#s+1] = ({bilateral.r2, bilateral.r1, bilateral.r1, bilateral.r2 })[math.min(math.floor(scale + 0.1), 4)]
+	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_ZOOM + AS' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r2s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r8,  fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
-	s[#s+1] = scale >  1.9 and as.luma_low or nil
-	s[#s+1] = ({nil, fsr.rcas_low, nil, fsr.rcas_low})[math.min(math.floor(scale + 0.1), 4)]
-	s[#s+1] = bilateral.r3
-	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX + EASU/RAVU_ZOOM + AS(low) + RCAS(low)' }
+	s[#s+1] = ({nil,          nil,          nil,          restore.r1s, restore.r2s,  restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil,          fsrcnnx.r8,   fsrcnnx.r8,   fsrcnnx.r8,  fsrcnnx.r16e, fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ravu.zoom.r3s
+	s[#s+1] = igv.as_luma
+	s[#s+1] = ({bilateral.r2, bilateral.r1, bilateral.r1, bilateral.r2 })[math.min(math.floor(scale + 0.1), 4)]
+	return { shaders = s, options = o, label = 'Rendered - FSRCNNX + RAVU_ZOOM + AS' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, nil,           nil,         restore.r2s, restore.r2s, restore.r2s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil, ravu_zoom.r3s, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r8l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = scale <  3.9 and fsr.easu or ravu_zoom.r3s
-	s[#s+1] = scale >  1.9 and as.luma_high or nil
-	s[#s+1] = bilateral.r3
-	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX + EASU/RAVU_ZOOM + AS(high)' }
+	s[#s+1] = ({nil,          nil,          nil,          restore.r1s, restore.r2s,  restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({nil,          fsrcnnx.r8l,  fsrcnnx.r8l,  fsrcnnx.r8l, fsrcnnx.r16l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ravu.zoom.r3s
+	s[#s+1] = igv.as_luma
+	s[#s+1] = ({bilateral.r2, bilateral.r1, bilateral.r1, bilateral.r2 })[math.min(math.floor(scale + 0.1), 4)]
+	return { shaders = s, options = o, label = 'Drawn - FSRCNNX + RAVU_ZOOM + AS' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = fsrcnnx.r16
-	s[#s+1] = ravu_zoom.r3s
-	s[#s+1] = as.luma_low
-	s[#s+1] = fsr.rcas_low
-	s[#s+1] = scale >  0.9 and bilateral.r3 or nil
-	s[#s+1] = is_rgb() and as.rgb or nil
-	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_ZOOM + AS(low) + RCAS(low)' }
+	s[#s+1] = ravu.zoom.r3s
+	s[#s+1] = igv.as_luma
+	s[#s+1] = bilateral.r3
+	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_ZOOM + AS' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, ravu_lite.r3s, ravu_zoom.r3s, fsrcnnx.r8, fsrcnnx.r8, fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ravu_zoom.r3s
-	s[#s+1] = scale >  3.9 and fsr.rcas_high or nil
-	return { shaders = s, options = o, label = 'HighFPS - FSRCNNXRAVU_LITE + RAVU_ZOOM + RCAS(high)' }
+	s[#s+1] = ({nil, ravu.lite.r2s, nil, fsrcnnx.r8, fsrcnnx.r8, fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ravu.zoom.r2s
+	return { shaders = s, options = o, label = 'HighFPS - FSRCNNXRAVU_LITE + RAVU_ZOOM' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = ravu.zoom.rgb_r3s
+	s[#s+1] = igv.as_rgb
+	return { shaders = s, options = o, label = 'RGB - AS(low)' }
 end
 
 
@@ -361,6 +368,7 @@ local function set_default_index()
 	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
 	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
 	if opts.preset_lowfps_enabled and is_low_fps()  then current_index = opts.preset_lowfps_index end
+	if opts.preset_rgb_enabled    and is_rgb()      then current_index = opts.preset_rgb_index    end
 	if opts.preset_hifps_enabled  and is_high_fps() then current_index = opts.preset_hifps_index  end
 end
 
