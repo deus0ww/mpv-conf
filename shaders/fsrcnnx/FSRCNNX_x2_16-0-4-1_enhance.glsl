@@ -1121,7 +1121,7 @@ return res;
 //!WHEN OUTPUT.w LUMA.w / 1.400 > OUTPUT.h LUMA.h / 1.400 > *
 //!WIDTH LUMA.w 2 *
 //!HEIGHT LUMA.h 2 *
-//!DESC FSRCNNX Aggregation 16E
+//!DESC FSRCNNX Aggregation [16E]
 //!BIND SUBCONV1
 vec4 hook()
 {
