@@ -35,10 +35,10 @@ local opts = {
 
 	preset_lowfps_enabled = true,       -- Target frame time: 90ms
 	preset_lowfps_index   = 4,
-	
+
 	preset_hifps_enabled  = true,       -- Target frame time: 15ms
 	preset_hifps_index    = 5,
-	
+
 	preset_rgb_enabled    = true,
 	preset_rgb_index      = 6,
 }
@@ -80,22 +80,24 @@ end
 reset()
 
 local function is_initialized()
-	return ((props['dwidth']                   >   0) and
-			(props['dheight']                  >   0) and
+	return ((props['dwidth']                         >   0) and
+			(props['dheight']                        >   0) and
 
-			(props['display-width']            >   0) and
-			(props['display-height']           >   0) and
+			(props['display-width']                  >   0) and
+			(props['display-height']                 >   0) and
 
-			(props['osd-dimensions/w']         >   0) and
-			(props['osd-dimensions/h']         >   0) and
-			(props['osd-dimensions/mt']        >=  0) and
-			(props['osd-dimensions/mb']        >=  0) and
-			(props['osd-dimensions/ml']        >=  0) and
-			(props['osd-dimensions/mr']        >=  0) and
+			(props['osd-dimensions/w']               >   0) and
+			(props['osd-dimensions/h']               >   0) and
+			(props['osd-dimensions/mt']              >=  0) and
+			(props['osd-dimensions/mb']              >=  0) and
+			(props['osd-dimensions/ml']              >=  0) and
+			(props['osd-dimensions/mr']              >=  0) and
 
-			(props['container-fps']            >   0) and
-			(props['video-params/rotate']      >=  0) and
-			(props['video-params/colormatrix'] ~= '') and
+			(props['container-fps']                  >   0) and
+			(props['video-params/rotate']            >=  0) and
+
+			(type(props['video-params/colormatrix']) == 'string') and
+			(props['video-params/colormatrix']       ~= '') and
 			true)
 end
 
@@ -105,22 +107,22 @@ end
 --- Shader Utils ---
 --------------------
 local function default_options()
-	return {
-		['sigmoid-upscaling'] = 'yes',
+	return { ['sigmoid-upscaling'] = 'yes',
 	}
 end
 
 local function get_fps() return math.floor(math.max(props['container-fps'], mp.get_property_native('estimated-vf-fps', 0) + 0.5 )) end
-
 local function is_high_fps()return get_fps() >= opts.hifps_threshold  end
 local function is_low_fps() return get_fps() <= opts.lowfps_threshold end
+
 local function is_hdr()     return props['video-params/colormatrix']:find('bt.2020') ~= nil end
 local function is_rgb()     return props['video-params/colormatrix']:find('rgb')     ~= nil end
+
 local function get_scale()
 	local scaled_width, scaled_height, video_width, video_height = 0, 0, props['dwidth'], props['dheight']
 	if opts.always_fs_scale then
 		scaled_width  = props['display-width']
-		scaled_height = props['display-height'] 
+		scaled_height = props['display-height']
 		return math.min(scaled_width/video_width, scaled_height/video_height)
 	else
 		scaled_width  = props['osd-dimensions/w'] - props['osd-dimensions/ml'] - props['osd-dimensions/mr']
@@ -128,14 +130,17 @@ local function get_scale()
 		return math.sqrt((scaled_width * scaled_height) / (video_width * video_height))
     end
 end
+
 local function format_status()
 	local temp = (opts.always_fs_scale and 'FS ' or '') .. ('Scale: %.3f'):format(get_scale())
 	if is_high_fps() then temp = temp .. ' HighFPS' end
 	if is_low_fps()  then temp = temp .. ' LowFPS'  end
-	if is_hdr()      then temp = temp .. ' HDR' end
-	if is_rgb()      then temp = temp .. ' RGB' end
+	if is_hdr()      then temp = temp .. ' HDR'     end
+	if is_rgb()      then temp = temp .. ' RGB'     end
 	return temp
 end
+
+local function minmax(v, min, max, b) return math.min(math.max(math.floor(v + (b and b or 0)), min), max) end
 
 
 
@@ -170,7 +175,7 @@ local fsr             = {
 local fsrcnnx_path    = shaders_path .. 'fsrcnnx/'
 local fsrcnnx         = {
 	r8                = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
-	r8l               = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl', 
+	r8l               = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl',
 	r16               = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
 	r16e              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
 	r16l              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
@@ -226,32 +231,32 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil,          nil,          nil,          restore.r1s, restore.r2s,  restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil,          fsrcnnx.r8,   fsrcnnx.r8,   fsrcnnx.r8,  fsrcnnx.r16,  fsrcnnx.r16 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({[5]=restore.r2s, [6]=restore.r3s, [7]=restore.r4s })[minmax(scale, 1, 7, 0.1)]
+	s[#s+1] = ({[3]=fsrcnnx.r8,  [4]=fsrcnnx.r16  })[minmax(scale, 3, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = igv.as_luma
-	s[#s+1] = ({bilateral.r2, bilateral.r1, bilateral.r1, bilateral.r2 })[math.min(math.floor(scale + 0.1), 4)]
-	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_ZOOM + AS' }
+	s[#s+1] = ({[4]=bilateral.r1, [5]=bilateral.r2, [6]=bilateral.r3 })[minmax(scale, 4, 6, 0.1)]
+	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_ZOOM + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil,          nil,          nil,          restore.r1s, restore.r2s,  restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil,          fsrcnnx.r8,   fsrcnnx.r8,   fsrcnnx.r8,  fsrcnnx.r16e, fsrcnnx.r16e})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({[5]=restore.r2s, [6]=restore.r3s, [7]=restore.r4s })[minmax(scale, 1, 7, 0.1)]
+	s[#s+1] = ({[3]=fsrcnnx.r8,  [4]=fsrcnnx.r16e })[minmax(scale, 3, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = igv.as_luma
-	s[#s+1] = ({bilateral.r2, bilateral.r1, bilateral.r1, bilateral.r2 })[math.min(math.floor(scale + 0.1), 4)]
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX + RAVU_ZOOM + AS' }
+	s[#s+1] = ({[4]=bilateral.r1, [5]=bilateral.r2, [6]=bilateral.r3 })[minmax(scale, 4, 6, 0.1)]
+	return { shaders = s, options = o, label = 'Rendered - FSRCNNX_Enhance + RAVU_Zoom + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil,          nil,          nil,          restore.r1s, restore.r2s,  restore.r3s })[math.min(math.floor(scale + 0.1), 6)]
-	s[#s+1] = ({nil,          fsrcnnx.r8l,  fsrcnnx.r8l,  fsrcnnx.r8l, fsrcnnx.r16l, fsrcnnx.r16l})[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({[5]=restore.r2s, [6]=restore.r3s, [7]=restore.r4s })[minmax(scale, 1, 7, 0.1)]
+	s[#s+1] = ({[3]=fsrcnnx.r8l, [4]=fsrcnnx.r16l })[minmax(scale, 3, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = igv.as_luma
-	s[#s+1] = ({bilateral.r2, bilateral.r1, bilateral.r1, bilateral.r2 })[math.min(math.floor(scale + 0.1), 4)]
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX + RAVU_ZOOM + AS' }
+	s[#s+1] = ({[4]=bilateral.r1, [5]=bilateral.r2, [6]=bilateral.r3 })[minmax(scale, 4, 6, 0.1)]
+	return { shaders = s, options = o, label = 'Drawn - FSRCNNX_LineArt + RAVU_Zoom + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
@@ -260,21 +265,22 @@ sets[#sets+1] = function()
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = igv.as_luma
 	s[#s+1] = bilateral.r3
-	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_ZOOM + AS' }
+	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_Zoom + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({nil, ravu.lite.r2s, nil, fsrcnnx.r8, fsrcnnx.r8, fsrcnnx.r8 })[math.min(math.floor(scale + 0.1), 6)]
+	s[#s+1] = ({[2]=ravu.lite.r2s, [4]=fsrcnnx.r8 })[minmax(scale, 1, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r2s
-	return { shaders = s, options = o, label = 'HighFPS - FSRCNNXRAVU_LITE + RAVU_ZOOM' }
+	s[#s+1] = bilateral.r1
+	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_Lite + RAVU_Zoom + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = ravu.zoom.rgb_r3s
 	s[#s+1] = igv.as_rgb
-	return { shaders = s, options = o, label = 'RGB - AS(low)' }
+	return { shaders = s, options = o, label = 'RGB - RAVU_Zoom + AS' }
 end
 
 
@@ -310,7 +316,7 @@ local function mpv_set_shaders(shaders)
 end
 
 local function clear_shaders(no_osd)
-	if not is_initialized() then 
+	if not is_initialized() then
 		msg.debug('Setting Shaders: skipped - properties not available.')
 		return
 	end
@@ -326,7 +332,7 @@ local function clear_shaders(no_osd)
 end
 
 local function set_shaders(no_osd)
-	if not is_initialized() then 
+	if not is_initialized() then
 		msg.debug('Setting Shaders: skipped - properties not available.')
 		return
 	end
@@ -337,7 +343,7 @@ local function set_shaders(no_osd)
 		return
 	end
 	local s, _ = utils.to_string(shaders)
-	if last_shaders == s then 
+	if last_shaders == s then
 		msg.debug('Setting Shaders: skipped - shaders unchanged.')
 		return
 	end
@@ -370,7 +376,7 @@ local firstrun = true
 local function observe_prop(k, v)
 	-- msg.debug(k, props[k], '->', utils.to_string(v))
 	props[k] = v or -1
-	
+
 	if is_initialized() then
 		if firstrun then set_default_index(); firstrun = false end
 		msg.debug('Resetting Timer')
