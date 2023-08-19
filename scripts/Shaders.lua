@@ -214,7 +214,7 @@ local igv             = {
 local as              = {
 	rgb               = igv_path .. 'adaptive-sharpen.glsl',
 	low               = igv_path .. 'adaptive-sharpen_luma_low.glsl',
-	high              = igv_path .. 'adaptive-sharpen_luma_low.glsl',
+	high              = igv_path .. 'adaptive-sharpen_luma_high.glsl',
 }
 
 -- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
@@ -234,31 +234,28 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[5]=restore.r2s, [6]=restore.r3s, [7]=restore.r4s })[minmax(scale, 1, 7, 0.1)]
 	s[#s+1] = ({[3]=fsrcnnx.r8,  [4]=fsrcnnx.r16  })[minmax(scale, 3, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = ({[3]=as.high,     [4]=as.low       })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ({[4]=bilateral.r1, [5]=bilateral.r2, [6]=bilateral.r3 })[minmax(scale, 4, 6, 0.1)]
+	s[#s+1] = ({[3]=bilateral.r1,[4]=bilateral.r2,[5]=bilateral.r2,[6]=bilateral.r3 })[minmax(scale, 3, 6, 0.1)]
 	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_ZOOM + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[5]=restore.r2s, [6]=restore.r3s, [7]=restore.r4s })[minmax(scale, 1, 7, 0.1)]
 	s[#s+1] = ({[3]=fsrcnnx.r8,  [4]=fsrcnnx.r16e })[minmax(scale, 3, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = ({[3]=as.high,     [4]=as.low       })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ({[4]=bilateral.r1, [5]=bilateral.r2, [6]=bilateral.r3 })[minmax(scale, 4, 6, 0.1)]
+	s[#s+1] = ({[3]=bilateral.r1,[4]=bilateral.r2,[5]=bilateral.r2,[6]=bilateral.r3 })[minmax(scale, 3, 6, 0.1)]
 	return { shaders = s, options = o, label = 'Rendered - FSRCNNX_Enhance + RAVU_Zoom + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[5]=restore.r2s, [6]=restore.r3s, [7]=restore.r4s })[minmax(scale, 1, 7, 0.1)]
 	s[#s+1] = ({[3]=fsrcnnx.r8l, [4]=fsrcnnx.r16l })[minmax(scale, 3, 4, 0.1)]
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = ({[3]=as.high,     [4]=as.low       })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ({[4]=bilateral.r1, [5]=bilateral.r2, [6]=bilateral.r3 })[minmax(scale, 4, 6, 0.1)]
+	s[#s+1] = ({[3]=bilateral.r1,[4]=bilateral.r2,[5]=bilateral.r2,[6]=bilateral.r3 })[minmax(scale, 3, 6, 0.1)]
 	return { shaders = s, options = o, label = 'Drawn - FSRCNNX_LineArt + RAVU_Zoom + AS + Bilateral' }
 end
 
@@ -282,7 +279,7 @@ end
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = ravu.zoom.rgb_r3s
-	s[#s+1] = igv.as_rgb
+	s[#s+1] = as.rgb
 	return { shaders = s, options = o, label = 'RGB - RAVU_Zoom + AS' }
 end
 
