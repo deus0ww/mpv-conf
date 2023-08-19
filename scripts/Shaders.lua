@@ -33,14 +33,14 @@ local opts = {
 	preset_4_path         = '%[.+%]',
 	preset_4_index        = 3,
 
+	preset_rgb_enabled    = true,
+	preset_rgb_index      = 4,
+
 	preset_lowfps_enabled = true,       -- Target frame time: 90ms
 	preset_lowfps_index   = 4,
 
 	preset_hifps_enabled  = true,       -- Target frame time: 15ms
 	preset_hifps_index    = 5,
-
-	preset_rgb_enabled    = true,
-	preset_rgb_index      = 6,
 }
 
 local current_index, enabled
@@ -263,9 +263,10 @@ sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = fsrcnnx.r16
 	s[#s+1] = ravu.zoom.r3s
-	s[#s+1] = as.low
 	s[#s+1] = bilateral.r3
-	return { shaders = s, options = o, label = 'LowFPS - FSRCNNX + RAVU_Zoom + AS + Bilateral' }
+	s[#s+1] = ravu.zoom.rgb_r3s
+	s[#s+1] = as.rgb
+	return { shaders = s, options = o, label = 'LowFPS/RGB - FSRCNNX + RAVU_Zoom + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
@@ -274,13 +275,6 @@ sets[#sets+1] = function()
 	s[#s+1] = ravu.zoom.r2s
 	s[#s+1] = bilateral.r1
 	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_Lite + RAVU_Zoom + Bilateral' }
-end
-
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ravu.zoom.rgb_r3s
-	s[#s+1] = as.rgb
-	return { shaders = s, options = o, label = 'RGB - RAVU_Zoom + AS' }
 end
 
 
@@ -365,8 +359,8 @@ local function set_default_index()
 	if opts.preset_3_enabled and path:find(opts.preset_3_path) ~= nil then current_index = opts.preset_3_index end
 	if opts.preset_2_enabled and path:find(opts.preset_2_path) ~= nil then current_index = opts.preset_2_index end
 	if opts.preset_1_enabled and path:find(opts.preset_1_path) ~= nil then current_index = opts.preset_1_index end
-	if opts.preset_lowfps_enabled and is_low_fps()  then current_index = opts.preset_lowfps_index end
 	if opts.preset_rgb_enabled    and is_rgb()      then current_index = opts.preset_rgb_index    end
+	if opts.preset_lowfps_enabled and is_low_fps()  then current_index = opts.preset_lowfps_index end
 	if opts.preset_hifps_enabled  and is_high_fps() then current_index = opts.preset_hifps_index  end
 end
 
