@@ -17,7 +17,7 @@
 //!BIND HOOKED
 //!BIND ravu_lite_lut3
 //!SAVE ravu_lite_int
-//!WHEN HOOKED.w OUTPUT.w / 0.707106 < HOOKED.h OUTPUT.h / 0.707106 < *
+//!WHEN OUTPUT.w HOOKED.w / 1.500 > OUTPUT.h HOOKED.h / 1.500 > *
 //!COMPONENTS 4
 #define ANTIRING_STRENGTH 0.800000
 vec4 hook() {

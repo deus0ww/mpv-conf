@@ -32,15 +32,15 @@ local opts = {
 	preset_4_enabled      = false,
 	preset_4_path         = '%[.+%]',
 	preset_4_index        = 3,
+	
+	preset_hifps_enabled  = true,       -- Target frame time: 15ms
+	preset_hifps_index    = 4,
+	
+	preset_lowfps_enabled = true,       -- Target frame time: 90ms
+	preset_lowfps_index   = 5,
 
 	preset_rgb_enabled    = true,
-	preset_rgb_index      = 4,
-
-	preset_lowfps_enabled = true,       -- Target frame time: 90ms
-	preset_lowfps_index   = 4,
-
-	preset_hifps_enabled  = true,       -- Target frame time: 15ms
-	preset_hifps_index    = 5,
+	preset_rgb_index      = 5,
 }
 
 local current_index, enabled
@@ -140,7 +140,7 @@ local function format_status()
 	return temp
 end
 
-local function minmax(v, min, max, b) return math.min(math.max(math.floor(v + (b and b or 0)), min), max) end
+local function minmax(v, min, max, b) return math.min(math.max(math.floor(v + (b and b or 0.4)), min), max) end
 
 
 
@@ -213,8 +213,7 @@ local igv             = {
 }
 local as              = {
 	rgb               = igv_path .. 'adaptive-sharpen.glsl',
-	low               = igv_path .. 'adaptive-sharpen_luma_low.glsl',
-	high              = igv_path .. 'adaptive-sharpen_luma_high.glsl',
+	luma              = igv_path .. 'adaptive-sharpen-luma.glsl',
 }
 
 -- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
@@ -234,47 +233,48 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[3]=fsrcnnx.r8,  [4]=fsrcnnx.r16  })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ravu.zoom.r3s
-	s[#s+1] = ({[3]=as.high,     [4]=as.low       })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ({[3]=bilateral.r1,[4]=bilateral.r2,[5]=bilateral.r2,[6]=bilateral.r3 })[minmax(scale, 3, 6, 0.1)]
-	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_ZOOM + AS + Bilateral' }
+	s[#s+1] = ({[3]=fsrcnnx.r8,    [4]=fsrcnnx.r16                      })[minmax(scale, 3, 4)]
+	s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 3, 5)]
+	s[#s+1] = ({                   [4]=as.luma                          })[minmax(scale, 4, 9)]
+	s[#s+1] = ({[3]=bilateral.r1,  [4]=bilateral.r3                     })[minmax(scale, 3, 4)]
+	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_Zoom/Lite + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[3]=fsrcnnx.r8,  [4]=fsrcnnx.r16e })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ravu.zoom.r3s
-	s[#s+1] = ({[3]=as.high,     [4]=as.low       })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ({[3]=bilateral.r1,[4]=bilateral.r2,[5]=bilateral.r2,[6]=bilateral.r3 })[minmax(scale, 3, 6, 0.1)]
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX_Enhance + RAVU_Zoom + AS + Bilateral' }
+	s[#s+1] = ({[3]=fsrcnnx.r8,    [4]=fsrcnnx.r16e                     })[minmax(scale, 3, 4)]
+	s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 3, 5)]
+	s[#s+1] = ({                   [4]=as.luma                          })[minmax(scale, 4, 9)]
+	s[#s+1] = ({[3]=bilateral.r1,  [4]=bilateral.r3                     })[minmax(scale, 3, 4)]
+	return { shaders = s, options = o, label = 'Rendered - FSRCNNX_Enhance + RAVU_Zoom/Lite + AS + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[3]=fsrcnnx.r8l, [4]=fsrcnnx.r16l })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ravu.zoom.r3s
-	s[#s+1] = ({[3]=as.high,     [4]=as.low       })[minmax(scale, 3, 4, 0.1)]
-	s[#s+1] = ({[3]=bilateral.r1,[4]=bilateral.r2,[5]=bilateral.r2,[6]=bilateral.r3 })[minmax(scale, 3, 6, 0.1)]
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX_LineArt + RAVU_Zoom + AS + Bilateral' }
+	s[#s+1] = ({[3]=fsrcnnx.r8l,   [4]=fsrcnnx.r16l                     })[minmax(scale, 3, 4)]
+	s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 3, 5)]
+	s[#s+1] = ({                   [4]=as.luma                          })[minmax(scale, 4, 9)]
+	s[#s+1] = ({[3]=bilateral.r1,  [4]=bilateral.r3                     })[minmax(scale, 3, 4)]
+	return { shaders = s, options = o, label = 'Drawn - FSRCNNX_LineArt + RAVU_Zoom/Lite + AS + Bilateral' }
+end
+
+sets[#sets+1] = function()
+	local s, o, scale = {}, default_options(), get_scale()
+	s[#s+1] = ({[2]=ravu.lite.r4s, [4]=fsrcnnx.r8                       })[minmax(scale, 1, 4)]
+	s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 3, 5)]
+	s[#s+1] = ({[4]=bilateral.r1,  [5]=bilateral.r3                     })[minmax(scale, 4, 5)]
+	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_Lite + RAVU_Zoom + Bilateral' }
 end
 
 sets[#sets+1] = function()
 	local s, o, scale = {}, default_options(), get_scale()
 	s[#s+1] = fsrcnnx.r16
+	s[#s+1] = ravu.lite.r4s
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = bilateral.r3
 	s[#s+1] = ravu.zoom.rgb_r3s
-	s[#s+1] = as.rgb
+	s[#s+1] = is_rgb() and as.rgb or as.luma
 	return { shaders = s, options = o, label = 'LowFPS/RGB - FSRCNNX + RAVU_Zoom + AS + Bilateral' }
-end
-
-sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({[2]=ravu.lite.r2s, [4]=fsrcnnx.r8 })[minmax(scale, 1, 4, 0.1)]
-	s[#s+1] = ravu.zoom.r2s
-	s[#s+1] = bilateral.r1
-	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_Lite + RAVU_Zoom + Bilateral' }
 end
 
 
