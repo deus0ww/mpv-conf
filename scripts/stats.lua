@@ -327,7 +327,7 @@ local function append_perfdata(s, dedicated_page)
             i = tonumber(n) / m
         end
         -- Calculate font weight. 100 is minimum, 400 is normal, 700 bold, 900 is max
-        local w = (600 * math.sqrt(i)) + 200
+        local w = (700 * math.sqrt(i)) + 200
         return format("{\\b%d}%03d{\\b0}", w, i * 100)
     end
 
