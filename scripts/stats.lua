@@ -348,8 +348,14 @@ local function append_perfdata(s, dedicated_page)
 
             local desc
             for _, pass in ipairs(data) do
-                desc = pass["desc"]:find("user shader: ") == nil and "{\\b400}" .. pass["desc"] .. "{\\b0}"
-                                                                  or "{\\b600}" .. pass["desc"]:gsub("user shader: ", "") .. "{\\b0}"
+                desc = pass["desc"]
+                desc = desc:find(" %(naive%)")    ~= nil and "NATIVE:  " .. desc:gsub(" %(naive%)", "")  or desc
+                desc = desc:find(" %(luma%)")     ~= nil and "LUMA:  "   .. desc:gsub(" %(luma%)", "")   or desc
+                desc = desc:find(" %(chroma%)")   ~= nil and "CHROMA:  " .. desc:gsub(" %(chroma%)", "") or desc
+                desc = desc:find(" %(rgb%)")      ~= nil and "RGB:  "    .. desc:gsub(" %(rgb%)", "")    or desc
+                desc = desc:find("user shader: ") == nil and "{\\b400}"  .. desc .. "{\\b0}"             
+                                                          or "{\\b600}"  .. desc:gsub("user shader: ", "") .. "{\\b0}"
+
                 s[#s+1] = format(f, o.nl, o.indent, o.indent,
                                  o.font_mono_digits, pp(pass["last"]),
                                  pp(pass["avg"]), pp(pass["peak"]),
