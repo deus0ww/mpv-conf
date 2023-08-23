@@ -19,7 +19,7 @@
 //!WIDTH OUTPUT.w
 //!HEIGHT OUTPUT.h
 //!OFFSET ALIGN
-//!WHEN OUTPUT.w HOOKED.w / 1.200 > OUTPUT.h HOOKED.h / 1.200 > *
+//!WHEN OUTPUT.w HOOKED.w / 1.100 > OUTPUT.h HOOKED.h / 1.100 > *
 const vec3 color_primary = vec3(0.212655, 0.715158, 0.072187);
 #define LUTPOS(x, lut_size) mix(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
 vec4 hook() {

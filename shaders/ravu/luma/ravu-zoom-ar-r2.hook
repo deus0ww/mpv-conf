@@ -20,7 +20,7 @@
 //!WIDTH OUTPUT.w
 //!HEIGHT OUTPUT.h
 //!OFFSET ALIGN
-//!WHEN OUTPUT.w HOOKED.w / 1.200 > OUTPUT.h HOOKED.h / 1.200 > *
+//!WHEN OUTPUT.w HOOKED.w / 1.100 > OUTPUT.h HOOKED.h / 1.100 > *
 #define ANTIRING_STRENGTH 0.800000
 #define LUTPOS(x, lut_size) mix(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
 vec4 hook() {
