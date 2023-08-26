@@ -137,12 +137,6 @@ end
 
 local function minmax(v, min, max, b) return math.min(math.max(math.floor(v + (b and b or 0.4)), min), max) end
 
-local function default_options()
-	local o = {}
-	o['scale'] = get_scale() > 1.5 and 'spline36' or 'spline64'
-	return o
-end
-
 
 
 --------------------
@@ -230,6 +224,10 @@ local bilateral       = {
 -------------------
 --- Shader Sets ---
 -------------------
+local function default_options()
+	return {}
+end
+
 local sets = {}
 
 sets[#sets+1] = function()
