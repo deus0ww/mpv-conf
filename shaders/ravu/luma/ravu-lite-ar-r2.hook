@@ -12,14 +12,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!DESC RAVU-Lite-AR R2 1 [0.7]
+//!DESC RAVU-Lite-AR R2 1 [0.8]
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_lut2
 //!SAVE ravu_lite_int
 //!WHEN OUTPUT.w HOOKED.w / 1.500 > OUTPUT.h HOOKED.h / 1.500 > *
 //!COMPONENTS 4
-#define ANTIRING_STRENGTH 0.700000
+#define ANTIRING_STRENGTH 0.800000
 vec4 hook() {
 vec4 gather0 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-1, -1), 0);
 vec2 gather2 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-1, 1), 0).wz;

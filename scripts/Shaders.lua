@@ -1,4 +1,4 @@
--- deus0ww - 2023-08-05
+-- deus0ww - 2023-08-27
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -229,7 +229,7 @@ local bilateral       = {
 local function default_options()
 	local no_shader, scale, blur, ar = (get_scale() <= 1.1) or not enabled, '', 0, 0
 	if no_shader then scale, blur, ar = 'ewa_lanczossharp', 1.0,                0.0
-	             else scale, blur, ar = 'lanczos',          0.9812505644269356, 0.7 end
+	             else scale, blur, ar = 'lanczos',          0.9812505644269356, 0.8 end
 	return {
 		['scale']  = scale, ['scale-blur']  = blur, ['scale-antiring']  = ar,
 		['cscale'] = scale, ['cscale-blur'] = blur, ['cscale-antiring'] = ar,
