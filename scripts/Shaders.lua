@@ -114,16 +114,18 @@ local function is_hdr()     return props['video-params/colormatrix']:find('bt.20
 local function is_rgb()     return props['video-params/colormatrix']:find('rgb')     ~= nil end
 
 local function get_scale()
-	local scaled_width, scaled_height, video_width, video_height = 0, 0, props['dwidth'], props['dheight']
+	local rotated = (props['video-params/rotate'] % 180 ~= 0)
+	local video_width  = rotated and props['dheight'] or props['dwidth']
+	local video_height = rotated and props['dwidth']  or props['dheight']
+	local scaled_width, scaled_height
 	if opts.always_fs_scale then
 		scaled_width  = props['display-width']
 		scaled_height = props['display-height']
-		return math.min(scaled_width/video_width, scaled_height/video_height)
 	else
 		scaled_width  = props['osd-dimensions/w'] - props['osd-dimensions/ml'] - props['osd-dimensions/mr']
 		scaled_height = props['osd-dimensions/h'] - props['osd-dimensions/mt'] - props['osd-dimensions/mb']
-		return math.sqrt((scaled_width * scaled_height) / (video_width * video_height))
     end
+    return math.min(scaled_width/video_width, scaled_height/video_height)
 end
 
 local function format_status()
