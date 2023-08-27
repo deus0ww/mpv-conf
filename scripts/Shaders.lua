@@ -227,7 +227,14 @@ local bilateral       = {
 --- Shader Sets ---
 -------------------
 local function default_options()
-	return {}
+	local no_shader, scale, blur, ar = (get_scale() <= 1.1) or not enabled, '', 0, 0
+	if no_shader then scale, blur, ar = 'ewa_lanczossharp', 1.0,                0.0
+	             else scale, blur, ar = 'lanczos',          0.9812505644269356, 0.7 end
+	return {
+		['scale']  = scale, ['scale-blur']  = blur, ['scale-antiring']  = ar,
+		['cscale'] = scale, ['cscale-blur'] = blur, ['cscale-antiring'] = ar,
+		['dscale'] = scale, ['dscale-blur'] = blur, ['dscale-antiring'] = ar,	
+	}
 end
 
 local sets = {}
