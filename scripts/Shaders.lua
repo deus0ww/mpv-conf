@@ -106,12 +106,12 @@ end
 --------------------
 --- Shader Utils ---
 --------------------
-local function get_fps() return math.floor(math.max(props['container-fps'], mp.get_property_native('estimated-vf-fps', 0) + 0.5 )) end
-local function is_high_fps()return get_fps() >= opts.hifps_threshold  end
-local function is_low_fps() return get_fps() <= opts.lowfps_threshold end
+local function get_fps()     return math.floor(math.max(props['container-fps'], mp.get_property_native('estimated-vf-fps', 0) + 0.5 )) end
+local function is_high_fps() return get_fps() >= opts.hifps_threshold  end
+local function is_low_fps()  return get_fps() <= opts.lowfps_threshold end
 
-local function is_hdr()     return props['video-params/colormatrix']:find('bt.2020') ~= nil end
-local function is_rgb()     return props['video-params/colormatrix']:find('rgb')     ~= nil end
+local function is_hdr()      return props['video-params/colormatrix']:find('bt.2020') ~= nil end
+local function is_rgb()      return props['video-params/colormatrix']:find('rgb')     ~= nil end
 
 local function get_scale()
 	local rotated = (props['video-params/rotate'] % 180 ~= 0)
