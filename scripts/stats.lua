@@ -319,7 +319,7 @@ local function append_perfdata(s, dedicated_page)
     -- Pretty print measured time
     local function pp(i)
         -- rescale to milliseconds for a saner display
-        return format("%06.3f", i / 1000000)
+        return format("%05.2f", i / 1000000)
     end
 
     -- Format n/m with a font weight based on the ratio
@@ -338,7 +338,7 @@ local function append_perfdata(s, dedicated_page)
     s[#s+1] = format("%s%s%s%s{\\fs%s}%s%s{\\fs%s}",
                      dedicated_page and "" or o.nl, dedicated_page and "" or o.indent,
                      b("Frame Timings:"), o.prefix_sep, o.font_size * 0.66,
-                     "last average peak (ms)",
+                     "(last | average | peak ms)",
                      dedicated_page and " (hint: scroll with ↑↓)" or "", o.font_size)
 
     for _,frame in ipairs(sorted_keys(vo_p)) do  -- ensure fixed display order
