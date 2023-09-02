@@ -2515,8 +2515,14 @@ function osc_init()
             "absolute-percent", "exact") end
     ne.eventresponder["reset"] =
         function (element) element.state.lastseek = nil end
-    ne.eventresponder["mbtn_right_down"] = function (element) mp.commandv('script-message', 'Thumbnailer-toggle-osc') end
-    ne.eventresponder["mbtn_right_dbl_press"] = function (element) mp.commandv('script-message', 'Thumbnailer-double') end
+    ne.eventresponder["wheel_up_press"] =
+        function () mp.commandv("osd-auto", "seek",  5) end
+    ne.eventresponder["wheel_down_press"] =
+        function () mp.commandv("osd-auto", "seek", -5) end
+    ne.eventresponder["mbtn_right_down"] =
+        function (element) mp.commandv('script-message', 'Thumbnailer-toggle-osc') end
+    ne.eventresponder["mbtn_right_dbl_press"] =
+        function (element) mp.commandv('script-message', 'Thumbnailer-double') end
 
     -- tc_left (current pos)
     ne = new_element("tc_left", "button")
