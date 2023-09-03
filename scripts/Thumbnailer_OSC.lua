@@ -2516,9 +2516,9 @@ function osc_init()
     ne.eventresponder["reset"] =
         function (element) element.state.lastseek = nil end
     ne.eventresponder["wheel_up_press"] =
-        function () mp.commandv("osd-auto", "seek",  5) end
-    ne.eventresponder["wheel_down_press"] =
         function () mp.commandv("osd-auto", "seek", -5) end
+    ne.eventresponder["wheel_down_press"] =
+        function () mp.commandv("osd-auto", "seek",  5) end
     ne.eventresponder["mbtn_right_down"] =
         function (element) mp.commandv('script-message', 'Thumbnailer-toggle-osc') end
     ne.eventresponder["mbtn_right_dbl_press"] =
