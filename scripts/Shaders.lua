@@ -15,7 +15,7 @@ local opts = {
 	default_index         = 1,          -- Default shader set
 
 	hifps_threshold       = 31,
-	lowfps_threshold      = 10,
+	lowfps_threshold      = 15,
 
 	preset_1_enabled      = true,
 	preset_1_path         = 'rendered',
@@ -106,10 +106,8 @@ end
 --------------------
 --- Shader Utils ---
 --------------------
-local function get_fps()     return math.floor(math.max(props['container-fps'], mp.get_property_native('estimated-vf-fps', 0) + 0.5 )) end
-local function is_high_fps() return get_fps() >= opts.hifps_threshold  end
-local function is_low_fps()  return get_fps() <= opts.lowfps_threshold end
-
+local function is_high_fps() return props['container-fps'] >= opts.hifps_threshold  end
+local function is_low_fps()  return props['container-fps'] <= opts.lowfps_threshold end
 local function is_hdr()      return props['video-params/colormatrix']:find('bt.2020') ~= nil end
 local function is_rgb()      return props['video-params/colormatrix']:find('rgb')     ~= nil end
 
@@ -244,7 +242,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16                      })[minmax(scale, 3, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
 	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax(scale, 1, 4)]
-	return { shaders = s, options = o, label = 'Live - FSRCNNX + RAVU_Zoom/Lite/AS + Bilateral' }
+	return { shaders = s, options = o, label = 'Live' }
 end
 
 sets[#sets+1] = function()
@@ -252,7 +250,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16e                     })[minmax(scale, 3, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
 	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax(scale, 1, 4)]
-	return { shaders = s, options = o, label = 'Rendered - FSRCNNX_Enhance + RAVU_Zoom/Lite/AS + Bilateral' }
+	return { shaders = s, options = o, label = 'Rendered' }
 end
 
 sets[#sets+1] = function()
@@ -260,7 +258,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({                                      [3]=fsrcnnx.r8l,   [4]=fsrcnnx.r16l                     })[minmax(scale, 3, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
 	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax(scale, 1, 4)]
-	return { shaders = s, options = o, label = 'Drawn - FSRCNNX_LineArt + RAVU_Zoom/Lite/AS + Bilateral' }
+	return { shaders = s, options = o, label = 'Drawn' }
 end
 
 sets[#sets+1] = function()
@@ -268,7 +266,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({                   [2]=ravu.lite.r3s,                    [4]=fsrcnnx.r8                       })[minmax(scale, 1, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r2s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
 	s[#s+1] = ({[1]=bilateral.r2,  [2]=bilateral.r1,  [3]=bilateral.r1,  [4]=bilateral.r2,  [5]=bilateral.r3  })[minmax(scale, 1, 5)]
-	return { shaders = s, options = o, label = 'HighFPS - FSRCNNX/RAVU_Lite + RAVU_Zoom/Lite/AS + Bilateral' }
+	return { shaders = s, options = o, label = 'High FPS' }
 end
 
 sets[#sets+1] = function()
@@ -278,7 +276,7 @@ sets[#sets+1] = function()
 	s[#s+1] = bilateral.r3
 	s[#s+1] = ravu.zoom.rgb_r3s
 	s[#s+1] = is_rgb() and as.rgb or as.luma
-	return { shaders = s, options = o, label = 'LowFPS/RGB - FSRCNNX + RAVU_Zoom + AS + Bilateral' }
+	return { shaders = s, options = o, label = 'Low FPS & RGB' }
 end
 
 
@@ -366,6 +364,7 @@ local function set_default_index()
 	if opts.preset_rgb_enabled    and is_rgb()      then current_index = opts.preset_rgb_index    end
 	if opts.preset_lowfps_enabled and is_low_fps()  then current_index = opts.preset_lowfps_index end
 	if opts.preset_hifps_enabled  and is_high_fps() then current_index = opts.preset_hifps_index  end
+	msg.debug("Default Index:", current_index)
 end
 
 local timer = mp.add_timeout(opts.set_timer, function() set_shaders(true) end)
