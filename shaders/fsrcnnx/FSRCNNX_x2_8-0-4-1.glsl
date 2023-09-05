@@ -366,7 +366,7 @@ return res;
 
 //!HOOK LUMA
 //!WHEN OUTPUT.w LUMA.w / 1.500 > OUTPUT.h LUMA.h / 1.500 > *
-//!DESC FSRCNNX Sub-pixel Convolution 1
+//!DESC FSRCNNX Sub-pixel Convolution
 //!BIND RES1
 //!BIND RES2
 //!SAVE SUBCONV1

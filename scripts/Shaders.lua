@@ -167,14 +167,19 @@ local fsr             = {
 	rcas_high         = fsr_path .. 'FSR_RCAS_high.glsl',
 }
 
--- FSRCNNX by igv - https://github.com/igv/FSRCNN-TensorFlow
+-- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
+-- FSRCNNX by HelpSeeker - https://github.com/HelpSeeker/FSRCNN-TensorFlow/
 local fsrcnnx_path    = shaders_path .. 'fsrcnnx/'
-local fsrcnnx         = {
+local fsrcnnx1        = {
+	r16e              = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_distort.glsl',
+	r16l              = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_anime_distort.glsl',
+}
+local fsrcnnx2        = {
 	r8                = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
 	r8l               = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl',
 	r16               = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
-	r16e              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_enhance.glsl',
-	r16l              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_enhance.glsl',
+	r16e              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_distort.glsl',
+	r16l              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_distort.glsl',
 }
 
 -- RAVU by bjin - https://github.com/bjin/mpv-prescalers
@@ -240,7 +245,7 @@ local sets = {}
 
 sets[#sets+1] = function()
 	local s = {}
-	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16                      })[minmax_scale(3, 4)]
+	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
 	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = default_options(), label = 'Live' }
@@ -248,7 +253,7 @@ end
 
 sets[#sets+1] = function()
 	local s = {}
-	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16e                     })[minmax_scale(3, 4)]
+	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
 	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = default_options(), label = 'Rendered' }
@@ -256,7 +261,7 @@ end
 
 sets[#sets+1] = function()
 	local s = {}
-	s[#s+1] = ({                                      [3]=fsrcnnx.r8l,   [4]=fsrcnnx.r16l                     })[minmax_scale(3, 4)]
+	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
 	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = default_options(), label = 'Drawn' }
@@ -264,7 +269,7 @@ end
 
 sets[#sets+1] = function()
 	local s = {}
-	s[#s+1] = ({                   [2]=ravu.lite.r3s,                    [4]=fsrcnnx.r8                       })[minmax_scale(1, 4)]
+	s[#s+1] = ({                   [2]=ravu.lite.r3s,                    [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
 	s[#s+1] = ({[1]=bilateral.r2,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r2,  [5]=bilateral.r3  })[minmax_scale(1, 5)]
 	return { shaders = s, options = default_options(), label = 'High FPS' }
@@ -272,7 +277,7 @@ end
 
 sets[#sets+1] = function()
 	local s = {}
-	s[#s+1] = fsrcnnx.r16
+	s[#s+1] = fsrcnnx2.r16
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = bilateral.r3
 	s[#s+1] = ravu.zoom.rgb_r3s
