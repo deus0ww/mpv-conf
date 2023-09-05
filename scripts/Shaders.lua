@@ -135,7 +135,8 @@ local function format_status()
 	return temp
 end
 
-local function minmax(v, min, max, b) return math.min(math.max(math.floor(v + (b and b or 0.25)), min), max) end
+local function minmax(v, min, max)    return math.min(math.max(v, min), max) end
+local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.25) end
 
 
 
@@ -238,45 +239,45 @@ end
 local sets = {}
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16                      })[minmax(scale, 3, 4)]
-	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
-	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax(scale, 1, 4)]
-	return { shaders = s, options = o, label = 'Live' }
+	local s = {}
+	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16                      })[minmax_scale(3, 4)]
+	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax_scale(1, 4)]
+	return { shaders = s, options = default_options(), label = 'Live' }
 end
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16e                     })[minmax(scale, 3, 4)]
-	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
-	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax(scale, 1, 4)]
-	return { shaders = s, options = o, label = 'Rendered' }
+	local s = {}
+	s[#s+1] = ({                                      [3]=fsrcnnx.r8,    [4]=fsrcnnx.r16e                     })[minmax_scale(3, 4)]
+	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax_scale(1, 4)]
+	return { shaders = s, options = default_options(), label = 'Rendered' }
 end
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({                                      [3]=fsrcnnx.r8l,   [4]=fsrcnnx.r16l                     })[minmax(scale, 3, 4)]
-	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
-	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax(scale, 1, 4)]
-	return { shaders = s, options = o, label = 'Drawn' }
+	local s = {}
+	s[#s+1] = ({                                      [3]=fsrcnnx.r8l,   [4]=fsrcnnx.r16l                     })[minmax_scale(3, 4)]
+	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+	s[#s+1] = ({[1]=bilateral.r3,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3                     })[minmax_scale(1, 4)]
+	return { shaders = s, options = default_options(), label = 'Drawn' }
 end
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
-	s[#s+1] = ({                   [2]=ravu.lite.r3s,                    [4]=fsrcnnx.r8                       })[minmax(scale, 1, 4)]
-	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r2s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax(scale, 1, 5)]
-	s[#s+1] = ({[1]=bilateral.r2,  [2]=bilateral.r1,  [3]=bilateral.r1,  [4]=bilateral.r2,  [5]=bilateral.r3  })[minmax(scale, 1, 5)]
-	return { shaders = s, options = o, label = 'High FPS' }
+	local s = {}
+	s[#s+1] = ({                   [2]=ravu.lite.r3s,                    [4]=fsrcnnx.r8                       })[minmax_scale(1, 4)]
+	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=as.luma,       [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+	s[#s+1] = ({[1]=bilateral.r2,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r2,  [5]=bilateral.r3  })[minmax_scale(1, 5)]
+	return { shaders = s, options = default_options(), label = 'High FPS' }
 end
 
 sets[#sets+1] = function()
-	local s, o, scale = {}, default_options(), get_scale()
+	local s = {}
 	s[#s+1] = fsrcnnx.r16
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = bilateral.r3
 	s[#s+1] = ravu.zoom.rgb_r3s
 	s[#s+1] = is_rgb() and as.rgb or as.luma
-	return { shaders = s, options = o, label = 'Low FPS & RGB' }
+	return { shaders = s, options = default_options(), label = 'Low FPS & RGB' }
 end
 
 
