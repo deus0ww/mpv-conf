@@ -1,4 +1,4 @@
--- deus0ww - 2023-08-27
+-- deus0ww - 2023-09-15
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -161,7 +161,7 @@ local function default_options()
 	if (get_scale() <= 1.1) or not enabled then
 		return set_scalers({}, 'haasnsoft', 'ewa_lanczossharp', 'haasnsoft')
 	else
-		return set_scalers({}, 'spline64', 'spline64', 'spline64')
+		return set_scalers({}, 'spline64', 'lanczos', 'spline64')
 	end
 end
 
