@@ -214,20 +214,13 @@ local ravu_luma_path  = shaders_path .. 'ravu/luma/'
 local ravu_rgb_path   = shaders_path .. 'ravu/rgb/'
 local ravu            = {
 	lite              = {
-		r2            = ravu_luma_path .. 'ravu-lite-r2.hook',
-		r3            = ravu_luma_path .. 'ravu-lite-r3.hook',
-		r4            = ravu_luma_path .. 'ravu-lite-r4.hook',
 		r2s           = ravu_luma_path .. 'ravu-lite-ar-r2.hook',
 		r3s           = ravu_luma_path .. 'ravu-lite-ar-r3.hook',
 		r4s           = ravu_luma_path .. 'ravu-lite-ar-r4.hook',
 	},
 	zoom              = {
-		r2            = ravu_luma_path .. 'ravu-zoom-r2.hook',
-		r3            = ravu_luma_path .. 'ravu-zoom-r3.hook',
 		r2s           = ravu_luma_path .. 'ravu-zoom-ar-r2.hook',
 		r3s           = ravu_luma_path .. 'ravu-zoom-ar-r3.hook',
-		rgb_r2        = ravu_rgb_path  .. 'ravu-zoom-r2-rgb.hook',
-		rgb_r3        = ravu_rgb_path  .. 'ravu-zoom-r3-rgb.hook',
 		rgb_r2s       = ravu_rgb_path  .. 'ravu-zoom-ar-r2-rgb.hook',
 		rgb_r3s       = ravu_rgb_path  .. 'ravu-zoom-ar-r3-rgb.hook',
 	},
