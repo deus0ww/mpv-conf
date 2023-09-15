@@ -126,6 +126,9 @@ local function get_scale()
     return math.min(scaled_width/video_width, scaled_height/video_height)
 end
 
+local function minmax(v, min, max)    return math.min(math.max(v, min), max) end
+local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.25) end
+
 local function format_status()
 	local temp = (opts.always_fs_scale and 'FS ' or '') .. ('Scale: %.3f'):format(get_scale())
 	if is_high_fps() then temp = temp .. ' HighFPS' end
@@ -135,8 +138,32 @@ local function format_status()
 	return temp
 end
 
-local function minmax(v, min, max)    return math.min(math.max(v, min), max) end
-local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.25) end
+local kernels = {
+	lanczos          = { blur = 0.9812505644269356},
+	haasnsoft        = { blur = 1.0},
+	ewa_lanczossharp = { blur = 1.0},
+}
+
+local function set_scaler(o, scale, k)
+	local ar   = (kernels[k] and kernels[k].ar)   and kernels[k].ar   or 0.8
+	local blur = (kernels[k] and kernels[k].blur) and kernels[k].blur or nil
+	o[scale], o[scale..'-antiring'], o[scale..'-blur']  = k, ar, blur
+end
+
+local function set_scalers(o, scale, cscale, dscale)
+	set_scaler (o, 'scale',  scale)
+	set_scaler (o, 'cscale', cscale)
+	set_scaler (o, 'dscale', dscale)
+	return o
+end
+
+local function default_options()
+	if (get_scale() <= 1.1) or not enabled then
+		return set_scalers({}, 'haasnsoft', 'ewa_lanczossharp', 'haasnsoft')
+	else
+		return set_scalers({}, 'spline64', 'spline64', 'spline64')
+	end
+end
 
 
 
@@ -231,59 +258,48 @@ local bilateral       = {
 -------------------
 --- Shader Sets ---
 -------------------
-local function default_options()
-	local no_shader, scale, blur, ar = (get_scale() <= 1.1) or not enabled, '', 0, 0
-	if no_shader then scale, blur, ar = 'ewa_lanczossharp', 1.0,                0.0
-	             else scale, blur, ar = 'lanczos',          0.9812505644269356, 0.8 end
-	return {
-		['scale']  = scale, ['scale-blur']  = blur, ['scale-antiring']  = ar,
-		['cscale'] = scale, ['cscale-blur'] = blur, ['cscale-antiring'] = ar,
-		['dscale'] = scale, ['dscale-blur'] = blur, ['dscale-antiring'] = ar,	
-	}
-end
-
 local sets = {}
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
-	return { shaders = s, options = default_options(), label = 'Live' }
+	return { shaders = s, options = o, label = 'Live' }
 end
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
-	return { shaders = s, options = default_options(), label = 'Rendered' }
+	return { shaders = s, options = o, label = 'Rendered' }
 end
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
-	return { shaders = s, options = default_options(), label = 'Drawn' }
+	return { shaders = s, options = o, label = 'Drawn' }
 end
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, o = {}, default_options()
 	s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
 	s[#s+1] = ({[1]=bilateral.r2,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3,  [5]=bilateral.r4  })[minmax_scale(1, 5)]
-	return { shaders = s, options = default_options(), label = 'High FPS' }
+	return { shaders = s, options = o, label = 'High FPS' }
 end
 
 sets[#sets+1] = function()
-	local s = {}
+	local s, o = {}, default_options()
 	s[#s+1] = fsrcnnx2.r16
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = bilateral.r4
 	s[#s+1] = ravu.zoom.rgb_r3s
 	s[#s+1] = is_rgb() and as.rgb or as.luma
-	return { shaders = s, options = default_options(), label = 'Low FPS & RGB' }
+	return { shaders = s, options = o, label = 'Low FPS & RGB' }
 end
 
 
