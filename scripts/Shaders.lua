@@ -139,9 +139,7 @@ local function format_status()
 end
 
 local kernels = {
-	lanczos          = { blur = 0.9812505644269356},
-	haasnsoft        = { blur = 1.0},
-	ewa_lanczossharp = { blur = 1.0},
+	lanczos          = { blur = 0.9812505837223707 },  -- LanczosSharp
 }
 
 local function set_scaler(o, scale, k)
@@ -159,7 +157,7 @@ end
 
 local function default_options()
 	if (get_scale() <= 1.1) or not enabled then
-		return set_scalers({}, 'haasnsoft', 'ewa_lanczossharp', 'haasnsoft')
+		return set_scalers({}, 'ewa_hanning', 'ewa_lanczos', 'ewa_hanning')
 	else
 		return set_scalers({}, 'spline64', 'lanczos', 'spline64')
 	end
@@ -263,7 +261,7 @@ end
 
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
-	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
+	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = o, label = 'Rendered' }
