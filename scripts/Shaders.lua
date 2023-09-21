@@ -23,15 +23,15 @@ local opts = {
 
 	preset_2_enabled      = true,       -- Enable this preset
 	preset_2_path         = 'anime',    -- Path search string (Lua pattern)
-	preset_2_index        = 3,          -- Shader set index to enable
+	preset_2_index        = 2,          -- Shader set index to enable
 
 	preset_3_enabled      = true,
 	preset_3_path         = 'cartoon',
-	preset_3_index        = 3,
+	preset_3_index        = 2,
 
 	preset_4_enabled      = false,
 	preset_4_path         = '%[.+%]',
-	preset_4_index        = 3,
+	preset_4_index        = 2,
 	
 	preset_hifps_enabled  = true,       -- Target frame time: 15ms
 	preset_hifps_index    = 4,
@@ -43,10 +43,9 @@ local opts = {
 	preset_rgb_index      = 5,
 }
 
-local current_index, enabled
+local current_index, enabled = opts.default_index, opts.enabled
 local function on_opts_update()
-	current_index  = opts.default_index
-	enabled        = opts.enabled
+	enabled = opts.enabled
 end
 opt.read_options(opts, mp.get_script_name(), on_opts_update)
 on_opts_update()
@@ -272,7 +271,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
-	return { shaders = s, options = o, label = 'Drawn' }
+	return { shaders = s, options = o, label = 'Smooth' }
 end
 
 sets[#sets+1] = function()
@@ -429,7 +428,7 @@ local function toggle_set(no_osd)
 	msg.debug('Shader - Toggling:', current_index)
 	if not is_initialized() then return end
 	enabled = not enabled
-	set_default_index()
+	--set_default_index()
 	if enabled then set_shaders(no_osd) else clear_shaders(no_osd) end
 end
 
@@ -437,7 +436,7 @@ local function enable_set(no_osd)
 	msg.debug('Shader - Enabling:', current_index)
 	if not is_initialized() then return end
 	enabled = true
-	set_default_index()
+	--set_default_index()
 	set_shaders(no_osd)
 end
 
