@@ -7,6 +7,17 @@ local filter_list = {}
 local function add(filter) filter_list[#filter_list+1] = filter end
 
 add({
+	name = 'PostProcess',
+	filter_type = 'video',
+	reset_on_load = false,
+	filters = {
+	-- https://ffmpeg.org/ffmpeg-filters.html#pp
+		'pp=ac',
+		'pp=ac/autolevels',
+	},
+})
+
+add({
 	name = 'Deinterlace',
 	filter_type = 'video',
 	filters = {
@@ -27,17 +38,6 @@ add({
 		'bwdif',
 		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif]',
 		'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate]',
-	},
-})
-
-add({
-	name = 'PostProcess',
-	filter_type = 'video',
-	reset_on_load = false,
-	filters = {
-	-- https://ffmpeg.org/ffmpeg-filters.html#pp
-		'pp=ac',
-		'pp=ac/autolevels',
 	},
 })
 
