@@ -138,7 +138,7 @@ local function format_status()
 end
 
 local kernels = {
-	lanczos          = { blur = 0.9812505837223707 },  -- LanczosSharp
+	-- lanczos          = { blur = 0.9812505837223707 },  -- LanczosSharp
 }
 
 local function set_scaler(o, scale, k)
@@ -156,9 +156,9 @@ end
 
 local function default_options()
 	if (get_scale() <= 1.1) or not enabled then
-		return set_scalers({}, 'ewa_hanning', 'ewa_lanczos', 'ewa_hanning')
+		return set_scalers({}, 'ewa_lanczos', 'ewa_lanczossharp', 'hermite')
 	else
-		return set_scalers({}, 'spline64', 'lanczos', 'spline64')
+		return set_scalers({}, 'lanczos', 'lanczos', 'hermite')
 	end
 end
 
