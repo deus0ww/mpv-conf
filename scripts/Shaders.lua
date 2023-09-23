@@ -1,4 +1,4 @@
--- deus0ww - 2023-09-15
+-- deus0ww - 2023-09-22
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -137,29 +137,12 @@ local function format_status()
 	return temp
 end
 
-local kernels = {
-	-- lanczos          = { blur = 0.9812505837223707 },  -- LanczosSharp
-}
-
-local function set_scaler(o, scale, k)
-	local ar   = (kernels[k] and kernels[k].ar)   and kernels[k].ar   or 0.8
-	local blur = (kernels[k] and kernels[k].blur) and kernels[k].blur or nil
-	o[scale], o[scale..'-antiring'], o[scale..'-blur']  = k, ar, blur
-end
-
+local function set_scaler (o, scale, k) o[scale] = k end
 local function set_scalers(o, scale, cscale, dscale)
 	set_scaler (o, 'scale',  scale)
 	set_scaler (o, 'cscale', cscale)
 	set_scaler (o, 'dscale', dscale)
 	return o
-end
-
-local function default_options()
-	if (get_scale() <= 1.1) or not enabled then
-		return set_scalers({}, 'ewa_lanczos', 'ewa_lanczossharp', 'hermite')
-	else
-		return set_scalers({}, 'lanczos', 'lanczos', 'hermite')
-	end
 end
 
 
@@ -248,6 +231,14 @@ local bilateral       = {
 -------------------
 --- Shader Sets ---
 -------------------
+local function default_options()
+	if (get_scale() <= 1.1) or not enabled then
+		return set_scalers({}, 'ewa_lanczos', 'ewa_lanczossharp', 'hermite')
+	else
+		return set_scalers({}, 'lanczos', 'lanczos', 'hermite')
+	end
+end
+
 local sets = {}
 
 sets[#sets+1] = function()
