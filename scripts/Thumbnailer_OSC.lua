@@ -611,7 +611,7 @@ function kill_animation()
     state.anitype =  nil
 end
 
-function set_osd(res_x, res_y, text)
+function set_osd(res_x, res_y, text, z)
     if state.osd.res_x == res_x and
        state.osd.res_y == res_y and
        state.osd.data == text then
@@ -620,7 +620,7 @@ function set_osd(res_x, res_y, text)
     state.osd.res_x = res_x
     state.osd.res_y = res_y
     state.osd.data = text
-    state.osd.z = 1000
+    state.osd.z = z
     state.osd:update()
 end
 
@@ -2678,14 +2678,11 @@ function update_margins()
         reset_margins()
     end
 
-    utils.shared_script_property_set("osc-margins",
-        string.format("%f,%f,%f,%f", margins.l, margins.r, margins.t, margins.b))
     mp.set_property_native("user-data/osc/margins", margins)
 end
 
 function shutdown()
     reset_margins()
-    utils.shared_script_property_set("osc-margins", nil)
     mp.del_property("user-data/osc")
 end
 
@@ -2957,7 +2954,7 @@ function render()
 
     -- submit
     set_osd(osc_param.playresy * osc_param.display_aspect,
-            osc_param.playresy, ass.text)
+            osc_param.playresy, ass.text, 1000)
 end
 
 --
@@ -3113,7 +3110,7 @@ function tick()
             ass:an(8)
             ass:append("Drop files or URLs to play here.")
         end
-        set_osd(display_w, display_h, ass.text)
+        set_osd(display_w, display_h, ass.text, -1000)
 
         if state.showhide_enabled then
             mp.disable_key_bindings("showhide")
@@ -3344,7 +3341,6 @@ function visibility_mode(mode, no_osd)
     end
 
     user_opts.visibility = mode
-    utils.shared_script_property_set("osc-visibility", mode)
     mp.set_property_native("user-data/osc/visibility", mode)
 
     if not no_osd and tonumber(mp.get_property("osd-level")) >= 1 then
@@ -3377,7 +3373,6 @@ function idlescreen_visibility(mode, no_osd)
         user_opts.idlescreen = false
     end
 
-    utils.shared_script_property_set("osc-idlescreen", mode)
     mp.set_property_native("user-data/osc/idlescreen", user_opts.idlescreen)
 
     if not no_osd and tonumber(mp.get_property("osd-level")) >= 1 then
