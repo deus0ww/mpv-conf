@@ -29,7 +29,7 @@
 //!OFFSET ALIGN
 //!DESC FastBilateral
 
-#define intensity_coeff 64.0
+#define intensity_coeff 256.0
 
 float comp_wi(float distance) {
     return exp(-intensity_coeff * distance * distance);

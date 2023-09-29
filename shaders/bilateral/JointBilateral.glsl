@@ -29,8 +29,8 @@
 //!OFFSET ALIGN
 //!DESC JointBilateral
 
-#define distance_coeff 2.0
-#define intensity_coeff 64.0
+#define distance_coeff 4.0
+#define intensity_coeff 256.0
 
 float comp_wd(vec2 distance) {
     return exp(-distance_coeff * (distance.x * distance.x + distance.y * distance.y));
