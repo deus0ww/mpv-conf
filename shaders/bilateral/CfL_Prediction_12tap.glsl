@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 //!HOOK CHROMA
 //!BIND CHROMA
 //!BIND LUMA
@@ -27,7 +28,7 @@
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC Chroma From Luma Prediction
+//!DESC Chroma From Luma Prediction [12]
 
 float comp_wd(vec2 distance) {
     float d = length(distance);
@@ -115,38 +116,6 @@ vec4 hook() {
     vec2 chroma_spatial = ct / wt;
     chroma_spatial = clamp(chroma_spatial, chroma_min, chroma_max);
 
-    float luma_avg_4 = 0.0;
-    luma_avg_4 += luma_pixels[3];
-    luma_avg_4 += luma_pixels[4];
-    luma_avg_4 += luma_pixels[7];
-    luma_avg_4 += luma_pixels[8];
-    luma_avg_4 /= 4.0;
-
-    float luma_var_4 = 0.0;
-    luma_var_4 += pow(luma_pixels[3] - luma_avg_4, 2.0);
-    luma_var_4 += pow(luma_pixels[4] - luma_avg_4, 2.0);
-    luma_var_4 += pow(luma_pixels[7] - luma_avg_4, 2.0);
-    luma_var_4 += pow(luma_pixels[8] - luma_avg_4, 2.0);
-
-    vec2 chroma_avg_4 = vec2(0.0);
-    chroma_avg_4 += chroma_pixels[3];
-    chroma_avg_4 += chroma_pixels[4];
-    chroma_avg_4 += chroma_pixels[7];
-    chroma_avg_4 += chroma_pixels[8];
-    chroma_avg_4 /= 4.0;
-
-    vec2 luma_chroma_cov_4 = vec2(0.0);
-    luma_chroma_cov_4 += (luma_pixels[3] - luma_avg_4) * (chroma_pixels[3] - chroma_avg_4);
-    luma_chroma_cov_4 += (luma_pixels[4] - luma_avg_4) * (chroma_pixels[4] - chroma_avg_4);
-    luma_chroma_cov_4 += (luma_pixels[7] - luma_avg_4) * (chroma_pixels[7] - chroma_avg_4);
-    luma_chroma_cov_4 += (luma_pixels[8] - luma_avg_4) * (chroma_pixels[8] - chroma_avg_4);
-
-    vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-6);
-    vec2 beta_4 = chroma_avg_4 - alpha_4 * luma_avg_4;
-
-    vec2 chroma_pred_4 = alpha_4 * luma_zero + beta_4;
-    chroma_pred_4 = clamp(chroma_pred_4, 0.0, 1.0);
-
     float luma_avg_12 = 0.0;
     for(int i = 0; i < 12; i++) {
         luma_avg_12 += luma_pixels[i];
@@ -183,9 +152,7 @@ vec4 hook() {
     vec2 chroma_pred_12 = alpha_12 * luma_zero + beta_12;
     chroma_pred_12 = clamp(chroma_pred_12, 0.0, 1.0);
 
-    chroma_pred_4 = mix(chroma_spatial, chroma_pred_4, pow(corr, vec2(2.0)) / 2.0);
-    chroma_pred_12 = mix(chroma_spatial, chroma_pred_12, pow(corr, vec2(2.0)) / 2.0);
-    output_pix.xy = mix(chroma_pred_4, chroma_pred_12, 0.5);
+    output_pix.xy = mix(chroma_spatial, chroma_pred_12, pow(corr, vec2(2.0)) / 2.0);
 
     // Replace this with chroma_min and chroma_max if you want AR
     // output_pix.yz = clamp(output_pix.yz, chroma_min, chroma_max);
