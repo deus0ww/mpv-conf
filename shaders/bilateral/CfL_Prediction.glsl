@@ -27,7 +27,7 @@
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC Chroma From Luma Prediction
+//!DESC Chroma From Luma Prediction [Mix AR]
 
 float comp_wd(vec2 distance) {
     float d = length(distance);
@@ -188,7 +188,7 @@ vec4 hook() {
     output_pix.xy = mix(chroma_pred_4, chroma_pred_12, 0.5);
 
     // Replace this with chroma_min and chroma_max if you want AR
-    // output_pix.yz = clamp(output_pix.yz, chroma_min, chroma_max);
-    output_pix.xy = clamp(output_pix.xy, 0.0, 1.0);
+    output_pix.xy = clamp(output_pix.xy, chroma_min, chroma_max);
+    // output_pix.xy = clamp(output_pix.xy, 0.0, 1.0);
     return  output_pix;
 }
