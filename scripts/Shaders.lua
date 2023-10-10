@@ -222,7 +222,7 @@ local bilateral_path  = shaders_path .. 'bilateral/'
 local bilateral       = {
 	r1                = bilateral_path .. 'FastBilateral.glsl',
 	r2                = bilateral_path .. 'JointBilateral.glsl',
-	r3                = bilateral_path .. 'CfL_Prediction.glsl',
+	r3                = bilateral_path .. 'CfL_Prediction_12tap.glsl',
 	r4                = bilateral_path .. 'KrigBilateral.glsl',
 }
 
@@ -232,10 +232,11 @@ local bilateral       = {
 --- Shader Sets ---
 -------------------
 local function default_options()
+	local o = { ['linear-downscaling'] = 'yes' }
 	if (get_scale() <= 1.1) or not enabled then
-		return set_scalers({}, 'ewa_lanczos', 'ewa_lanczossharp', 'hermite')
+		return set_scalers(o, 'ewa_lanczos', 'ewa_lanczossharp', 'lanczos')
 	else
-		return set_scalers({}, 'lanczos', 'lanczos', 'hermite')
+		return set_scalers(o, 'lanczos', 'lanczos', 'lanczos')
 	end
 end
 
@@ -245,7 +246,7 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
-	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
+	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r3,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = o, label = 'Live' }
 end
 
@@ -253,7 +254,7 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
-	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
+	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r3,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = o, label = 'Rendered' }
 end
 
@@ -261,15 +262,15 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
-	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r2,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
+	s[#s+1] = ({[1]=bilateral.r4,  [2]=bilateral.r3,  [3]=bilateral.r3,  [4]=bilateral.r4                     })[minmax_scale(1, 4)]
 	return { shaders = s, options = o, label = 'Smooth' }
 end
 
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
-	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
-	s[#s+1] = ({[1]=bilateral.r2,  [2]=bilateral.r1,  [3]=bilateral.r2,  [4]=bilateral.r3,  [5]=bilateral.r4  })[minmax_scale(1, 5)]
+	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r3s, [3]=ravu.zoom.r2s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+	s[#s+1] = ({                                                         [4]=bilateral.r3,  [5]=bilateral.r4  })[minmax_scale(4, 5)]
 	return { shaders = s, options = o, label = 'High FPS' }
 end
 
@@ -279,7 +280,9 @@ sets[#sets+1] = function()
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = bilateral.r4
 	s[#s+1] = ravu.zoom.rgb_r3s
-	s[#s+1] = is_rgb() and as.rgb or as.luma
+	s[#s+1] = igv.ssds
+	o['linear-downscaling'] = 'no'  -- for ssds
+	set_scalers(o, 'ewa_lanczos', 'ewa_lanczossharp', 'lanczos')
 	return { shaders = s, options = o, label = 'Low FPS & RGB' }
 end
 
