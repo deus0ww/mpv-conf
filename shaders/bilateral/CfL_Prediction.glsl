@@ -30,17 +30,17 @@
 //!DESC Chroma From Luma Prediction [Mix AR]
 
 float comp_wd(vec2 distance) {
-    float d = length(distance);
+    float d = min(length(distance), 2.0);
     if (d < 1.0) {
         return (6.0 + d * d * (-15.0 + d * 9.0)) / 6.0;
-    } else if (d < 2.0) {
-        return (12.0 + d * (-24.0 + d * (15.0 + d * -3.0))) / 6.0;
     } else {
-        return 0.0;
+        return (12.0 + d * (-24.0 + d * (15.0 + d * -3.0))) / 6.0;
     }
 }
 
 vec4 hook() {
+    float division_limit = 1e-4;
+
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_texOff(0.0).x;
 
@@ -141,7 +141,7 @@ vec4 hook() {
     luma_chroma_cov_4 += (luma_pixels[7] - luma_avg_4) * (chroma_pixels[7] - chroma_avg_4);
     luma_chroma_cov_4 += (luma_pixels[8] - luma_avg_4) * (chroma_pixels[8] - chroma_avg_4);
 
-    vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-6);
+    vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, division_limit);
     vec2 beta_4 = chroma_avg_4 - alpha_4 * luma_avg_4;
 
     vec2 chroma_pred_4 = alpha_4 * luma_zero + beta_4;
@@ -174,10 +174,10 @@ vec4 hook() {
         luma_chroma_cov_12 += (luma_pixels[i] - luma_avg_12) * (chroma_pixels[i] - chroma_avg_12);
     }
     
-    vec2 corr = abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), 1e-6));
+    vec2 corr = abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), division_limit));
     corr = clamp(corr, 0.0, 1.0);
 
-    vec2 alpha_12 = luma_chroma_cov_12 / max(luma_var_12, 1e-6);
+    vec2 alpha_12 = luma_chroma_cov_12 / max(luma_var_12, division_limit);
     vec2 beta_12 = chroma_avg_12 - alpha_12 * luma_avg_12;
 
     vec2 chroma_pred_12 = alpha_12 * luma_zero + beta_12;
