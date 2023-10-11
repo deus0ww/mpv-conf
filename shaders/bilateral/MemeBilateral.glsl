@@ -27,7 +27,7 @@
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!OFFSET ALIGN
-//!DESC MemeBilateral
+//!DESC MemeBilateral [AR]
 
 #define distance_coeff 0.5
 #define intensity_coeff 512.0
@@ -92,6 +92,17 @@ vec4 hook() {
     luma_pixels[10] = LUMA_tex(vec2((fp + vec2(0.5, 2.5) ) * CHROMA_pt)).x;
     luma_pixels[11] = LUMA_tex(vec2((fp + vec2(1.5, 2.5) ) * CHROMA_pt)).x;
 
+    vec2 chroma_min = vec2(1e8);
+    chroma_min = min(chroma_min, chroma_pixels[3]);
+    chroma_min = min(chroma_min, chroma_pixels[4]);
+    chroma_min = min(chroma_min, chroma_pixels[7]);
+    chroma_min = min(chroma_min, chroma_pixels[8]);
+    
+    vec2 chroma_max = vec2(1e-8);
+    chroma_max = max(chroma_max, chroma_pixels[3]);
+    chroma_max = max(chroma_max, chroma_pixels[4]);
+    chroma_max = max(chroma_max, chroma_pixels[7]);
+    chroma_max = max(chroma_max, chroma_pixels[8]);
 
 // Sharp spatial filter
     float wd1[12];
@@ -190,6 +201,6 @@ vec4 hook() {
     corr = clamp(corr, 0.0, 1.0);
 
     output_pix.xy = mix(chroma_spatial, chroma_bilat, pow(corr, vec2(2.0)) / 2.0);
-    output_pix.xy = clamp(output_pix.xy, 0.0, 1.0);
+    output_pix.xy = clamp(output_pix.xy, chroma_min, chroma_max);
     return  output_pix;
 }
