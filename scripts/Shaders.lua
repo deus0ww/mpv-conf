@@ -220,9 +220,9 @@ local as              = {
 -- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
 local bilateral_path  = shaders_path .. 'bilateral/'
 local bilateral       = {
-	r1                = bilateral_path .. 'FastBilateral.glsl',
-	r2                = bilateral_path .. 'JointBilateral.glsl',
-	r3                = bilateral_path .. 'CfL_Prediction_12tap.glsl',
+	r1                = bilateral_path .. 'JointBilateral.glsl',
+	r2                = bilateral_path .. 'CfL_Prediction_12tap.glsl',
+	r3                = bilateral_path .. 'MemeBilateral.glsl',
 	r4                = bilateral_path .. 'KrigBilateral.glsl',
 }
 
