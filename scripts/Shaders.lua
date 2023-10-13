@@ -234,7 +234,7 @@ local bilateral       = {
 local function default_options()
 	local o = { ['linear-downscaling'] = 'yes' }
 	if (get_scale() <= 1.1) or not enabled then
-		return set_scalers(o, 'ewa_lanczos', 'ewa_lanczossharp', 'lanczos')
+		return set_scalers(o, 'ewa_lanczos', 'ewa_lanczos', 'lanczos')
 	else
 		return set_scalers(o, 'lanczos', 'lanczos', 'lanczos')
 	end
