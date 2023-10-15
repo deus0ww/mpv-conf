@@ -221,8 +221,8 @@ local as              = {
 local bilateral_path  = shaders_path .. 'bilateral/'
 local bilateral       = {
 	r1                = bilateral_path .. 'JointBilateral.glsl',
-	r2                = bilateral_path .. 'CfL_Prediction_12tap.glsl',
-	r3                = bilateral_path .. 'MemeBilateral.glsl',
+	r2                = bilateral_path .. 'MemeBilateral.glsl',
+	r3                = bilateral_path .. 'CfL_Prediction.glsl',
 	r4                = bilateral_path .. 'KrigBilateral.glsl',
 }
 
