@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 //!HOOK CHROMA
-//!BIND CHROMA
+//!BIND HOOKED
 //!BIND LUMA
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
@@ -46,26 +46,26 @@ float comp_w(float wd, float wi) {
 }
 
 vec4 hook() {
-    vec2 pp = CHROMA_pos * CHROMA_size - vec2(0.5);
+    vec2 pp = HOOKED_pos * HOOKED_size - vec2(0.5);
     vec2 fp = floor(pp);
     pp -= fp;
 
-    vec2 chroma_a = CHROMA_tex(vec2((fp + vec2(-0.5, -0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_b = CHROMA_tex(vec2((fp + vec2(0.5, -0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_c = CHROMA_tex(vec2((fp + vec2(1.5, -0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_d = CHROMA_tex(vec2((fp + vec2(2.5, -0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_e = CHROMA_tex(vec2((fp + vec2(-0.5, 0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_f = CHROMA_tex(vec2((fp + vec2( 0.5, 0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_g = CHROMA_tex(vec2((fp + vec2( 1.5, 0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_h = CHROMA_tex(vec2((fp + vec2( 2.5, 0.5)) * CHROMA_pt)).xy;
-    vec2 chroma_i = CHROMA_tex(vec2((fp + vec2(-0.5, 1.5)) * CHROMA_pt)).xy;
-    vec2 chroma_j = CHROMA_tex(vec2((fp + vec2( 0.5, 1.5)) * CHROMA_pt)).xy;
-    vec2 chroma_k = CHROMA_tex(vec2((fp + vec2( 1.5, 1.5)) * CHROMA_pt)).xy;
-    vec2 chroma_l = CHROMA_tex(vec2((fp + vec2( 2.5, 1.5)) * CHROMA_pt)).xy;
-    vec2 chroma_m = CHROMA_tex(vec2((fp + vec2(-1.5, 2.5) ) * CHROMA_pt)).xy;
-    vec2 chroma_n = CHROMA_tex(vec2((fp + vec2(0.5, 2.5) ) * CHROMA_pt)).xy;
-    vec2 chroma_o = CHROMA_tex(vec2((fp + vec2(1.5, 2.5) ) * CHROMA_pt)).xy;
-    vec2 chroma_p = CHROMA_tex(vec2((fp + vec2(2.5, 2.5) ) * CHROMA_pt)).xy;
+    vec2 chroma_a = HOOKED_tex(vec2((fp + vec2(-0.5, -0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_b = HOOKED_tex(vec2((fp + vec2( 0.5, -0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_c = HOOKED_tex(vec2((fp + vec2( 1.5, -0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_d = HOOKED_tex(vec2((fp + vec2( 2.5, -0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_e = HOOKED_tex(vec2((fp + vec2(-0.5,  0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_f = HOOKED_tex(vec2((fp + vec2( 0.5,  0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_g = HOOKED_tex(vec2((fp + vec2( 1.5,  0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_h = HOOKED_tex(vec2((fp + vec2( 2.5,  0.5)) * HOOKED_pt)).xy;
+    vec2 chroma_i = HOOKED_tex(vec2((fp + vec2(-0.5,  1.5)) * HOOKED_pt)).xy;
+    vec2 chroma_j = HOOKED_tex(vec2((fp + vec2( 0.5,  1.5)) * HOOKED_pt)).xy;
+    vec2 chroma_k = HOOKED_tex(vec2((fp + vec2( 1.5,  1.5)) * HOOKED_pt)).xy;
+    vec2 chroma_l = HOOKED_tex(vec2((fp + vec2( 2.5,  1.5)) * HOOKED_pt)).xy;
+    vec2 chroma_m = HOOKED_tex(vec2((fp + vec2(-1.5,  2.5)) * HOOKED_pt)).xy;
+    vec2 chroma_n = HOOKED_tex(vec2((fp + vec2( 0.5,  2.5)) * HOOKED_pt)).xy;
+    vec2 chroma_o = HOOKED_tex(vec2((fp + vec2( 1.5,  2.5)) * HOOKED_pt)).xy;
+    vec2 chroma_p = HOOKED_tex(vec2((fp + vec2( 2.5,  2.5)) * HOOKED_pt)).xy;
 
     vec2 chroma_min = vec2(1e8);
     chroma_min = min(chroma_min, chroma_f);
@@ -79,24 +79,23 @@ vec4 hook() {
     chroma_max = max(chroma_max, chroma_j);
     chroma_max = max(chroma_max, chroma_k);
 
-
     float luma_0 = LUMA_texOff(0.0).x;
-    float luma_a = LUMA_tex(vec2((fp + vec2(-0.5, -0.5)) * CHROMA_pt)).x;
-    float luma_b = LUMA_tex(vec2((fp + vec2(0.5, -0.5)) * CHROMA_pt)).x;
-    float luma_c = LUMA_tex(vec2((fp + vec2(1.5, -0.5)) * CHROMA_pt)).x;
-    float luma_d = LUMA_tex(vec2((fp + vec2(2.5, -0.5)) * CHROMA_pt)).x;
-    float luma_e = LUMA_tex(vec2((fp + vec2(-0.5, 0.5)) * CHROMA_pt)).x;
-    float luma_f = LUMA_tex(vec2((fp + vec2( 0.5, 0.5)) * CHROMA_pt)).x;
-    float luma_g = LUMA_tex(vec2((fp + vec2( 1.5, 0.5)) * CHROMA_pt)).x;
-    float luma_h = LUMA_tex(vec2((fp + vec2( 2.5, 0.5)) * CHROMA_pt)).x;
-    float luma_i = LUMA_tex(vec2((fp + vec2(-0.5, 1.5)) * CHROMA_pt)).x;
-    float luma_j = LUMA_tex(vec2((fp + vec2( 0.5, 1.5)) * CHROMA_pt)).x;
-    float luma_k = LUMA_tex(vec2((fp + vec2( 1.5, 1.5)) * CHROMA_pt)).x;
-    float luma_l = LUMA_tex(vec2((fp + vec2( 2.5, 1.5)) * CHROMA_pt)).x;
-    float luma_m = LUMA_tex(vec2((fp + vec2(-1.5, 2.5) ) * CHROMA_pt)).x;
-    float luma_n = LUMA_tex(vec2((fp + vec2(0.5, 2.5) ) * CHROMA_pt)).x;
-    float luma_o = LUMA_tex(vec2((fp + vec2(1.5, 2.5) ) * CHROMA_pt)).x;
-    float luma_p = LUMA_tex(vec2((fp + vec2(2.5, 2.5) ) * CHROMA_pt)).x;
+    float luma_a = LUMA_tex(vec2((fp + vec2(-0.5, -0.5)) * HOOKED_pt)).x;
+    float luma_b = LUMA_tex(vec2((fp + vec2( 0.5, -0.5)) * HOOKED_pt)).x;
+    float luma_c = LUMA_tex(vec2((fp + vec2( 1.5, -0.5)) * HOOKED_pt)).x;
+    float luma_d = LUMA_tex(vec2((fp + vec2( 2.5, -0.5)) * HOOKED_pt)).x;
+    float luma_e = LUMA_tex(vec2((fp + vec2(-0.5,  0.5)) * HOOKED_pt)).x;
+    float luma_f = LUMA_tex(vec2((fp + vec2( 0.5,  0.5)) * HOOKED_pt)).x;
+    float luma_g = LUMA_tex(vec2((fp + vec2( 1.5,  0.5)) * HOOKED_pt)).x;
+    float luma_h = LUMA_tex(vec2((fp + vec2( 2.5,  0.5)) * HOOKED_pt)).x;
+    float luma_i = LUMA_tex(vec2((fp + vec2(-0.5,  1.5)) * HOOKED_pt)).x;
+    float luma_j = LUMA_tex(vec2((fp + vec2( 0.5,  1.5)) * HOOKED_pt)).x;
+    float luma_k = LUMA_tex(vec2((fp + vec2( 1.5,  1.5)) * HOOKED_pt)).x;
+    float luma_l = LUMA_tex(vec2((fp + vec2( 2.5,  1.5)) * HOOKED_pt)).x;
+    float luma_m = LUMA_tex(vec2((fp + vec2(-1.5,  2.5)) * HOOKED_pt)).x;
+    float luma_n = LUMA_tex(vec2((fp + vec2( 0.5,  2.5)) * HOOKED_pt)).x;
+    float luma_o = LUMA_tex(vec2((fp + vec2( 1.5,  2.5)) * HOOKED_pt)).x;
+    float luma_p = LUMA_tex(vec2((fp + vec2( 2.5,  2.5)) * HOOKED_pt)).x;
 
     float wd_a = comp_wd(vec2(-1.0,-1.0) - pp);
     float wd_b = comp_wd(vec2( 0.0,-1.0) - pp);
