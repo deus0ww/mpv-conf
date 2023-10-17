@@ -306,7 +306,7 @@ local function append_perfdata(s, dedicated_page, print_passes)
     -- Pretty print measured time
     local function pp(i)
         -- rescale to milliseconds for a saner display
-        return format("%05.2f", i / 1000000)
+        return format("%06.2f", i / 1000000)
     end
 
     -- Format n/m with a font weight based on the ratio
@@ -317,7 +317,7 @@ local function append_perfdata(s, dedicated_page, print_passes)
         end
         -- Calculate font weight. 100 is minimum, 400 is normal, 700 bold, 900 is max
         local w = (700 * math.sqrt(i)) + 200
-        return format("{\\b%d}%2d%%{\\b0}", w, i * 100)
+        return format("{\\b%d}%03d%%{\\b0}", w, i * 100)
     end
 
     -- ensure that the fixed title is one element and every scrollable line is
@@ -365,8 +365,8 @@ local function append_perfdata(s, dedicated_page, print_passes)
 
             -- Print sum of timing values as "Total"
             s[#s+1] = format(f, o.nl, o.indent, o.indent,
-                             o.font_mono_digits, b(pp(last_s[frame])),
-                             b(pp(avg_s[frame])), b(pp(peak_s[frame])),
+                             o.font_mono_digits, pp(last_s[frame]),
+                             pp(avg_s[frame]), pp(peak_s[frame]),
                              o.prefix_sep, b("Total"), o.font, "", "", "")
         else
             -- for the simplified view, we just print the sum of each pass
