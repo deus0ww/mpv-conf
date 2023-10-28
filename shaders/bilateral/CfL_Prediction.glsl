@@ -78,6 +78,7 @@ vec4 hook() {
 //!OFFSET ALIGN
 //!DESC CfL Prediction Upscaling UV
 
+#define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1
 
 float comp_wd(vec2 distance) {
@@ -110,12 +111,6 @@ vec4 hook() {
     chroma_v_quads[2] = HOOKED_gather(vec2((fp + gatherOffsets[2]) * HOOKED_pt), 1);
     chroma_v_quads[3] = HOOKED_gather(vec2((fp + gatherOffsets[3]) * HOOKED_pt), 1);
 
-    vec4 luma_quads[4];
-    luma_quads[0] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[0]) * HOOKED_pt), 0);
-    luma_quads[1] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[1]) * HOOKED_pt), 0);
-    luma_quads[2] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[2]) * HOOKED_pt), 0);
-    luma_quads[3] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[3]) * HOOKED_pt), 0);
-
     vec2 chroma_pixels[12];
     chroma_pixels[0]  = vec2(chroma_u_quads[0].z, chroma_v_quads[0].z);
     chroma_pixels[1]  = vec2(chroma_u_quads[1].w, chroma_v_quads[1].w);
@@ -129,6 +124,12 @@ vec4 hook() {
     chroma_pixels[9]  = vec2(chroma_u_quads[3].z, chroma_v_quads[3].z);
     chroma_pixels[10] = vec2(chroma_u_quads[2].y, chroma_v_quads[2].y);
     chroma_pixels[11] = vec2(chroma_u_quads[3].x, chroma_v_quads[3].x);
+#if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
+    vec4 luma_quads[4];
+    luma_quads[0] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[0]) * HOOKED_pt), 0);
+    luma_quads[1] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[1]) * HOOKED_pt), 0);
+    luma_quads[2] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[2]) * HOOKED_pt), 0);
+    luma_quads[3] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[3]) * HOOKED_pt), 0);
 
     float luma_pixels[12];
     luma_pixels[0]  = luma_quads[0].z;
@@ -143,6 +144,7 @@ vec4 hook() {
     luma_pixels[9]  = luma_quads[3].z;
     luma_pixels[10] = luma_quads[2].y;
     luma_pixels[11] = luma_quads[3].x;
+#endif
 #else
     vec2 chroma_pixels[12];
     chroma_pixels[0]  = HOOKED_tex(vec2((fp + vec2(0.5, -0.5)) * HOOKED_pt)).xy;
@@ -157,7 +159,7 @@ vec4 hook() {
     chroma_pixels[9]  = HOOKED_tex(vec2((fp + vec2( 2.5, 1.5)) * HOOKED_pt)).xy;
     chroma_pixels[10] = HOOKED_tex(vec2((fp + vec2( 0.5, 2.5)) * HOOKED_pt)).xy;
     chroma_pixels[11] = HOOKED_tex(vec2((fp + vec2( 1.5, 2.5)) * HOOKED_pt)).xy;
-
+#if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
     float luma_pixels[12];
     luma_pixels[0]  = LUMA_LOWRES_tex(vec2((fp + vec2(0.5, -0.5)) * HOOKED_pt)).x;
     luma_pixels[1]  = LUMA_LOWRES_tex(vec2((fp + vec2(1.5, -0.5)) * HOOKED_pt)).x;
@@ -172,7 +174,7 @@ vec4 hook() {
     luma_pixels[10] = LUMA_LOWRES_tex(vec2((fp + vec2( 0.5, 2.5)) * HOOKED_pt)).x;
     luma_pixels[11] = LUMA_LOWRES_tex(vec2((fp + vec2( 1.5, 2.5)) * HOOKED_pt)).x;
 #endif
-
+#endif
     vec2 chroma_min = min(min(min(min(vec2(1e8 ), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
     vec2 chroma_max = max(max(max(max(vec2(1e-8), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
 
@@ -203,6 +205,7 @@ vec4 hook() {
     vec2 chroma_spatial = ct / wt;
     chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), ar_strength);
 
+#if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
     float luma_avg_12 = 0.0;
     for(int i = 0; i < 12; i++) {
         luma_avg_12 += luma_pixels[i];
@@ -232,14 +235,15 @@ vec4 hook() {
     
     vec2 corr = abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), division_limit));
     corr = clamp(corr, 0.0, 1.0);
-
+#endif
+#if (USE_12_TAP_REGRESSION == 1)
     vec2 alpha_12 = luma_chroma_cov_12 / max(luma_var_12, division_limit);
     vec2 beta_12 = chroma_avg_12 - alpha_12 * luma_avg_12;
 
     vec2 chroma_pred_12 = alpha_12 * luma_zero + beta_12;
     chroma_pred_12 = clamp(chroma_pred_12, 0.0, 1.0);
     chroma_pred_12 = mix(chroma_spatial, chroma_pred_12, pow(corr, vec2(2.0)) / 2.0);
-
+#endif
 #if (USE_4_TAP_REGRESSION == 1)
     float luma_avg_4 = 0.0;
     luma_avg_4 += luma_pixels[3];
@@ -273,10 +277,15 @@ vec4 hook() {
     vec2 chroma_pred_4 = alpha_4 * luma_zero + beta_4;
     chroma_pred_4 = clamp(chroma_pred_4, 0.0, 1.0);
     chroma_pred_4 = mix(chroma_spatial, chroma_pred_4, pow(corr, vec2(2.0)) / 2.0);
-
+#endif
+#if (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 1)
     output_pix.xy = mix(chroma_pred_4, chroma_pred_12, 0.5);
-#else
+#elif (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 0)
     output_pix.xy = chroma_pred_12;
+#elif (USE_12_TAP_REGRESSION == 0 && USE_4_TAP_REGRESSION == 1)
+    output_pix.xy = chroma_pred_4;
+#else
+    output_pix.xy = chroma_spatial;
 #endif
     // output_pix.xy = mix(output_pix.xy, clamp(output_pix.xy, chroma_min, chroma_max), ar_strength);
     output_pix.xy = clamp(output_pix.xy, 0.0, 1.0);
