@@ -151,7 +151,7 @@ add({
 	filter_type = 'audio',
 	filters = {
 	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
-		'scaletempo2=search-interval=30:window-size=20',
+		'scaletempo2=search-interval=40:window-size=12',
 		
 	-- https://mpv.io/manual/master/#audio-filters-rubberband
 	--	'rubberband=engine=finer:pitch=quality:window=long:formant=preserved:channels=together',
