@@ -1,4 +1,4 @@
--- deus0ww - 2022-10-01
+-- deus0ww - 2023-10-30
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -300,10 +300,16 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, '--no-config')
 		concat_args(args, '--msg-level=all=no')
 		worker_extra.index_log = concat_args(args, '--log-file=', output .. '.log')
-		concat_args(args, '--osc=no')
+		concat_args(args, '--load-auto-profiles=no')
+		concat_args(args, '--load-osd-console=no')
+		concat_args(args, '--load-scripts=no')
 		concat_args(args, '--load-stats-overlay=no')
+		concat_args(args, '--no-terminal')
+		concat_args(args, '--osc=no')
+		
 		-- Remote
 		concat_args(args, (worker_extra.ytdl and '--ytdl' or '--no-ytdl'))
+		concat_args(args, '--ytdl-format=worst')
 		concat_args(args, header_fields_arg)
 		concat_args(args, '--user-agent=', mp.get_property_native('user-agent'))
 		concat_args(args, '--referrer=', mp.get_property_native('referrer'))
@@ -328,7 +334,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, '--frames=1')
 		concat_args(args, state.input_fullpath)
 		-- Filters
-		concat_args(args, '--sws-scaler=', worker_options.ffmpeg_scaler)
+		concat_args(args, '--sws-scaler=', ((worker_options.ffmpeg_scaler):gsub('_','-')))
 		concat_args(args, video_filters)
 		-- Output
 		concat_args(args, '--of=rawvideo')

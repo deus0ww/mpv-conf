@@ -1,4 +1,4 @@
--- deus0ww - 2023-08-08
+-- deus0ww - 2023-10-30
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -199,7 +199,7 @@ local user_opts = {
 	-- Paths
 	cache_dir             = default_cache_dir,  -- Note: Files are not cleaned afterward, by default
 	worker_script_path    = '',                 -- Only needed if the script can't auto-locate the file to load more workers
-	exec_path            = '',                 -- This is appended to PATH to search for mpv, ffmpeg, and other executables.
+	exec_path             = '',                 -- This is appended to PATH to search for mpv, ffmpeg, and other executables.
 
 	-- Thumbnail
 	dimension             = 320,                -- Max width and height before scaling
@@ -227,7 +227,7 @@ local user_opts = {
 	use_ffmpeg            = false,              -- Use FFMPEG when appropriate. FFMPEG must be in PATH or in the MPV directory
 	prefer_ffmpeg         = false,              -- Use FFMPEG when available
 	ffmpeg_threads        = 8,                  -- Limit FFMPEG/MPV LAVC threads per worker. Also limits filter and output threads for FFMPEG.
-	ffmpeg_scaler         = 'bicubic',          -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
+	ffmpeg_scaler         = 'fast_bilinear',    -- Applies to both MPV and FFMPEG. See: https://ffmpeg.org/ffmpeg-scaler.html
 }
 
 local thumbnails, thumbnails_new,thumbnails_new_count
