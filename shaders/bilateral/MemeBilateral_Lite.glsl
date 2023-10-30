@@ -27,7 +27,7 @@
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!OFFSET ALIGN
-//!DESC MemeBilateral
+//!DESC MemeBilateral Lite
 
 #define distance_coeff 0.5
 #define intensity_coeff 512.0
