@@ -101,7 +101,7 @@ float comp_w(float wd, float wi) {
 }
 
 vec4 hook() {
-    float ar_strength = 0.75;
+    float ar_strength = 0.8;
     float division_limit = 1e-4;
 
     float luma_zero = LUMA_texOff(0.0).x;
@@ -129,7 +129,7 @@ vec4 hook() {
     chroma_pixels[0]  = vec2(chroma_u_quads[0].z, chroma_v_quads[0].z);
     chroma_pixels[1]  = vec2(chroma_u_quads[1].w, chroma_v_quads[1].w);
     chroma_pixels[2]  = vec2(chroma_u_quads[0].x, chroma_v_quads[0].x);
-    chroma_pixels[3]  = vec2(chroma_u_quads[0].y, chroma_v_quads[0].y); 
+    chroma_pixels[3]  = vec2(chroma_u_quads[0].y, chroma_v_quads[0].y);
     chroma_pixels[4]  = vec2(chroma_u_quads[1].x, chroma_v_quads[1].x);
     chroma_pixels[5]  = vec2(chroma_u_quads[1].y, chroma_v_quads[1].y);
     chroma_pixels[6]  = vec2(chroma_u_quads[2].w, chroma_v_quads[2].w);
@@ -262,28 +262,28 @@ vec4 hook() {
         luma_avg_12 += luma_pixels[i];
     }
     luma_avg_12 /= 12.0;
-    
+
     float luma_var_12 = 0.0;
     for(int i = 0; i < 12; i++) {
         luma_var_12 += pow(luma_pixels[i] - luma_avg_12, 2.0);
     }
-    
+
     vec2 chroma_avg_12 = vec2(0.0);
     for(int i = 0; i < 12; i++) {
         chroma_avg_12 += chroma_pixels[i];
     }
     chroma_avg_12 /= 12.0;
-    
+
     vec2 chroma_var_12 = vec2(0.0);
     for(int i = 0; i < 12; i++) {
         chroma_var_12 += pow(chroma_pixels[i] - chroma_avg_12, vec2(2.0));
     }
-    
+
     vec2 luma_chroma_cov_12 = vec2(0.0);
     for(int i = 0; i < 12; i++) {
         luma_chroma_cov_12 += (luma_pixels[i] - luma_avg_12) * (chroma_pixels[i] - chroma_avg_12);
     }
-    
+
     vec2 corr = abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), division_limit));
     corr = clamp(corr, 0.0, 1.0);
 
