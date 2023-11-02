@@ -27,7 +27,7 @@
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Prediction Lite
+//!DESC CfL Prediction Lite [0.75]
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 0
@@ -42,7 +42,7 @@ float comp_wd(vec2 distance) {
 }
 
 vec4 hook() {
-    float ar_strength = 0.65;
+    float ar_strength = 0.75;
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_texOff(0.0).x;
