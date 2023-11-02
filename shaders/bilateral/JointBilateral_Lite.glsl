@@ -21,16 +21,18 @@
 // SOFTWARE.
 
 //!HOOK CHROMA
-//!BIND HOOKED
 //!BIND LUMA
+//!BIND HOOKED
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!OFFSET ALIGN
-//!DESC MemeBilateral Lite
+//!DESC JointBilateral Lite
 
 #define distance_coeff 0.5
 #define intensity_coeff 512.0
+
+#define USE_SHARP_SPATIAL_FILTER 1
 
 float comp_wd1(vec2 distance) {
     float d2 = min(pow(length(distance), 2.0), 4.0);
@@ -45,16 +47,11 @@ float comp_wi(float distance) {
     return exp(-intensity_coeff * pow(distance, 2.0));
 }
 
-float comp_w(float wd, float wi) {
-    float w = wd * wi;
-    // return clamp(w, 1e-32, 1.0);
-    return w;
-}
-
 vec4 hook() {
+#if (USE_SHARP_SPATIAL_FILTER == 1)
     float ar_strength = 0.8;
     float division_limit = 1e-4;
-
+#endif
     float luma_zero = LUMA_texOff(0.0).x;
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -142,7 +139,7 @@ vec4 hook() {
     vec2 chroma_min = min(min(min(min(vec2(1e8 ), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
     vec2 chroma_max = max(max(max(max(vec2(1e-8), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
 
-// Sharp spatial filter
+#if (USE_SHARP_SPATIAL_FILTER == 1)
     float wd1[12];
     wd1[0]  = comp_wd1(vec2( 0.0,-1.0) - pp);
     wd1[1]  = comp_wd1(vec2( 1.0,-1.0) - pp);
@@ -167,10 +164,9 @@ vec4 hook() {
         ct1 += wd1[i] * chroma_pixels[i];
     }
 
-    vec2 chroma_spatial = ct1 / wt1;
+    vec2 chroma_spatial = clamp(ct1 / wt1, 0.0, 1.0);
     chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), ar_strength);
-
-// Bilateral filter
+#endif
     float wd2[12];
     wd2[0]   = comp_wd2(vec2( 0.0,-1.0) - pp);
     wd2[1]   = comp_wd2(vec2( 1.0,-1.0) - pp);
@@ -192,7 +188,7 @@ vec4 hook() {
 
     float w[12];
     for (int i = 0; i < 12; i++) {
-        w[i] = comp_w(wd2[i], wi[i]);
+        w[i] = wd2[i] * wi[i];
     }
 
     float wt2 = 0.0;
@@ -205,40 +201,43 @@ vec4 hook() {
         ct2 += w[i] * chroma_pixels[i];
     }
 
-    vec2 chroma_bilat = ct2 / wt2;
+    vec2 chroma_bilat = clamp(ct2 / wt2, 0.0, 1.0);
 
-// Coefficient of determination
-    float luma_avg_12 = 0.0;
+#if (USE_SHARP_SPATIAL_FILTER == 1)
+    float luma_avg = 0.0;
     for(int i = 0; i < 12; i++) {
-        luma_avg_12 += luma_pixels[i];
+        luma_avg += luma_pixels[i];
     }
-    luma_avg_12 /= 12.0;
+    luma_avg /= 12.0;
 
-    float luma_var_12 = 0.0;
+    float luma_var = 0.0;
     for(int i = 0; i < 12; i++) {
-        luma_var_12 += pow(luma_pixels[i] - luma_avg_12, 2.0);
-    }
-
-    vec2 chroma_avg_12 = vec2(0.0);
-    for(int i = 0; i < 12; i++) {
-        chroma_avg_12 += chroma_pixels[i];
-    }
-    chroma_avg_12 /= 12.0;
-
-    vec2 chroma_var_12 = vec2(0.0);
-    for(int i = 0; i < 12; i++) {
-        chroma_var_12 += pow(chroma_pixels[i] - chroma_avg_12, vec2(2.0));
+        luma_var += pow(luma_pixels[i] - luma_avg, 2.0);
     }
 
-    vec2 luma_chroma_cov_12 = vec2(0.0);
+    vec2 chroma_avg = vec2(0.0);
     for(int i = 0; i < 12; i++) {
-        luma_chroma_cov_12 += (luma_pixels[i] - luma_avg_12) * (chroma_pixels[i] - chroma_avg_12);
+        chroma_avg += chroma_pixels[i];
+    }
+    chroma_avg /= 12.0;
+
+    vec2 chroma_var = vec2(0.0);
+    for(int i = 0; i < 12; i++) {
+        chroma_var += pow(chroma_pixels[i] - chroma_avg, vec2(2.0));
     }
 
-    vec2 corr = abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), division_limit));
+    vec2 luma_chroma_cov = vec2(0.0);
+    for(int i = 0; i < 12; i++) {
+        luma_chroma_cov += (luma_pixels[i] - luma_avg) * (chroma_pixels[i] - chroma_avg);
+    }
+
+    vec2 corr = abs(luma_chroma_cov / max(sqrt(luma_var * chroma_var), division_limit));
     corr = clamp(corr, 0.0, 1.0);
 
     output_pix.xy = mix(chroma_spatial, chroma_bilat, pow(corr, vec2(2.0)) / 2.0);
     output_pix.xy = clamp(output_pix.xy, 0.0, 1.0);
-    return  output_pix;
+#else
+    output_pix.xy = chroma_bilat;
+#endif
+    return output_pix;
 }
