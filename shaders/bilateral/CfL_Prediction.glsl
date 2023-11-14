@@ -125,10 +125,10 @@ vec4 hook() {
     chroma_pixels[11] = vec2(chroma_u_quads[3].x, chroma_v_quads[3].x);
 #if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
     vec4 luma_quads[4];
-    luma_quads[0]     = LUMA_gather(vec2((fp + gatherOffsets[0]) * HOOKED_pt), 0);
-    luma_quads[1]     = LUMA_gather(vec2((fp + gatherOffsets[1]) * HOOKED_pt), 0);
-    luma_quads[2]     = LUMA_gather(vec2((fp + gatherOffsets[2]) * HOOKED_pt), 0);
-    luma_quads[3]     = LUMA_gather(vec2((fp + gatherOffsets[3]) * HOOKED_pt), 0);
+    luma_quads[0]     = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[0]) * HOOKED_pt), 0);
+    luma_quads[1]     = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[1]) * HOOKED_pt), 0);
+    luma_quads[2]     = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[2]) * HOOKED_pt), 0);
+    luma_quads[3]     = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[3]) * HOOKED_pt), 0);
     luma_pixels[0]    = luma_quads[0].z;
     luma_pixels[1]    = luma_quads[1].w;
     luma_pixels[2]    = luma_quads[0].x;
