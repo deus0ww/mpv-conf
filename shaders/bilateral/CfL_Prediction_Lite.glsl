@@ -107,18 +107,18 @@ vec4 hook() {
     chroma_pixels[10] = HOOKED_tex(vec2((fp + vec2( 0.5, 2.5)) * HOOKED_pt)).xy;
     chroma_pixels[11] = HOOKED_tex(vec2((fp + vec2( 1.5, 2.5)) * HOOKED_pt)).xy;
 #if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
-    luma_pixels[0]    = LUMA_LOWRES_tex(vec2((fp + vec2( 0.5,-0.5)) * HOOKED_pt)).x;
-    luma_pixels[1]    = LUMA_LOWRES_tex(vec2((fp + vec2( 1.5,-0.5)) * HOOKED_pt)).x;
-    luma_pixels[2]    = LUMA_LOWRES_tex(vec2((fp + vec2(-0.5, 0.5)) * HOOKED_pt)).x;
-    luma_pixels[3]    = LUMA_LOWRES_tex(vec2((fp + vec2( 0.5, 0.5)) * HOOKED_pt)).x;
-    luma_pixels[4]    = LUMA_LOWRES_tex(vec2((fp + vec2( 1.5, 0.5)) * HOOKED_pt)).x;
-    luma_pixels[5]    = LUMA_LOWRES_tex(vec2((fp + vec2( 2.5, 0.5)) * HOOKED_pt)).x;
-    luma_pixels[6]    = LUMA_LOWRES_tex(vec2((fp + vec2(-0.5, 1.5)) * HOOKED_pt)).x;
-    luma_pixels[7]    = LUMA_LOWRES_tex(vec2((fp + vec2( 0.5, 1.5)) * HOOKED_pt)).x;
-    luma_pixels[8]    = LUMA_LOWRES_tex(vec2((fp + vec2( 1.5, 1.5)) * HOOKED_pt)).x;
-    luma_pixels[9]    = LUMA_LOWRES_tex(vec2((fp + vec2( 2.5, 1.5)) * HOOKED_pt)).x;
-    luma_pixels[10]   = LUMA_LOWRES_tex(vec2((fp + vec2( 0.5, 2.5)) * HOOKED_pt)).x;
-    luma_pixels[11]   = LUMA_LOWRES_tex(vec2((fp + vec2( 1.5, 2.5)) * HOOKED_pt)).x;
+    luma_pixels[0]    = LUMA_tex(vec2((fp + vec2( 0.5,-0.5)) * HOOKED_pt)).x;
+    luma_pixels[1]    = LUMA_tex(vec2((fp + vec2( 1.5,-0.5)) * HOOKED_pt)).x;
+    luma_pixels[2]    = LUMA_tex(vec2((fp + vec2(-0.5, 0.5)) * HOOKED_pt)).x;
+    luma_pixels[3]    = LUMA_tex(vec2((fp + vec2( 0.5, 0.5)) * HOOKED_pt)).x;
+    luma_pixels[4]    = LUMA_tex(vec2((fp + vec2( 1.5, 0.5)) * HOOKED_pt)).x;
+    luma_pixels[5]    = LUMA_tex(vec2((fp + vec2( 2.5, 0.5)) * HOOKED_pt)).x;
+    luma_pixels[6]    = LUMA_tex(vec2((fp + vec2(-0.5, 1.5)) * HOOKED_pt)).x;
+    luma_pixels[7]    = LUMA_tex(vec2((fp + vec2( 0.5, 1.5)) * HOOKED_pt)).x;
+    luma_pixels[8]    = LUMA_tex(vec2((fp + vec2( 1.5, 1.5)) * HOOKED_pt)).x;
+    luma_pixels[9]    = LUMA_tex(vec2((fp + vec2( 2.5, 1.5)) * HOOKED_pt)).x;
+    luma_pixels[10]   = LUMA_tex(vec2((fp + vec2( 0.5, 2.5)) * HOOKED_pt)).x;
+    luma_pixels[11]   = LUMA_tex(vec2((fp + vec2( 1.5, 2.5)) * HOOKED_pt)).x;
 #endif
 #endif
     vec2 chroma_min = min(min(min(min(vec2(1e8 ), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
