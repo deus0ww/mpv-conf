@@ -374,6 +374,7 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		add_args(args, '-hide_banner')
 		add_args(args, '-nostats')
 		add_args(args, '-loglevel', 'warning')
+		add_args(args, '-noautorotate')
 		-- Input
 		add_args(args, '-threads', worker_options.ffmpeg_threads)
 		add_args(args, '-fflags', 'fastseek')
