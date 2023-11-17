@@ -1,4 +1,4 @@
--- deus0ww - 2023-11-16
+-- deus0ww - 2023-11-17
 
 local ipairs,loadfile,pairs,pcall,tonumber,tostring = ipairs,loadfile,pairs,pcall,tonumber,tostring
 local debug,io,math,os,string,table,utf8 = debug,io,math,os,string,table,utf8
@@ -250,7 +250,7 @@ local function add_nice(args)
 end
 
 local pix_fmt   = 'bgra'
-local scale_ff  = 'scale=w=%d:h=%d:sws_flags=%s:dst_format=' .. pix_fmt
+local scale_ff  = 'scale=w=%d:h=%d:flags=%s:dst_format=' .. pix_fmt
 local scale_mpv = 'scale=w=%d:h=%d:flags=%s'
 local vf_format = ',format=fmt=' .. pix_fmt
 local transpose = {	[-360] = '',
@@ -388,12 +388,13 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		worker_extra.index_skip_idct  = add_args(args, '-skip_idct',        accurate_seek and 'noref' or 'nokey')
 		worker_extra.index_skip_frame = add_args(args, '-skip_frame',       accurate_seek and 'noref' or 'nokey')
 		worker_extra.index_time       = add_args(args, '-ss', tostring(is_last_thumbnail and floor(time) or time))
-		add_args(args, '-guess_layout_max', '0')
-		add_args(args, '-an', '-sn')
 		add_args(args, '-i', state.input_fullpath)
+		add_args(args, '-ignore_unknown')
+		add_args(args, '-map', '0:V')
 		add_args(args, '-map_metadata', '-1')
 		add_args(args, '-map_chapters', '-1')
-		add_args(args, '-frames:v', '1')
+		add_args(args, '-an', '-sn', '-dn')
+		add_args(args, '-frames:V', '1')
 		-- Filters
 		add_args(args, '-filter_threads', worker_options.ffmpeg_threads)
 		add_args(args, '-vf', video_filters)
