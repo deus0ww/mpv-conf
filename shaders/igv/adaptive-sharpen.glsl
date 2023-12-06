@@ -27,11 +27,11 @@
 
 //!HOOK SCALED
 //!BIND HOOKED
-//!DESC Adaptive Sharpen [0.5]
+//!DESC Adaptive Sharpen [0.4]
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    0.5                  // Main control of sharpening strength [>0]
+#define curve_height    0.4                  // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel
@@ -89,29 +89,19 @@ vec4 hook() {
 #ifdef HOOKED_gather
     vec2 fp = HOOKED_pos * HOOKED_size - vec2(0.5);
     ivec2 gatherOffsets[8] = {{ 1, 1}, { 0, 0}, { 3, 1}, { 1, 3}, {-1, 2}, {-2, 0}, { 0,-2}, { 2,-1}};
-#ifdef LUMA_tex
-    vec4 g[8];
-    for (int i = 0; i < 8; i++)
-    {   g[i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
-    }
-    vec3 c[25] = {{g[0].w, 0, 0}, {g[1].w, 0, 0}, {g[1].z, 0, 0}, {g[7].x, 0, 0}, {g[1].x, 0, 0}, 
-                  {g[0].z, 0, 0}, {g[4].z, 0, 0}, {g[0].x, 0, 0}, {g[0].y, 0, 0}, {g[6].y, 0, 0}, 
-                  {g[5].y, 0, 0}, {g[2].w, 0, 0}, {g[3].w, 0, 0}, {g[3].x, 0, 0}, {g[3].z, 0, 0}, 
-                  {g[4].y, 0, 0}, {g[2].z, 0, 0}, {g[2].x, 0, 0}, {g[7].y, 0, 0}, {g[5].x, 0, 0}, 
-                  {g[4].w, 0, 0}, {g[5].z, 0, 0}, {g[6].z, 0, 0}, {g[7].w, 0, 0}, {g[6].x, 0, 0}};
-#else
     vec4 g[3][8];
     for (int i = 0; i < 8; i++)
     {   g[0][i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
+#ifndef LUMA_tex
         g[1][i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 1);
         g[2][i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 2);
+#endif
     }
     vec3 c[25] = {{g[0][0].w, g[1][0].w, g[2][0].w}, {g[0][1].w, g[1][1].w, g[2][1].w}, {g[0][1].z, g[1][1].z, g[2][1].z}, {g[0][7].x, g[1][7].x, g[2][7].x}, {g[0][1].x, g[1][1].x, g[2][1].x}, 
                   {g[0][0].z, g[1][0].z, g[2][0].z}, {g[0][4].z, g[1][4].z, g[2][4].z}, {g[0][0].x, g[1][0].x, g[2][0].x}, {g[0][0].y, g[1][0].y, g[2][0].y}, {g[0][6].y, g[1][6].y, g[2][6].y}, 
                   {g[0][5].y, g[1][5].y, g[2][5].y}, {g[0][2].w, g[1][2].w, g[2][2].w}, {g[0][3].w, g[1][3].w, g[2][3].w}, {g[0][3].x, g[1][3].x, g[2][3].x}, {g[0][3].z, g[1][3].z, g[2][3].z}, 
                   {g[0][4].y, g[1][4].y, g[2][4].y}, {g[0][2].z, g[1][2].z, g[2][2].z}, {g[0][2].x, g[1][2].x, g[2][2].x}, {g[0][7].y, g[1][7].y, g[2][7].y}, {g[0][5].x, g[1][5].x, g[2][5].x}, 
                   {g[0][4].w, g[1][4].w, g[2][4].w}, {g[0][5].z, g[1][5].z, g[2][5].z}, {g[0][6].z, g[1][6].z, g[2][6].z}, {g[0][7].w, g[1][7].w, g[2][7].w}, {g[0][6].x, g[1][6].x, g[2][6].x}};
-#endif
 #else
     vec3 c[25] = vec3[](get( 0, 0), get(-1,-1), get( 0,-1), get( 1,-1), get(-1, 0),
                         get( 1, 0), get(-1, 1), get( 0, 1), get( 1, 1), get( 0,-2),
