@@ -87,20 +87,20 @@ vec4 hook() {
     // [           c15, c12, c14          ]
     // [                c13               ]
 #ifdef HOOKED_gather
-    vec2 p = HOOKED_pos * HOOKED_size * HOOKED_pt;
+    vec2 p = (HOOKED_pos * HOOKED_size - vec2(0.5)) * HOOKED_pt;
     ivec2 gatherOffsets[8] = {{ 1, 1}, { 0, 0}, { 3, 1}, { 1, 3}, {-1, 2}, {-2, 0}, { 0,-2}, { 2,-1}};
     vec4 g[3][8];
     for (int i = 0; i < 8; i++) {
-    	g[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 0);
+        g[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 0);
 #ifndef LUMA_tex
         g[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 1);
         g[2][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 2);
 #endif
     }
-    vec3 c[25] = {{g[0][0].w, g[1][0].w, g[2][0].w}, {g[0][1].w, g[1][1].w, g[2][1].w}, {g[0][1].z, g[1][1].z, g[2][1].z}, {g[0][7].x, g[1][7].x, g[2][7].x}, {g[0][1].x, g[1][1].x, g[2][1].x}, 
-                  {g[0][0].z, g[1][0].z, g[2][0].z}, {g[0][4].z, g[1][4].z, g[2][4].z}, {g[0][0].x, g[1][0].x, g[2][0].x}, {g[0][0].y, g[1][0].y, g[2][0].y}, {g[0][6].y, g[1][6].y, g[2][6].y}, 
-                  {g[0][5].y, g[1][5].y, g[2][5].y}, {g[0][2].w, g[1][2].w, g[2][2].w}, {g[0][3].w, g[1][3].w, g[2][3].w}, {g[0][3].x, g[1][3].x, g[2][3].x}, {g[0][3].z, g[1][3].z, g[2][3].z}, 
-                  {g[0][4].y, g[1][4].y, g[2][4].y}, {g[0][2].z, g[1][2].z, g[2][2].z}, {g[0][2].x, g[1][2].x, g[2][2].x}, {g[0][7].y, g[1][7].y, g[2][7].y}, {g[0][5].x, g[1][5].x, g[2][5].x}, 
+    vec3 c[25] = {{g[0][0].w, g[1][0].w, g[2][0].w}, {g[0][1].w, g[1][1].w, g[2][1].w}, {g[0][1].z, g[1][1].z, g[2][1].z}, {g[0][7].x, g[1][7].x, g[2][7].x}, {g[0][1].x, g[1][1].x, g[2][1].x},
+                  {g[0][0].z, g[1][0].z, g[2][0].z}, {g[0][4].z, g[1][4].z, g[2][4].z}, {g[0][0].x, g[1][0].x, g[2][0].x}, {g[0][0].y, g[1][0].y, g[2][0].y}, {g[0][6].y, g[1][6].y, g[2][6].y},
+                  {g[0][5].y, g[1][5].y, g[2][5].y}, {g[0][2].w, g[1][2].w, g[2][2].w}, {g[0][3].w, g[1][3].w, g[2][3].w}, {g[0][3].x, g[1][3].x, g[2][3].x}, {g[0][3].z, g[1][3].z, g[2][3].z},
+                  {g[0][4].y, g[1][4].y, g[2][4].y}, {g[0][2].z, g[1][2].z, g[2][2].z}, {g[0][2].x, g[1][2].x, g[2][2].x}, {g[0][7].y, g[1][7].y, g[2][7].y}, {g[0][5].x, g[1][5].x, g[2][5].x},
                   {g[0][4].w, g[1][4].w, g[2][4].w}, {g[0][5].z, g[1][5].z, g[2][5].z}, {g[0][6].z, g[1][6].z, g[2][6].z}, {g[0][7].w, g[1][7].w, g[2][7].w}, {g[0][6].x, g[1][6].x, g[2][6].x}};
 #else
     vec3 c[25] = vec3[](get( 0, 0), get(-1,-1), get( 0,-1), get( 1,-1), get(-1, 0),
@@ -109,7 +109,6 @@ vec4 hook() {
                         get(-1, 2), get( 3, 0), get( 2, 1), get( 2,-1), get(-3, 0),
                         get(-2, 1), get(-2,-1), get( 0,-3), get( 1,-2), get(-1,-2));
 #endif
-
     float e[13] = float[](dxdy(c[0]),  dxdy(c[1]),  dxdy(c[2]),  dxdy(c[3]),  dxdy(c[4]),
                           dxdy(c[5]),  dxdy(c[6]),  dxdy(c[7]),  dxdy(c[8]),  dxdy(c[9]),
                           dxdy(c[10]), dxdy(c[11]), dxdy(c[12]));
@@ -239,7 +238,7 @@ vec4 hook() {
     // Soft limited anti-ringing with tanh, wpmean to control compression slope
     sharpdiff = wpmean(max(sharpdiff, 0.0), soft_lim( max(sharpdiff, 0.0), min_dist ), cs.x )
               - wpmean(min(sharpdiff, 0.0), soft_lim( min(sharpdiff, 0.0), min_dist ), cs.y );
-    
+
     float sharpdiff_lim = sat(c0_Y + sharpdiff) - c0_Y;
     /*float satmul = (c0_Y + max(sharpdiff_lim*0.9, sharpdiff_lim)*1.03 + 0.03)/(c0_Y + 0.03);
     vec3 res = c0_Y + sharpdiff_lim + (c[0] - c0_Y)*satmul;

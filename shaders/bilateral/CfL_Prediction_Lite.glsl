@@ -49,8 +49,8 @@ vec4 hook() {
     pp -= fp;
 
 #ifdef HOOKED_gather
-	vec2 puv = fp * HOOKED_pt;
-	vec2 py  = HOOKED_pos * LUMA_size * HOOKED_pt;
+    vec2 puv = fp * HOOKED_pt;
+    vec2 py  = floor(HOOKED_pos * LUMA_size - vec2(0.5)) * HOOKED_pt;
     const ivec2 gatherOffsets[4] = {{ 0, 0}, { 2, 0}, { 0, 2}, { 2, 2}};
     vec4 chroma_quads[4][2];
     vec4 luma_quads[4];
