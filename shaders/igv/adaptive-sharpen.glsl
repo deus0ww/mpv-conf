@@ -87,14 +87,14 @@ vec4 hook() {
     // [           c15, c12, c14          ]
     // [                c13               ]
 #ifdef HOOKED_gather
-    vec2 fp = HOOKED_pos * HOOKED_size - vec2(0.5);
+    vec2 p = HOOKED_pos * HOOKED_size * HOOKED_pt;
     ivec2 gatherOffsets[8] = {{ 1, 1}, { 0, 0}, { 3, 1}, { 1, 3}, {-1, 2}, {-2, 0}, { 0,-2}, { 2,-1}};
     vec4 g[3][8];
-    for (int i = 0; i < 8; i++)
-    {   g[0][i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
+    for (int i = 0; i < 8; i++) {
+    	g[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 0);
 #ifndef LUMA_tex
-        g[1][i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 1);
-        g[2][i] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 2);
+        g[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 1);
+        g[2][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, p, gatherOffsets[i], 2);
 #endif
     }
     vec3 c[25] = {{g[0][0].w, g[1][0].w, g[2][0].w}, {g[0][1].w, g[1][1].w, g[2][1].w}, {g[0][1].z, g[1][1].z, g[2][1].z}, {g[0][7].x, g[1][7].x, g[2][7].x}, {g[0][1].x, g[1][1].x, g[2][1].x}, 
