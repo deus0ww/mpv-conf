@@ -98,14 +98,16 @@ vec4 hook() {
     pp -= fp;
 
 #ifdef HOOKED_gather
+	vec2 puv = fp * HOOKED_pt;
+	vec2 py  = HOOKED_pos * LUMA_LOWRES_size * HOOKED_pt;
     const ivec2 gatherOffsets[4] = {{ 0, 0}, { 2, 0}, { 0, 2}, { 2, 2}};
     vec4 chroma_quads[4][2];
     vec4 luma_quads[4];
     for (int i = 0; i < 4; i++) {
-        chroma_quads[i][0] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
-        chroma_quads[i][1] = HOOKED_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 1);
+        chroma_quads[i][0] = HOOKED_mul * textureGatherOffset(HOOKED_raw, puv, gatherOffsets[i], 0);
+        chroma_quads[i][1] = HOOKED_mul * textureGatherOffset(HOOKED_raw, puv, gatherOffsets[i], 1);
 #if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
-        luma_quads[i] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
+        luma_quads[i] = LUMA_LOWRES_mul * textureGatherOffset(LUMA_LOWRES_raw, py, gatherOffsets[i], 0);
     }
     float luma_pixels[12] = {
         luma_quads[0].z, luma_quads[1].w,
