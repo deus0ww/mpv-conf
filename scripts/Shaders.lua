@@ -1,4 +1,4 @@
--- deus0ww - 2023-09-22
+-- deus0ww - 2023-12-09
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -17,15 +17,15 @@ local opts = {
 	hifps_threshold       = 31,
 	lowfps_threshold      = 15,
 
-	preset_1_enabled      = true,
+	preset_1_enabled      = false,
 	preset_1_path         = 'rendered',
 	preset_1_index        = 2,
 
-	preset_2_enabled      = true,       -- Enable this preset
+	preset_2_enabled      = false,      -- Enable this preset
 	preset_2_path         = 'anime',    -- Path search string (Lua pattern)
 	preset_2_index        = 2,          -- Shader set index to enable
 
-	preset_3_enabled      = true,
+	preset_3_enabled      = false,
 	preset_3_path         = 'cartoon',
 	preset_3_index        = 2,
 
@@ -40,7 +40,7 @@ local opts = {
 	preset_lowfps_index   = 5,
 
 	preset_rgb_enabled    = true,
-	preset_rgb_index      = 5,
+	preset_rgb_index      = 6,
 }
 
 local current_index, enabled = opts.default_index, opts.enabled
@@ -240,30 +240,32 @@ local function default_options()
 end
 
 local sets = {}
- 
+
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+	s[#s+1] = as.luma
 	s[#s+1] = bilateral.cfl
-	
-	return { shaders = s, options = o, label = 'Live' }
+	return { shaders = s, options = o, label = 'Standard' }
 end
 
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+	s[#s+1] = as.luma
 	s[#s+1] = bilateral.cfl
-	return { shaders = s, options = o, label = 'Rendered' }
+	return { shaders = s, options = o, label = 'Softer' }
 end
 
 sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+	s[#s+1] = as.luma
 	s[#s+1] = bilateral.cfl
-	return { shaders = s, options = o, label = 'Smooth' }
+	return { shaders = s, options = o, label = 'Softest' }
 end
 
 sets[#sets+1] = function()
