@@ -272,7 +272,7 @@ sets[#sets+1] = function()
 	local s, o = {}, default_options()
 	s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
-	s[#s+1] = bilateral.cfl
+	s[#s+1] = bilateral.cfll
 	return { shaders = s, options = o, label = 'High FPS' }
 end
 
