@@ -6,11 +6,11 @@
 //!COMPONENTS 4
 vec4 hook()
 {
-vec2 p = (LUMA_pos * LUMA_size - vec2(0.5)) * LUMA_pt;
+vec2 p = fma(LUMA_pos, LUMA_size, vec2(-0.5)) * LUMA_pt;
 const ivec2 gatherOffsets[8] = {{ 2, 2}, { 1, 2}, { -1, 2}, { -1, 1}, {-1,-1}, { 0, -1}, { 2,-1}, { 2, 0}};
 vec4 q[8];
 for (int i = 0; i < 8; i++) { q[i] = LUMA_mul * textureGatherOffset(LUMA_raw, p, gatherOffsets[i], 0); }
-float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, float(LUMA_texOff(vec2(0,0))), q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
+float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, LUMA_texOff(vec2(0,0)).x, q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
 int i = 0;
 vec4 res = vec4(-0.3117050230503082,0.1817725896835327,0.0011673698900267,-0.0044658286496997);
 res += vec4(-0.0187959559261799,-0.0206312909722328,0.0226501729339361,0.0111862262710929) * luma_pixels[i++];
@@ -49,11 +49,11 @@ return res;
 //!COMPONENTS 4
 vec4 hook()
 {
-vec2 p = (LUMA_pos * LUMA_size - vec2(0.5)) * LUMA_pt;
+vec2 p = fma(LUMA_pos, LUMA_size, vec2(-0.5)) * LUMA_pt;
 const ivec2 gatherOffsets[8] = {{ 2, 2}, { 1, 2}, { -1, 2}, { -1, 1}, {-1,-1}, { 0, -1}, { 2,-1}, { 2, 0}};
 vec4 q[8];
 for (int i = 0; i < 8; i++) { q[i] = LUMA_mul * textureGatherOffset(LUMA_raw, p, gatherOffsets[i], 0); }
-float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, float(LUMA_texOff(vec2(0,0))), q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
+float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, LUMA_texOff(vec2(0,0)).x, q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
 int i = 0;
 vec4 res = vec4(0.0165165197104216,0.0061719734221697,-0.0008248710073531,-0.0774794667959213);
 res += vec4(-0.0127812735736370,-0.0146999256685376,0.0025963818188757,0.0008133125957102) * luma_pixels[i++];

@@ -87,7 +87,7 @@ vec4 hook() {
     // [           c15, c12, c14          ]
     // [                c13               ]
 #ifdef HOOKED_gather
-    vec2 p = (HOOKED_pos * HOOKED_size - vec2(0.5)) * HOOKED_pt;
+    vec2 p = fma(HOOKED_pos, HOOKED_size, vec2(-0.5)) * HOOKED_pt;
     ivec2 gatherOffsets[8] = {{ 1, 1}, { 0, 0}, { 3, 1}, { 1, 3}, {-1, 2}, {-2, 0}, { 0,-2}, { 2,-1}};
     vec4 g[3][8];
     for (int i = 0; i < 8; i++) {

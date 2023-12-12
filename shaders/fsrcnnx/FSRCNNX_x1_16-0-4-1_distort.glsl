@@ -5,11 +5,11 @@
 //!COMPONENTS 4
 vec4 hook()
 {
-vec2 p = (LUMA_pos * LUMA_size - vec2(0.5)) * LUMA_pt;
+vec2 p = fma(LUMA_pos, LUMA_size, vec2(-0.5)) * LUMA_pt;
 const ivec2 gatherOffsets[8] = {{ 2, 2}, { 1, 2}, { -1, 2}, { -1, 1}, {-1,-1}, { 0, -1}, { 2,-1}, { 2, 0}};
 vec4 q[8];
 for (int i = 0; i < 8; i++) { q[i] = LUMA_mul * textureGatherOffset(LUMA_raw, p, gatherOffsets[i], 0); }
-float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, float(LUMA_texOff(vec2(0,0))), q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
+float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, LUMA_texOff(vec2(0,0)).x, q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
 int i = 0;
 vec4 res = vec4(-0.0025971170980483,-0.0215829610824585,-0.0411043874919415,0.0129693904891610);
 res += vec4(0.0989467129111290,-0.0413746125996113,-0.0146220456808805,0.0092109516263008) * luma_pixels[i++];
@@ -47,11 +47,11 @@ return res;
 //!COMPONENTS 4
 vec4 hook()
 {
-vec2 p = (LUMA_pos * LUMA_size - vec2(0.5)) * LUMA_pt;
+vec2 p = fma(LUMA_pos, LUMA_size, vec2(-0.5)) * LUMA_pt;
 const ivec2 gatherOffsets[8] = {{ 2, 2}, { 1, 2}, { -1, 2}, { -1, 1}, {-1,-1}, { 0, -1}, { 2,-1}, { 2, 0}};
 vec4 q[8];
 for (int i = 0; i < 8; i++) { q[i] = LUMA_mul * textureGatherOffset(LUMA_raw, p, gatherOffsets[i], 0); }
-float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, float(LUMA_texOff(vec2(0,0))), q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
+float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, LUMA_texOff(vec2(0,0)).x, q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
 int i = 0;
 vec4 res = vec4(-0.0143933594226837,-0.0081292800605297,-0.0030097288545221,-0.0665724128484726);
 res += vec4(-0.0350343063473701,0.0350913181900978,0.0862483903765678,-0.0993502736091614) * luma_pixels[i++];
@@ -89,11 +89,11 @@ return res;
 //!COMPONENTS 4
 vec4 hook()
 {
-vec2 p = (LUMA_pos * LUMA_size - vec2(0.5)) * LUMA_pt;
+vec2 p = fma(LUMA_pos, LUMA_size, vec2(-0.5)) * LUMA_pt;
 const ivec2 gatherOffsets[8] = {{ 2, 2}, { 1, 2}, { -1, 2}, { -1, 1}, {-1,-1}, { 0, -1}, { 2,-1}, { 2, 0}};
 vec4 q[8];
 for (int i = 0; i < 8; i++) { q[i] = LUMA_mul * textureGatherOffset(LUMA_raw, p, gatherOffsets[i], 0); }
-float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, float(LUMA_texOff(vec2(0,0))), q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
+float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, LUMA_texOff(vec2(0,0)).x, q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
 int i = 0;
 vec4 res = vec4(-0.0018072151578963,0.0491338782012463,-0.0082521047443151,0.0006553701241501);
 res += vec4(0.0333403609693050,0.0213700644671917,0.0309157744050026,0.0502681806683540) * luma_pixels[i++];
@@ -131,11 +131,11 @@ return res;
 //!COMPONENTS 4
 vec4 hook()
 {
-vec2 p = (LUMA_pos * LUMA_size - vec2(0.5)) * LUMA_pt;
+vec2 p = fma(LUMA_pos, LUMA_size, vec2(-0.5)) * LUMA_pt;
 const ivec2 gatherOffsets[8] = {{ 2, 2}, { 1, 2}, { -1, 2}, { -1, 1}, {-1,-1}, { 0, -1}, { 2,-1}, { 2, 0}};
 vec4 q[8];
 for (int i = 0; i < 8; i++) { q[i] = LUMA_mul * textureGatherOffset(LUMA_raw, p, gatherOffsets[i], 0); }
-float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, float(LUMA_texOff(vec2(0,0))), q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
+float luma_pixels[25] = { q[4].w, q[4].x, q[3].w, q[3].x, q[2].x, q[5].w, q[5].x, q[3].z, q[3].y, q[2].y, q[5].z, q[5].y, LUMA_texOff(vec2(0,0)).x, q[1].w, q[1].x, q[6].w, q[6].x, q[7].x, q[0].w, q[0].x, q[6].z, q[6].y, q[7].y, q[0].z, q[0].y };
 int i = 0;
 vec4 res = vec4(-0.0520464666187763,0.0125974677503109,-0.0507145300507545,0.0046781064011157);
 res += vec4(0.0685555785894394,-0.0203769262880087,0.0233370885252953,-0.0185483340173960) * luma_pixels[i++];
