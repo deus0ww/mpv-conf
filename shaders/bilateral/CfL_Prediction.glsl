@@ -100,11 +100,11 @@ vec4 hook() {
 #ifdef HOOKED_gather
     vec2 pos = fp * HOOKED_pt;
     const ivec2 gatherOffsets[4] = {{ 0, 0}, { 2, 0}, { 0, 2}, { 2, 2}};
-    vec4 chroma_quads[4][2];
+    vec4 chroma_quads[2][4];
     vec4 luma_quads[4];
     for (int i = 0; i < 4; i++) {
-        chroma_quads[i][0] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 0);
-        chroma_quads[i][1] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 1);
+        chroma_quads[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 0);
+        chroma_quads[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 1);
         luma_quads[i] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
     }
     float luma_pixels[12] = {
@@ -115,12 +115,12 @@ vec4 hook() {
         luma_quads[3].w, luma_quads[3].z,
         luma_quads[2].y, luma_quads[3].x};
     vec2 chroma_pixels[12] = {
-        {chroma_quads[0][0].z, chroma_quads[0][1].z}, {chroma_quads[1][0].w, chroma_quads[1][1].w},
-        {chroma_quads[0][0].x, chroma_quads[0][1].x}, {chroma_quads[0][0].y, chroma_quads[0][1].y},
-        {chroma_quads[1][0].x, chroma_quads[1][1].x}, {chroma_quads[1][0].y, chroma_quads[1][1].y},
-        {chroma_quads[2][0].w, chroma_quads[2][1].w}, {chroma_quads[2][0].z, chroma_quads[2][1].z},
-        {chroma_quads[3][0].w, chroma_quads[3][1].w}, {chroma_quads[3][0].z, chroma_quads[3][1].z},
-        {chroma_quads[2][0].y, chroma_quads[2][1].y}, {chroma_quads[3][0].x, chroma_quads[3][1].x}};
+        {chroma_quads[0][0].z, chroma_quads[1][0].z}, {chroma_quads[0][1].w, chroma_quads[1][1].w},
+        {chroma_quads[0][0].x, chroma_quads[1][0].x}, {chroma_quads[0][0].y, chroma_quads[1][0].y},
+        {chroma_quads[0][1].x, chroma_quads[1][1].x}, {chroma_quads[0][1].y, chroma_quads[1][1].y},
+        {chroma_quads[0][2].w, chroma_quads[1][2].w}, {chroma_quads[0][2].z, chroma_quads[1][2].z},
+        {chroma_quads[0][3].w, chroma_quads[1][3].w}, {chroma_quads[0][3].z, chroma_quads[1][3].z},
+        {chroma_quads[0][2].y, chroma_quads[1][2].y}, {chroma_quads[0][3].x, chroma_quads[1][3].x}};
 #else
     const vec2 texOffsets[12] = {
         { 0.5,-0.5}, { 1.5,-0.5}, {-0.5, 0.5}, { 0.5, 0.5}, { 1.5, 0.5}, { 2.5, 0.5},
