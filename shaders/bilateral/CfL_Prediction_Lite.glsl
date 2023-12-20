@@ -20,6 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//!PARAM cfl_antiring
+//!TYPE float
+//!MINIMUM 0.0
+//!MAXIMUM 1.0
+//!DESC CfL Antiring Parameter
+0.7
+
 //!HOOK CHROMA
 //!BIND HOOKED
 //!BIND LUMA
@@ -27,7 +34,7 @@
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Prediction Lite [0.7]
+//!DESC CfL Lite
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1
@@ -38,7 +45,7 @@ float comp_wd(vec2 distance) {
 }
 
 vec4 hook() {
-    const float ar_strength = 0.7;
+    const float ar_strength = cfl_antiring;
     const float mix_coeff = 0.5;
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);

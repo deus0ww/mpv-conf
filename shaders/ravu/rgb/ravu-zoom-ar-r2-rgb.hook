@@ -12,7 +12,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!DESC RAVU-Zoom-AR R2 [0.7]
+//!PARAM ravu_antiring
+//!TYPE float
+//!MINIMUM 0.0
+//!MAXIMUM 1.0
+//!DESC RAVU Antiring Parameter
+0.7
+
+//!DESC RAVU-Zoom-AR R2
 //!HOOK MAIN
 //!BIND HOOKED
 //!BIND ravu_zoom_lut2
@@ -21,7 +28,6 @@
 //!HEIGHT OUTPUT.h
 //!OFFSET ALIGN
 //!WHEN OUTPUT.w HOOKED.w / 1.100 > OUTPUT.h HOOKED.h / 1.100 > *
-#define ANTIRING_STRENGTH 0.7
 const vec3 color_primary = vec3(0.212655, 0.715158, 0.072187);
 #define LUTPOS(x, lut_size) mix(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
 vec4 hook() {
@@ -221,7 +227,7 @@ hi2 += cg[0] * w[2] + cg[2] * w[3];
 lo2 += cg[1] * w[2] + cg[3] * w[3];
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
-res = mix(res, clamp(res, lo, hi), ANTIRING_STRENGTH);
+res = mix(res, clamp(res, lo, hi), ravu_antiring);
 return vec4(res, 1.0);
 }
 //!TEXTURE ravu_zoom_lut2

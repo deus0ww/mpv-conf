@@ -170,8 +170,7 @@ local fsr_path        = shaders_path .. 'fsr/'
 local fsr             = {
 	fsr               = fsr_path .. 'FSR.glsl',
 	easu              = fsr_path .. 'FSR_EASU.glsl',
-	rcas_low          = fsr_path .. 'FSR_RCAS_low.glsl',
-	rcas_high         = fsr_path .. 'FSR_RCAS_high.glsl',
+	rcas              = fsr_path .. 'FSR_RCAS.glsl',
 }
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow

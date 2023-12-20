@@ -31,10 +31,17 @@
 // Per AMD's guidelines only upscales content up to 4x (e.g., 1080p -> 2160p, 720p -> 1440p etc.) and everything else in between,
 // that means FSR will scale up to 4x at maximum, and any further scaling will be processed by mpv's scalers
 
+//!PARAM rcas_sharpness
+//!TYPE float
+//!MINIMUM 0.0
+//!MAXIMUM 2.0
+//!DESC FSR RCAS Sharpness Parameter
+0.2
+
 //!HOOK LUMA
 //!BIND HOOKED
 //!SAVE EASUTEX
-//!DESC FidelityFX Super Resolution v1.0.2 (EASU)
+//!DESC FSR EASU
 //!WHEN OUTPUT.w OUTPUT.h * LUMA.w LUMA.h * / 1.0 >
 //!WIDTH OUTPUT.w OUTPUT.w LUMA.w 2 * < * LUMA.w 2 * OUTPUT.w LUMA.w 2 * > * + OUTPUT.w OUTPUT.w LUMA.w 2 * = * +
 //!HEIGHT OUTPUT.h OUTPUT.h LUMA.h 2 * < * LUMA.h 2 * OUTPUT.h LUMA.h 2 * > * + OUTPUT.h OUTPUT.h LUMA.h 2 * = * +
@@ -362,13 +369,13 @@ vec4 hook() {
 
 //!HOOK LUMA
 //!BIND EASUTEX
-//!DESC FidelityFX Super Resolution v1.0.2 (RCAS) [0.75]
+//!DESC FSR RCAS
 //!WIDTH EASUTEX.w
 //!HEIGHT EASUTEX.h
 //!COMPONENTS 1
 
 // User variables - RCAS
-#define SHARPNESS 0.75 // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
+#define SHARPNESS rcas_sharpness // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
 #define FSR_RCAS_DENOISE 1 // If set to 1, lessens the sharpening on noisy areas. Can be disabled for better performance. 0 or 1.
 #define FSR_PQ 0 // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
 

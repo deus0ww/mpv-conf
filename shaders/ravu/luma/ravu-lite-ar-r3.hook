@@ -12,14 +12,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!DESC RAVU-Lite-AR R3 1 [0.7]
+//!PARAM ravu_antiring
+//!TYPE float
+//!MINIMUM 0.0
+//!MAXIMUM 1.0
+//!DESC RAVU Antiring Parameter
+0.7
+
+//!DESC RAVU-Lite-AR R3 1
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_lut3
 //!SAVE ravu_lite_int
 //!WHEN OUTPUT.w HOOKED.w / 1.500 > OUTPUT.h HOOKED.h / 1.500 > *
 //!COMPONENTS 4
-#define ANTIRING_STRENGTH 0.7
 vec4 hook() {
 vec4 gather0 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-2, -2), 0);
 vec4 gather2 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-2, 0), 0);
@@ -164,7 +170,7 @@ hi2 += cg2.x * wg;
 lo2 += cg2.y * wg;
 lo = 1.1 - lo2 / lo;
 hi = hi2 / hi - 0.1;
-res = mix(res, clamp(res, lo, hi), ANTIRING_STRENGTH);
+res = mix(res, clamp(res, lo, hi), ravu_antiring);
 return res;
 }
 //!DESC RAVU-Lite-AR R3 2

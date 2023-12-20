@@ -25,13 +25,20 @@
 // Adaptive sharpen - version 2021-10-17
 // Tuned for use post-resize
 
+//!PARAM as_sharpness
+//!TYPE float
+//!MINIMUM 0.3
+//!MAXIMUM 2.0
+//!DESC Adaptive Sharpen Sharpness (curve_height) Parameter
+0.3
+
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC Adaptive Sharpen [0.3]
+//!DESC Adaptive Sharpen
 
 //--------------------------------------- Settings ------------------------------------------------
 
-#define curve_height    (0.3)                // Main control of sharpening strength [>0]
+#define curve_height    as_sharpness         // Main control of sharpening strength [>0]
                                              // 0.3 <-> 2.0 is a reasonable range of values
 
 #define overshoot_ctrl  false                // Allow for higher overshoot if the current edge pixel

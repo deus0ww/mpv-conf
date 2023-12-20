@@ -31,9 +31,16 @@
 // Per AMD's guidelines only upscales content up to 4x (e.g., 1080p -> 2160p, 720p -> 1440p etc.) and everything else in between,
 // that means FSR will scale up to 4x at maximum, and any further scaling will be processed by mpv's scalers
 
+//!PARAM rcas_sharpness
+//!TYPE float
+//!MINIMUM 0.0
+//!MAXIMUM 2.0
+//!DESC FSR RCAS Sharpness Parameter
+0.2
+
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution EASU
+//!DESC FSR EASU
 //!WHEN OUTPUT.w OUTPUT.h * LUMA.w LUMA.h * / 1.0 >
 //!WIDTH OUTPUT.w OUTPUT.w LUMA.w 2 * < * LUMA.w 2 * OUTPUT.w LUMA.w 2 * > * + OUTPUT.w OUTPUT.w LUMA.w 2 * = * +
 //!HEIGHT OUTPUT.h OUTPUT.h LUMA.h 2 * < * LUMA.h 2 * OUTPUT.h LUMA.h 2 * > * + OUTPUT.h OUTPUT.h LUMA.h 2 * = * +

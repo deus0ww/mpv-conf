@@ -20,6 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+//!PARAM cfl_antiring
+//!TYPE float
+//!MINIMUM 0.0
+//!MAXIMUM 1.0
+//!DESC CfL Antiring Parameter
+0.7
+
 //!HOOK CHROMA
 //!BIND LUMA
 //!BIND HOOKED
@@ -27,7 +34,7 @@
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Prediction Downscaling Y 1
+//!DESC CfL Downscaling Yx
 
 vec4 hook() {
     float factor = ceil(LUMA_size.x / HOOKED_size.x);
@@ -37,11 +44,11 @@ vec4 hook() {
     float output_luma = 0.0;
     int wt = 0;
     for (int dx = start; dx <= end; dx++) {
-        output_luma += LUMA_texOff(vec2(dx + 0.5, 0.0)).x;
+        output_luma += linearize(LUMA_texOff(vec2(dx + 0.5, 0.0))).x;
         wt++;
     }
     vec4 output_pix = vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
-    return output_pix;
+    return delinearize(output_pix);
 }
 
 //!HOOK CHROMA
@@ -51,7 +58,7 @@ vec4 hook() {
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Prediction Downscaling Y 2
+//!DESC CfL Downscaling Yy
 
 vec4 hook() {
     float factor = ceil(LUMA_LOWRES_size.y / HOOKED_size.y);
@@ -61,11 +68,11 @@ vec4 hook() {
     float output_luma = 0.0;
     int wt = 0;
     for (int dy = start; dy <= end; dy++) {
-        output_luma += LUMA_LOWRES_texOff(vec2(0.0, dy + 0.5)).x;
+        output_luma += linearize(LUMA_LOWRES_texOff(vec2(0.0, dy + 0.5))).x;
         wt++;
     }
     vec4 output_pix = vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
-    return output_pix;
+    return delinearize(output_pix);
 }
 
 //!HOOK CHROMA
@@ -76,7 +83,7 @@ vec4 hook() {
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Prediction Upscaling UV [0.7]
+//!DESC CfL Upscaling UV
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1
@@ -87,7 +94,7 @@ float comp_wd(vec2 distance) {
 }
 
 vec4 hook() {
-    const float ar_strength = 0.7;
+    const float ar_strength = cfl_antiring;
     const float mix_coeff = 0.5;
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
