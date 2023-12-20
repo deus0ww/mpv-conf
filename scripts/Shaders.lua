@@ -233,8 +233,15 @@ local bilateral       = {
 -------------------
 --- Shader Sets ---
 -------------------
+local default_antiring = 0.7 -- For scalers/shaders using libplacebo's antiring filter
+
 local function default_options()
-	local o = { ['linear-downscaling'] = 'yes' }
+	local o = {
+		['linear-downscaling'] = 'yes',
+		['scale-antiring']     = default_antiring,
+		['cscale-antiring']    = default_antiring,
+		['dscale-antiring']    = default_antiring,
+	 }
 	if (get_scale() <= 1.1) or not enabled then
 		return set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
 	else
@@ -244,9 +251,9 @@ end
 
 local function default_params()
 	return {
+		cfl_antiring   = default_antiring,
+		ravu_antiring  = default_antiring,
 		as_sharpness   = 0.3,
-		cfl_antiring   = 0.7,
-		ravu_antiring  = 0.7,
 		rcas_sharpness = 0.2,
 	}
 end
