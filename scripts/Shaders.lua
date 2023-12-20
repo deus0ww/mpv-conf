@@ -145,7 +145,7 @@ local function set_scalers(o, scale, cscale, dscale)
 	return o
 end
 local function set_params(o, p)
-	o['glsl-shader-opts'] = (utils.format_json(p):gsub('[^%w%_.,:]', ''):gsub(':', '='))
+	o['glsl-shader-opts'] = (utils.to_string(p):gsub('[^%w_.,=]', ''))
 	return o;
 end
 
@@ -296,7 +296,7 @@ sets[#sets+1] = function()
 	s[#s+1] = ravu.zoom.rgb_r3s
 	s[#s+1] = igv.ssds
 	o['linear-downscaling'] = 'no'  -- for ssds
-	set_scalers(o, 'ewa_lanczos', 'ewa_lanczossharp', 'lanczos')
+	set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
 	return { shaders = s, options = set_params(o, p), label = 'Low FPS & RGB' }
 end
 
