@@ -98,7 +98,7 @@ vec4 hook() {
 //!OFFSET ALIGN
 //!DESC KrigBilateral Upscaling UV
 
-#define radius	    1.0					// 1.0 <-> 1.5 higher is sharper
+#define radius      1.0  // 1.0 <-> 1.5 higher is sharper
 
 #define sigma_nsq   256.0/(255.0*255.0)
 #define N           8

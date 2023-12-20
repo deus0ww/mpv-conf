@@ -889,7 +889,7 @@ local function add_video_out(s)
     if not mp.get_property_native("fullscreen") then
         scale = mp.get_property_native("current-window-scale")
     else
-    	local r = mp.get_property_native("video-params") or mp.get_property_native("video-out-params")
+        local r = mp.get_property_native("video-params") or mp.get_property_native("video-out-params")
         local osd_dims = mp.get_property_native("osd-dimensions")
         local scaled_width = osd_dims["w"] - osd_dims["ml"] - osd_dims["mr"]
         local scaled_height = osd_dims["h"] - osd_dims["mt"] - osd_dims["mb"]

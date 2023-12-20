@@ -142,7 +142,7 @@ vec4 hook() {
     vec2 chroma_min = min(min(min(min(vec2(1e8 ), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
     vec2 chroma_max = max(max(max(max(vec2(1e-8), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
 
-	const float twelfth = 1.0/12.0;
+    const float twelfth = 1.0/12.0;
     const vec2 wdOffsets[12] = {{ 0.0,-1.0}, { 1.0,-1.0}, {-1.0, 0.0}, { 0.0, 0.0}, { 1.0, 0.0}, { 2.0, 0.0},
                                 {-1.0, 1.0}, { 0.0, 1.0}, { 1.0, 1.0}, { 2.0, 1.0}, { 0.0, 2.0}, { 1.0, 2.0}};
     float wd;
@@ -180,7 +180,7 @@ vec4 hook() {
     vec2 chroma_pred_12 = clamp(fma(alpha_12, luma_zero, beta_12), 0.0, 1.0);
 #endif
 #if (USE_4_TAP_REGRESSION == 1)
-	const float forth = 0.25;
+    const float forth = 0.25;
     int   pix[4] = {3,4,7,8};
     float luma_avg_4 = 0.0;
     vec2  chroma_avg_4 = vec2(0.0);
