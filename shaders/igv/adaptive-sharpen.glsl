@@ -27,10 +27,10 @@
 
 //!PARAM as_sharpness
 //!TYPE float
-//!MINIMUM 0.3
+//!MINIMUM 0.2
 //!MAXIMUM 2.0
 //!DESC Adaptive Sharpen Sharpness (curve_height) Parameter
-0.3
+0.5
 
 //!HOOK SCALED
 //!BIND HOOKED

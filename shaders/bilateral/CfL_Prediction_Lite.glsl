@@ -25,7 +25,7 @@
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 //!DESC CfL Antiring Parameter
-0.7
+0.75
 
 //!HOOK CHROMA
 //!BIND HOOKED
