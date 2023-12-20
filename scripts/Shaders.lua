@@ -144,6 +144,10 @@ local function set_scalers(o, scale, cscale, dscale)
 	set_scaler (o, 'dscale', dscale)
 	return o
 end
+local function set_params(o, p)
+	o['glsl-shader-opts'] = (utils.format_json(p):gsub('[^%w%_.,:]', ''):gsub(':', '='))
+	return o;
+end
 
 
 
@@ -238,45 +242,54 @@ local function default_options()
 	end
 end
 
+local function default_params()
+	return {
+		as_sharpness   = 0.3,
+		cfl_antiring   = 0.7,
+		ravu_antiring  = 0.7,
+		rcas_sharpness = 0.2,
+	}
+end
+
 local sets = {}
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
+	local s, o, p = {}, default_options(), default_params()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = as.luma
 	s[#s+1] = bilateral.cfl
-	return { shaders = s, options = o, label = 'Standard' }
+	return { shaders = s, options = set_params(o, p), label = 'Standard' }
 end
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
+	local s, o, p = {}, default_options(), default_params()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = as.luma
 	s[#s+1] = bilateral.cfl
-	return { shaders = s, options = o, label = 'Softer' }
+	return { shaders = s, options = set_params(o, p), label = 'Softer' }
 end
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
+	local s, o, p = {}, default_options(), default_params()
 	s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
 	s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
 	s[#s+1] = as.luma
 	s[#s+1] = bilateral.cfl
-	return { shaders = s, options = o, label = 'Softest' }
+	return { shaders = s, options = set_params(o, p), label = 'Softest' }
 end
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
+	local s, o, p = {}, default_options(), default_params()
 	s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
 	s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
 	s[#s+1] = bilateral.cfll
-	return { shaders = s, options = o, label = 'High FPS' }
+	return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
 sets[#sets+1] = function()
-	local s, o = {}, default_options()
+	local s, o, p = {}, default_options(), default_params()
 	s[#s+1] = fsrcnnx2.r16
 	s[#s+1] = ravu.zoom.r3s
 	s[#s+1] = bilateral.cfl
@@ -284,7 +297,7 @@ sets[#sets+1] = function()
 	s[#s+1] = igv.ssds
 	o['linear-downscaling'] = 'no'  -- for ssds
 	set_scalers(o, 'ewa_lanczos', 'ewa_lanczossharp', 'lanczos')
-	return { shaders = s, options = o, label = 'Low FPS & RGB' }
+	return { shaders = s, options = set_params(o, p), label = 'Low FPS & RGB' }
 end
 
 
@@ -352,8 +365,8 @@ local function set_shaders(no_osd)
 		return
 	end
 	last_shaders = s
-	mpv_set_options(shaders.options)
 	mpv_set_shaders(shaders.shaders)
+	mpv_set_options(shaders.options)
 end
 
 
