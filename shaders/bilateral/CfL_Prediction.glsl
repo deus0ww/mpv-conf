@@ -21,10 +21,10 @@
 // SOFTWARE.
 
 //!PARAM cfl_antiring
-//!TYPE float
+//!DESC CfL Antiring Parameter
+//!TYPE CONSTANT float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-//!DESC CfL Antiring Parameter
 0.75
 
 //!HOOK CHROMA
@@ -34,7 +34,7 @@
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yx
+//!DESC CfL Prediction Downscaling Yx
 
 vec4 hook() {
     float factor = ceil(LUMA_size.x / HOOKED_size.x);
@@ -58,7 +58,7 @@ vec4 hook() {
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yy
+//!DESC CfL Prediction Downscaling Yy
 
 vec4 hook() {
     float factor = ceil(LUMA_LOWRES_size.y / HOOKED_size.y);
@@ -83,7 +83,7 @@ vec4 hook() {
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Upscaling UV
+//!DESC CfL Prediction Upscaling UV
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1

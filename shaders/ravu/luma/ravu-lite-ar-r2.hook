@@ -13,13 +13,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //!PARAM ravu_antiring
-//!TYPE float
+//!DESC RAVU Antiring Parameter
+//!TYPE CONSTANT float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-//!DESC RAVU Antiring Parameter
 0.8
 
-//!DESC RAVU-Lite-AR R2 1
+//!DESC RAVU-Lite AR 1
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_lut2
@@ -134,7 +134,7 @@ hi = hi2 / hi - 0.1;
 res = mix(res, clamp(res, lo, hi), ravu_antiring);
 return res;
 }
-//!DESC RAVU-Lite-AR R2 2
+//!DESC RAVU-Lite AR 2 [R2]
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_int

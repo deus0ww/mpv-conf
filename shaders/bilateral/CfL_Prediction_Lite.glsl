@@ -21,10 +21,10 @@
 // SOFTWARE.
 
 //!PARAM cfl_antiring
-//!TYPE float
+//!DESC CfL Antiring Parameter
+//!TYPE CONSTANT float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-//!DESC CfL Antiring Parameter
 0.75
 
 //!HOOK CHROMA
@@ -34,7 +34,7 @@
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Lite
+//!DESC CfL Prediction Lite
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1

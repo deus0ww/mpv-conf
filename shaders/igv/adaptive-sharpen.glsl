@@ -26,10 +26,10 @@
 // Tuned for use post-resize
 
 //!PARAM as_sharpness
-//!TYPE float
+//!DESC Adaptive Sharpen Sharpness (curve_height) Parameter
+//!TYPE CONSTANT float
 //!MINIMUM 0.3
 //!MAXIMUM 2.0
-//!DESC Adaptive Sharpen Sharpness (curve_height) Parameter
 0.5
 
 //!HOOK SCALED

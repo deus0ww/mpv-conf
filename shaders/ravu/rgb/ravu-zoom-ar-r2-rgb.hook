@@ -13,13 +13,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //!PARAM ravu_antiring
-//!TYPE float
+//!DESC RAVU Antiring Parameter
+//!TYPE CONSTANT float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-//!DESC RAVU Antiring Parameter
 0.8
 
-//!DESC RAVU-Zoom-AR R2
+//!DESC RAVU-Zoom AR [R2]
 //!HOOK MAIN
 //!BIND HOOKED
 //!BIND ravu_zoom_lut2

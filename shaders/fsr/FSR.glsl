@@ -32,16 +32,16 @@
 // that means FSR will scale up to 4x at maximum, and any further scaling will be processed by mpv's scalers
 
 //!PARAM rcas_sharpness
-//!TYPE float
+//!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
+//!TYPE CONSTANT float
 //!MINIMUM 0.0
 //!MAXIMUM 2.0
-//!DESC FSR RCAS Sharpness Parameter
 0.2
 
 //!HOOK LUMA
 //!BIND HOOKED
 //!SAVE EASUTEX
-//!DESC FSR EASU
+//!DESC FidelityFX Super Resolution EASU
 //!WHEN OUTPUT.w OUTPUT.h * LUMA.w LUMA.h * / 1.0 >
 //!WIDTH OUTPUT.w OUTPUT.w LUMA.w 2 * < * LUMA.w 2 * OUTPUT.w LUMA.w 2 * > * + OUTPUT.w OUTPUT.w LUMA.w 2 * = * +
 //!HEIGHT OUTPUT.h OUTPUT.h LUMA.h 2 * < * LUMA.h 2 * OUTPUT.h LUMA.h 2 * > * + OUTPUT.h OUTPUT.h LUMA.h 2 * = * +
@@ -369,7 +369,7 @@ vec4 hook() {
 
 //!HOOK LUMA
 //!BIND EASUTEX
-//!DESC FSR RCAS
+//!DESC FidelityFX Super Resolution RCAS
 //!WIDTH EASUTEX.w
 //!HEIGHT EASUTEX.h
 //!COMPONENTS 1
