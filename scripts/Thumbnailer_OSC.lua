@@ -304,7 +304,7 @@ local function update_tn_osc_params(seek_y)
 			tn_style.progress_mini = (tn_style_format.progress_mini):format(tn_palette.white, tn_palette.alpha_opaque, tn_osc.font_scale.x, tn_osc.font_scale.y)
 		end
 	end
-	
+
 	if not tn_osc.position.y then return end
 	if (osc_changed or tn_osc.cursor.x_last ~= tn_osc.cursor.x) and tn_osc.osd.w_scaled >= (tn_osc.thumbnail.w + 2 * tn_osc.spacer.x) then
 		tn_osc.cursor.x_last  = tn_osc.cursor.x
@@ -318,7 +318,7 @@ local function update_tn_osc_params(seek_y)
 		tn_osc.thumbnail.left, tn_osc.thumbnail.right = tn_osc.position.x - tn_osc.thumbnail.w * 0.5, tn_osc.position.x + tn_osc.thumbnail.w * 0.5
 		tn_osc.mini.x = tn_osc.thumbnail.right - 6 * tn_osc.osc_scale.x
 	end
-	
+
 	if (osc_changed or tn_osc.display_progress.last ~= tn_osc.display_progress.current) then
 		tn_osc.display_progress.last = tn_osc.display_progress.current
 		tn_osc.background.h          = tn_osc.thumbnail.h + (tn_osc.display_progress.current and (tn_osc.progress.h + tn_osc.spacer.y) or 0)
@@ -466,7 +466,7 @@ end
 ---------------
 mp.register_script_message(message.osc.reset, function()
 	hide_thumbnail()
-	reset_all()	
+	reset_all()
 end)
 
 local text_progress_format = { two_digits = '%.2d/%.2d', three_digits = '%.3d/%.3d' }
@@ -2222,7 +2222,7 @@ function osc_init()
     else
         scale = user_opts.scalewindowed
     end
-    
+
     scale = scale * mp.get_property_native("display-hidpi-scale", 1.0)
 
     if user_opts.vidscale then

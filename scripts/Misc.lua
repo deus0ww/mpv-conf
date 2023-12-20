@@ -27,7 +27,7 @@ mp.register_script_message('Set', function(property, value) change_prop('set', p
 
 
 -- Cycle Video Rotation
-mp.register_script_message('Video-Rotate', function(degrees) 
+mp.register_script_message('Video-Rotate', function(degrees)
 	change_prop('set', 'video-rotate', (degrees + mp.get_property_number('video-rotate', 0)) % 360)
 end)
 
@@ -90,10 +90,10 @@ mp.register_event('file-loaded', function()
 	if mp.get_property_native('window-minimized', false) then
 		mp.set_property_native('pause', true)
 	else
-		mp.set_property_native('pause', start_paused)		
+		mp.set_property_native('pause', start_paused)
 	end
 end)
-	
+
 
 
 -- Format Interpolation OSD Message
@@ -120,6 +120,6 @@ mp.register_event('file-loaded', function()
 		msg.debug('Resetting Volume')
 		vol = mp.get_property_native('volume')
 		mp.set_property_native('volume', vol - 5)
-		mp.set_property_native('volume', vol)	
+		mp.set_property_native('volume', vol)
 	end)
 end)

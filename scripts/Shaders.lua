@@ -32,10 +32,10 @@ local opts = {
 	preset_4_enabled      = false,
 	preset_4_path         = '%[.+%]',
 	preset_4_index        = 2,
-	
+
 	preset_hifps_enabled  = true,       -- Target frame time: 15ms
 	preset_hifps_index    = 4,
-	
+
 	preset_lowfps_enabled = true,       -- Target frame time: 90ms
 	preset_lowfps_index   = 5,
 

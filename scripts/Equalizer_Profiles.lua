@@ -21,7 +21,7 @@ local function reset_profile(profile)
 end
 
 local function reset_all()
-	for i = 0, profiles.limit do 
+	for i = 0, profiles.limit do
 		if not profiles[i] then profiles[i] = {} end
 		reset_profile(profiles[i])
 	end

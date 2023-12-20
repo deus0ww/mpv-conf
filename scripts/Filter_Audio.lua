@@ -30,7 +30,7 @@ add({
 		-- m: Smooth factor.				(11)			(1 - 15)
 		'anlmdn=s=0.01:m=15',
 		'anlmdn=s=0.10:m=15',
-		
+
 	-- https://ffmpeg.org/ffmpeg-filters.html#afftdn
 		--'afftdn=nr=12:nf=-48',
 		--'afftdn=nr=18:nf=-42',
@@ -64,14 +64,14 @@ add({
 	filter_type = 'audio',
 	default_on_load = true,
 	reset_on_load = false,
-	filters = { 
+	filters = {
 	-- https://ffmpeg.org/ffmpeg-filters.html#pan
 		-- -3dB=0.707, -6dB=0.500, -9dB=0.353, -12dB=0.250, -15dB=0.177
 		'pan=stereo|FL<0.707*FC+1.000*FL+0.500*SL+0.500*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.500*SR+0.500*BR+0.500*LFE',
 		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.500*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.500*LFE', -- ATSC + LFE
 		'pan=stereo|FL<0.707*FC+1.000*FL+0.707*SL+0.707*BL+0.000*LFE|FR<0.707*FC+1.000*FR+0.707*SR+0.707*BR+0.000*LFE', -- ATSC
 		'pan=stereo|FL<1.000*FC+0.707*FL+0.500*SL+0.500*BL+0.000*LFE|FR<1.000*FC+0.707*FR+0.500*SR+0.500*BR+0.000*LFE', -- Nightmode
-		
+
 	-- https://ffmpeg.org/ffmpeg-filters.html#sofalizer
 		'sofalizer=sofa=/Users/Shared/Library/mpv/sofa/ClubFritz7.sofa:interpolate=yes',
 	},
@@ -82,7 +82,7 @@ add({
 	filter_type = 'audio',
 	reset_on_load = false,
 	filters = {
-	-- igh 
+	-- igh
 		-- attack/decays					(0.3/0.8)		(ms)
 		-- soft-knee: Curve radius			(0.01)			(dB)
 		'compand=attacks=0.050:decays=0.300:soft-knee=8:points=-80/-80|-20/-20|020/0', --  2:1
@@ -121,7 +121,7 @@ add({
 		'extrastereo=m=2.00',
 		'extrastereo=m=2.25',
 		'extrastereo=m=2.50',
-		
+
 	-- https://ffmpeg.org/ffmpeg-filters.html#bs2b
 		'bs2b=profile=jmeier',
 	},
@@ -152,7 +152,7 @@ add({
 	filters = {
 	-- https://mpv.io/manual/master/#audio-filters-scaletempo2[
 		'scaletempo2=search-interval=40:window-size=12',
-		
+
 	-- https://mpv.io/manual/master/#audio-filters-rubberband
 	--	'rubberband=engine=finer:pitch=quality:window=long:formant=preserved:channels=together',
 	},

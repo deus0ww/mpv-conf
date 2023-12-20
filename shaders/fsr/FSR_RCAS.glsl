@@ -48,7 +48,7 @@ float APrxMedRcpF1(float a) {
 }
 
 float AMax3F1(float x, float y, float z) {
-	return max(x, max(y, z)); 
+	return max(x, max(y, z));
 }
 
 float AMin3F1(float x, float y, float z) {
@@ -57,7 +57,7 @@ float AMin3F1(float x, float y, float z) {
 
 #if (FSR_PQ == 1)
 
-float FromGamma2(float a) { 
+float FromGamma2(float a) {
 	return sqrt(sqrt(a));
 }
 
@@ -65,7 +65,7 @@ float FromGamma2(float a) {
 
 vec4 hook() {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
-	//    b 
+	//    b
 	//  d e f
 	//    h
 #if (defined(HOOKED_gather) && (__VERSION__ >= 400 || (GL_ES && __VERSION__ >= 310)))

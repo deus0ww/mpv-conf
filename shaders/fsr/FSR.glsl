@@ -26,7 +26,7 @@
 // Made it directly operate on LUMA plane, since the original shader was operating on LUMA by deriving it from RGB. This should cause a major increase in performance, especially on OpenGL 4.0+ renderers (4+2 texture lookups vs. 12+5)
 // Removed transparency preservation mechanism since the alpha channel is a separate source plane than LUMA
 // Added optional performance-saving lossy optimizations to EASU (Credit: atyuwen, https://atyuwen.github.io/posts/optimizing-fsr/)
-// 
+//
 // Notes
 // Per AMD's guidelines only upscales content up to 4x (e.g., 1080p -> 2160p, 720p -> 1440p etc.) and everything else in between,
 // that means FSR will scale up to 4x at maximum, and any further scaling will be processed by mpv's scalers
@@ -81,7 +81,7 @@ float AMax3F1(float x, float y, float z) {
 
 #if (FSR_PQ == 1)
 
-float ToGamma2(float a) { 
+float ToGamma2(float a) {
 	return pow(a, 4.0);
 }
 
@@ -237,17 +237,17 @@ vec4 hook() {
 	// pre-OpenGL 4.0 compatibility
 	float b = HOOKED_tex(vec2((fp + vec2(0.5, -0.5)) * HOOKED_pt)).r;
 	float c = HOOKED_tex(vec2((fp + vec2(1.5, -0.5)) * HOOKED_pt)).r;
-	
+
 	float e = HOOKED_tex(vec2((fp + vec2(-0.5, 0.5)) * HOOKED_pt)).r;
 	float f = HOOKED_tex(vec2((fp + vec2( 0.5, 0.5)) * HOOKED_pt)).r;
 	float g = HOOKED_tex(vec2((fp + vec2( 1.5, 0.5)) * HOOKED_pt)).r;
 	float h = HOOKED_tex(vec2((fp + vec2( 2.5, 0.5)) * HOOKED_pt)).r;
-	
+
 	float i = HOOKED_tex(vec2((fp + vec2(-0.5, 1.5)) * HOOKED_pt)).r;
 	float j = HOOKED_tex(vec2((fp + vec2( 0.5, 1.5)) * HOOKED_pt)).r;
 	float k = HOOKED_tex(vec2((fp + vec2( 1.5, 1.5)) * HOOKED_pt)).r;
 	float l = HOOKED_tex(vec2((fp + vec2( 2.5, 1.5)) * HOOKED_pt)).r;
-	
+
 	float n = HOOKED_tex(vec2((fp + vec2(0.5, 2.5) ) * HOOKED_pt)).r;
 	float o = HOOKED_tex(vec2((fp + vec2(1.5, 2.5) ) * HOOKED_pt)).r;
 
@@ -389,7 +389,7 @@ float APrxMedRcpF1(float a) {
 }
 
 float AMax3F1(float x, float y, float z) {
-	return max(x, max(y, z)); 
+	return max(x, max(y, z));
 }
 
 float AMin3F1(float x, float y, float z) {
@@ -398,7 +398,7 @@ float AMin3F1(float x, float y, float z) {
 
 #if (FSR_PQ == 1)
 
-float FromGamma2(float a) { 
+float FromGamma2(float a) {
 	return sqrt(sqrt(a));
 }
 
@@ -406,7 +406,7 @@ float FromGamma2(float a) {
 
 vec4 hook() {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
-	//    b 
+	//    b
 	//  d e f
 	//    h
 #if (defined(EASUTEX_gather) && (__VERSION__ >= 400 || (GL_ES && __VERSION__ >= 310)))

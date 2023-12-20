@@ -11,7 +11,7 @@ import os
 if sys.argv[1] in ["submit", "stats", "username"]:
     if not sys.argv[8]:
         if os.path.isfile(sys.argv[7]):
-            with open(sys.argv[7]) as f:  
+            with open(sys.argv[7]) as f:
                 uid = f.read()
         else:
             uid = "".join(random.choices(string.ascii_letters + string.digits, k=36))

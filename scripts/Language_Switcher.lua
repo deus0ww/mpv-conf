@@ -46,7 +46,7 @@ local function process_tracks(subtracks, lang_priority)
 				is_sign_song = (title:find('sign') ~= nil) or (title:find('song') ~= nil)
 				if language_first_index[current_lang] == nil or language_first_index[current_lang].is_sign_song then
 					language_first_index[current_lang] = { index = #processed_subtracks, is_sign_song = is_sign_song }
-				end 	
+				end
 			end
 		end
 	end
@@ -63,7 +63,7 @@ local function add_undefined_tracks(subtracks, processed_subtracks, language_fir
 			title = subtrack.title and subtrack.title:lower() or ''
 			is_sign_song = (title:find('sign') ~= nil) or (title:find('song') ~= nil)
 			if language_first_index.und == nil or language_first_index['und'].is_sign_song then
-				language_first_index.und = { index = #processed_subtracks, is_sign_song = is_sign_song } 
+				language_first_index.und = { index = #processed_subtracks, is_sign_song = is_sign_song }
 			end
 		end
 	end

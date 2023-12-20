@@ -12,7 +12,7 @@ local utils   = require 'mp.utils'
 ------------------
 local o = {
 	default_resize_type = 3,     -- 0=Off, 1=Absolute, 2=Percent of display, 3=Percent of display (one-axis), 4=Percent of Video
-	default_resize_w    = 50, 
+	default_resize_w    = 50,
 	default_resize_h    = 50,
 
 	default_align       = 3,     -- Align to display edges; 0=Off, 1-9=Numpad Direction (Priority over 'Move')
@@ -284,7 +284,7 @@ local function change_window(current, target)
 	msg.debug(format_log('[1] Current', current))
 	msg.debug(format_log('[1] Target', target))
 	change_window_once(current, target)
-	
+
 	current = run_get()
 	msg.debug(format_log('[2] Current', current))
 	msg.debug(format_log('[2] Target', target))
@@ -362,7 +362,7 @@ local function set_defaults()
 	align_current  = o.default_align
 	local resize_type = sanitize(o.default_resize_type, 0, 3, 1)
 	local move_type   = sanitize(o.default_move_type,   0, 2, 1)
-	
+
 	if resize_type == 0 then
 		align(align_current)
 	else
@@ -390,7 +390,7 @@ local function observe_prop(k, v)
 		rotate_current = rotate_initial
 	else msg.debug('Unknown Property')
 	end
-	
+
 	if  osd.w     > 0 and osd.h     > 0 and
 		video.w   > 0 and video.h   > 0 and
 		display.w > 0 and display.h > 0 and

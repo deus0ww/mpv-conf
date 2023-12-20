@@ -52,11 +52,11 @@ end)
 -- Move to Trash -- Requires: https://github.com/ali-rantakari/trash
 mp.register_script_message('MoveToTrash', function()
 	opt.read_options(user_opts, mp.get_script_name())
-	if mp.get_property_native('demuxer-via-network', true) then 
+	if mp.get_property_native('demuxer-via-network', true) then
 		mp.osd_message('Trashing failed: File is remote.')
 		return
 	end
-	 
+
 	local path = mp.get_property_native('path', ''):gsub('edl://', ''):gsub(';/', '" /"')
 	if not path or path == '' then
 		mp.osd_message('Trashing failed: Invalid Path')
@@ -78,21 +78,21 @@ end
 
 mp.register_script_message('OpenFromClipboard', function()
 	local osd_msg = 'Opening From Clipboard: '
-	
+
 	local success, res = subprocess('OpenFromClipboard', {'pbpaste'})
 	if not success or res == nil or res.stdout == nil or res.stdout == '' then
 		mp.osd_message(osd_msg .. 'failed.')
 		return
 	end
-	
+
 	local mode, paste = 'replace', {}
-	for line in lines(res.stdout) do 
+	for line in lines(res.stdout) do
 		msg.debug('loadfile', line, mode)
 		mp.commandv('loadfile', line, mode)
 		mode = 'append'
 		paste[#paste+1] = line
 	end
-	
+
 	local msg = osd_msg
 	if #paste > 0 then msg = msg .. '\n' .. paste[1] end
 	if #paste > 1 then msg = msg .. (' ... and %d other URL(s).'):format(#paste-1) end

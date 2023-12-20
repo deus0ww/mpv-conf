@@ -90,18 +90,18 @@ local function subprocess_result(sub_success, result, mpv_error, subprocess_name
 	local cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed
 	if result then cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed = result.status, result.stdout, result.stderr, result.error_string, result.killed_by_us end
 	local cmd_status_success, cmd_status_string, cmd_err_success, cmd_err_string, success
-	
+
 	if     cmd_status == 0      then cmd_status_success, cmd_status_string = true,  'ok'
 	elseif is_empty(cmd_status) then cmd_status_success, cmd_status_string = true,  '_'
 	elseif cmd_status == 124 or cmd_status == 137 or cmd_status == 143 then -- timer: timed-out(124), killed(128+9), or terminated(128+15)
 	                                 cmd_status_success, cmd_status_string = false, 'timed out'
 	else                             cmd_status_success, cmd_status_string = false, ('%d'):format(cmd_status) end
-	
+
 	if     is_empty(cmd_error)   then cmd_err_success, cmd_err_string = true,  '_'
 	elseif cmd_error == 'init'   then cmd_err_success, cmd_err_string = false, 'failed to initialize'
 	elseif cmd_error == 'killed' then cmd_err_success, cmd_err_string = false, cmd_killed and 'killed by us' or 'killed, but not by us'
 	else                              cmd_err_success, cmd_err_string = false, cmd_error end
-	
+
 	if is_empty(cmd_stdout) then cmd_stdout = '_' end
 	if is_empty(cmd_stderr) then cmd_stderr = '_' end
 	subprocess_name = subprocess_name or '_'
@@ -109,7 +109,7 @@ local function subprocess_result(sub_success, result, mpv_error, subprocess_name
 	success = (sub_success == nil or sub_success) and is_empty(mpv_error) and cmd_status_success and cmd_err_success
 
 	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), start_time)))
-	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
+	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a',
 	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr) end
 	return success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr
 end
@@ -164,7 +164,7 @@ local function dir_exist(path)
 	local ok, _, _ = os.rename(path .. '/', path .. '/')
 	if not ok then return false end
 	local file = io.open(join_paths(path, 'test'), 'w')
-	if file then 
+	if file then
 		file:close()
 		return os.remove(join_paths(path, 'test'))
 	end
@@ -210,7 +210,7 @@ local user_opts = {
 	stream_delta_factor   = 2,                  -- Multiply delta by this for streams (youtube, etc)
 	bitrate_delta_factor  = 2,                  -- Multiply delta by this for high bitrate sources
 	bitrate_threshold     = 8,                  -- The threshold to consider a source to be high bitrate (Mbps)
-	
+
 	-- OSC
 	spacer                = 2,                  -- Size of borders and spacings
 	show_progress         = 1,                  -- Display the thumbnail-ing progress. (0=never, 1=while generating, 2=always)
@@ -367,7 +367,7 @@ end
 local function osc_delta_update(flush)
 	local time_since_last_update = os.clock() - osc_last_update
 	if thumbnails_new_count <= 0 then return end
-	if (time_since_last_update >= (4.00 * user_opts.update_time)) or 
+	if (time_since_last_update >= (4.00 * user_opts.update_time)) or
 	   (time_since_last_update >= (2.00 * user_opts.update_time) and thumbnails_new_count >= state.worker_buffer) or
 	   (time_since_last_update >= (1.00 * user_opts.update_time) and thumbnails_new_count >= state.osc_buffer) or
 	   thumbnails_new_count >= floor(state.tn_per_worker - 1) or
@@ -448,20 +448,20 @@ local function create_ouput_dir(filepath, filename, dimension, rotate)
 		basepath = join_paths(user_opts.cache_dir, name)
 		success = create_dir(basepath)
 	end
-	
+
 	if not success then  -- Try hashed path
 		name = hash_string(filepath, filename):sub(1, max_char)
 		msg.debug('Creating Output Dir: Trying', name)
 		basepath = join_paths(user_opts.cache_dir, name)
 		success = create_dir(basepath)
 	end
-	
+
 	if not success then  -- Failed
 		msg.error('Creating Output Dir: Failed', name)
 		return {basepath = nil, fullpath = nil}
 	end
 	msg.debug('Creating Output Dir: Using ', name)
-	
+
 	local fullpath = join_paths(basepath, dimension, rotate)
 	if not create_dir(fullpath) then return { basepath = nil, fullpath = nil } end
 	return {basepath = basepath, fullpath = fullpath}
@@ -612,10 +612,10 @@ local function is_thumbnailable()
 		end
 		::continue::
 	end
-	for condition, value in pairs(stop_conditions) do		
-		if not value then 
+	for condition, value in pairs(stop_conditions) do
+		if not value then
 			msg.warn('Stopping:', condition, value)
-			return false 
+			return false
 		end
 	end
 	return true
@@ -625,7 +625,7 @@ local auto_delete = nil
 
 local function delete_cache_dir()
 	if auto_delete == nil then auto_delete = user_opts.auto_delete end
-	if auto_delete > 0 then 
+	if auto_delete > 0 then
 		local path = user_opts.cache_dir
 		msg.debug('Clearing Cache on Shutdown:', path)
 		if path:len() < 16 then return end
@@ -670,14 +670,14 @@ local function run_generation(paused)
 	end
 end
 
-local function stop() 
+local function stop()
 	workers_stop()
 	osc_delta_update_timer:kill()
 	osc_delta_update(true)
 end
 
 local function start(paused)
-	if not initialized then mp.add_timeout(user_opts.start_delay, function() 
+	if not initialized then mp.add_timeout(user_opts.start_delay, function()
 			state_init()
 			start(paused)
 		end)
@@ -890,7 +890,7 @@ mp.register_script_message(message.debug, function()
 	msg.info('duration', mp.get_property_native('duration', 0))
 	msg.info('file-size', mp.get_property_native('file-size', 0))
 	msg.info('auto_delete', auto_delete)
-	
+
 	msg.info('============================')
 	msg.info('Thumbnailer Internal States:')
 	msg.info('============================')

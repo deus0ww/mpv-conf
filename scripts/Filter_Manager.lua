@@ -113,7 +113,7 @@ mp.register_event('file-loaded', function()
 end)
 
 mp.register_event('playback-restart', function()
-	if filter_list.num_enabled ~= #mp.get_property_native('vf', {}) + #mp.get_property_native('af', {}) then 
+	if filter_list.num_enabled ~= #mp.get_property_native('vf', {}) + #mp.get_property_native('af', {}) then
 		msg.debug('Playback-Restart - Number of fitlers changed. Resetting...')
 		apply_all()
 	else

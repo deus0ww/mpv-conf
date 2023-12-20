@@ -106,18 +106,18 @@ local function subprocess_result(sub_success, result, mpv_error, subprocess_name
 	local cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed
 	if result then cmd_status, cmd_stdout, cmd_stderr, cmd_error, cmd_killed = result.status, result.stdout, result.stderr, result.error_string, result.killed_by_us end
 	local cmd_status_success, cmd_status_string, cmd_err_success, cmd_err_string, success
-	
+
 	if     cmd_status == 0      then cmd_status_success, cmd_status_string = true,  'ok'
 	elseif is_empty(cmd_status) then cmd_status_success, cmd_status_string = true,  '_'
 	elseif cmd_status == 124 or cmd_status == 137 or cmd_status == 143 then -- timer: timed-out(124), killed(128+9), or terminated(128+15)
 	                                 cmd_status_success, cmd_status_string = false, 'timed out'
 	else                             cmd_status_success, cmd_status_string = false, ('%d'):format(cmd_status) end
-	
+
 	if     is_empty(cmd_error)   then cmd_err_success, cmd_err_string = true,  '_'
 	elseif cmd_error == 'init'   then cmd_err_success, cmd_err_string = false, 'failed to initialize'
 	elseif cmd_error == 'killed' then cmd_err_success, cmd_err_string = false, cmd_killed and 'killed by us' or 'killed, but not by us'
 	else                              cmd_err_success, cmd_err_string = false, cmd_error end
-	
+
 	if is_empty(cmd_stdout) then cmd_stdout = '_' end
 	if is_empty(cmd_stderr) then cmd_stderr = '_' end
 	subprocess_name = subprocess_name or '_'
@@ -125,7 +125,7 @@ local function subprocess_result(sub_success, result, mpv_error, subprocess_name
 	success = (sub_success == nil or sub_success) and is_empty(mpv_error) and cmd_status_success and cmd_err_success
 
 	if success then msg.debug('Subprocess', subprocess_name, 'succeeded. | Status:', cmd_status_string, '| Time:', ('%ds'):format(os.difftime(os.time(), start_time)))
-	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a', 
+	else            msg.error('Subprocess', subprocess_name, 'failed. | Status:', cmd_status_string, '| MPV Error:', mpv_error or 'n/a',
 	                          '| Subprocess Error:', cmd_err_string, '| Stdout:', cmd_stdout, '| Stderr:', cmd_stderr, '| Time:', ('%ds'):format(os.difftime(os.time(), start_time))) end
 	return success, cmd_status_string, cmd_err_string, cmd_stdout, cmd_stderr
 end
@@ -283,7 +283,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		local vf_transpose = state.rotate and transpose[tonumber(state.rotate % 360)] or ''
 		local filter_threads = (':o="threads=%d"'):format(worker_options.ffmpeg_threads)
 		local video_filters = '--vf=lavfi="' .. vf_scale .. vf_transpose .. '"' .. filter_threads .. vf_format
-	
+
 		local worker_options = worker_options
 		local header_fields_arg = nil
 		local header_fields = mp.get_property_native('http-header-fields', {})
@@ -294,7 +294,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		args = worker_extra.args -- https://mpv.io/manual/master/
 		add_timeout(args)
 		add_nice(args)
-		
+
 		worker_extra.index_name = concat_args(args, worker_options.exec_path .. 'mpv')
 		-- General
 		concat_args(args, '--no-config')
@@ -306,7 +306,7 @@ local function create_mpv_command(time, output, force_accurate_seek)
 		concat_args(args, '--load-stats-overlay=no')
 		concat_args(args, '--no-terminal')
 		concat_args(args, '--osc=no')
-		
+
 		-- Remote
 		concat_args(args, (worker_extra.ytdl and '--ytdl' or '--no-ytdl'))
 		concat_args(args, '--ytdl-format=worst')
@@ -363,7 +363,7 @@ local function create_ffmpeg_command(time, output, force_accurate_seek)
 		local vf_scale = (scale_ff):format(width, height, worker_options.ffmpeg_scaler)
 		local vf_transpose = state.rotate and transpose[tonumber(state.rotate % 360)] or ''
 		local video_filters = vf_scale .. vf_transpose
-		
+
 		local worker_options = worker_options
 		worker_extra.args = {}
 		args = worker_extra.args -- https://ffmpeg.org/ffmpeg.html#Main-options
