@@ -28,7 +28,7 @@
 //!PARAM as_sharpness
 //!DESC Adaptive Sharpen Sharpness (curve_height) Parameter
 //!TYPE CONSTANT float
-//!MINIMUM 0.3
+//!MINIMUM 0.0
 //!MAXIMUM 2.0
 0.5
 
