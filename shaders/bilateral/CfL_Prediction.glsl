@@ -139,9 +139,6 @@ vec4 hook() {
         luma_pixels[i] = LUMA_LOWRES_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).x;
     }
 #endif
-    vec2 chroma_min = min(min(min(min(vec2(1e8 ), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
-    vec2 chroma_max = max(max(max(max(vec2(1e-8), chroma_pixels[3]), chroma_pixels[4]), chroma_pixels[7]), chroma_pixels[8]);
-
     const float twelfth = 1.0/12.0;
     const vec2 wdOffsets[12] = {{ 0.0,-1.0}, { 1.0,-1.0}, {-1.0, 0.0}, { 0.0, 0.0}, { 1.0, 0.0}, { 2.0, 0.0},
                                 {-1.0, 1.0}, { 0.0, 1.0}, { 1.0, 1.0}, { 2.0, 1.0}, { 0.0, 2.0}, { 1.0, 2.0}};
@@ -150,12 +147,16 @@ vec4 hook() {
     vec2  ct = vec2(0.0);
     float luma_avg_12 = 0.0;
     vec2  chroma_avg_12 = vec2(0.0);
+    vec2  chroma_min = vec2(1e8);
+    vec2  chroma_max = vec2(1e-8);
     for (int i = 0; i < 12; i++) {
         wd = comp_wd(wdOffsets[i] - pp);
         wt += wd;
         ct += wd * chroma_pixels[i];
         luma_avg_12 = fma(luma_pixels[i], twelfth, luma_avg_12);
         chroma_avg_12 = fma(chroma_pixels[i], twelfth.xx, chroma_avg_12);
+        chroma_min = min(chroma_min, chroma_pixels[i]);
+        chroma_max = max(chroma_max, chroma_pixels[i]);
     }
     vec2 chroma_spatial = clamp(ct / wt, 0.0, 1.0);
     chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), ar_strength);
