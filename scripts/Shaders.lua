@@ -233,7 +233,7 @@ local bilateral       = {
 -------------------
 --- Shader Sets ---
 -------------------
-local default_antiring = 0.7 -- For scalers/shaders using libplacebo's antiring filter
+local default_antiring = 0.8 -- For scalers/shaders using libplacebo's antiring filter
 
 local function default_options()
     local o = {
@@ -253,11 +253,9 @@ local function default_params()
     return {
         cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
-
         as_sharpness   = 0.3,
         fsr_sharpness  = 0.2,
         krig_sharpness = 1.0,
-
         fsr_pq         = 0,
     }
 end
