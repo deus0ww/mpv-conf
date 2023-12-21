@@ -13,6 +13,13 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library.
 
+//!PARAM krig_sharpness
+//!DESC KrigBilateral Sharpness (radius) Parameter
+//!TYPE float
+//!MINIMUM 1.0
+//!MAXIMUM 1.5
+1.0
+
 //!HOOK CHROMA
 //!BIND LUMA
 //!BIND HOOKED
@@ -98,7 +105,7 @@ vec4 hook() {
 //!OFFSET ALIGN
 //!DESC KrigBilateral Upscaling UV
 
-#define radius      1.0  // 1.0 <-> 1.5 higher is sharper
+#define radius      krig_sharpness  // 1.0 <-> 1.5 higher is sharper
 
 #define sigma_nsq   256.0/(255.0*255.0)
 #define N           8

@@ -21,12 +21,19 @@
 // FidelityFX FSR v1.0.2 by AMD
 // ported to mpv by agyild
 
-//!PARAM rcas_sharpness
+//!PARAM fsr_sharpness
 //!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
-//!TYPE CONSTANT float
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 2.0
 0.2
+
+//!PARAM fsr_pq
+//!DESC FidelityFX Super Resolution PQ Parameter
+//!TYPE int
+//!MINIMUM 0
+//!MAXIMUM 1
+0
 
 //!HOOK LUMA
 //!BIND HOOKED
@@ -34,9 +41,9 @@
 //!COMPONENTS 1
 
 // User variables - RCAS
-#define SHARPNESS rcas_sharpness // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
-#define FSR_RCAS_DENOISE 1 // If set to 1, lessens the sharpening on noisy areas. Can be disabled for better performance. 0 or 1.
-#define FSR_PQ 0 // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
+#define SHARPNESS fsr_sharpness // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
+#define FSR_RCAS_DENOISE 1      // If set to 1, lessens the sharpening on noisy areas. Can be disabled for better performance. 0 or 1.
+#define FSR_PQ fsr_pq           // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
 
 // Shader code
 

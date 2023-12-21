@@ -22,7 +22,7 @@
 
 //!PARAM cfl_antiring
 //!DESC CfL Antiring Parameter
-//!TYPE CONSTANT float
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 0.75

@@ -31,12 +31,19 @@
 // Per AMD's guidelines only upscales content up to 4x (e.g., 1080p -> 2160p, 720p -> 1440p etc.) and everything else in between,
 // that means FSR will scale up to 4x at maximum, and any further scaling will be processed by mpv's scalers
 
-//!PARAM rcas_sharpness
+//!PARAM fsr_sharpness
 //!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
-//!TYPE CONSTANT float
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 2.0
 0.2
+
+//!PARAM fsr_pq
+//!DESC FidelityFX Super Resolution PQ Parameter
+//!TYPE int
+//!MINIMUM 0
+//!MAXIMUM 1
+0
 
 //!HOOK LUMA
 //!BIND HOOKED
@@ -47,10 +54,10 @@
 //!COMPONENTS 1
 
 // User variables - EASU
-#define FSR_PQ 0 // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
-#define FSR_EASU_DERING 1 // If set to 0, disables deringing for a small increase in performance. 0 or 1.
+#define FSR_PQ fsr_pq              // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
+#define FSR_EASU_DERING 1          // If set to 0, disables deringing for a small increase in performance. 0 or 1.
 #define FSR_EASU_SIMPLE_ANALYSIS 0 // If set to 1, uses a simpler single-pass direction and length analysis for an increase in performance. 0 or 1.
-#define FSR_EASU_QUIT_EARLY 0 // If set to 1, uses bilinear filtering for non-edge pixels and skips EASU on those regions for an increase in performance. 0 or 1.
+#define FSR_EASU_QUIT_EARLY 0      // If set to 1, uses bilinear filtering for non-edge pixels and skips EASU on those regions for an increase in performance. 0 or 1.
 
 // Shader code
 
