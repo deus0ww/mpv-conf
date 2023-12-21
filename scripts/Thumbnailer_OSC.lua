@@ -42,6 +42,7 @@ local user_opts = {
     seekrangeseparate = true,   -- whether the seekranges overlay on the bar-style seekbar
     seekrangealpha = 200,       -- transparency of seekranges
     seekbarkeyframes = true,    -- use keyframes when dragging the seekbar
+    scrollcontrols = true,      -- allow scrolling when hovering certain OSC elements
     title = "${media-title}",   -- string compatible with property-expansion
                                 -- to be shown as OSC title
     tooltipborder = 1,          -- border of tooltip in bottom/topbar
@@ -2406,10 +2407,13 @@ function osc_init()
         function () set_track("audio", -1) end
     ne.eventresponder["shift+mbtn_left_down"] =
         function () show_message(get_tracklist("audio"), 2) end
-    ne.eventresponder["wheel_down_press"] =
-        function () set_track("audio", 1) end
-    ne.eventresponder["wheel_up_press"] =
-        function () set_track("audio", -1) end
+
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_down_press"] =
+            function () set_track("audio", 1) end
+        ne.eventresponder["wheel_up_press"] =
+            function () set_track("audio", -1) end
+    end
 
     --cy_sub
     ne = new_element("cy_sub", "button")
@@ -2429,10 +2433,13 @@ function osc_init()
         function () set_track("sub", -1) end
     ne.eventresponder["shift+mbtn_left_down"] =
         function () show_message(get_tracklist("sub"), 2) end
-    ne.eventresponder["wheel_down_press"] =
-        function () set_track("sub", 1) end
-    ne.eventresponder["wheel_up_press"] =
-        function () set_track("sub", -1) end
+
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_down_press"] =
+            function () set_track("sub", 1) end
+        ne.eventresponder["wheel_up_press"] =
+            function () set_track("sub", -1) end
+    end
 
     --tog_fs
     ne = new_element("tog_fs", "button")
@@ -2522,10 +2529,14 @@ function osc_init()
             "absolute-percent", "exact") end
     ne.eventresponder["reset"] =
         function (element) element.state.lastseek = nil end
-    ne.eventresponder["wheel_up_press"] =
-        function () mp.commandv("osd-auto", "seek", -5) end
-    ne.eventresponder["wheel_down_press"] =
-        function () mp.commandv("osd-auto", "seek",  5) end
+
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] =
+            function () mp.commandv("osd-auto", "seek", -5) end
+        ne.eventresponder["wheel_down_press"] =
+            function () mp.commandv("osd-auto", "seek",  5) end
+    end
+
     ne.eventresponder["mbtn_right_down"] =
         function (element) mp.commandv('script-message', 'Thumbnailer-toggle-osc') end
     ne.eventresponder["mbtn_right_dbl_press"] =
@@ -2612,10 +2623,12 @@ function osc_init()
     ne.eventresponder["mbtn_left_up"] =
         function () mp.commandv("cycle", "mute") end
 
-    ne.eventresponder["wheel_up_press"] =
-        function () mp.commandv("osd-auto", "add", "volume", 5) end
-    ne.eventresponder["wheel_down_press"] =
-        function () mp.commandv("osd-auto", "add", "volume", -5) end
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] =
+            function () mp.commandv("osd-auto", "add", "volume", 5) end
+        ne.eventresponder["wheel_down_press"] =
+            function () mp.commandv("osd-auto", "add", "volume", -5) end
+    end
 
 
     -- load layout
