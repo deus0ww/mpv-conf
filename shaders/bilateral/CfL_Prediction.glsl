@@ -107,100 +107,80 @@ vec4 hook() {
 #ifdef HOOKED_gather
     vec2 pos = fp * HOOKED_pt;
     const ivec2 gatherOffsets[4] = {{ 0, 0}, { 2, 0}, { 0, 2}, { 2, 2}};
-    vec4 chroma_quads[2][4];
-    vec4 luma_quads[4];
+    vec4 q[3][4];
     for (int i = 0; i < 4; i++) {
-        chroma_quads[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 0);
-        chroma_quads[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 1);
-        luma_quads[i] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
+        q[0][i] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
+        q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 0);
+        q[2][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 1);
     }
-    float luma_pixels[12] = {
-        luma_quads[0].z, luma_quads[1].w,
-        luma_quads[0].x, luma_quads[0].y,
-        luma_quads[1].x, luma_quads[1].y,
-        luma_quads[2].w, luma_quads[2].z,
-        luma_quads[3].w, luma_quads[3].z,
-        luma_quads[2].y, luma_quads[3].x};
-    vec2 chroma_pixels[12] = {
-        {chroma_quads[0][0].z, chroma_quads[1][0].z}, {chroma_quads[0][1].w, chroma_quads[1][1].w},
-        {chroma_quads[0][0].x, chroma_quads[1][0].x}, {chroma_quads[0][0].y, chroma_quads[1][0].y},
-        {chroma_quads[0][1].x, chroma_quads[1][1].x}, {chroma_quads[0][1].y, chroma_quads[1][1].y},
-        {chroma_quads[0][2].w, chroma_quads[1][2].w}, {chroma_quads[0][2].z, chroma_quads[1][2].z},
-        {chroma_quads[0][3].w, chroma_quads[1][3].w}, {chroma_quads[0][3].z, chroma_quads[1][3].z},
-        {chroma_quads[0][2].y, chroma_quads[1][2].y}, {chroma_quads[0][3].x, chroma_quads[1][3].x}};
+    vec3 pixels[12] = {
+        {q[0][0].z, q[1][0].z, q[2][0].z}, {q[0][1].w, q[1][1].w, q[2][1].w},
+        {q[0][0].x, q[1][0].x, q[2][0].x}, {q[0][0].y, q[1][0].y, q[2][0].y},
+        {q[0][1].x, q[1][1].x, q[2][1].x}, {q[0][1].y, q[1][1].y, q[2][1].y},
+        {q[0][2].w, q[1][2].w, q[2][2].w}, {q[0][2].z, q[1][2].z, q[2][2].z},
+        {q[0][3].w, q[1][3].w, q[2][3].w}, {q[0][3].z, q[1][3].z, q[2][3].z},
+        {q[0][2].y, q[1][2].y, q[2][2].y}, {q[0][3].x, q[1][3].x, q[2][3].x},
+    };
 #else
     const vec2 texOffsets[12] = {
         { 0.5,-0.5}, { 1.5,-0.5}, {-0.5, 0.5}, { 0.5, 0.5}, { 1.5, 0.5}, { 2.5, 0.5},
         {-0.5, 1.5}, { 0.5, 1.5}, { 1.5, 1.5}, { 2.5, 1.5}, { 0.5, 2.5}, { 1.5, 2.5}};
-    vec2 chroma_pixels[12];
-    float luma_pixels[12];
+    vec3 pixels[12];
     for (int i = 0; i < 12; i++) {
-        chroma_pixels[i] = HOOKED_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).xy;
-        luma_pixels[i] = LUMA_LOWRES_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).x;
+        pixels[i] = vec3(LUMA_LOWRES_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).x, HOOKED_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).xy);
     }
 #endif
-    const float twelfth = 1.0/12.0;
-    const vec2 wdOffsets[12] = {{ 0.0,-1.0}, { 1.0,-1.0}, {-1.0, 0.0}, { 0.0, 0.0}, { 1.0, 0.0}, { 2.0, 0.0},
-                                {-1.0, 1.0}, { 0.0, 1.0}, { 1.0, 1.0}, { 2.0, 1.0}, { 0.0, 2.0}, { 1.0, 2.0}};
+    const vec2 wdOffsets[12] = {
+        { 0.0,-1.0}, { 1.0,-1.0}, {-1.0, 0.0}, { 0.0, 0.0}, { 1.0, 0.0}, { 2.0, 0.0},
+        {-1.0, 1.0}, { 0.0, 1.0}, { 1.0, 1.0}, { 2.0, 1.0}, { 0.0, 2.0}, { 1.0, 2.0}};
     float wd;
     float wt = 0.0;
     vec2  ct = vec2(0.0);
-    float luma_avg_12 = 0.0;
-    vec2  chroma_avg_12 = vec2(0.0);
+    vec3  avg_12 = vec3(0.0);
     vec2  chroma_min = vec2(1e8);
     vec2  chroma_max = vec2(1e-8);
     for (int i = 0; i < 12; i++) {
         wd = comp_wd(wdOffsets[i] - pp);
         wt += wd;
-        ct += wd * chroma_pixels[i];
-        luma_avg_12 = fma(luma_pixels[i], twelfth, luma_avg_12);
-        chroma_avg_12 = fma(chroma_pixels[i], twelfth.xx, chroma_avg_12);
-        chroma_min = min(chroma_min, chroma_pixels[i]);
-        chroma_max = max(chroma_max, chroma_pixels[i]);
+        ct += wd * pixels[i].yz;
+        avg_12 = fma(pixels[i], vec3(1.0/12.0), avg_12);
+        chroma_min = min(chroma_min, pixels[i].yz);
+        chroma_max = max(chroma_max, pixels[i].yz);
     }
     vec2 chroma_spatial = clamp(ct / wt, 0.0, 1.0);
     chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), ar_strength);
 
-    float luma_diff;
-    vec2  chroma_diff;
+    vec3  diff;
     vec2  luma_chroma_cov_12 = vec2(0.0);
-    float luma_var_12 = 0.0;
-    vec2  chroma_var_12 = vec2(0.0);
+    vec3  var_12 = vec3(0.0);
     for(int i = 0; i < 12; i++) {
-        luma_diff = luma_pixels[i] - luma_avg_12;
-        chroma_diff = chroma_pixels[i] - chroma_avg_12;
-        luma_chroma_cov_12 = fma(luma_diff.xx, chroma_diff, luma_chroma_cov_12);
-        luma_var_12 += pow(luma_diff, 2.0);
-        chroma_var_12 += pow(chroma_diff, vec2(2.0));
+        diff = pixels[i] - avg_12;
+        luma_chroma_cov_12 = fma(diff.xx, diff.yz, luma_chroma_cov_12);
+        var_12 += pow(diff, vec3(2.0));
     }
-    vec2 corr = clamp(abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), 1e-6)), 0.0, 1.0);
+    vec2 corr = clamp(abs(luma_chroma_cov_12 / max(sqrt(var_12.x * var_12.yz), 1e-6)), 0.0, 1.0);
 
 #if (USE_12_TAP_REGRESSION == 1)
-    vec2 alpha_12 = luma_chroma_cov_12 / max(luma_var_12, 1e-6);
-    vec2 beta_12 = chroma_avg_12 - alpha_12 * luma_avg_12;
+    vec2 alpha_12 = luma_chroma_cov_12 / max(var_12.x, 1e-6);
+    vec2 beta_12 = avg_12.yz - alpha_12 * avg_12.x;
     vec2 chroma_pred_12 = clamp(fma(alpha_12, luma_zero, beta_12), 0.0, 1.0);
 #endif
 #if (USE_4_TAP_REGRESSION == 1)
-    const float forth = 0.25;
     int   pix[4] = {3,4,7,8};
-    float luma_avg_4 = 0.0;
-    vec2  chroma_avg_4 = vec2(0.0);
+    vec3  avg_4 = vec3(0.0);
     for(int i = 0; i < 4; i++) {
-        luma_avg_4 = fma(luma_pixels[pix[i]], forth, luma_avg_4);
-        chroma_avg_4 = fma(chroma_pixels[pix[i]], forth.xx, chroma_avg_4);
+        avg_4 = fma(pixels[pix[i]], vec3(0.25), avg_4);
     }
 
     float luma_var_4 = 0.0;
     vec2  luma_chroma_cov_4 = vec2(0.0);
     for(int i = 0; i < 4; i++) {
-        luma_diff = luma_pixels[pix[i]] - luma_avg_4;
-        chroma_diff = chroma_pixels[pix[i]] - chroma_avg_4;
-        luma_var_4 += pow(luma_diff, 2.0);
-        luma_chroma_cov_4 = fma(luma_diff.xx, chroma_diff, luma_chroma_cov_4);
+        diff = pixels[pix[i]] - avg_4;
+        luma_var_4 += pow(diff.x, 2.0);
+        luma_chroma_cov_4 = fma(diff.xx, diff.yz, luma_chroma_cov_4);
     }
-
     vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-4);
-    vec2 beta_4 = chroma_avg_4 - alpha_4 * luma_avg_4;
+    vec2 beta_4 = avg_4.yz - alpha_4 * avg_4.x;
     vec2 chroma_pred_4 = clamp(fma(alpha_4, luma_zero, beta_4), 0.0, 1.0);
 #endif
 #if (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 1)
