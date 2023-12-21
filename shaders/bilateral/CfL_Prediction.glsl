@@ -166,16 +166,16 @@ vec4 hook() {
     vec2 chroma_pred_12 = clamp(fma(alpha_12, luma_zero, beta_12), 0.0, 1.0);
 #endif
 #if (USE_4_TAP_REGRESSION == 1)
-    int   pix[4] = {3,4,7,8};
+    int   j[4] = {3, 4, 7, 8};
     vec3  avg_4 = vec3(0.0);
     for(int i = 0; i < 4; i++) {
-        avg_4 = fma(pixels[pix[i]], vec3(0.25), avg_4);
+        avg_4 = fma(pixels[j[i]], vec3(0.25), avg_4);
     }
 
     float luma_var_4 = 0.0;
     vec2  luma_chroma_cov_4 = vec2(0.0);
     for(int i = 0; i < 4; i++) {
-        diff = pixels[pix[i]] - avg_4;
+        diff = pixels[j[i]] - avg_4;
         luma_var_4 += pow(diff.x, 2.0);
         luma_chroma_cov_4 = fma(diff.xx, diff.yz, luma_chroma_cov_4);
     }
