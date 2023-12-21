@@ -48,7 +48,6 @@ vec4 hook() {
     const float ar_strength = cfl_antiring;
     const float mix_coeff = 0.5;
 
-    vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     vec2 luma_zero = vec2(LUMA_texOff(0.0).x);
 
     vec2 pp = fma(HOOKED_pos, HOOKED_size, vec2(-0.5));
@@ -135,14 +134,12 @@ vec4 hook() {
     vec2 chroma_pred_4 = clamp(fma(alpha_4, luma_zero, beta_4), 0.0, 1.0);
 #endif
 #if (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), pow(corr, vec2(2.0)) * mix_coeff);
+    return vec4(clamp(mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #elif (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 0)
-    output_pix.xy = mix(chroma_spatial, chroma_pred_12, pow(corr, vec2(2.0)) * mix_coeff);
+    return vec4(clamp(mix(chroma_spatial, chroma_pred_12, pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #elif (USE_12_TAP_REGRESSION == 0 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, chroma_pred_4, pow(corr, vec2(2.0)) * mix_coeff);
+    return vec4(clamp(mix(chroma_spatial, chroma_pred_4, pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #else
-    output_pix.xy = chroma_spatial;
+    return vec4(clamp(chroma_spatial, 0.0, 1.0), 0.0, 0.0);
 #endif
-    output_pix.xy = clamp(output_pix.xy, 0.0, 1.0);
-    return output_pix;
 }
