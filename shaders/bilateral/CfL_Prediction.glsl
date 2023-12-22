@@ -92,11 +92,8 @@ float comp_wd(vec2 distance) {
 }
 
 vec4 hook() {
-    const float ar_strength = cfl_antiring;
     const float mix_coeff = 0.5;
-
     vec2 luma_zero = vec2(LUMA_texOff(0.0).x);
-
     vec2 pp = fma(HOOKED_pos, HOOKED_size, vec2(-0.5));
     vec2 fp = floor(pp);
     pp -= fp;
@@ -111,12 +108,9 @@ vec4 hook() {
         q[2][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 1);
     }
     vec3 pixels[12] = {
-        {q[0][0].z, q[1][0].z, q[2][0].z}, {q[0][1].w, q[1][1].w, q[2][1].w},
-        {q[0][0].x, q[1][0].x, q[2][0].x}, {q[0][0].y, q[1][0].y, q[2][0].y},
-        {q[0][1].x, q[1][1].x, q[2][1].x}, {q[0][1].y, q[1][1].y, q[2][1].y},
-        {q[0][2].w, q[1][2].w, q[2][2].w}, {q[0][2].z, q[1][2].z, q[2][2].z},
-        {q[0][3].w, q[1][3].w, q[2][3].w}, {q[0][3].z, q[1][3].z, q[2][3].z},
-        {q[0][2].y, q[1][2].y, q[2][2].y}, {q[0][3].x, q[1][3].x, q[2][3].x},
+        {q[0][0].z, q[1][0].z, q[2][0].z}, {q[0][1].w, q[1][1].w, q[2][1].w}, {q[0][0].x, q[1][0].x, q[2][0].x}, {q[0][0].y, q[1][0].y, q[2][0].y},
+        {q[0][1].x, q[1][1].x, q[2][1].x}, {q[0][1].y, q[1][1].y, q[2][1].y}, {q[0][2].w, q[1][2].w, q[2][2].w}, {q[0][2].z, q[1][2].z, q[2][2].z},
+        {q[0][3].w, q[1][3].w, q[2][3].w}, {q[0][3].z, q[1][3].z, q[2][3].z}, {q[0][2].y, q[1][2].y, q[2][2].y}, {q[0][3].x, q[1][3].x, q[2][3].x},
     };
 #else
     const vec2 texOffsets[12] = {
@@ -127,6 +121,7 @@ vec4 hook() {
         pixels[i] = vec3(LUMA_LOWRES_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).x, HOOKED_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).xy);
     }
 #endif
+
     const vec2 wdOffsets[12] = {
         { 0.0,-1.0}, { 1.0,-1.0}, {-1.0, 0.0}, { 0.0, 0.0}, { 1.0, 0.0}, { 2.0, 0.0},
         {-1.0, 1.0}, { 0.0, 1.0}, { 1.0, 1.0}, { 2.0, 1.0}, { 0.0, 2.0}, { 1.0, 2.0}};
@@ -145,8 +140,7 @@ vec4 hook() {
         chroma_max = max(chroma_max, pixels[i].yz);
     }
     vec2 chroma_spatial = clamp(ct / wt, 0.0, 1.0);
-    chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), ar_strength);
-
+    chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring);
     vec3  diff;
     vec2  luma_chroma_cov_12 = vec2(0.0);
     vec3  var_12 = vec3(0.0);
@@ -162,13 +156,13 @@ vec4 hook() {
     vec2 beta_12 = avg_12.yz - alpha_12 * avg_12.x;
     vec2 chroma_pred_12 = clamp(fma(alpha_12, luma_zero, beta_12), 0.0, 1.0);
 #endif
+
 #if (USE_4_TAP_REGRESSION == 1)
     int   j[4] = {3, 4, 7, 8};
     vec3  avg_4 = vec3(0.0);
     for(int i = 0; i < 4; i++) {
         avg_4 = fma(pixels[j[i]], vec3(0.25), avg_4);
     }
-
     float luma_var_4 = 0.0;
     vec2  luma_chroma_cov_4 = vec2(0.0);
     for(int i = 0; i < 4; i++) {
@@ -180,6 +174,7 @@ vec4 hook() {
     vec2 beta_4 = avg_4.yz - alpha_4 * avg_4.x;
     vec2 chroma_pred_4 = clamp(fma(alpha_4, luma_zero, beta_4), 0.0, 1.0);
 #endif
+
 #if (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 1)
     return vec4(clamp(mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #elif (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 0)
