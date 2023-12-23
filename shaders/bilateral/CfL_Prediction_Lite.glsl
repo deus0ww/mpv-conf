@@ -135,6 +135,6 @@ vec4 hook() {
 #elif (USE_12_TAP_REGRESSION == 0 && USE_4_TAP_REGRESSION == 1)
     return vec4(clamp(mix(chroma_spatial, chroma_pred_4, pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #else
-    return vec4(clamp(chroma_spatial, 0.0, 1.0), 0.0, 0.0);
+    return vec4(clamp(chroma_spatial, 0.0, 1.0), 0, 1);
 #endif
 }
