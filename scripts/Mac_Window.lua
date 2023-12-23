@@ -1,4 +1,4 @@
--- deus0ww - 2023-06-29
+-- deus0ww - 2023-12-23
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -20,9 +20,10 @@ local o = {
     default_move_type   = 0,     -- 0=Off, 1=Absolute, 2=Percent of display
     default_move_x      = 50,
     default_move_y      = 50,
+    
+    menubar_h           = 23,    -- 22px + 1px border
 }
 
-local menubar_h   = 23   -- 22px + 1px border
 local align_current
 local function on_opts_update()
     align_current = o.default_align
@@ -227,7 +228,7 @@ local function move_absolute(x, y, w, h)
     x, y, w, h = sanitize_all(x, y, w, h)
     x = math.min(display.w - w, x)
     y = math.min(display.h - h, y)
-    x, y, w, h = sanitize_all(x, y + menubar_h, w, h)
+    x, y, w, h = sanitize_all(x, y + o.menubar_h, w, h)
     msg.debug(('Target Position: %7.2f %7.2f'):format(x, y))
     return x, y
 end
@@ -401,7 +402,7 @@ local function observe_prop(k, v)
             msg.debug(('Display Size: %4d %4d'):format(display.w, display.h))
             msg.debug( 'Rotation:  ', rotate_initial)
             display.w = display.w / dpi_scale
-            display.h = display.h / dpi_scale - menubar_h
+            display.h = display.h / dpi_scale - o.menubar_h
             initialized = true
             set_defaults()
     else
