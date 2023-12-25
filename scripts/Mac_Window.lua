@@ -1,4 +1,4 @@
--- deus0ww - 2023-12-23
+-- deus0ww - 2023-12-25
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -11,6 +11,8 @@ local utils   = require 'mp.utils'
 -- User Options --
 ------------------
 local o = {
+    enabled             = false,
+
     default_resize_type = 3,     -- 0=Off, 1=Absolute, 2=Percent of display, 3=Percent of display (one-axis), 4=Percent of Video
     default_resize_w    = 50,
     default_resize_h    = 50,
@@ -374,6 +376,7 @@ local function set_defaults()
     end
 end
 mp.register_script_message('Defaults', function()
+    if not o.enabled then return end
     msg.debug(' === Setting Defaults Manually ===')
     set_defaults()
 end)
@@ -411,6 +414,7 @@ local function observe_prop(k, v)
 end
 
 mp.register_event('file-loaded', function()
+    if not o.enabled then return end
     msg.debug(' === Setting Defaults Automatically ===')
     reset()
     mp.observe_property('osd-dimensions',      'native', observe_prop)
@@ -423,6 +427,7 @@ mp.register_event('file-loaded', function()
 end)
 
 mp.observe_property('video-params/rotate', 'native', function(_, rotate)
+    if not o.enabled then return end
     if not rotate or rotate == rotate_current or not initialized then return end
     rotate_current = rotate
     set_defaults()
