@@ -35,7 +35,6 @@
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Prediction Downscaling Yx
-
 vec4 hook() {
     float factor = ceil(LUMA_size.x / HOOKED_size.x);
     int start = int(ceil(-factor / 2.0 - 0.5));
@@ -47,7 +46,7 @@ vec4 hook() {
         output_luma += LUMA_texOff(vec2(dx + 0.5, 0.0)).x;
         wt++;
     }
-    return vec4(output_luma / float(wt), 0, 0, 1);
+    return vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
 }
 
 //!HOOK CHROMA
@@ -58,7 +57,6 @@ vec4 hook() {
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Prediction Downscaling Yy
-
 vec4 hook() {
     float factor = ceil(LUMA_LOWRES_size.y / HOOKED_size.y);
     int start = int(ceil(-factor / 2.0 - 0.5));
@@ -70,7 +68,7 @@ vec4 hook() {
         output_luma += LUMA_LOWRES_texOff(vec2(0.0, dy + 0.5)).x;
         wt++;
     }
-    return vec4(output_luma / float(wt), 0, 0, 1);
+    return vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
 }
 
 //!HOOK CHROMA
@@ -82,7 +80,6 @@ vec4 hook() {
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
 //!DESC CfL Prediction Upscaling UV
-
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1
 

@@ -28,14 +28,25 @@
 0.75
 
 //!HOOK CHROMA
+//!BIND LUMA
+//!SAVE LUMA_LOWRES
+//!WIDTH CHROMA.w
+//!HEIGHT CHROMA.h
+//!DESC CfL Prediction Downscaling Y
+vec4 hook()
+{
+    return LUMA_texOff(0.0);
+}
+
+//!HOOK CHROMA
 //!BIND HOOKED
 //!BIND LUMA
+//!BIND LUMA_LOWRES
 //!WHEN CHROMA.w LUMA.w <
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Prediction Lite
-
+//!DESC CfL Prediction Upscaling UV
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1
 
@@ -56,7 +67,7 @@ vec4 hook() {
     const ivec2 gatherOffsets[4] = {{ 0, 0}, { 2, 0}, { 0, 2}, { 2, 2}};
     vec4 q[3][4];
     for (int i = 0; i < 4; i++) {
-        q[0][i] = LUMA_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
+        q[0][i] = LUMA_LOWRES_gather(vec2((fp + gatherOffsets[i]) * HOOKED_pt), 0);
         q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 0);
         q[2][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos, gatherOffsets[i], 1);
     }
@@ -71,7 +82,7 @@ vec4 hook() {
         {-0.5, 1.5}, { 0.5, 1.5}, { 1.5, 1.5}, { 2.5, 1.5}, { 0.5, 2.5}, { 1.5, 2.5}};
     vec3 pixels[12];
     for (int i = 0; i < 12; i++) {
-        pixels[i] = vec3(LUMA_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).x, HOOKED_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).xy);
+        pixels[i] = vec3(LUMA_LOWRES_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).x, HOOKED_tex(vec2((fp + texOffsets[i]) * HOOKED_pt)).xy);
     }
 #endif
 
