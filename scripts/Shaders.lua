@@ -266,8 +266,9 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
     s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+    s[#s+1] = fsr.easu
     s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = bilateral.cfll
     return { shaders = s, options = set_params(o, p), label = 'Standard' }
 end
 
@@ -275,8 +276,9 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
     s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+    s[#s+1] = fsr.easu
     s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = bilateral.cfll
     return { shaders = s, options = set_params(o, p), label = 'Softer' }
 end
 
@@ -284,8 +286,9 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
     s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+    s[#s+1] = fsr.easu
     s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = bilateral.cfll
     return { shaders = s, options = set_params(o, p), label = 'Softest' }
 end
 
@@ -336,7 +339,7 @@ local function mpv_clear_shaders()
 end
 
 local function mpv_set_shaders(shaders)
-    msg.debug(format_status())
+    --msg.debug(format_status())
     msg.debug('Setting Shaders:', utils.to_string(shaders))
     mp.commandv('change-list', 'glsl-shaders', 'set', table.concat(shaders, ':'))
 end
