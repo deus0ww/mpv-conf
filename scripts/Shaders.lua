@@ -377,8 +377,8 @@ local function set_shaders(no_osd)
         return
     end
     last_shaders = s
-    mpv_set_shaders(shaders.shaders)
     mpv_set_options(shaders.options)
+    mpv_set_shaders(shaders.shaders)
 end
 
 
