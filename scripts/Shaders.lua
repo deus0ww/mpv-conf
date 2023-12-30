@@ -235,6 +235,16 @@ local bilateral       = {
 -------------------
 local default_antiring = 0.8 -- For scalers/shaders using libplacebo's antiring filter
 
+local function default_shaders()
+    local s = {}
+    s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
+    s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+    s[#s+1] = fsr.easu
+    s[#s+1] = as.luma
+    s[#s+1] = bilateral.cfll
+    return s
+end
+
 local function default_options()
     local o = {
         ['linear-downscaling'] = 'yes',
@@ -253,7 +263,7 @@ local function default_params()
     return {
         cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
-        as_sharpness   = 0.3,
+        as_sharpness   = (get_scale() <= 1.1) and 0.6 or 0.3,
         fsr_sharpness  = 0.2,
         krig_sharpness = 1.0,
         fsr_pq         = 0,
@@ -263,39 +273,27 @@ end
 local sets = {}
 
 sets[#sets+1] = function()
-    local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = ({                                      [3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
-    s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
-    s[#s+1] = fsr.easu
-    s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfll
-    return { shaders = s, options = set_params(o, p), label = 'Standard' }
+    local s, o, p = default_shaders(), default_options(), default_params()
+    return { shaders = s, options = set_params(o, p), label = 'Default' }
 end
 
 sets[#sets+1] = function()
-    local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
-    s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
-    s[#s+1] = fsr.easu
-    s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfll
+    local s, o, p = default_shaders(), default_options(), default_params()
+    s[1]    = ({[3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
+    return { shaders = s, options = set_params(o, p), label = 'Soft' }
+end
+
+sets[#sets+1] = function()
+    local s, o, p = default_shaders(), default_options(), default_params()
+    s[1]    = ({[3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
     return { shaders = s, options = set_params(o, p), label = 'Softer' }
-end
-
-sets[#sets+1] = function()
-    local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = ({                                      [3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
-    s[#s+1] = ({                                      [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
-    s[#s+1] = fsr.easu
-    s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfll
-    return { shaders = s, options = set_params(o, p), label = 'Softest' }
 end
 
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+    s[#s+1] = fsr.easu
     s[#s+1] = bilateral.cfll
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
