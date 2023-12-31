@@ -2,7 +2,6 @@
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
-local utils   = require 'mp.utils'
 
 local OS_MAC, OS_WIN, OS_NIX = 'MAC', 'WIN', 'NIX'
 local function get_os()
