@@ -265,7 +265,6 @@ local function default_params()
         ravu_antiring  = default_antiring,
         as_sharpness   = (get_scale() <= 1.1) and 0.6 or 0.3,
         fsr_sharpness  = 0.2,
-        krig_sharpness = 1.0,
         fsr_pq         = 0,
     }
 end
