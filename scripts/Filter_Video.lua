@@ -1,4 +1,4 @@
--- deus0ww - 2023-09-22
+-- deus0ww - 2023-12-25
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -9,21 +9,23 @@ local function add(filter) filter_list[#filter_list+1] = filter end
 add({
     name = 'DenoiseVideo',
     filter_type = 'video',
+    default_index = 2,
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#median
     -- http://avisynth.nl/index.php/RemoveGrain
     -- http://web.archive.org/web/20130615165406/http://doom10.org/index.php?topic=2185.0
         'removegrain=18',
-        'removegrain=17',
         'removegrain=22',
+        'removegrain=17',
     },
 })
 
 add({
     name = 'PostProcess',
     filter_type = 'video',
-    reset_on_load = false,
+    default_on_load = true,
+    reset_on_load = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#pp
         'pp=ac',
