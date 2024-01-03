@@ -156,19 +156,6 @@ end
 --------------------
 local shaders_path = '~~/shaders/'
 
--- Anime4K - https://github.com/bloc97/Anime4K/
-local a4k_path        = shaders_path .. 'anime4k/'
-local restore         = {
-    r1                = a4k_path .. 'Anime4K_Restore_CNN_S.glsl',
-    r2                = a4k_path .. 'Anime4K_Restore_CNN_M.glsl',
-    r3                = a4k_path .. 'Anime4K_Restore_CNN_L.glsl',
-    r4                = a4k_path .. 'Anime4K_Restore_CNN_VL.glsl',
-    r1s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_S.glsl',
-    r2s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_M.glsl',
-    r3s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_L.glsl',
-    r4s               = a4k_path .. 'Anime4K_Restore_CNN_Soft_VL.glsl',
-}
-
 -- FSR by agyild - https://gist.github.com/agyild
 local fsr_path        = shaders_path .. 'fsr/'
 local fsr             = {
