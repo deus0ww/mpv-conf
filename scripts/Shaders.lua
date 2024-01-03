@@ -210,6 +210,7 @@ local as              = {
 -- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
 local bilateral_path  = shaders_path .. 'bilateral/'
 local bilateral       = {
+    cfll              = bilateral_path .. 'CfL_Prediction_Lite.glsl',
     cfl               = bilateral_path .. 'CfL_Prediction.glsl',
     krig              = bilateral_path .. 'KrigBilateral.glsl',
 }
@@ -227,7 +228,7 @@ local function default_shaders()
     s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = bilateral.cfll
     return s
 end
 
@@ -279,7 +280,7 @@ sets[#sets+1] = function()
     s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = bilateral.cfll
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
