@@ -50,9 +50,10 @@ vec4 hook()
 #define USE_12_TAP_REGRESSION 1
 #define USE_4_TAP_REGRESSION 1
 
-float comp_wd(vec2 distance) {
-    float d2 = min(pow(length(distance), 2.0), 4.0);
-    return fma(25.0/16.0, pow(fma(2.0/5.0, d2, -1.0), 2.0), -(25.0/16.0 - 1.0)) * pow(fma(1.0/4.0, d2, -1.0), 2.0);
+float comp_wd(vec2 v) {
+    float d2  = min(v.x * v.x + v.y * v.y, 4.0);
+    float d24 = d2 - 4.0;
+    return d24 * d24 * d24 * (d2 - 1.0);
 }
 
 vec4 hook() {
@@ -86,6 +87,9 @@ vec4 hook() {
     }
 #endif
 
+    vec2 chroma_min = min(min(min(min(vec2(1e8 ), pixels[3].yz), pixels[4].yz), pixels[7].yz), pixels[8].yz);
+    vec2 chroma_max = max(max(max(max(vec2(1e-8), pixels[3].yz), pixels[4].yz), pixels[7].yz), pixels[8].yz);
+
     const vec2 wdOffsets[12] = {
         { 0.0,-1.0}, { 1.0,-1.0}, {-1.0, 0.0}, { 0.0, 0.0}, { 1.0, 0.0}, { 2.0, 0.0},
         {-1.0, 1.0}, { 0.0, 1.0}, { 1.0, 1.0}, { 2.0, 1.0}, { 0.0, 2.0}, { 1.0, 2.0}};
@@ -93,15 +97,11 @@ vec4 hook() {
     float wt = 0.0;
     vec2  ct = vec2(0.0);
     vec3  avg_12 = vec3(0.0);
-    vec2  chroma_min = vec2(1e8);
-    vec2  chroma_max = vec2(1e-8);
     for (int i = 0; i < 12; i++) {
         wd = comp_wd(wdOffsets[i] - pp);
         wt += wd;
         ct += wd * pixels[i].yz;
         avg_12 = fma(pixels[i], vec3(1.0/12.0), avg_12);
-        chroma_min = min(chroma_min, pixels[i].yz);
-        chroma_max = max(chroma_max, pixels[i].yz);
     }
     vec2 chroma_spatial = clamp(ct / wt, 0.0, 1.0);
     chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring);
@@ -122,7 +122,7 @@ vec4 hook() {
 #endif
 
 #if (USE_4_TAP_REGRESSION == 1)
-    int   j[4] = {3, 4, 7, 8};
+    const int j[4] = {3, 4, 7, 8};
     vec3  avg_4 = vec3(0.0);
     for(int i = 0; i < 4; i++) {
         avg_4 = fma(pixels[j[i]], vec3(0.25), avg_4);
