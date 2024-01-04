@@ -58,7 +58,7 @@ float comp_wd(vec2 v) {
 
 vec4 hook() {
     const float mix_coeff = 0.5;
-    vec2 luma_zero = vec2(LUMA_texOff(0.0).x);
+    float luma_zero = LUMA_texOff(0.0).x;
     vec2 pp = fma(HOOKED_pos, HOOKED_size, vec2(-0.5));
     vec2 fp = floor(pp);
     pp -= fp;
@@ -111,14 +111,14 @@ vec4 hook() {
     for(int i = 0; i < 12; i++) {
         diff = pixels[i] - avg_12;
         luma_chroma_cov_12 = fma(diff.xx, diff.yz, luma_chroma_cov_12);
-        var_12 += pow(diff, vec3(2.0));
+        var_12 += diff * diff;
     }
     vec2 corr = clamp(abs(luma_chroma_cov_12 / max(sqrt(var_12.x * var_12.yz), 1e-6)), 0.0, 1.0);
 
 #if (USE_12_TAP_REGRESSION == 1)
     vec2 alpha_12 = luma_chroma_cov_12 / max(var_12.x, 1e-6);
     vec2 beta_12 = avg_12.yz - alpha_12 * avg_12.x;
-    vec2 chroma_pred_12 = clamp(fma(alpha_12, luma_zero, beta_12), 0.0, 1.0);
+    vec2 chroma_pred_12 = clamp(fma(alpha_12, luma_zero.xx, beta_12), 0.0, 1.0);
 #endif
 
 #if (USE_4_TAP_REGRESSION == 1)
@@ -131,20 +131,20 @@ vec4 hook() {
     vec2  luma_chroma_cov_4 = vec2(0.0);
     for(int i = 0; i < 4; i++) {
         diff = pixels[j[i]] - avg_4;
-        luma_var_4 += pow(diff.x, 2.0);
+        luma_var_4 += diff.x * diff.x;
         luma_chroma_cov_4 = fma(diff.xx, diff.yz, luma_chroma_cov_4);
     }
     vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-4);
     vec2 beta_4 = avg_4.yz - alpha_4 * avg_4.x;
-    vec2 chroma_pred_4 = clamp(fma(alpha_4, luma_zero, beta_4), 0.0, 1.0);
+    vec2 chroma_pred_4 = clamp(fma(alpha_4, luma_zero.xx, beta_4), 0.0, 1.0);
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 1)
-    return vec4(clamp(mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
+    return vec4(clamp(mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), corr * corr * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #elif (USE_12_TAP_REGRESSION == 1 && USE_4_TAP_REGRESSION == 0)
-    return vec4(clamp(mix(chroma_spatial, chroma_pred_12, pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
+    return vec4(clamp(mix(chroma_spatial, chroma_pred_12, corr * corr * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #elif (USE_12_TAP_REGRESSION == 0 && USE_4_TAP_REGRESSION == 1)
-    return vec4(clamp(mix(chroma_spatial, chroma_pred_4, pow(corr, vec2(2.0)) * mix_coeff), 0.0, 1.0), 0.0, 0.0);
+    return vec4(clamp(mix(chroma_spatial, chroma_pred_4, corr * corr * mix_coeff), 0.0, 1.0), 0.0, 0.0);
 #else
     return vec4(clamp(chroma_spatial, 0.0, 1.0), 0, 1);
 #endif
