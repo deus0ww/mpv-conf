@@ -28,15 +28,15 @@
 0.75
 
 //!HOOK CHROMA
-//!BIND LUMA
 //!BIND HOOKED
+//!BIND LUMA
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Prediction Downscaling Yx
 
-vec2 factor = ceil(input_size / target_size);
+vec2 factor = ceil(LUMA_size / HOOKED_size);
 int start = int(ceil(-factor.x / 2.0 - 0.5));
 int end = int(floor(factor.x / 2.0 - 0.5));
 
@@ -51,15 +51,16 @@ vec4 hook() {
 }
 
 //!HOOK CHROMA
-//!BIND LUMA_LOWRES
 //!BIND HOOKED
+//!BIND LUMA
+//!BIND LUMA_LOWRES
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Prediction Downscaling Yy
 
-vec2 factor = ceil(input_size / target_size);
+vec2 factor = ceil(LUMA_size / HOOKED_size);
 int start = int(ceil(-factor.y / 2.0 - 0.5));
 int end = int(floor(factor.y / 2.0 - 0.5));
 
