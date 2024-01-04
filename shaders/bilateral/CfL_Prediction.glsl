@@ -29,24 +29,46 @@
 
 //!HOOK CHROMA
 //!BIND LUMA
+//!BIND HOOKED
+//!SAVE LUMA_LOWRES
+//!WIDTH CHROMA.w
+//!HEIGHT LUMA.h
+//!WHEN CHROMA.w LUMA.w <
+//!DESC CfL Prediction Downscaling Yx
+
+vec4 hook() {
+    vec2 factor = ceil(input_size / target_size);
+    int start = int(ceil(-factor.x / 2.0 - 0.5));
+    int end = int(floor(factor.x / 2.0 - 0.5));
+
+    float output_luma = 0.0;
+    int wt = 0;
+    for (int dx = start; dx <= end; dx++) {
+        output_luma += LUMA_texOff(vec2(dx + 0.5, 0.0)).x;
+        wt++;
+    }
+    return vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
+}
+
+//!HOOK CHROMA
+//!BIND LUMA_LOWRES
+//!BIND HOOKED
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Prediction Downscaling Y Polar
+//!DESC CfL Prediction Downscaling Yy
 
 vec4 hook() {
     vec2 factor = ceil(input_size / target_size);
-    ivec2 start = ivec2(ceil(-factor / 2.0 - 0.5));
-    ivec2 end = ivec2(floor(factor / 2.0 - 0.5));
+    int start = int(ceil(-factor.y / 2.0 - 0.5));
+    int end = int(floor(factor.y / 2.0 - 0.5));
 
     float output_luma = 0.0;
     int wt = 0;
-    for (int dx = start.x; dx <= end.x; dx++) {
-        for (int dy = start.y; dy <= end.y; dy++) {
-            output_luma += LUMA_texOff(vec2(dx + 0.5, dy + 0.5)).x;
-            wt++;
-        }
+    for (int dy = start; dy <= end; dy++) {
+        output_luma += LUMA_LOWRES_texOff(vec2(0.0, dy + 0.5)).x;
+        wt++;
     }
     return vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
 }
