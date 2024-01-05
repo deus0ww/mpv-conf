@@ -25,7 +25,7 @@
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-0.75
+0.8
 
 //!HOOK CHROMA
 //!BIND LUMA
@@ -84,11 +84,12 @@ vec4 hook() {
 //!DESC CfL Prediction Upscaling UV
 
 #define USE_12_TAP_REGRESSION 1
+#define USE_8_TAP_REGRESSIONS 1
 #define USE_4_TAP_REGRESSION 1
 #define DEBUG 0
 
-float comp_wd(vec2 v) {
-    float d2  = min(v.x * v.x + v.y * v.y, 4.0);
+float comp_wd(vec2 d) {
+    float d2  = min(d.x * d.x + d.y * d.y, 4.0);
     float d24 = d2 - 4.0;
     return d24 * d24 * d24 * (d2 - 1.0);
 }
@@ -148,8 +149,8 @@ vec4 hook() {
         ct += wd[i] * pixels[i].yz;
     }
 
-    vec2 chroma_spatial = clamp(ct / wt, 0.0, 1.0);
-    chroma_spatial = mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring);
+    vec2 chroma_spatial = ct / wt;
+    chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_4_TAP_REGRESSION == 1)
