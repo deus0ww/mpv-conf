@@ -127,12 +127,12 @@ vec4 hook() {
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1 || USE_4_TAP_REGRESSION == 1)
-    const int i4[4] = {5, 6, 9, 10};
+    const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
     const int i8y[8] = {1, 2, 5, 6, 9, 10, 13, 14};
     const int i8x[8] = {4, 5, 6, 7, 8, 9, 10, 11};
-    const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
-    const int e8y[4] = {1, 2, 13, 14};
-    const int e8x[4] = {4, 7, 8, 11};
+    const int i4[4] = {5, 6, 9, 10};
+    const int e4y[4] = {1, 2, 13, 14};
+    const int e4x[4] = {4, 7, 8, 11};
 
     float luma_sum_4 = 0.0;
     float luma_sum_4y = 0.0;
@@ -142,11 +142,11 @@ vec4 hook() {
     vec2 chroma_sum_4x = vec2(0.0);
     for(int i = 0; i < 4; i++) {
         luma_sum_4 += luma_pixels[i4[i]];
-        luma_sum_4y += luma_pixels[e8y[i]];
-        luma_sum_4x += luma_pixels[e8x[i]];
+        luma_sum_4y += luma_pixels[e4y[i]];
+        luma_sum_4x += luma_pixels[e4x[i]];
         chroma_sum_4 += chroma_pixels[i4[i]];
-        chroma_sum_4y += chroma_pixels[e8y[i]];
-        chroma_sum_4x += chroma_pixels[e8x[i]];
+        chroma_sum_4y += chroma_pixels[e4y[i]];
+        chroma_sum_4x += chroma_pixels[e4x[i]];
     }
 
     float luma_avg_12 = (luma_sum_4 + luma_sum_4y + luma_sum_4x) / 12.0;
