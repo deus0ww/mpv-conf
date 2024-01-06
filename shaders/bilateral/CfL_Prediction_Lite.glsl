@@ -184,19 +184,19 @@ vec4 hook() {
     vec2 luma_chroma_cov_8y = vec2(0.0);
     vec2 luma_chroma_cov_8x = vec2(0.0);
 
-    float luma_diffy;
-    float luma_diffx;
-    vec2 chroma_diffy;
-    vec2 chroma_diffx;
+    float luma_diff_8y;
+    float luma_diff_8x;
+    vec2 chroma_diff_8y;
+    vec2 chroma_diff_8x;
     for(int i = 0; i < 8; i++) {
-        luma_diffy = luma_pixels[i8y[i]] - luma_avg_8y;
-        luma_diffx = luma_pixels[i8x[i]] - luma_avg_8x;
-        chroma_diffy = chroma_pixels[i8y[i]] - chroma_avg_8y;
-        chroma_diffx = chroma_pixels[i8x[i]] - chroma_avg_8x;
-        luma_var_8y += luma_diffy * luma_diffy;
-        luma_var_8x += luma_diffx * luma_diffx;
-        luma_chroma_cov_8y += luma_diffy * chroma_diffy;
-        luma_chroma_cov_8x += luma_diffx * chroma_diffx;
+        luma_diff_8y = luma_pixels[i8y[i]] - luma_avg_8y;
+        luma_diff_8x = luma_pixels[i8x[i]] - luma_avg_8x;
+        chroma_diff_8y = chroma_pixels[i8y[i]] - chroma_avg_8y;
+        chroma_diff_8x = chroma_pixels[i8x[i]] - chroma_avg_8x;
+        luma_var_8y += luma_diff_8y * luma_diff_8y;
+        luma_var_8x += luma_diff_8x * luma_diff_8x;
+        luma_chroma_cov_8y += luma_diff_8y * chroma_diff_8y;
+        luma_chroma_cov_8x += luma_diff_8x * chroma_diff_8x;
     }
 
     vec2 alpha_8y = luma_chroma_cov_8y / max(luma_var_8y, 1e-6);
