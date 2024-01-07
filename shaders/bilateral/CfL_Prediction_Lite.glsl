@@ -32,7 +32,7 @@
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
-//!DESC CfL Prediction Downscaling Y Lite
+//!DESC CfL Downscaling Y Lite
 
 vec4 hook() {
     return LUMA_texOff(0.0);
