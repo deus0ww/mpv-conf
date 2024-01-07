@@ -98,7 +98,7 @@ vec4 hook() {
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_8_TAP_REGRESSIONS 1
-#define USE_4_TAP_REGRESSION 1
+#define USE_4_TAP_REGRESSION 0
 #define DEBUG 0
 
 float comp_wd(vec2 d) {
