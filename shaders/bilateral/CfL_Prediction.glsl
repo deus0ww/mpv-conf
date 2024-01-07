@@ -70,14 +70,16 @@ ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
 ivec2 axle  = ivec2(0);
 
 vec4 hook() {
+    float d;
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
     axle[axis] = 1;
     for (int i = start[axis]; i <= end[axis]; i++) {
-        w = kernel(abs(i + 0.5) / scale[axis]);
+        d = i + 0.5;
+        w = kernel(abs(d) / scale[axis]);
         wsum += w;
-        ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(i + 0.5)).x;
+        ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(d)).x;
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
@@ -125,14 +127,16 @@ ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
 ivec2 axle  = ivec2(0);
 
 vec4 hook() {
+    float d;
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
     axle[axis] = 1;
     for (int i = start[axis]; i <= end[axis]; i++) {
-        w = kernel(abs(i + 0.5) / scale[axis]);
+        d = i + 0.5;
+        w = kernel(abs(d) / scale[axis]);
         wsum += w;
-        ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(i + 0.5)).x;
+        ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
