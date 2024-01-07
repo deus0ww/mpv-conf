@@ -28,49 +28,113 @@
 0.8
 
 //!HOOK CHROMA
+//!BIND CHROMA
 //!BIND LUMA
-//!BIND HOOKED
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Prediction Downscaling Yx
+//!DESC CfL Downscaling Yx FSR
+
+#define axis 0
+#define radius 1
+#define kernel fsr
+
+float box(float d) {
+    return 1.0;
+}
+float hermite(float d) {
+    float d2 = d * d;
+    float d3 = d * d2;
+    return d < 1.0 ? (2.0 * d3 - 3.0 * d2 + 1.0) : 0.0;
+}
+float catrom(float d) {
+    float d2 = d * d;
+    float d3 = d * d2;
+    return d < 1.0 ? (9.0 * d3 - 15.0 * d2 + 6.0) : (-3.0 * d3 + 15.0 * d2 - 24.0 * d + 12.0);
+}
+float mitchell(float d) {
+    float d2 = d * d;
+    float d3 = d * d2;
+    return d < 1.0 ? (21.0 * d3 - 36.0 * d2 + 16.0) : (-7.0 * d3 + 36.0 * d2 - 60.0 * d + 32.0);
+}
+float fsr(float d) {
+    float d2  = min(d * d, 4.0);
+    float d24 = d2 - 4.0;
+    return d24 * d24 * d24 * (d2 - 1.0);
+}
+
+vec2  scale = LUMA_size / CHROMA_size;
+ivec2 start = ivec2(ceil((-scale / 2.0) * radius - 0.5));
+ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
+ivec2 axle  = ivec2(0);
 
 vec4 hook() {
-    float factor = ceil(LUMA_size.x / HOOKED_size.x);
-    int start = int(ceil(-factor / 2.0 - 0.5));
-    int end = int(floor(factor / 2.0 - 0.5));
-
-    float output_luma = 0.0;
-    int wt = 0;
-    for (int dx = start; dx <= end; dx++) {
-        output_luma += LUMA_texOff(vec2(dx + 0.5, 0.0)).x;
-        wt++;
+    float w;
+    float wsum = 0.0;
+    float ysum = 0.0;
+    axle[axis] = 1;
+    for (int i = start[axis]; i <= end[axis]; i++) {
+        w = kernel(abs(i + 0.5) / scale[axis]);
+        wsum += w;
+        ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(i + 0.5)).x;
     }
-    return vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
+    return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
 
 //!HOOK CHROMA
+//!BIND CHROMA
 //!BIND LUMA_LOWRES
-//!BIND HOOKED
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Prediction Downscaling Yy
+//!DESC CfL Downscaling Yy FSR
+
+#define axis 1
+#define radius 1
+#define kernel fsr
+
+float box(float d) {
+    return 1.0;
+}
+float hermite(float d) {
+    float d2 = d * d;
+    float d3 = d * d2;
+    return d < 1.0 ? (2.0 * d3 - 3.0 * d2 + 1.0) : 0.0;
+}
+float catrom(float d) {
+    float d2 = d * d;
+    float d3 = d * d2;
+    return d < 1.0 ? (9.0 * d3 - 15.0 * d2 + 6.0) : (-3.0 * d3 + 15.0 * d2 - 24.0 * d + 12.0);
+}
+float mitchell(float d) {
+    float d2 = d * d;
+    float d3 = d * d2;
+    return d < 1.0 ? (21.0 * d3 - 36.0 * d2 + 16.0) : (-7.0 * d3 + 36.0 * d2 - 60.0 * d + 32.0);
+}
+float fsr(float d) {
+    float d2  = min(d * d, 4.0);
+    float d24 = d2 - 4.0;
+    return d24 * d24 * d24 * (d2 - 1.0);
+}
+
+vec2  scale = LUMA_LOWRES_size / CHROMA_size;
+ivec2 start = ivec2(ceil((-scale / 2.0) * radius - 0.5));
+ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
+ivec2 axle  = ivec2(0);
 
 vec4 hook() {
-    float factor = ceil(LUMA_LOWRES_size.y / HOOKED_size.y);
-    int start = int(ceil(-factor / 2.0 - 0.5));
-    int end = int(floor(factor / 2.0 - 0.5));
-
-    float output_luma = 0.0;
-    int wt = 0;
-    for (int dy = start; dy <= end; dy++) {
-        output_luma += LUMA_LOWRES_texOff(vec2(0.0, dy + 0.5)).x;
-        wt++;
+    float w;
+    float wsum = 0.0;
+    float ysum = 0.0;
+    axle[axis] = 1;
+    for (int i = start[axis]; i <= end[axis]; i++) {
+        w = kernel(abs(i + 0.5) / scale[axis]);
+        wsum += w;
+        ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(i + 0.5)).x;
     }
-    return vec4(output_luma / float(wt), 0.0, 0.0, 1.0);
+    return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
 
 //!HOOK CHROMA
@@ -81,7 +145,7 @@ vec4 hook() {
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Prediction Upscaling UV
+//!DESC CfL Upscaling UV FSR
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_8_TAP_REGRESSIONS 1
@@ -100,9 +164,9 @@ vec4 hook() {
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_texOff(0.0).x;
 
-    vec2 pp = HOOKED_pos * HOOKED_size - vec2(0.5);
-    vec2 fp = floor(pp);
-    pp -= fp;
+    vec2 p = HOOKED_pos * HOOKED_size - vec2(0.5);
+    vec2 fp = floor(p);
+    vec2 pp = fract(p);
 
 #ifdef HOOKED_gather
     const vec2 quad_idx[4] = {{0.0, 0.0}, {2.0, 0.0}, {0.0, 2.0}, {2.0, 2.0}};
