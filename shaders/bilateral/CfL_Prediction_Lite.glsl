@@ -46,7 +46,7 @@ vec4 hook() {
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
-//!DESC CfL Prediction Upscaling UV
+//!DESC CfL Upscaling UV FSR
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_8_TAP_REGRESSIONS 1
@@ -60,14 +60,14 @@ float comp_wd(vec2 d) {
 }
 
 vec4 hook() {
-    float mix_coeff = 0.5;
+    vec2 mix_coeff = vec2(0.8);
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_texOff(0.0).x;
 
-    vec2 pp = HOOKED_pos * HOOKED_size - vec2(0.5);
-    vec2 fp = floor(pp);
-    pp -= fp;
+    vec2 p = HOOKED_pos * HOOKED_size - vec2(0.5);
+    vec2 fp = floor(p);
+    vec2 pp = fract(p);
 
 #ifdef HOOKED_gather
     const vec2 quad_idx[4] = {{0.0, 0.0}, {2.0, 0.0}, {0.0, 2.0}, {2.0, 2.0}};
@@ -104,7 +104,7 @@ vec4 hook() {
 
 #if (DEBUG == 1)
     vec2 chroma_spatial = vec2(0.5);
-    mix_coeff = 1.0;
+    mix_coeff = vec2(1.0);
 #else
     float wd[16];
     float wt = 0.0;
@@ -166,6 +166,7 @@ vec4 hook() {
     }
 
     vec2 corr = clamp(abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), 1e-6)), 0.0, 1.0);
+    mix_coeff = pow(corr, vec2(8.0)) * mix_coeff;
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1)
@@ -229,19 +230,19 @@ vec4 hook() {
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(mix(chroma_pred_4, chroma_pred_12, 0.5), chroma_pred_8, 1.0 / 3.0), corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, mix(mix(chroma_pred_8, chroma_pred_12, 0.5), chroma_pred_4, 0.3334), mix_coeff);
 #elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 0)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_8, chroma_pred_12, 0.5), corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_8, chroma_pred_12, 0.5), mix_coeff);
 #elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 0 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), mix_coeff);
 #elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 0 && USE_4_TAP_REGRESSION == 0)
-    output_pix.xy = mix(chroma_spatial, chroma_pred_12, corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, chroma_pred_12, mix_coeff);
 #elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_8, 0.5), corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_8, 0.5), mix_coeff);
 #elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 0)
-    output_pix.xy = mix(chroma_spatial, chroma_pred_8, corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, chroma_pred_8, mix_coeff);
 #elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 0 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, chroma_pred_4, corr * corr * mix_coeff);
+    output_pix.xy = mix(chroma_spatial, chroma_pred_4, mix_coeff);
 #else
     output_pix.xy = chroma_spatial;
 #endif
