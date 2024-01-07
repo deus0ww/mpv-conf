@@ -227,8 +227,8 @@ local function default_shaders()
     s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = as.luma
-    s[#s+1] = bilateral.cfll
+    s[#s+1] = bilateral.cfl
+    s[#s+1] = (get_scale() <= 1.1) and as.luma or nil
     return s
 end
 
@@ -250,7 +250,7 @@ local function default_params()
     return {
         cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
-        as_sharpness   = (get_scale() <= 1.1) and 0.6 or 0.3,
+        as_sharpness   = 0.5,
         fsr_sharpness  = 0.2,
         fsr_pq         = 0,
     }
