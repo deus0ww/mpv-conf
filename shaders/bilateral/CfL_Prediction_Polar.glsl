@@ -111,7 +111,7 @@ vec4 hook() {
     vec2 mix_coeff = vec2(0.8);
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
-    float luma_zero = LUMA_texOff(0.0).x;
+    float luma_zero = LUMA_tex(LUMA_pos).x;
 
     vec2 p = HOOKED_pos * HOOKED_size - vec2(0.5);
     vec2 fp = floor(p);
