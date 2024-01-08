@@ -37,6 +37,7 @@
 //!DESC CfL Downscaling Yx FSR
 
 #define axis 0
+#define linear 0
 #define radius 1
 #define kernel fsr
 
@@ -79,7 +80,11 @@ vec4 hook() {
         d = i + 0.5;
         w = kernel(abs(d) / scale[axis]);
         wsum += w;
+#if (linear == 1)
+        ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(axle * vec2(d))).x;
+#else
         ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(d)).x;
+#endif
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
@@ -94,6 +99,7 @@ vec4 hook() {
 //!DESC CfL Downscaling Yy FSR
 
 #define axis 1
+#define linear 0
 #define radius 1
 #define kernel fsr
 
@@ -138,7 +144,11 @@ vec4 hook() {
         wsum += w;
         ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
     }
+#if (linear == 1)
+    return delinearize(vec4(ysum / wsum, 0.0, 0.0, 1.0));
+#else
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
+#endif
 }
 
 //!HOOK CHROMA

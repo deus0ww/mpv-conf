@@ -36,6 +36,7 @@
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Downscaling Y FSR
 
+#define linear 0
 #define radius 2
 #define kernel fsr
 
@@ -80,10 +81,17 @@ vec4 hook() {
             d = vec2(dx + 0.5, dy + 0.5);
             w = kernel(d / scale);
             wsum += w;
+#if (linear == 1)
+            ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(d)).x;
+        }
+    }
+    return delinearize(vec4(ysum / wsum, 0.0, 0.0, 1.0));
+#else
             ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(d).x;
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
+#endif
 }
 
 //!HOOK CHROMA
