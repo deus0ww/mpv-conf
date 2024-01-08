@@ -37,28 +37,11 @@
 //!DESC CfL Downscaling Yx FSR
 
 #define axis 0
-#define linear 0
 #define radius 1
 #define kernel fsr
 
-float box(float d) {
-    return 1.0;
-}
-float hermite(float d) {
-    float d2 = d * d;
-    float d3 = d * d2;
-    return d < 1.0 ? (2.0 * d3 - 3.0 * d2 + 1.0) : 0.0;
-}
-float catrom(float d) {
-    float d2 = d * d;
-    float d3 = d * d2;
-    return d < 1.0 ? (9.0 * d3 - 15.0 * d2 + 6.0) : (-3.0 * d3 + 15.0 * d2 - 24.0 * d + 12.0);
-}
-float mitchell(float d) {
-    float d2 = d * d;
-    float d3 = d * d2;
-    return d < 1.0 ? (21.0 * d3 - 36.0 * d2 + 16.0) : (-7.0 * d3 + 36.0 * d2 - 60.0 * d + 32.0);
-}
+float box(float d) { return 1.0; }
+
 float fsr(float d) {
     float d2  = min(d * d, 4.0);
     float d24 = d2 - 4.0;
@@ -71,20 +54,14 @@ ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
 ivec2 axle  = ivec2(0);
 
 vec4 hook() {
-    float d;
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
     axle[axis] = 1;
     for (int i = start[axis]; i <= end[axis]; i++) {
-        d = i + 0.5;
-        w = kernel(abs(i) / scale[axis]);
+        w = kernel(i / scale[axis]);
         wsum += w;
-#if (linear == 1)
-        ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(axle * vec2(d))).x;
-#else
-        ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(d)).x;
-#endif
+        ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(i + 0.5)).x;
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
@@ -99,28 +76,11 @@ vec4 hook() {
 //!DESC CfL Downscaling Yy FSR
 
 #define axis 1
-#define linear 0
 #define radius 1
 #define kernel fsr
 
-float box(float d) {
-    return 1.0;
-}
-float hermite(float d) {
-    float d2 = d * d;
-    float d3 = d * d2;
-    return d < 1.0 ? (2.0 * d3 - 3.0 * d2 + 1.0) : 0.0;
-}
-float catrom(float d) {
-    float d2 = d * d;
-    float d3 = d * d2;
-    return d < 1.0 ? (9.0 * d3 - 15.0 * d2 + 6.0) : (-3.0 * d3 + 15.0 * d2 - 24.0 * d + 12.0);
-}
-float mitchell(float d) {
-    float d2 = d * d;
-    float d3 = d * d2;
-    return d < 1.0 ? (21.0 * d3 - 36.0 * d2 + 16.0) : (-7.0 * d3 + 36.0 * d2 - 60.0 * d + 32.0);
-}
+float box(float d) { return 1.0; }
+
 float fsr(float d) {
     float d2  = min(d * d, 4.0);
     float d24 = d2 - 4.0;
@@ -138,15 +98,11 @@ vec4 hook() {
     float ysum = 0.0;
     axle[axis] = 1;
     for (int i = start[axis]; i <= end[axis]; i++) {
-        w = kernel(abs(i) / scale[axis]);
+        w = kernel(i / scale[axis]);
         wsum += w;
         ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(i + 0.5)).x;
     }
-#if (linear == 1)
-    return delinearize(vec4(ysum / wsum, 0.0, 0.0, 1.0));
-#else
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
-#endif
 }
 
 //!HOOK CHROMA

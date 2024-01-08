@@ -36,31 +36,11 @@
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Downscaling Y FSR
 
-#define linear 0
 #define radius 1
 #define kernel fsr
 
-float box(vec2 v) {
-    return 1.0;
-}
-float hermite(vec2 v) {
-    float d2 = v.x * v.x + v.y * v.y;
-    float d1 = sqrt(d2);
-    float d3 = d1 * d2;
-    return d1 < 1.0 ? (2.0 * d3 - 3.0 * d2 + 1.0) : 0.0;
-}
-float catrom(vec2 v) {
-    float d2 = v.x * v.x + v.y * v.y;
-    float d1 = sqrt(d2);
-    float d3 = d1 * d2;
-    return d1 < 1.0 ? (9.0 * d3 - 15.0 * d2 + 6.0) : (-3.0 * d3 + 15.0 * d2 - 24.0 * d1 + 12.0);
-}
-float mitchell(vec2 v) {
-    float d2 = v.x * v.x + v.y * v.y;
-    float d1 = sqrt(d2);
-    float d3 = d1 * d2;
-    return d1 < 1.0 ? (21.0 * d3 - 36.0 * d2 + 16.0) : (-7.0 * d3 + 36.0 * d2 - 60.0 * d1 + 32.0);
-}
+float box(vec2 v) { return 1.0; }
+
 float fsr(vec2 v) {
     float d2  = min(v.x * v.x + v.y * v.y, 4.0);
     float d24 = d2 - 4.0;
@@ -79,17 +59,10 @@ vec4 hook() {
         for (int dy = start.y; dy <= end.y; dy++) {
             w = kernel(vec2(dx, dy) / scale);
             wsum += w;
-#if (linear == 1)
-            ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(vec2(dx + 0.5, dy + 0.5))).x;
-        }
-    }
-    return delinearize(vec4(ysum / wsum, 0.0, 0.0, 1.0));
-#else
             ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(vec2(dx + 0.5, dy + 0.5)).x;
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
-#endif
 }
 
 //!HOOK CHROMA
