@@ -37,7 +37,7 @@
 //!DESC CfL Downscaling Y FSR
 
 #define linear 0
-#define radius 2
+#define radius 1
 #define kernel fsr
 
 float box(vec2 v) {
@@ -72,22 +72,20 @@ ivec2 start = ivec2(ceil((-scale / 2.0) * radius - 0.5));
 ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
 
 vec4 hook() {
-    vec2  d;
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
     for (int dx = start.x; dx <= end.x; dx++) {
         for (int dy = start.y; dy <= end.y; dy++) {
-            d = vec2(dx + 0.5, dy + 0.5);
-            w = kernel(d / scale);
+            w = kernel(vec2(dx, dy) / scale);
             wsum += w;
 #if (linear == 1)
-            ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(d)).x;
+            ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(vec2(dx + 0.5, dy + 0.5))).x;
         }
     }
     return delinearize(vec4(ysum / wsum, 0.0, 0.0, 1.0));
 #else
-            ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(d).x;
+            ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(vec2(dx + 0.5, dy + 0.5)).x;
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);

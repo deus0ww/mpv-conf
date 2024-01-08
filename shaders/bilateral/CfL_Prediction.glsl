@@ -78,7 +78,7 @@ vec4 hook() {
     axle[axis] = 1;
     for (int i = start[axis]; i <= end[axis]; i++) {
         d = i + 0.5;
-        w = kernel(abs(d) / scale[axis]);
+        w = kernel(abs(i) / scale[axis]);
         wsum += w;
 #if (linear == 1)
         ysum += w == 0.0 ? 0.0 : w * linearize(LUMA_texOff(axle * vec2(d))).x;
@@ -133,16 +133,14 @@ ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
 ivec2 axle  = ivec2(0);
 
 vec4 hook() {
-    float d;
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
     axle[axis] = 1;
     for (int i = start[axis]; i <= end[axis]; i++) {
-        d = i + 0.5;
-        w = kernel(abs(d) / scale[axis]);
+        w = kernel(abs(i) / scale[axis]);
         wsum += w;
-        ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
+        ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(i + 0.5)).x;
     }
 #if (linear == 1)
     return delinearize(vec4(ysum / wsum, 0.0, 0.0, 1.0));
