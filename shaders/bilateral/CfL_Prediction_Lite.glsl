@@ -25,7 +25,7 @@
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-0.75
+1.0
 
 //!HOOK CHROMA
 //!BIND LUMA
@@ -166,7 +166,7 @@ vec4 hook() {
     }
 
     vec2 corr = clamp(abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), 1e-6)), 0.0, 1.0);
-    mix_coeff = pow(corr, vec2(8.0)) * mix_coeff;
+    mix_coeff = pow(corr, vec2(6.0)) * mix_coeff;
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1)
@@ -224,7 +224,7 @@ vec4 hook() {
         luma_chroma_cov_4 += luma_diff_4 * chroma_diff_4;
     }
 
-    vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-4);
+    vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-6);
     vec2 beta_4 = chroma_avg_4 - alpha_4 * luma_avg_4;
     vec2 chroma_pred_4 = clamp(alpha_4 * luma_zero + beta_4, 0.0, 1.0);
 #endif
