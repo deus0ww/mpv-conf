@@ -60,7 +60,7 @@ float comp_wd(vec2 d) {
 }
 
 vec4 hook() {
-    vec2 mix_coeff = vec2(0.8);
+    vec2 mix_coeff = vec2(0.75);
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_tex(LUMA_pos).x;
