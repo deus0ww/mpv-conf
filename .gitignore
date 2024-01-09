@@ -4,3 +4,4 @@ shaders/.DS_Store
 script-opts/.DS_Store
 homebrew/.DS_Store
 .DS_Store
+shaders/bilateral/CfL_Prediction_Test.glsl
