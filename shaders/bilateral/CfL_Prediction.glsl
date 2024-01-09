@@ -37,7 +37,6 @@
 //!DESC CfL Downscaling Yx FSR
 
 #define axis 0
-#define radius 1
 #define kernel fsr
 
 float box(float d) { return 1.0; }
@@ -49,8 +48,8 @@ float fsr(float d) {
 }
 
 vec2  scale = LUMA_size / CHROMA_size;
-ivec2 start = ivec2(ceil((-scale / 2.0) * radius - 0.5));
-ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
+ivec2 start = ivec2(ceil((-scale / 2.0) - 0.5));
+ivec2 end   = ivec2(floor((scale / 2.0) - 0.5));
 ivec2 axle  = ivec2(0);
 
 vec4 hook() {
@@ -76,7 +75,6 @@ vec4 hook() {
 //!DESC CfL Downscaling Yy FSR
 
 #define axis 1
-#define radius 1
 #define kernel fsr
 
 float box(float d) { return 1.0; }
@@ -88,8 +86,8 @@ float fsr(float d) {
 }
 
 vec2  scale = LUMA_LOWRES_size / CHROMA_size;
-ivec2 start = ivec2(ceil((-scale / 2.0) * radius - 0.5));
-ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
+ivec2 start = ivec2(ceil((-scale / 2.0) - 0.5));
+ivec2 end   = ivec2(floor((scale / 2.0) - 0.5));
 ivec2 axle  = ivec2(0);
 
 vec4 hook() {

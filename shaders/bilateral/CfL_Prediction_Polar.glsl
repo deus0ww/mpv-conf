@@ -36,7 +36,6 @@
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Downscaling Y FSR
 
-#define radius 1
 #define kernel fsr
 
 float box(vec2 v) { return 1.0; }
@@ -48,8 +47,8 @@ float fsr(vec2 v) {
 }
 
 vec2  scale = LUMA_size / CHROMA_size;
-ivec2 start = ivec2(ceil((-scale / 2.0) * radius - 0.5));
-ivec2 end   = ivec2(floor((scale / 2.0) * radius - 0.5));
+ivec2 start = ivec2(ceil((-scale / 2.0) - 0.5));
+ivec2 end   = ivec2(floor((scale / 2.0) - 0.5));
 
 vec4 hook() {
     float w;
