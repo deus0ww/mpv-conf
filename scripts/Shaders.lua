@@ -37,7 +37,7 @@ local opts = {
     preset_hifps_index    = 4,
 
     preset_lowfps_enabled = true,       -- Target frame time: 90ms
-    preset_lowfps_index   = 5,
+    preset_lowfps_index   = 1,
 
     preset_rgb_enabled    = true,
     preset_rgb_index      = 6,
@@ -263,6 +263,12 @@ local sets = {}
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     return { shaders = s, options = set_params(o, p), label = 'Default' }
+end
+
+sets[#sets+1] = function()
+    local s, o, p = default_shaders(), default_options(), default_params()
+    s[4] = ({[1]=bilateral.cflp,[2]=bilateral.cfll                   })[minmax_scale(1, 2)]
+    return { shaders = s, options = set_params(o, p), label = 'Test' }
 end
 
 sets[#sets+1] = function()

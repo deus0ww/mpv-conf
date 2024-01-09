@@ -115,6 +115,7 @@ vec4 hook() {
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_8_TAP_REGRESSIONS 1
+#define LITE  0
 #define DEBUG 0
 
 #define weight fsr
@@ -176,11 +177,17 @@ vec4 hook() {
     }
 #endif
 
+    const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
+    const int i8y[8]  = {1, 2, 5, 6, 9, 10, 13, 14};
+    const int i8x[8]  = {4, 5, 6, 7, 8, 9, 10, 11};
+    const int i4[4]   = {5, 6, 9, 10};
+    const int e4y[4]  = {1, 2, 13, 14};
+    const int e4x[4]  = {4, 7, 8, 11};
+
 #if (DEBUG == 1)
     vec2 chroma_spatial = vec2(0.5);
     mix_coeff = vec2(1.0);
 #else
-    float wd[16];
     float wt = 0.0;
     vec2 ct = vec2(0.0);
 
@@ -190,24 +197,27 @@ vec4 hook() {
     const int dx[16] = {-1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2};
     const int dy[16] = {-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2};
 
+#if (LITE == 1)
+    float wd[12];
+    for(int i = 0; i < 12; i++) {
+        wd[i] = weight(vec2(dx[i12[i]], dy[i12[i]]) - pp);
+        wt += wd[i];
+        ct += wd[i] * chroma_pixels[i12[i]];
+    }
+#else
+    float wd[16];
     for(int i = 0; i < 16; i++) {
         wd[i] = weight(vec2(dx[i], dy[i]) - pp);
         wt += wd[i];
         ct += wd[i] * chroma_pixels[i];
     }
+#endif
 
     vec2 chroma_spatial = ct / wt;
     chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
-    const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
-    const int i8y[8] = {1, 2, 5, 6, 9, 10, 13, 14};
-    const int i8x[8] = {4, 5, 6, 7, 8, 9, 10, 11};
-    const int i4[4] = {5, 6, 9, 10};
-    const int e4y[4] = {1, 2, 13, 14};
-    const int e4x[4] = {4, 7, 8, 11};
-
     float luma_sum_4 = 0.0;
     float luma_sum_4y = 0.0;
     float luma_sum_4x = 0.0;
