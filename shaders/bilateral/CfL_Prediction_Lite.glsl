@@ -49,14 +49,23 @@ vec4 hook() {
 //!DESC CfL Upscaling UV FSR
 
 #define USE_12_TAP_REGRESSION 1
-#define USE_8_TAP_REGRESSIONS 1
+#define USE_8_TAP_REGRESSIONS 0
 #define USE_4_TAP_REGRESSION 0
 #define DEBUG 0
 
-float comp_wd(vec2 d) {
-    float d2 = min(d.x * d.x + d.y * d.y, 4.0);
-    float d4 = d2 * d2;
-    return (d4 - 8.0 * d2 + 16.0) * (d4 - 5.0 * d2 + 4.0);
+#define weight fsr
+
+float fsr(vec2 v) {
+    float d2  = min(dot(v, v), 4.0);
+    float d24 = d2 - 4.0;
+    return d24 * d24 * d24 * (d2 - 1.0);
+}
+
+float cubic(vec2 v) {
+    float d2 = min(dot(v, v), 4.0);
+    float d  = sqrt(d2);
+    float d3 = d2 * d;
+    return d < 1.0 ? 1.25 * d3 - 2.25 * d2 + 1.0 : -0.75 * d3 + 3.75 * d2 - 6.0 * d + 3.0;
 }
 
 vec4 hook() {
@@ -117,7 +126,7 @@ vec4 hook() {
     const int dy[16] = {-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2};
 
     for (int i = 0; i < 16; i++) {
-        wd[i] = comp_wd(vec2(dx[i], dy[i]) - pp);
+        wd[i] = weight(vec2(dx[i], dy[i]) - pp);
         wt += wd[i];
         ct += wd[i] * chroma_pixels[i];
     }
