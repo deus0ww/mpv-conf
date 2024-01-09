@@ -222,14 +222,14 @@ local bilateral       = {
 -------------------
 --- Shader Sets ---
 -------------------
-local default_antiring = 0.8 -- For scalers/shaders using libplacebo's antiring filter
+local default_antiring = 0.8 -- For scalers/shaders using libplacebo-based antiring filter
 
 local function default_shaders()
     local s = {}
     s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = ({[1]=bilateral.cflp,[2]=bilateral.cfl                    })[minmax_scale(1, 2)]
     s[#s+1] = (get_scale() <= 1.1) and as.luma or nil
     return s
 end
