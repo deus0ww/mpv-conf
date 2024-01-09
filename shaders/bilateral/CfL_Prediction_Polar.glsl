@@ -54,8 +54,8 @@ vec4 hook() {
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
-    for (int dx = start.x; dx <= end.x; dx++) {
-        for (int dy = start.y; dy <= end.y; dy++) {
+    for(int dx = start.x; dx <= end.x; dx++) {
+        for(int dy = start.y; dy <= end.y; dy++) {
             w = kernel(vec2(dx, dy) / scale);
             wsum += w;
             ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(vec2(dx + 0.5, dy + 0.5)).x;
@@ -107,7 +107,7 @@ vec4 hook() {
 #ifdef HOOKED_gather
     const vec2 quad_idx[4] = {{0.0, 0.0}, {2.0, 0.0}, {0.0, 2.0}, {2.0, 2.0}};
     vec4 q[3][4];
-    for (int i = 0; i < 4; i++) {
+    for(int i = 0; i < 4; i++) {
         q[0][i] = LUMA_LOWRES_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
         q[1][i] =      HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
         q[2][i] =      HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 1);
@@ -131,7 +131,7 @@ vec4 hook() {
     float luma_pixels[16];
     vec2 chroma_pixels[16];
 
-    for (int i = 0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         luma_pixels[i] = LUMA_LOWRES_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).x;
         chroma_pixels[i] =    HOOKED_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).xy;
     }
@@ -151,7 +151,7 @@ vec4 hook() {
     const int dx[16] = {-1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2};
     const int dy[16] = {-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2};
 
-    for (int i = 0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         wd[i] = weight(vec2(dx[i], dy[i]) - pp);
         wt += wd[i];
         ct += wd[i] * chroma_pixels[i];
