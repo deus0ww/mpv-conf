@@ -25,7 +25,7 @@
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-1.0
+0.8
 
 //!HOOK CHROMA
 //!BIND LUMA
@@ -50,7 +50,6 @@ vec4 hook() {
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_8_TAP_REGRESSIONS 0
-#define USE_4_TAP_REGRESSION 0
 #define DEBUG 0
 
 #define weight fsr
@@ -69,7 +68,8 @@ float cubic(vec2 v) {
 }
 
 vec4 hook() {
-    vec2 mix_coeff = vec2(0.75);
+    vec2 mix_coeff = vec2(1.0);
+    vec2 corr_exponent = vec2(8.0);
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_tex(LUMA_pos).x;
@@ -135,7 +135,7 @@ vec4 hook() {
     chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
 #endif
 
-#if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1 || USE_4_TAP_REGRESSION == 1)
+#if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
     const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
     const int i8y[8] = {1, 2, 5, 6, 9, 10, 13, 14};
     const int i8x[8] = {4, 5, 6, 7, 8, 9, 10, 11};
@@ -175,7 +175,7 @@ vec4 hook() {
     }
 
     vec2 corr = clamp(abs(luma_chroma_cov_12 / max(sqrt(luma_var_12 * chroma_var_12), 1e-6)), 0.0, 1.0);
-    mix_coeff = pow(corr, vec2(6.0)) * mix_coeff;
+    mix_coeff = pow(corr, corr_exponent) * mix_coeff;
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1)
@@ -218,40 +218,12 @@ vec4 hook() {
     vec2 chroma_pred_8 = mix(chroma_pred_8y, chroma_pred_8x, 0.5);
 #endif
 
-#if (USE_4_TAP_REGRESSION == 1)
-    float luma_avg_4 = luma_sum_4 / 4.0;
-    float luma_var_4 = 0.0;
-    vec2 chroma_avg_4 = chroma_sum_4 / 4.0;
-    vec2 luma_chroma_cov_4 = vec2(0.0);
-
-    float luma_diff_4;
-    vec2 chroma_diff_4;
-    for(int i = 0; i < 4; i++) {
-        luma_diff_4 = luma_pixels[i4[i]] - luma_avg_4;
-        chroma_diff_4 = chroma_pixels[i4[i]] - chroma_avg_4;
-        luma_var_4 += luma_diff_4 * luma_diff_4;
-        luma_chroma_cov_4 += luma_diff_4 * chroma_diff_4;
-    }
-
-    vec2 alpha_4 = luma_chroma_cov_4 / max(luma_var_4, 1e-6);
-    vec2 beta_4 = chroma_avg_4 - alpha_4 * luma_avg_4;
-    vec2 chroma_pred_4 = clamp(alpha_4 * luma_zero + beta_4, 0.0, 1.0);
-#endif
-
-#if (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(mix(chroma_pred_8, chroma_pred_12, 0.5), chroma_pred_4, 0.3334), mix_coeff);
-#elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 0)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_8, chroma_pred_12, 0.5), mix_coeff);
-#elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 0 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_12, 0.5), mix_coeff);
-#elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 0 && USE_4_TAP_REGRESSION == 0)
+#if (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 1)
+    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_12, chroma_pred_8, 0.5), mix_coeff);
+#elif (USE_12_TAP_REGRESSION == 1 && USE_8_TAP_REGRESSIONS == 0)
     output_pix.xy = mix(chroma_spatial, chroma_pred_12, mix_coeff);
-#elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, mix(chroma_pred_4, chroma_pred_8, 0.5), mix_coeff);
-#elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 1 && USE_4_TAP_REGRESSION == 0)
+#elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 1)
     output_pix.xy = mix(chroma_spatial, chroma_pred_8, mix_coeff);
-#elif (USE_12_TAP_REGRESSION == 0 && USE_8_TAP_REGRESSIONS == 0 && USE_4_TAP_REGRESSION == 1)
-    output_pix.xy = mix(chroma_spatial, chroma_pred_4, mix_coeff);
 #else
     output_pix.xy = chroma_spatial;
 #endif
