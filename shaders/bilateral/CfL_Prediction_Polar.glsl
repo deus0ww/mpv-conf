@@ -41,7 +41,7 @@
 float box(vec2 v) { return 1.0; }
 
 float fsr(vec2 v) {
-    float d2  = min(v.x * v.x + v.y * v.y, 4.0);
+    float d2  = min(dot(v, v), 4.0);
     float d24 = d2 - 4.0;
     return d24 * d24 * d24 * (d2 - 1.0);
 }
