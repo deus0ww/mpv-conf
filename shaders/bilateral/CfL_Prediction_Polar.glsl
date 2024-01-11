@@ -34,7 +34,7 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Y triangle
+//!DESC CfL Downscaling Y Triangle
 
 #define kernel triangle
 
@@ -45,9 +45,10 @@ float box_limit = length((scale / 2 - 0.5));
 float box(vec2 d) {
     return 1.0 - max(sign(length(d) - box_limit), 0.0);
 }
+const float triangle_mul = 0.5;
 float triangle(vec2 d) {
     float x = length(d);
-    return max(sign(scale_l / 2 - x), 0.0) * (1.0 - x/scale_l);
+    return max(sign(scale_l * triangle_mul - x), 0.0) * (1.0 - triangle_mul * x / scale_l);
 }
 float hermite(vec2 d) {
     vec2  xy = abs(d) / scale;

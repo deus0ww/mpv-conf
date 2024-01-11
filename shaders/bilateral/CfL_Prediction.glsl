@@ -34,7 +34,7 @@
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yx triangle
+//!DESC CfL Downscaling Yx Triangle
 
 #define axis 0
 #define weight triangle
@@ -45,9 +45,10 @@ float box_limit = (scale[axis] / 2.0 - 0.5);
 float box(float d) {
     return 1.0 - max(sign(abs(d) - box_limit), 0.0);
 }
+const float triangle_mul = 0.5;
 float triangle(float d) {
     float x = abs(d);
-    return max(sign(scale[axis] / 2.0 - x), 0.0) * (1.0 - x/scale[axis]);
+    return max(sign(scale[axis] * triangle_mul - x), 0.0) * (1.0 - triangle_mul * x / scale[axis]);
 }
 float hermite(float d) {
     float x  = abs(d) / scale[axis];
@@ -88,7 +89,7 @@ vec4 hook() {
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yy triangle
+//!DESC CfL Downscaling Yy Triangle
 
 #define axis 1
 #define weight triangle
@@ -99,9 +100,10 @@ float box_limit = (scale[axis] / 2.0 - 0.5);
 float box(float d) {
     return 1.0 - max(sign(abs(d) - box_limit), 0.0);
 }
+const float triangle_mul = 0.5;
 float triangle(float d) {
     float x = abs(d);
-    return max(sign(scale[axis] / 2.0 - x), 0.0) * (1.0 - x/scale[axis]);
+    return max(sign(scale[axis] * triangle_mul - x), 0.0) * (1.0 - triangle_mul * x / scale[axis]);
 }
 float hermite(float d) {
     float x  = abs(d) / scale[axis];
