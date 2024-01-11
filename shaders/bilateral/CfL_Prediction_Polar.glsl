@@ -48,7 +48,7 @@ float box(vec2 d) {
 float triangle(vec2 d) {
     vec2  xy = abs(d) / scale;
     float x = length(xy);
-    return max(sign(scale[axis] / 2.0 - x), 0.0) * (1.0 - x/scale_l);
+    return max(sign(1.0 - x), 0.0) * (1.0 - x/scale_l);
 }
 float hermite(vec2 d) {
     vec2  xy = abs(d) / scale;
