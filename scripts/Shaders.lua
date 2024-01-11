@@ -265,11 +265,10 @@ sets[#sets+1] = function()
     return { shaders = s, options = set_params(o, p), label = 'Default' }
 end
 
-sets[#sets+1] = function()
-    local s, o, p = default_shaders(), default_options(), default_params()
     s[4] = ({[1]=bilateral.cflp,[2]=bilateral.cfll                   })[minmax_scale(1, 2)]
     return { shaders = s, options = set_params(o, p), label = 'Test' }
 end
+--end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
