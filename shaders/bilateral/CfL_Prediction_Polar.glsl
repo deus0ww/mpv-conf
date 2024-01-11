@@ -34,31 +34,51 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Y FSR
+//!DESC CfL Downscaling Y triangle
 
-#define kernel fsr
+#define kernel triangle
 
-float box(vec2 v) { return 1.0; }
+vec2  scale   = LUMA_size / CHROMA_size;
+float scale_l = length(scale);
 
+float box_limit = length((scale / 2 - 0.5));
+float box(vec2 d) {
+    return 1.0 - max(sign(length(d) - box_limit), 0.0);
+}
+float triangle(vec2 d) {
+    vec2  xy = abs(d) / scale;
+    float x = length(xy);
+    return max(sign(scale[axis] / 2.0 - x), 0.0) * (1.0 - x/scale_l);
+}
+float hermite(vec2 d) {
+    vec2  xy = abs(d) / scale;
+    float x2 = dot(xy, xy);
+    float x  = sqrt(x2);
+    float x3 = x * x2;
+    return max(sign(1.0 - x), 0.0) * (2.0 * x3 - 3.0 * x2 + 1.0);
+}
 float fsr(vec2 v) {
-    float d2  = min(dot(v, v), 4.0);
-    float d24 = d2 - 4.0;
-    return d24 * d24 * d24 * (d2 - 1.0);
+    vec2  x   = v / scale;
+    float x2  = min(dot(x, x), 4.0);
+    float x24 = x2 - 4.0;
+    return x24 * x24 * x24 * (x2 - 1.0);
 }
 
-vec2  scale = LUMA_size / CHROMA_size;
-ivec2 start = ivec2(ceil((-scale / 2.0) - 0.5));
-ivec2 end   = ivec2(floor((scale / 2.0) - 0.5));
+ivec2 start = ivec2(ceil(-scale - 0.5));
+ivec2 end   = ivec2(floor(scale - 0.5));
+ivec2 axle  = ivec2(0);
 
 vec4 hook() {
+    vec2 d;
     float w;
     float wsum = 0.0;
     float ysum = 0.0;
     for(int dx = start.x; dx <= end.x; dx++) {
         for(int dy = start.y; dy <= end.y; dy++) {
-            w = kernel(vec2(dx, dy) / scale);
+            d = vec2(dx + 0.5, dy + 0.5);
+            w = kernel(d);
             wsum += w;
-            ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(vec2(dx + 0.5, dy + 0.5)).x;
+            ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(d).x;
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
