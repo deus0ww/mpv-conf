@@ -265,9 +265,10 @@ sets[#sets+1] = function()
     return { shaders = s, options = set_params(o, p), label = 'Default' }
 end
 
-    s[4] = ({[1]=bilateral.cflp,[2]=bilateral.cfll                   })[minmax_scale(1, 2)]
-    return { shaders = s, options = set_params(o, p), label = 'Test' }
-end
+--sets[#sets+1] = function()
+--    local s, o, p = default_shaders(), default_options(), default_params()
+--    s[4] = ({[1]=bilateral.cflp,[2]=bilateral.cflx                   })[minmax_scale(1, 2)]
+--    return { shaders = s, options = set_params(o, p), label = 'Test' }
 --end
 
 sets[#sets+1] = function()
@@ -295,7 +296,7 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = fsrcnnx2.r16
     s[#s+1] = ravu.zoom.r3s
-    s[#s+1] = bilateral.cfl
+    s[#s+1] = bilateral.cflp
     s[#s+1] = ravu.zoom.rgb_r3s
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
