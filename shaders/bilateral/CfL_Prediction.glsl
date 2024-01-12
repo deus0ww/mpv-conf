@@ -34,10 +34,10 @@
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yx Triangle
+//!DESC CfL Downscaling Yx Hermite
 
 #define axis 0
-#define weight triangle
+#define weight hermite
 
 vec2  scale = LUMA_size / CHROMA_size;
 
@@ -45,20 +45,18 @@ float box_limit = (scale[axis] / 2.0 - 0.5);
 float box(float d) {
     return 1.0 - max(sign(abs(d) - box_limit), 0.0);
 }
-const float triangle_mul = 0.5;
 float triangle(float d) {
-    float x = abs(d);
-    return max(sign(scale[axis] * triangle_mul - x), 0.0) * (1.0 - triangle_mul * x / scale[axis]);
+    return max(1.0 - 2.0 * abs(d) / scale[axis], 0.0);
 }
 float hermite(float d) {
-    float x  = abs(d) / scale[axis];
+    float x = min(abs(d) / scale[axis], 1.0);
     float x2 = x * x;
     float x3 = x * x2;
     return max(sign(1.0 - x), 0.0) * (2.0 * x3 - 3.0 * x2 + 1.0);
 }
 float fsr(float d) {
-    float x = min(abs(d) / scale[axis], 2.0);
-    float x2  = x * x;
+    float x   = d / scale[axis];
+    float x2  = min(x * x, 4.0);
     float x24 = x2 - 4.0;
     return x24 * x24 * x24 * (x2 - 1.0);
 }
@@ -89,10 +87,10 @@ vec4 hook() {
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yy Triangle
+//!DESC CfL Downscaling Yy Hermite
 
 #define axis 1
-#define weight triangle
+#define weight hermite
 
 vec2  scale = LUMA_LOWRES_size / CHROMA_size;
 
@@ -100,20 +98,18 @@ float box_limit = (scale[axis] / 2.0 - 0.5);
 float box(float d) {
     return 1.0 - max(sign(abs(d) - box_limit), 0.0);
 }
-const float triangle_mul = 0.5;
 float triangle(float d) {
-    float x = abs(d);
-    return max(sign(scale[axis] * triangle_mul - x), 0.0) * (1.0 - triangle_mul * x / scale[axis]);
+    return max(1.0 - 2.0 * abs(d) / scale[axis], 0.0);
 }
 float hermite(float d) {
-    float x  = abs(d) / scale[axis];
+    float x = min(abs(d) / scale[axis], 1.0);
     float x2 = x * x;
     float x3 = x * x2;
     return max(sign(1.0 - x), 0.0) * (2.0 * x3 - 3.0 * x2 + 1.0);
 }
 float fsr(float d) {
-    float x = min(abs(d) / scale[axis], 2.0);
-    float x2  = x * x;
+    float x   = d / scale[axis];
+    float x2  = min(x * x, 4.0);
     float x24 = x2 - 4.0;
     return x24 * x24 * x24 * (x2 - 1.0);
 }

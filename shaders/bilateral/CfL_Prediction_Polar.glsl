@@ -34,9 +34,9 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Y Triangle
+//!DESC CfL Downscaling Y Hermite
 
-#define kernel triangle
+#define kernel hermite
 
 vec2  scale   = LUMA_size / CHROMA_size;
 float scale_l = length(scale);
@@ -45,14 +45,12 @@ float box_limit = length((scale / 2 - 0.5));
 float box(vec2 d) {
     return 1.0 - max(sign(length(d) - box_limit), 0.0);
 }
-const float triangle_mul = 0.5;
 float triangle(vec2 d) {
-    float x = length(d);
-    return max(sign(scale_l * triangle_mul - x), 0.0) * (1.0 - triangle_mul * x / scale_l);
+    return max(1.0 - 2.0 * length(d) / scale_l, 0.0);
 }
 float hermite(vec2 d) {
-    vec2  xy = abs(d) / scale;
-    float x2 = dot(xy, xy);
+    vec2  dd = min(d / scale, 1.0);
+    float x2 = dot(dd, dd);
     float x  = sqrt(x2);
     float x3 = x * x2;
     return max(sign(1.0 - x), 0.0) * (2.0 * x3 - 3.0 * x2 + 1.0);
