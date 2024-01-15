@@ -252,7 +252,7 @@ local function default_params()
     return {
         cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
-        as_sharpness   = 0.5,
+        as_sharpness   = 0.4,
         fsr_sharpness  = 0.2,
         fsr_pq         = 0,
     }
