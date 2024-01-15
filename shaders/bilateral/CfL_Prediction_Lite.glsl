@@ -87,37 +87,32 @@ vec4 hook() {
         q[1][i] =      HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
         q[2][i] =      HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 1);
     }
-    float luma_pixels[16] = {
-         q[0][0].w,               q[0][0].z,               q[0][1].w,               q[0][1].z,
-         q[0][0].x,               q[0][0].y,               q[0][1].x,               q[0][1].y,
-         q[0][2].w,               q[0][2].z,               q[0][3].w,               q[0][3].z,
-         q[0][2].x,               q[0][2].y,               q[0][3].x,               q[0][3].y};
     vec2 chroma_pixels[16] = {
         {q[1][0].w, q[2][0].w},  {q[1][0].z, q[2][0].z},  {q[1][1].w, q[2][1].w},  {q[1][1].z, q[2][1].z},
         {q[1][0].x, q[2][0].x},  {q[1][0].y, q[2][0].y},  {q[1][1].x, q[2][1].x},  {q[1][1].y, q[2][1].y},
         {q[1][2].w, q[2][2].w},  {q[1][2].z, q[2][2].z},  {q[1][3].w, q[2][3].w},  {q[1][3].z, q[2][3].z},
         {q[1][2].x, q[2][2].x},  {q[1][2].y, q[2][2].y},  {q[1][3].x, q[2][3].x},  {q[1][3].y, q[2][3].y}};
+    float luma_pixels[16] = {
+         q[0][0].w, q[0][0].z, q[0][1].w, q[0][1].z,
+         q[0][0].x, q[0][0].y, q[0][1].x, q[0][1].y,
+         q[0][2].w, q[0][2].z, q[0][3].w, q[0][3].z,
+         q[0][2].x, q[0][2].y, q[0][3].x, q[0][3].y};
 #else
-    const vec2 pix_idx[16] = {
-        {-0.5,-0.5},             { 0.5,-0.5},             { 1.5,-0.5},             { 2.5,-0.5},
-        {-0.5, 0.5},             { 0.5, 0.5},             { 1.5, 0.5},             { 2.5, 0.5},
-        {-0.5, 1.5},             { 0.5, 1.5},             { 1.5, 1.5},             { 2.5, 1.5},
-        {-0.5, 2.5},             { 0.5, 2.5},             { 1.5, 2.5},             { 2.5, 2.5}};
+    vec2 pix_idx[16] = {{-0.5,-0.5}, {0.5,-0.5}, {1.5,-0.5}, {2.5,-0.5},
+                        {-0.5, 0.5}, {0.5, 0.5}, {1.5, 0.5}, {2.5, 0.5},
+                        {-0.5, 1.5}, {0.5, 1.5}, {1.5, 1.5}, {2.5, 1.5},
+                        {-0.5, 2.5}, {0.5, 2.5}, {1.5, 2.5}, {2.5, 2.5}};
+
     float luma_pixels[16];
     vec2 chroma_pixels[16];
 
-    for(int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++) {
         luma_pixels[i] = LUMA_LOWRES_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).x;
-        chroma_pixels[i] =    HOOKED_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).xy;
+        chroma_pixels[i] = HOOKED_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).xy;
     }
 #endif
 
     const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
-    const int i8y[8]  = {1, 2, 5, 6, 9, 10, 13, 14};
-    const int i8x[8]  = {4, 5, 6, 7, 8, 9, 10, 11};
-    const int i4[4]   = {5, 6, 9, 10};
-    const int e4y[4]  = {1, 2, 13, 14};
-    const int e4x[4]  = {4, 7, 8, 11};
 
 #if (DEBUG == 1)
     vec2 chroma_spatial = vec2(0.5);
@@ -153,19 +148,24 @@ vec4 hook() {
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
+    const int i4y[4] = {1, 2, 13, 14};
+    const int i4x[4] = {4, 7, 8, 11};
+    const int i4[4] = {5, 6, 9, 10};
+
     float luma_sum_4 = 0.0;
     float luma_sum_4y = 0.0;
     float luma_sum_4x = 0.0;
     vec2 chroma_sum_4 = vec2(0.0);
     vec2 chroma_sum_4y = vec2(0.0);
     vec2 chroma_sum_4x = vec2(0.0);
-    for(int i = 0; i < 4; i++) {
+
+    for (int i = 0; i < 4; i++) {
         luma_sum_4 += luma_pixels[i4[i]];
-        luma_sum_4y += luma_pixels[e4y[i]];
-        luma_sum_4x += luma_pixels[e4x[i]];
+        luma_sum_4y += luma_pixels[i4y[i]];
+        luma_sum_4x += luma_pixels[i4x[i]];
         chroma_sum_4 += chroma_pixels[i4[i]];
-        chroma_sum_4y += chroma_pixels[e4y[i]];
-        chroma_sum_4x += chroma_pixels[e4x[i]];
+        chroma_sum_4y += chroma_pixels[i4y[i]];
+        chroma_sum_4x += chroma_pixels[i4x[i]];
     }
 
     float luma_avg_12 = (luma_sum_4 + luma_sum_4y + luma_sum_4x) / 12.0;
@@ -195,6 +195,9 @@ vec4 hook() {
 #endif
 
 #if (USE_8_TAP_REGRESSIONS == 1)
+    const int i8y[8] = {1, 2, 5, 6, 9, 10, 13, 14};
+    const int i8x[8] = {4, 5, 6, 7, 8, 9, 10, 11};
+
     float luma_avg_8y = (luma_sum_4 + luma_sum_4y) / 8.0;
     float luma_avg_8x = (luma_sum_4 + luma_sum_4x) / 8.0;
     float luma_var_8y = 0.0;
