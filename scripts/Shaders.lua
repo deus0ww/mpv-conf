@@ -156,6 +156,13 @@ end
 --------------------
 local shaders_path = '~~/shaders/'
 
+-- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
+local art_path        = shaders_path .. 'artcnn/'
+local artcnn          = {
+    r8                = art_path .. 'ArtCNN_C4F8.glsl',
+    r16               = art_path .. 'ArtCNN_C4F16.glsl',
+}
+
 -- FSR by agyild - https://gist.github.com/agyild
 local fsr_path        = shaders_path .. 'fsr/'
 local fsr             = {
