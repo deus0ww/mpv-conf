@@ -184,15 +184,16 @@ local ravu_luma_path  = shaders_path .. 'ravu/luma/'
 local ravu_rgb_path   = shaders_path .. 'ravu/rgb/'
 local ravu            = {
     lite              = {
-        r2s           = ravu_luma_path .. 'ravu-lite-ar-r2.hook',
-        r3s           = ravu_luma_path .. 'ravu-lite-ar-r3.hook',
-        r4s           = ravu_luma_path .. 'ravu-lite-ar-r4.hook',
+        r3            = ravu_luma_path .. 'ravu-lite-ar-r3.hook',
+        r3c           = ravu_luma_path .. 'ravu-lite-ar-r3.compute',
+        r4            = ravu_luma_path .. 'ravu-lite-ar-r4.hook',
+        r4c           = ravu_luma_path .. 'ravu-lite-ar-r4.compute',
     },
     zoom              = {
-        r2s           = ravu_luma_path .. 'ravu-zoom-ar-r2.hook',
-        r3s           = ravu_luma_path .. 'ravu-zoom-ar-r3.hook',
-        rgb_r2s       = ravu_rgb_path  .. 'ravu-zoom-ar-r2-rgb.hook',
-        rgb_r3s       = ravu_rgb_path  .. 'ravu-zoom-ar-r3-rgb.hook',
+        r2            = ravu_luma_path .. 'ravu-zoom-ar-r2.hook',
+        r3            = ravu_luma_path .. 'ravu-zoom-ar-r3.hook',
+        rgb_r2        = ravu_rgb_path  .. 'ravu-zoom-ar-r2-rgb.hook',
+        rgb_r3        = ravu_rgb_path  .. 'ravu-zoom-ar-r3-rgb.hook',
     },
 }
 
@@ -227,7 +228,7 @@ local default_antiring = 0.8 -- For scalers/shaders using libplacebo-based antir
 local function default_shaders()
     local s = {}
     s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
-    s[#s+1] = ({[3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(3, 5)]
+    s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = ({[1]=bilateral.cflp,[2]=bilateral.cfl                    })[minmax_scale(1, 2)]
     s[#s+1] = (get_scale() <= 1.1) and as.luma or nil
@@ -286,7 +287,7 @@ end
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
-    s[#s+1] = ({[1]=ravu.zoom.r3s, [2]=ravu.lite.r4s, [3]=ravu.zoom.r3s, [4]=ravu.lite.r4s, [5]=ravu.zoom.r3s })[minmax_scale(1, 5)]
+    s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = bilateral.cfll
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
@@ -295,9 +296,9 @@ end
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = fsrcnnx2.r16
-    s[#s+1] = ravu.zoom.r3s
+    s[#s+1] = ravu.zoom.r3
     s[#s+1] = bilateral.cflp
-    s[#s+1] = ravu.zoom.rgb_r3s
+    s[#s+1] = ravu.zoom.rgb_r3
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
     set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
