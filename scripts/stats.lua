@@ -305,7 +305,7 @@ local function append_perfdata(s, dedicated_page, print_passes)
     -- Pretty print measured time
     local function pp(i)
         -- rescale to milliseconds for a saner display
-        return format("%06.2f", i / 1000000)
+        return format("%06.3f", i / 1000000)
     end
 
     -- Format n/m with a font weight based on the ratio
@@ -872,6 +872,8 @@ local function add_video_out(s)
     append(s, vo, {prefix_sep="", nl="", indent=""})
     append_property(s, "display-names", {prefix_sep="", prefix="(", suffix=")",
                                          no_prefix_markup=true, nl="", indent=" "})
+    append(s, mp.get_property_native("current-gpu-context"),
+           {prefix="Context:", nl="", indent=o.prefix_sep .. o.prefix_sep})
     append_property(s, "avsync", {prefix="A-V:"})
     append_fps(s, "display-fps", "estimated-display-fps")
     if append_property(s, "decoder-frame-drop-count",
@@ -961,14 +963,7 @@ local function add_video(s)
         append_fps(s, "container-fps", "estimated-vf-fps")
     end
     append_img_params(s, r, ro)
-
-    local hdr = mp.get_property_native("hdr-metadata")
-    if not hdr then
-        local hdrpeak = r["sig-peak"] or 0
-        hdr = {["max-cll"]=math.floor(hdrpeak * 203)}
-    end
-
-    append_hdr(s, hdr)
+    append_hdr(s, ro)
     append_property(s, "packet-video-bitrate", {prefix="Bitrate:", suffix=" kbps"})
     append_filters(s, "vf", "Filters:")
 end
