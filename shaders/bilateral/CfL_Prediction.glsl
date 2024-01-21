@@ -35,46 +35,28 @@
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Downscaling Yx Hermite
-
 #define axis 0
 #define weight hermite
 
-vec2  scale = LUMA_size / CHROMA_size;
-
-float box_limit = (scale[axis] / 2.0 - 0.5);
-float box(float d) {
-    return 1.0 - max(sign(abs(d) - box_limit), 0.0);
-}
-float triangle(float d) {
-    return max(1.0 - 2.0 * abs(d) / scale[axis], 0.0);
-}
-float hermite(float d) {
-    float x = min(abs(d) / scale[axis], 1.0);
-    float x2 = x * x;
-    float x3 = x * x2;
-    return max(sign(1.0 - x), 0.0) * (2.0 * x3 - 3.0 * x2 + 1.0);
-}
-float fsr(float d) {
-    float x   = d / scale[axis];
-    float x2  = min(x * x, 4.0);
+float box(const float d)      { return float(abs(d) <= 0.5); }
+float triangle(const float d) { return max(1.0 - 2.0 * abs(d), 0.0); }
+float hermite(const float d)  { return smoothstep(0.0, 1.0, 1 - abs(d)); }
+float fsr(const float d) {
+    float x2  = min(d * d, 4.0);
     float x24 = x2 - 4.0;
     return x24 * x24 * x24 * (x2 - 1.0);
 }
 
+vec2  scale = LUMA_size / CHROMA_size;
 ivec2 start = ivec2(ceil(-scale - 0.5));
 ivec2 end   = ivec2(floor(scale - 0.5));
-ivec2 axle  = ivec2(0);
+const ivec2 axle = ivec2(axis == 0, axis == 1);
 
 vec4 hook() {
-    float d;
-    float w;
-    float wsum = 0.0;
-    float ysum = 0.0;
-    axle[axis] = 1;
+    float d, w, wsum, ysum = 0.0;
     for(int i = start[axis]; i <= end[axis]; i++) {
         d = i + 0.5;
-        w = weight(d); 
-        wsum += w;
+        wsum += w = weight(d / scale[axis]);
         ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(d)).x;
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
@@ -88,46 +70,28 @@ vec4 hook() {
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
 //!DESC CfL Downscaling Yy Hermite
-
 #define axis 1
 #define weight hermite
 
-vec2  scale = LUMA_LOWRES_size / CHROMA_size;
-
-float box_limit = (scale[axis] / 2.0 - 0.5);
-float box(float d) {
-    return 1.0 - max(sign(abs(d) - box_limit), 0.0);
-}
-float triangle(float d) {
-    return max(1.0 - 2.0 * abs(d) / scale[axis], 0.0);
-}
-float hermite(float d) {
-    float x = min(abs(d) / scale[axis], 1.0);
-    float x2 = x * x;
-    float x3 = x * x2;
-    return max(sign(1.0 - x), 0.0) * (2.0 * x3 - 3.0 * x2 + 1.0);
-}
-float fsr(float d) {
-    float x   = d / scale[axis];
-    float x2  = min(x * x, 4.0);
+float box(const float d)      { return float(abs(d) <= 0.5); }
+float triangle(const float d) { return max(1.0 - 2.0 * abs(d), 0.0); }
+float hermite(const float d)  { return smoothstep(0.0, 1.0, 1 - abs(d)); }
+float fsr(const float d) {
+    float x2  = min(d * d, 4.0);
     float x24 = x2 - 4.0;
     return x24 * x24 * x24 * (x2 - 1.0);
 }
 
+vec2  scale = LUMA_LOWRES_size / CHROMA_size;
 ivec2 start = ivec2(ceil(-scale - 0.5));
 ivec2 end   = ivec2(floor(scale - 0.5));
-ivec2 axle  = ivec2(0);
+const ivec2 axle = ivec2(axis == 0, axis == 1);
 
 vec4 hook() {
-    float d;
-    float w;
-    float wsum = 0.0;
-    float ysum = 0.0;
-    axle[axis] = 1;
+    float d, w, wsum, ysum = 0.0;
     for(int i = start[axis]; i <= end[axis]; i++) {
         d = i + 0.5;
-        w = weight(d); 
-        wsum += w;
+        wsum += w = weight(d / scale[axis]);
         ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
