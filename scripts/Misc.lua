@@ -1,4 +1,4 @@
--- deus0ww - 2020-12-31
+-- deus0ww - 2024-01-21
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -108,7 +108,21 @@ mp.observe_property('interpolation', 'native', function(_, interpolation)
     tscale = tscale ~= '' and tscale or 'na'
     window = window ~= '' and window or 'na'
     radius = radius ~= 0  and tostring(radius) or 'default'
-    mp.osd_message( ('%s Interpolation: [Filter=%s  Window=%s Radius=%s Clamp=%d]'):format((interpolation and '■' or '□'), tscale, window, radius, clamp) )
+    mp.osd_message( ('%s Interpolation: [Filter=%s  Window=%s  Radius=%s  Clamp=%d]'):format((interpolation and '■' or '□'), tscale, window, radius, clamp) )
+end)
+
+
+
+-- Format Deband OSD Message
+local last_deband = mp.get_property_native('deband', false)
+mp.observe_property('deband', 'native', function(_, deband)
+    if deband == nil or deband == last_deband then return end
+    last_deband = deband
+    local iterations = mp.get_property_native('deband-iterations', 0)
+    local threshold  = mp.get_property_native('deband-threshold', 0)
+    local range      = mp.get_property_native('deband-range', 0)
+    local grain      = mp.get_property_native('deband-grain', 0)
+    mp.osd_message( ('%s Deband: [Iterations=%d  Threshold=%d  Range=%d  Grain=%d]'):format((deband and '■' or '□'), iterations, threshold, range, grain) )
 end)
 
 
