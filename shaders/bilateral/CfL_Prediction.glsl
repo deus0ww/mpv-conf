@@ -48,16 +48,17 @@ float fsr(const float d) {
 }
 
 vec2  scale = LUMA_size / CHROMA_size;
-ivec2 start = ivec2(ceil(-scale - 0.5));
-ivec2 end   = ivec2(floor(scale - 0.5));
 const ivec2 axle = ivec2(axis == 0, axis == 1);
 
 vec4 hook() {
     float d, w, wsum, ysum = 0.0;
-    for(int i = start[axis]; i <= end[axis]; i++) {
+    for(int i = 0; i < scale[axis]; i++) {
         d = i + 0.5;
-        wsum += w = weight(d / scale[axis]);
-        ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(axle * vec2(d)).x;
+        w = weight(d / scale[axis]);
+        if (w == 0.0) { continue; }
+        wsum += w * 2.0;
+        ysum += w * (LUMA_texOff(axle * vec2( d)).x +
+                     LUMA_texOff(axle * vec2(-d)).x);
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
@@ -83,16 +84,17 @@ float fsr(const float d) {
 }
 
 vec2  scale = LUMA_LOWRES_size / CHROMA_size;
-ivec2 start = ivec2(ceil(-scale - 0.5));
-ivec2 end   = ivec2(floor(scale - 0.5));
 const ivec2 axle = ivec2(axis == 0, axis == 1);
 
 vec4 hook() {
     float d, w, wsum, ysum = 0.0;
-    for(int i = start[axis]; i <= end[axis]; i++) {
+    for(int i = 0; i < scale[axis]; i++) {
         d = i + 0.5;
-        wsum += w = weight(d / scale[axis]);
-        ysum += w == 0.0 ? 0.0 : w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
+        w = weight(d / scale[axis]);
+        if (w == 0.0) { continue; }
+        wsum += w * 2.0;
+        ysum += w * (LUMA_LOWRES_texOff(axle * vec2( d)).x +
+                     LUMA_LOWRES_texOff(axle * vec2(-d)).x);
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }

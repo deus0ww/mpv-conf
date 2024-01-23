@@ -48,17 +48,20 @@ float fsr(const vec2 d) {
 }
 
 vec2  scale = LUMA_size / CHROMA_size;
-ivec2 start = ivec2(ceil(-scale - 0.5));
-ivec2 end   = ivec2(floor(scale - 0.5));
 
 vec4 hook() {
-    vec2  d;
-    float w, wsum, ysum = 0.0;
-    for(int dx = start.x; dx <= end.x; dx++) {
-        for(int dy = start.y; dy <= end.y; dy++) {
-            d = vec2(dx, dy) + 0.5;
-            wsum += w = weight(d / scale);
-            ysum += w == 0.0 ? 0.0 : w * LUMA_texOff(d).x;
+    float dx, dy, w, wsum, ysum = 0.0;
+    for(int x = 0; x < scale.x; x++) {
+        for(int y = 0; y < scale.y; y++) {
+            dx = x + 0.5;
+            dy = y + 0.5;
+            w = weight(vec2( dx, dy) / scale);
+            if (w == 0.0) { continue; }
+            wsum += w * 4.0;
+            ysum += w * (LUMA_texOff(vec2( dx, dy)).x +
+                         LUMA_texOff(vec2(-dx, dy)).x +
+                         LUMA_texOff(vec2( dx,-dy)).x +
+                         LUMA_texOff(vec2(-dx,-dy)).x);
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
