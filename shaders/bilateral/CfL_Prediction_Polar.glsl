@@ -34,17 +34,20 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Hermite
+//!DESC CfL Downscaling Quadratic
 
-#define weight hermite
+#define weight quadratic
 
 float box(const vec2 d)      { return float(length(d) <= 0.5); }
-float triangle(const vec2 d) { return max(1.0 - 2.0 * length(d), 0.0); }
+float triangle(const vec2 d) { return max(1.0 - length(d), 0.0); }
 float hermite(const vec2 d)  { return smoothstep(0.0, 1.0, 1 - length(d)); }
-float fsr(const vec2 d) {
-    float x2  = min(dot(d, d), 4.0);
-    float x24 = x2 - 4.0;
-    return x24 * x24 * x24 * (x2 - 1.0);
+float quadratic(const vec2 d) {
+    float x = 1.5 * length(d);
+    if (x < 0.5)
+        return(0.75 - x * x);
+    if (x < 1.5)
+        return(0.5 * (x - 1.5) * (x - 1.5));
+    return(0.0);
 }
 
 vec2  scale = LUMA_size / CHROMA_size;

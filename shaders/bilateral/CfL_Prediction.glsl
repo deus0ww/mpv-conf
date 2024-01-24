@@ -34,17 +34,20 @@
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yx Hermite
+//!DESC CfL Downscaling Yx Quadratic
 #define axis 0
-#define weight hermite
+#define weight quadratic
 
 float box(const float d)      { return float(abs(d) <= 0.5); }
-float triangle(const float d) { return max(1.0 - 2.0 * abs(d), 0.0); }
+float triangle(const float d) { return max(1.0 - abs(d), 0.0); }
 float hermite(const float d)  { return smoothstep(0.0, 1.0, 1 - abs(d)); }
-float fsr(const float d) {
-    float x2  = min(d * d, 4.0);
-    float x24 = x2 - 4.0;
-    return x24 * x24 * x24 * (x2 - 1.0);
+float quadratic(const float d) {
+    float x = 1.5 * abs(d);
+    if (x < 0.5)
+        return(0.75 - x * x);
+    if (x < 1.5)
+        return(0.5 * (x - 1.5) * (x - 1.5));
+    return(0.0);
 }
 
 vec2  scale = LUMA_size / CHROMA_size;
@@ -70,17 +73,20 @@ vec4 hook() {
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yy Hermite
+//!DESC CfL Downscaling Yy Quadratic
 #define axis 1
-#define weight hermite
+#define weight quadratic
 
 float box(const float d)      { return float(abs(d) <= 0.5); }
-float triangle(const float d) { return max(1.0 - 2.0 * abs(d), 0.0); }
+float triangle(const float d) { return max(1.0 - abs(d), 0.0); }
 float hermite(const float d)  { return smoothstep(0.0, 1.0, 1 - abs(d)); }
-float fsr(const float d) {
-    float x2  = min(d * d, 4.0);
-    float x24 = x2 - 4.0;
-    return x24 * x24 * x24 * (x2 - 1.0);
+float quadratic(const float d) {
+    float x = 1.5 * abs(d);
+    if (x < 0.5)
+        return(0.75 - x * x);
+    if (x < 1.5)
+        return(0.5 * (x - 1.5) * (x - 1.5));
+    return(0.0);
 }
 
 vec2  scale = LUMA_LOWRES_size / CHROMA_size;
