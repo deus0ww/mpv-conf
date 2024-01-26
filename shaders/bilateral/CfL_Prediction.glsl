@@ -38,9 +38,9 @@
 #define axis 0
 #define weight quadratic
 
-float box(const float d)      { return float(abs(d) <= 0.5); }
-float triangle(const float d) { return max(1.0 - abs(d), 0.0); }
-float hermite(const float d)  { return smoothstep(0.0, 1.0, 1 - abs(d)); }
+float box(const float d)       { return float(abs(d) <= 0.5); }
+float triangle(const float d)  { return max(1.0 - abs(d), 0.0); }
+float hermite(const float d)   { return smoothstep(0.0, 1.0, 1 - abs(d)); }
 float quadratic(const float d) {
     float x = 1.5 * abs(d);
     if (x < 0.5)
@@ -50,18 +50,31 @@ float quadratic(const float d) {
     return(0.0);
 }
 
-vec2  scale = LUMA_size / CHROMA_size;
-const ivec2 axle = ivec2(axis == 0, axis == 1);
+vec2 scale  = LUMA_size / CHROMA_size;
+vec2 radius = ceil(scale);
+vec2 pp     = fract(LUMA_pos * LUMA_size - 0.5);
+const vec2 axle = vec2(axis == 0, axis == 1);
 
 vec4 hook() {
     float d, w, wsum, ysum = 0.0;
-    for(int i = 0; i < scale[axis]; i++) {
-        d = i + 0.5;
-        w = weight(d / scale[axis]);
-        if (w == 0.0) { continue; }
-        wsum += w * 2.0;
-        ysum += w * (LUMA_texOff(axle * vec2( d)).x +
-                     LUMA_texOff(axle * vec2(-d)).x);
+    if(bool(mod(scale[axis], 2))) {
+        for(float i = 1.0 - radius[axis]; i <= radius[axis]; i++) {
+            d = i - pp[axis];
+            w = weight(d / scale[axis]);
+            if (w == 0.0) { continue; }
+            wsum += w;
+            ysum += w * LUMA_texOff(axle * vec2(d)).x;
+        }
+    }
+    else {
+        for(float i = 0.0; i <= radius[axis]; i++) {
+            d = i + 0.5;
+            w = weight(d / scale[axis]);
+            if (w == 0.0) { continue; }
+            wsum += w * 2.0;
+            ysum += w * (LUMA_texOff(axle * vec2( d)).x +
+                         LUMA_texOff(axle * vec2(-d)).x);
+        }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
@@ -72,14 +85,14 @@ vec4 hook() {
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
-//!WHEN CHROMA.w LUMA.w <
+//!WHEN CHROMA.h LUMA_LOWRES.h <
 //!DESC CfL Downscaling Yy Quadratic
 #define axis 1
 #define weight quadratic
 
-float box(const float d)      { return float(abs(d) <= 0.5); }
-float triangle(const float d) { return max(1.0 - abs(d), 0.0); }
-float hermite(const float d)  { return smoothstep(0.0, 1.0, 1 - abs(d)); }
+float box(const float d)       { return float(abs(d) <= 0.5); }
+float triangle(const float d)  { return max(1.0 - abs(d), 0.0); }
+float hermite(const float d)   { return smoothstep(0.0, 1.0, 1 - abs(d)); }
 float quadratic(const float d) {
     float x = 1.5 * abs(d);
     if (x < 0.5)
@@ -89,18 +102,31 @@ float quadratic(const float d) {
     return(0.0);
 }
 
-vec2  scale = LUMA_LOWRES_size / CHROMA_size;
-const ivec2 axle = ivec2(axis == 0, axis == 1);
+vec2 scale  = LUMA_LOWRES_size / CHROMA_size;
+vec2 radius = ceil(scale);
+vec2 pp     = fract(LUMA_LOWRES_pos * LUMA_LOWRES_size - 0.5);
+const vec2 axle = vec2(axis == 0, axis == 1);
 
 vec4 hook() {
     float d, w, wsum, ysum = 0.0;
-    for(int i = 0; i < scale[axis]; i++) {
-        d = i + 0.5;
-        w = weight(d / scale[axis]);
-        if (w == 0.0) { continue; }
-        wsum += w * 2.0;
-        ysum += w * (LUMA_LOWRES_texOff(axle * vec2( d)).x +
-                     LUMA_LOWRES_texOff(axle * vec2(-d)).x);
+    if(bool(mod(scale[axis], 2))) {
+        for(float i = 1.0 - radius[axis]; i <= radius[axis]; i++) {
+            d = i - pp[axis];
+            w = weight(d / scale[axis]);
+            if (w == 0.0) { continue; }
+            wsum += w;
+            ysum += w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
+        }
+    }
+    else {
+        for(float i = 0.0; i <= radius[axis]; i++) {
+            d = i + 0.5;
+            w = weight(d / scale[axis]);
+            if (w == 0.0) { continue; }
+            wsum += w * 2.0;
+            ysum += w * (LUMA_LOWRES_texOff(axle * vec2( d)).x +
+                         LUMA_LOWRES_texOff(axle * vec2(-d)).x);
+        }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }

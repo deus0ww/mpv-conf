@@ -34,13 +34,13 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Quadratic
+//!DESC CfL Downscaling Y Quadratic
 
 #define weight quadratic
 
-float box(const vec2 d)      { return float(length(d) <= 0.5); }
-float triangle(const vec2 d) { return max(1.0 - length(d), 0.0); }
-float hermite(const vec2 d)  { return smoothstep(0.0, 1.0, 1 - length(d)); }
+float box(const vec2 d)       { return float(length(d) <= 0.5); }
+float triangle(const vec2 d)  { return max(1.0 - length(d), 0.0); }
+float hermite(const vec2 d)   { return smoothstep(0.0, 1.0, 1 - length(d)); }
 float quadratic(const vec2 d) {
     float x = 1.5 * length(d);
     if (x < 0.5)
@@ -50,21 +50,36 @@ float quadratic(const vec2 d) {
     return(0.0);
 }
 
-vec2  scale = LUMA_size / CHROMA_size;
+vec2 scale  = LUMA_size / CHROMA_size;
+vec2 radius = ceil(scale);
+vec2 pp     = fract(LUMA_pos * LUMA_size - 0.5);
 
 vec4 hook() {
-    float dx, dy, w, wsum, ysum = 0.0;
-    for(int x = 0; x < scale.x; x++) {
-        for(int y = 0; y < scale.y; y++) {
-            dx = x + 0.5;
-            dy = y + 0.5;
-            w = weight(vec2( dx, dy) / scale);
-            if (w == 0.0) { continue; }
-            wsum += w * 4.0;
-            ysum += w * (LUMA_texOff(vec2( dx, dy)).x +
-                         LUMA_texOff(vec2(-dx, dy)).x +
-                         LUMA_texOff(vec2( dx,-dy)).x +
-                         LUMA_texOff(vec2(-dx,-dy)).x);
+    vec2  d;
+    float w, wsum, ysum = 0.0;
+    if(bool(mod(scale.x, 2)) || bool(mod(scale.y, 2))) {
+        for(float dx = 1.0 - radius.x; dx <= radius.x; dx++) {
+            for(float dy = 1.0 - radius.y; dy <= radius.y; dy++) {
+                d = vec2(dx, dy) - pp;
+                w = weight(d / scale);
+                if (w == 0.0) { continue; }
+                wsum += w;
+                ysum += w * LUMA_texOff(d).x;
+            }
+        }
+    }
+    else {
+        for(float dx = 0; dx <= radius.x; dx++) {
+            for(float dy = 0; dy <= radius.y; dy++) {
+                d = vec2(dx, dy) + 0.5;
+                w = weight(d / scale);
+                if (w == 0.0) { continue; }
+                wsum += w * 4.0;
+                ysum += w * (LUMA_texOff(vec2( d.x, d.y)).x +
+                             LUMA_texOff(vec2(-d.x, d.y)).x +
+                             LUMA_texOff(vec2( d.x,-d.y)).x +
+                             LUMA_texOff(vec2(-d.x,-d.y)).x);
+            }
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
