@@ -223,6 +223,7 @@ local bilateral       = {
     cfl               = bilateral_path .. 'CfL_Prediction.glsl',
     cfll              = bilateral_path .. 'CfL_Prediction_Lite.glsl',
     cflp              = bilateral_path .. 'CfL_Prediction_Polar.glsl',
+    cflr              = bilateral_path .. 'CfL_Prediction_Ravu.glsl',
     cflx              = bilateral_path .. 'CfL_Prediction_Test.glsl',
     krig              = bilateral_path .. 'KrigBilateral.glsl',
 }
