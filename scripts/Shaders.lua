@@ -187,20 +187,22 @@ local fsrcnnx2        = {
 }
 
 -- RAVU by bjin - https://github.com/bjin/mpv-prescalers
-local ravu_luma_path  = shaders_path .. 'ravu/luma/'
-local ravu_rgb_path   = shaders_path .. 'ravu/rgb/'
+local ravu_zoom_path  = shaders_path .. 'ravu/zoom/'
+local ravu_lite_path  = shaders_path .. 'ravu/lite/'
 local ravu            = {
     lite              = {
-        r3            = ravu_luma_path .. 'ravu-lite-ar-r3.hook',
-        r3c           = ravu_luma_path .. 'ravu-lite-ar-r3.compute',
-        r4            = ravu_luma_path .. 'ravu-lite-ar-r4.hook',
-        r4c           = ravu_luma_path .. 'ravu-lite-ar-r4.compute',
+        r3            = ravu_lite_path .. 'ravu-lite-ar-r3.hook',
+        r3c           = ravu_lite_path .. 'ravu-lite-ar-r3.compute',
+        r4            = ravu_lite_path .. 'ravu-lite-ar-r4.hook',
+        r4c           = ravu_lite_path .. 'ravu-lite-ar-r4.compute',
     },
     zoom              = {
-        r2            = ravu_luma_path .. 'ravu-zoom-ar-r2.hook',
-        r3            = ravu_luma_path .. 'ravu-zoom-ar-r3.hook',
-        rgb_r2        = ravu_rgb_path  .. 'ravu-zoom-ar-r2-rgb.hook',
-        rgb_r3        = ravu_rgb_path  .. 'ravu-zoom-ar-r3-rgb.hook',
+        r2            = ravu_zoom_path .. 'ravu-zoom-ar-r2.hook',
+        r3            = ravu_zoom_path .. 'ravu-zoom-ar-r3.hook',
+        uv_r2         = ravu_zoom_path .. 'ravu-zoom-ar-r2-chroma.hook',
+        uv_r3         = ravu_zoom_path .. 'ravu-zoom-ar-r3-chroma.hook',
+        rgb_r2        = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.hook',
+        rgb_r3        = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.hook',
     },
 }
 
