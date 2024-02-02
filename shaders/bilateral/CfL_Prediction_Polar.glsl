@@ -34,9 +34,9 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Y Quadratic
+//!DESC CfL Downscaling Y Box
 
-#define weight quadratic
+#define weight box
 
 float box(const vec2 d)       { return float(length(d) <= 0.5); }
 float triangle(const vec2 d)  { return max(1.0 - length(d), 0.0); }
