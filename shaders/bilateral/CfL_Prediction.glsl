@@ -22,7 +22,7 @@
 
 //!PARAM cfl_antiring
 //!DESC CfL Antiring Parameter
-//!TYPE float
+//!TYPE DEFINE
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 0.8
@@ -214,9 +214,6 @@ vec4 hook() {
     float wt = 0.0;
     vec2 ct = vec2(0.0);
 
-    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-
     const int dx[16] = {-1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2};
     const int dy[16] = {-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2};
 
@@ -237,7 +234,11 @@ vec4 hook() {
 #endif
 
     vec2 chroma_spatial = ct / wt;
+#if (cfl_antiring != 0)
+    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
     chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+#endif
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)

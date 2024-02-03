@@ -22,7 +22,7 @@
 
 //!PARAM cfl_antiring
 //!DESC CfL Antiring Parameter
-//!TYPE float
+//!TYPE DEFINE
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 0
@@ -475,10 +475,13 @@ vec4 hook() {
     vec2 chroma_spatial = vec2(0.5);
     mix_coeff = vec2(1.0);
 #else
+
+    vec2 chroma_spatial = CHROMA_RAVU_texOff(0).xy;
+#if (cfl_antiring != 0)
     vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
     vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    vec2 chroma_spatial = CHROMA_RAVU_texOff(0).xy;
     chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+#endif
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
