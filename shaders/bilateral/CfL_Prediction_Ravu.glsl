@@ -34,9 +34,9 @@
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yx Quadratic
+//!DESC CfL Downscaling Yx Box
 #define axis 0
-#define weight quadratic
+#define weight box
 
 float box(const float d)       { return float(abs(d) <= 0.5); }
 float triangle(const float d)  { return max(1.0 - abs(d), 0.0); }
@@ -86,9 +86,9 @@ vec4 hook() {
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.h LUMA_LOWRES.h <
-//!DESC CfL Downscaling Yy Quadratic
+//!DESC CfL Downscaling Yy Box
 #define axis 1
-#define weight quadratic
+#define weight box
 
 float box(const float d)       { return float(abs(d) <= 0.5); }
 float triangle(const float d)  { return max(1.0 - abs(d), 0.0); }
