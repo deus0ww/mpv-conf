@@ -12,9 +12,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!PARAM ravu_antiring
-//!DESC RAVU Antiring Parameter
-//!TYPE float
+//!PARAM ravu_chroma_ar
+//!DESC RAVU Chroma Antiring Parameter
+//!TYPE DEFINE
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 0.8
@@ -38,38 +38,67 @@ subpix = LUTPOS(subpix, vec2(9.0));
 vec2 subpix_inv = 1.0 - subpix;
 subpix /= vec2(2.0, 288.0);
 subpix_inv /= vec2(2.0, 288.0);
-vec2 sample0 = HOOKED_tex((pos + vec2(-1.0,-1.0)) * HOOKED_pt).xy;
-float luma0 = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample1 = HOOKED_tex((pos + vec2(-1.0,0.0)) * HOOKED_pt).xy;
-float luma1 = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample2 = HOOKED_tex((pos + vec2(-1.0,1.0)) * HOOKED_pt).xy;
-float luma2 = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample3 = HOOKED_tex((pos + vec2(-1.0,2.0)) * HOOKED_pt).xy;
-float luma3 = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample4 = HOOKED_tex((pos + vec2(0.0,-1.0)) * HOOKED_pt).xy;
-float luma4 = LUMA_tex(HOOKED_pt * (pos + vec2(0.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample5 = HOOKED_tex((pos + vec2(0.0,0.0)) * HOOKED_pt).xy;
-float luma5 = LUMA_tex(HOOKED_pt * (pos + vec2(0.0,0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample6 = HOOKED_tex((pos + vec2(0.0,1.0)) * HOOKED_pt).xy;
-float luma6 = LUMA_tex(HOOKED_pt * (pos + vec2(0.0,1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample7 = HOOKED_tex((pos + vec2(0.0,2.0)) * HOOKED_pt).xy;
-float luma7 = LUMA_tex(HOOKED_pt * (pos + vec2(0.0,2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample8 = HOOKED_tex((pos + vec2(1.0,-1.0)) * HOOKED_pt).xy;
-float luma8 = LUMA_tex(HOOKED_pt * (pos + vec2(1.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample9 = HOOKED_tex((pos + vec2(1.0,0.0)) * HOOKED_pt).xy;
-float luma9 = LUMA_tex(HOOKED_pt * (pos + vec2(1.0,0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample10 = HOOKED_tex((pos + vec2(1.0,1.0)) * HOOKED_pt).xy;
-float luma10 = LUMA_tex(HOOKED_pt * (pos + vec2(1.0,1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample11 = HOOKED_tex((pos + vec2(1.0,2.0)) * HOOKED_pt).xy;
-float luma11 = LUMA_tex(HOOKED_pt * (pos + vec2(1.0,2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample12 = HOOKED_tex((pos + vec2(2.0,-1.0)) * HOOKED_pt).xy;
-float luma12 = LUMA_tex(HOOKED_pt * (pos + vec2(2.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample13 = HOOKED_tex((pos + vec2(2.0,0.0)) * HOOKED_pt).xy;
-float luma13 = LUMA_tex(HOOKED_pt * (pos + vec2(2.0,0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample14 = HOOKED_tex((pos + vec2(2.0,1.0)) * HOOKED_pt).xy;
-float luma14 = LUMA_tex(HOOKED_pt * (pos + vec2(2.0,1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-vec2 sample15 = HOOKED_tex((pos + vec2(2.0,2.0)) * HOOKED_pt).xy;
-float luma15 = LUMA_tex(HOOKED_pt * (pos + vec2(2.0,2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+
+const ivec2 quad_idx[4] = {{-1,-1}, {-1, 1}, { 1, -1}, { 1, 1}};
+vec4 q[3][4];
+for(int i = 0; i < 4; i++) {
+    q[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 0);
+    q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 1); 
+#ifdef LUMA_LOWRES_tex
+    q[2][i] = LUMA_LOWRES_mul * textureGatherOffset(LUMA_LOWRES_raw, pos * HOOKED_pt, quad_idx[i], 0);
+}
+float luma0  = q[2][0].w;
+float luma1  = q[2][0].x;
+float luma2  = q[2][1].w;
+float luma3  = q[2][1].x;
+float luma4  = q[2][0].z;
+float luma5  = q[2][0].y;
+float luma6  = q[2][1].z;
+float luma7  = q[2][1].y;
+float luma8  = q[2][2].w;
+float luma9  = q[2][2].x;
+float luma10 = q[2][3].w;
+float luma11 = q[2][3].x;
+float luma12 = q[2][2].z;
+float luma13 = q[2][2].y;
+float luma14 = q[2][3].z;
+float luma15 = q[2][3].y;
+#else
+}
+float luma0  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma1  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma2  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma3  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma4  = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma5  = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma6  = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma7  = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma8  = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma9  = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma10 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma11 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma12 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma13 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma14 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+float luma15 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
+#endif
+vec2 sample0  = {q[0][0].w, q[1][0].w};
+vec2 sample1  = {q[0][0].x, q[1][0].x};
+vec2 sample2  = {q[0][1].w, q[1][1].w};
+vec2 sample3  = {q[0][1].x, q[1][1].x};
+vec2 sample4  = {q[0][0].z, q[1][0].z};
+vec2 sample5  = {q[0][0].y, q[1][0].y};
+vec2 sample6  = {q[0][1].z, q[1][1].z};
+vec2 sample7  = {q[0][1].y, q[1][1].y};
+vec2 sample8  = {q[0][2].w, q[1][2].w};
+vec2 sample9  = {q[0][2].x, q[1][2].x};
+vec2 sample10 = {q[0][3].w, q[1][3].w};
+vec2 sample11 = {q[0][3].x, q[1][3].x};
+vec2 sample12 = {q[0][2].z, q[1][2].z};
+vec2 sample13 = {q[0][2].y, q[1][2].y};
+vec2 sample14 = {q[0][3].z, q[1][3].z};
+vec2 sample15 = {q[0][3].y, q[1][3].y};
+
 vec3 abd = vec3(0.0);
 float gx, gy;
 gx = (luma4-luma0);
@@ -134,9 +163,6 @@ float coherence = mix(mix(0.0, 1.0, mu >= 0.25), 2.0, mu >= 0.5);
 float coord_y = ((angle * 4.0 + strength) * 3.0 + coherence) / 288.0;
 vec2 res = vec2(0.0);
 vec4 w;
-mat4x2 cg, cg1;
-vec2 lo = vec2(0.0), hi = vec2(0.0);
-vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
 w = texture(ravu_zoom_lut2, vec2(0.0, coord_y) + subpix);
 res += sample0 * w[0];
 res += sample1 * w[1];
@@ -158,6 +184,12 @@ res += sample10 * w[1];
 res += sample9 * w[2];
 res += sample8 * w[3];
 w = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y) + subpix);
+#if (ravu_chroma_ar == 0)
+res = clamp(res, 0.0, 1.0);
+#else 
+mat4x2 cg, cg1;
+vec2 lo = vec2(0.0), hi = vec2(0.0);
+vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
 cg = mat4x2(0.1 + sample0, 1.1 - sample0, 0.1 + sample1, 1.1 - sample1);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
@@ -227,7 +259,8 @@ hi2 += cg[0] * w[2] + cg[2] * w[3];
 lo2 += cg[1] * w[2] + cg[3] * w[3];
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
-res = mix(res, clamp(res, lo, hi), ravu_antiring);
+res = mix(res, clamp(res, lo, hi), ravu_chroma_ar);
+#endif
 return vec4(res, 0.0, 1.0);
 }
 //!TEXTURE ravu_zoom_lut2
