@@ -224,6 +224,7 @@ local bilateral       = {
     cfll              = bilateral_path .. 'CfL_Prediction_Lite.glsl',
     cflp              = bilateral_path .. 'CfL_Prediction_Polar.glsl',
     cflr              = bilateral_path .. 'CfL_Prediction_Ravu.glsl',
+    cflr2              = bilateral_path .. 'CfL_Prediction_Ravu2.glsl',
     cflx              = bilateral_path .. 'CfL_Prediction_Test.glsl',
     krig              = bilateral_path .. 'KrigBilateral.glsl',
 }
@@ -261,9 +262,9 @@ end
 
 local function default_params()
     return {
-        cfl_antiring   = default_antiring,
+        --cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
-        ravu_chroma_ar = 0,
+        --ravu_chroma_ar = 0,
         as_sharpness   = get_scale() <= 1.1 and 0.4 or 0.3,
         fsr_sharpness  = 0.2,
         fsr_pq         = 0,
