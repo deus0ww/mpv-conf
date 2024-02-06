@@ -163,7 +163,7 @@ const ivec2 quad_idx[4] = {{-1,-1}, {-1, 1}, { 1, -1}, { 1, 1}};
 vec4 q[3][4];
 for(int i = 0; i < 4; i++) {
     q[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 0);
-    q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 1); 
+    q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 1);
 #ifdef LUMA_LOWRES_tex
     q[2][i] = LUMA_LOWRES_mul * textureGatherOffset(LUMA_LOWRES_raw, pos * HOOKED_pt, quad_idx[i], 0);
 }
@@ -305,7 +305,7 @@ res += sample9 * w[2];
 res += sample8 * w[3];
 #if (ravu_chroma_ar == 0)
 res = clamp(res, 0.0, 1.0);
-#else 
+#else
 mat4x2 cg, cg1;
 vec2 lo = vec2(0.0), hi = vec2(0.0);
 vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);

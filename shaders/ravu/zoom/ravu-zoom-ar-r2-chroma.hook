@@ -1,14 +1,14 @@
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -43,7 +43,7 @@ const ivec2 quad_idx[4] = {{-1,-1}, {-1, 1}, { 1, -1}, { 1, 1}};
 vec4 q[3][4];
 for(int i = 0; i < 4; i++) {
     q[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 0);
-    q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 1); 
+    q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 1);
 #ifdef LUMA_LOWRES_tex
     q[2][i] = LUMA_LOWRES_mul * textureGatherOffset(LUMA_LOWRES_raw, pos * HOOKED_pt, quad_idx[i], 0);
 }
@@ -183,13 +183,13 @@ res += sample11 * w[0];
 res += sample10 * w[1];
 res += sample9 * w[2];
 res += sample8 * w[3];
-w = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y) + subpix);
 #if (ravu_chroma_ar == 0)
 res = clamp(res, 0.0, 1.0);
-#else 
+#else
 mat4x2 cg, cg1;
 vec2 lo = vec2(0.0), hi = vec2(0.0);
 vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
+w = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y) + subpix);
 cg = mat4x2(0.1 + sample0, 1.1 - sample0, 0.1 + sample1, 1.1 - sample1);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
