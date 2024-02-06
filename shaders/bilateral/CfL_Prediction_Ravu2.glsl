@@ -22,17 +22,17 @@
 
 //!PARAM cfl_antiring
 //!DESC CfL Antiring Parameter
-//!TYPE DEFINE
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-0
+0.0
 
 //!PARAM ravu_chroma_ar
 //!DESC RAVU Chroma Antiring Parameter
-//!TYPE DEFINE
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-0.8
+1.0
 
 //!HOOK CHROMA
 //!BIND CHROMA
@@ -269,9 +269,8 @@ res += sample11 * vec2(w[0][0], w[1][0]);
 res += sample10 * vec2(w[0][1], w[1][1]);
 res += sample9 * vec2(w[0][2], w[1][2]);
 res += sample8 * vec2(w[0][3], w[1][3]);
-#if (ravu_chroma_ar == 0)
-res = clamp(res, 0.0, 1.0);
-#else
+if (ravu_chroma_ar == 0) { res = clamp(res, 0.0, 1.0); }
+else {
 mat4x2 cg, cg1;
 vec2 lo = vec2(0.0), hi = vec2(0.0);
 vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
@@ -280,77 +279,77 @@ w[1] = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y[1]) + subpix);
 cg = mat4x2(0.1 + sample0, 1.1 - sample0, 0.1 + sample1, 1.1 - sample1);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[0] + cg[2] * w[1];
-lo += cg[1] * w[0] + cg[3] * w[1];
+hi += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[0] + cg[2] * w[1];
-lo2 += cg[1] * w[0] + cg[3] * w[1];
+hi2 += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo2 += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = mat4x2(0.1 + sample2, 1.1 - sample2, 0.1 + sample3, 1.1 - sample3);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[2] + cg[2] * w[3];
-lo += cg[1] * w[2] + cg[3] * w[3];
+hi += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[2] + cg[2] * w[3];
-lo2 += cg[1] * w[2] + cg[3] * w[3];
+hi2 += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo2 += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 w[0] = texture(ravu_zoom_lut2_ar, vec2(0.5, coord_y[0]) + subpix);
 w[1] = texture(ravu_zoom_lut2_ar, vec2(0.5, coord_y[1]) + subpix);
 cg = mat4x2(0.1 + sample4, 1.1 - sample4, 0.1 + sample5, 1.1 - sample5);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[0] + cg[2] * w[1];
-lo += cg[1] * w[0] + cg[3] * w[1];
+hi += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[0] + cg[2] * w[1];
-lo2 += cg[1] * w[0] + cg[3] * w[1];
+hi2 += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo2 += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = mat4x2(0.1 + sample6, 1.1 - sample6, 0.1 + sample7, 1.1 - sample7);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[2] + cg[2] * w[3];
-lo += cg[1] * w[2] + cg[3] * w[3];
+hi += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[2] + cg[2] * w[3];
-lo2 += cg[1] * w[2] + cg[3] * w[3];
+hi2 += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo2 += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 w[0] = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y[0]) + subpix_inv);
 w[1] = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y[1]) + subpix_inv);
 cg = mat4x2(0.1 + sample15, 1.1 - sample15, 0.1 + sample14, 1.1 - sample14);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[0] + cg[2] * w[1];
-lo += cg[1] * w[0] + cg[3] * w[1];
+hi += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[0] + cg[2] * w[1];
-lo2 += cg[1] * w[0] + cg[3] * w[1];
+hi2 += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo2 += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = mat4x2(0.1 + sample13, 1.1 - sample13, 0.1 + sample12, 1.1 - sample12);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[2] + cg[2] * w[3];
-lo += cg[1] * w[2] + cg[3] * w[3];
+hi += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[2] + cg[2] * w[3];
-lo2 += cg[1] * w[2] + cg[3] * w[3];
+hi2 += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo2 += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 w[0] = texture(ravu_zoom_lut2_ar, vec2(0.5, coord_y[0]) + subpix_inv);
 w[1] = texture(ravu_zoom_lut2_ar, vec2(0.5, coord_y[1]) + subpix_inv);
 cg = mat4x2(0.1 + sample11, 1.1 - sample11, 0.1 + sample10, 1.1 - sample10);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[0] + cg[2] * w[1];
-lo += cg[1] * w[0] + cg[3] * w[1];
+hi += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[0] + cg[2] * w[1];
-lo2 += cg[1] * w[0] + cg[3] * w[1];
+hi2 += cg[0] * vec2(w[0][0], w[1][0]) + cg[2] * vec2(w[0][1], w[1][1]);
+lo2 += cg[1] * vec2(w[0][0], w[1][0]) + cg[3] * vec2(w[0][1], w[1][1]);
 cg = mat4x2(0.1 + sample9, 1.1 - sample9, 0.1 + sample8, 1.1 - sample8);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
-hi += cg[0] * w[2] + cg[2] * w[3];
-lo += cg[1] * w[2] + cg[3] * w[3];
+hi += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 cg = matrixCompMult(cg, cg1);
-hi2 += cg[0] * w[2] + cg[2] * w[3];
-lo2 += cg[1] * w[2] + cg[3] * w[3];
+hi2 += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
+lo2 += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
 res = mix(res, clamp(res, lo, hi), ravu_chroma_ar);
-#endif
+}
 return vec4(res, 0.0, 1.0);
 }
 //!TEXTURE ravu_zoom_lut2
@@ -447,11 +446,11 @@ vec4 hook() {
 #else
 
     vec2 chroma_spatial = CHROMA_RAVU_texOff(0).xy;
-#if (cfl_antiring != 0)
-    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
-#endif
+    if (cfl_antiring > 0.0) {
+        vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+        vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+        chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+    }
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
