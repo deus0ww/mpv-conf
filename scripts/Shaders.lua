@@ -201,6 +201,8 @@ local ravu            = {
         r3            = ravu_zoom_path .. 'ravu-zoom-ar-r3.hook',
         uv_r2         = ravu_zoom_path .. 'ravu-zoom-ar-r2-chroma.hook',
         uv_r3         = ravu_zoom_path .. 'ravu-zoom-ar-r3-chroma.hook',
+        uv_r2x        = ravu_zoom_path .. 'ravu-zoom-ar-r2x-chroma.hook',
+        uv_r3x        = ravu_zoom_path .. 'ravu-zoom-ar-r3x-chroma.hook',
         rgb_r2        = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.hook',
         rgb_r3        = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.hook',
     },
@@ -218,15 +220,18 @@ local as              = {
 }
 
 -- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
-local bilateral_path  = shaders_path .. 'bilateral/'
-local bilateral       = {
-    cfl               = bilateral_path .. 'CfL_Prediction.glsl',
-    cfll              = bilateral_path .. 'CfL_Prediction_Lite.glsl',
-    cflp              = bilateral_path .. 'CfL_Prediction_Polar.glsl',
-    cflr              = bilateral_path .. 'CfL_Prediction_Ravu.glsl',
-    cflr2              = bilateral_path .. 'CfL_Prediction_Ravu2.glsl',
-    cflx              = bilateral_path .. 'CfL_Prediction_Test.glsl',
-    krig              = bilateral_path .. 'KrigBilateral.glsl',
+local cfl_path        = shaders_path .. 'cfl/'
+local cfl             = {
+    b                 = cfl_path .. 'CfL_Prediction.glsl',
+    l                 = cfl_path .. 'CfL_Prediction_Lite.glsl',
+    p                 = cfl_path .. 'CfL_Prediction_Polar.glsl',
+    
+    r2                = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
+    r3                = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
+    r2x               = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
+    r3x               = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
+    
+    cflx              = cfl_path .. 'CfL_Prediction_Test.glsl',
 }
 
 
@@ -241,8 +246,8 @@ local function default_shaders()
     s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = ({[1]=bilateral.cflp,[2]=bilateral.cfl                    })[minmax_scale(1, 2)]
-    s[#s+1] = as.luma
+    s[#s+1] = ({[1]=cfl.r3x,       [2]=cfl.r2x                          })[minmax_scale(1, 2)]
+    --s[#s+1] = as.luma
     return s
 end
 
@@ -264,7 +269,7 @@ local function default_params()
     return {
         --cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
-        --ravu_chroma_ar = 0,
+        ravu_chroma_ar = 0.8,
         as_sharpness   = get_scale() <= 1.1 and 0.4 or 0.3,
         fsr_sharpness  = 0.2,
         fsr_pq         = 0,
