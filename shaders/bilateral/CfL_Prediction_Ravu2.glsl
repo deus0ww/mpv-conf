@@ -32,7 +32,7 @@
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-1.0
+0.8
 
 //!HOOK CHROMA
 //!BIND CHROMA
@@ -138,7 +138,7 @@ vec4 hook() {
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
 
-//!DESC CfL Upscaling UV RAVU-Zoom-AR [R2] XXX
+//!DESC CfL Upscaling UV RAVU-Zoom-AR [R2X]
 //!HOOK CHROMA
 //!BIND HOOKED
 //!BIND ravu_zoom_lut2
@@ -269,7 +269,7 @@ res += sample11 * vec2(w[0][0], w[1][0]);
 res += sample10 * vec2(w[0][1], w[1][1]);
 res += sample9 * vec2(w[0][2], w[1][2]);
 res += sample8 * vec2(w[0][3], w[1][3]);
-if (ravu_chroma_ar == 0) { res = clamp(res, 0.0, 1.0); }
+if (ravu_chroma_ar == 0.0) { res = clamp(res, 0.0, 1.0); }
 else {
 mat4x2 cg, cg1;
 vec2 lo = vec2(0.0), hi = vec2(0.0);
