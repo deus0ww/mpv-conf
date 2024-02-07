@@ -225,12 +225,12 @@ local cfl             = {
     b                 = cfl_path .. 'CfL_Prediction.glsl',
     l                 = cfl_path .. 'CfL_Prediction_Lite.glsl',
     p                 = cfl_path .. 'CfL_Prediction_Polar.glsl',
-    
+
     r2                = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
     r3                = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
     r2x               = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
     r3x               = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
-    
+
     cflx              = cfl_path .. 'CfL_Prediction_Test.glsl',
 }
 
