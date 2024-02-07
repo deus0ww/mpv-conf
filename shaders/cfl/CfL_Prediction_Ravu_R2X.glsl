@@ -444,7 +444,6 @@ vec4 hook() {
     vec2 chroma_spatial = vec2(0.5);
     mix_coeff = vec2(1.0);
 #else
-
     vec2 chroma_spatial = CHROMA_RAVU_texOff(0).xy;
     if (cfl_antiring > 0.0) {
         vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);

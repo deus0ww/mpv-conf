@@ -22,14 +22,14 @@
 
 //!PARAM cfl_antiring
 //!DESC CfL Antiring Parameter
-//!TYPE DEFINE
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
-0
+0.0
 
 //!PARAM ravu_chroma_ar
 //!DESC RAVU Chroma Antiring Parameter
-//!TYPE DEFINE
+//!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 0.8
@@ -303,9 +303,8 @@ res += sample11 * w[0];
 res += sample10 * w[1];
 res += sample9 * w[2];
 res += sample8 * w[3];
-#if (ravu_chroma_ar == 0)
-res = clamp(res, 0.0, 1.0);
-#else
+if (ravu_chroma_ar == 0.0) { res = clamp(res, 0.0, 1.0); }
+else {
 mat4x2 cg, cg1;
 vec2 lo = vec2(0.0), hi = vec2(0.0);
 vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
@@ -380,7 +379,7 @@ lo2 += cg[1] * w[2] + cg[3] * w[3];
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
 res = mix(res, clamp(res, lo, hi), ravu_chroma_ar);
-#endif
+}
 return vec4(res, 0.0, 1.0);
 }
 //!TEXTURE ravu_zoom_lut2
@@ -475,13 +474,12 @@ vec4 hook() {
     vec2 chroma_spatial = vec2(0.5);
     mix_coeff = vec2(1.0);
 #else
-
     vec2 chroma_spatial = CHROMA_RAVU_texOff(0).xy;
-#if (cfl_antiring != 0)
-    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
-#endif
+    if (cfl_antiring > 0.0) {
+        vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+        vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+        chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+    }
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
