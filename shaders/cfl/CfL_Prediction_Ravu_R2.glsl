@@ -144,7 +144,7 @@ vec4 hook() {
 //!BIND ravu_zoom_lut2
 //!BIND ravu_zoom_lut2_ar
 //!BIND LUMA_LOWRES
-//!SAVE CHROMA_RAVU
+//!SAVE CHROMA_HIGHRES
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
@@ -397,7 +397,7 @@ return vec4(res, 0.0, 1.0);
 //!BIND HOOKED
 //!BIND LUMA
 //!BIND LUMA_LOWRES
-//!BIND CHROMA_RAVU
+//!BIND CHROMA_HIGHRES
 //!WHEN CHROMA.w LUMA.w <
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
@@ -406,7 +406,6 @@ return vec4(res, 0.0, 1.0);
 
 #define USE_12_TAP_REGRESSION 1
 #define USE_8_TAP_REGRESSIONS 1
-#define LITE  0
 #define DEBUG 0
 
 #define weight fsr
@@ -468,21 +467,32 @@ vec4 hook() {
     }
 #endif
 
-    const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
-
 #if (DEBUG == 1)
     vec2 chroma_spatial = vec2(0.5);
     mix_coeff = vec2(1.0);
 #else
-    vec2 chroma_spatial = CHROMA_RAVU_texOff(0).xy;
-    if (cfl_antiring > 0.0) {
-        vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-        vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-        chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+#ifdef CHROMA_HIGHRES_tex
+    vec2 chroma_spatial = CHROMA_HIGHRES_tex(CHROMA_HIGHRES_pos).xy;
+#else
+    float wt = 0.0;
+    vec2 ct = vec2(0.0);
+    const int dx[16] = {-1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2};
+    const int dy[16] = {-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2};
+    float wd[16];
+    for(int i = 0; i < 16; i++) {
+        wd[i] = weight(vec2(dx[i], dy[i]) - pp);
+        wt += wd[i];
+        ct += wd[i] * chroma_pixels[i];
     }
+    vec2 chroma_spatial = ct / wt;
+    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+    chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+#endif
 #endif
 
 #if (USE_12_TAP_REGRESSION == 1 || USE_8_TAP_REGRESSIONS == 1)
+    const int i12[12] = {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14};
     const int i4y[4] = {1, 2, 13, 14};
     const int i4x[4] = {4, 7, 8, 11};
     const int i4[4] = {5, 6, 9, 10};
