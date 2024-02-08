@@ -219,7 +219,7 @@ local as              = {
     luma              = igv_path .. 'adaptive-sharpen-luma.glsl',
 }
 
--- Chroma Scalers by Artoriuz + igv - https://github.com/Artoriuz/glsl-joint-bilateral
+-- CfL by Artoriuz - https://github.com/Artoriuz/glsl-chroma-from-luma-prediction
 local cfl_path        = shaders_path .. 'cfl/'
 local cfl             = {
     b                 = cfl_path .. 'CfL_Prediction.glsl',
@@ -283,12 +283,6 @@ sets[#sets+1] = function()
     return { shaders = s, options = set_params(o, p), label = 'Default' }
 end
 
---    sets[#sets+1] = function()
---        local s, o, p = default_shaders(), default_options(), default_params()
---        s[4] = ({[1]=cfl.r3,       [2]=cfl.r2                          })[minmax_scale(1, 2)]
---        return { shaders = s, options = set_params(o, p), label = 'Test' }
---    end
-
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1]    = ({[3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
@@ -306,7 +300,7 @@ sets[#sets+1] = function()
     s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = bilateral.cfll
+    s[#s+1] = cfl.b
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
@@ -314,13 +308,19 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = fsrcnnx2.r16
     s[#s+1] = ravu.zoom.r3
-    s[#s+1] = bilateral.cflp
+    s[#s+1] = cfl.r3x
     s[#s+1] = ravu.zoom.rgb_r3
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
     set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
     return { shaders = s, options = set_params(o, p), label = 'Low FPS & RGB' }
 end
+
+--    sets[#sets+1] = function()
+--        local s, o, p = default_shaders(), default_options(), default_params()
+--        s[4] = ({[1]=cfl.r3,       [2]=cfl.r2                          })[minmax_scale(1, 2)]
+--        return { shaders = s, options = set_params(o, p), label = 'Test' }
+--    end
 
 
 
