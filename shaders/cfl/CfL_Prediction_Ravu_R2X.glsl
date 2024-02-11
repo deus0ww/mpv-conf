@@ -27,7 +27,7 @@
 //!MAXIMUM 1.0
 0.0
 
-//!PARAM ravu_chroma_ar
+//!PARAM ravu_antiring
 //!DESC RAVU Chroma Antiring Parameter
 //!TYPE float
 //!MINIMUM 0.0
@@ -245,6 +245,9 @@ vec2 coherence = mix(mix(vec2(0.0), vec2(1.0), greaterThanEqual(mu, vec2(0.25)))
 vec2 coord_y = ((angle * 4.0 + strength) * 3.0 + coherence) / 288.0;
 vec2 res = vec2(0.0);
 mat2x4 w;
+mat4x2 cg, cg1;
+vec2 lo = vec2(0.0), hi = vec2(0.0);
+vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
 w[0] = texture(ravu_zoom_lut2, vec2(0.0, coord_y[0]) + subpix);
 w[1] = texture(ravu_zoom_lut2, vec2(0.0, coord_y[1]) + subpix);
 res += sample0 * vec2(w[0][0], w[1][0]);
@@ -269,11 +272,6 @@ res += sample11 * vec2(w[0][0], w[1][0]);
 res += sample10 * vec2(w[0][1], w[1][1]);
 res += sample9 * vec2(w[0][2], w[1][2]);
 res += sample8 * vec2(w[0][3], w[1][3]);
-if (ravu_chroma_ar == 0.0) { res = clamp(res, 0.0, 1.0); }
-else {
-mat4x2 cg, cg1;
-vec2 lo = vec2(0.0), hi = vec2(0.0);
-vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
 w[0] = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y[0]) + subpix);
 w[1] = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y[1]) + subpix);
 cg = mat4x2(0.1 + sample0, 1.1 - sample0, 0.1 + sample1, 1.1 - sample1);
@@ -348,8 +346,7 @@ hi2 += cg[0] * vec2(w[0][2], w[1][2]) + cg[2] * vec2(w[0][3], w[1][3]);
 lo2 += cg[1] * vec2(w[0][2], w[1][2]) + cg[3] * vec2(w[0][3], w[1][3]);
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
-res = mix(res, clamp(res, lo, hi), ravu_chroma_ar);
-}
+res = mix(res, clamp(res, lo, hi), ravu_antiring);
 return vec4(res, 0.0, 1.0);
 }
 //!TEXTURE ravu_zoom_lut2

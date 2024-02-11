@@ -231,7 +231,7 @@ local cfl             = {
     r2x               = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
     r3x               = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
 
-    cflx              = cfl_path .. 'CfL_Prediction_Test.glsl',
+    x                 = cfl_path .. 'CfL_Prediction_Test.glsl',
 }
 
 
@@ -246,7 +246,7 @@ local function default_shaders()
     s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = ({[1]=cfl.r3x,       [2]=cfl.r2x                          })[minmax_scale(1, 2)]
+    s[#s+1] = ({[1]=cfl.r3,        [2]=cfl.r2                          })[minmax_scale(1, 2)]
     --s[#s+1] = as.luma
     return s
 end
@@ -318,7 +318,7 @@ end
 
 --    sets[#sets+1] = function()
 --        local s, o, p = default_shaders(), default_options(), default_params()
---        s[4] = ({[1]=cfl.r3,       [2]=cfl.r2                          })[minmax_scale(1, 2)]
+--        s[4] = ({[1]=cfl.x,       [2]=cfl.x                           })[minmax_scale(1, 2)]
 --        return { shaders = s, options = set_params(o, p), label = 'Test' }
 --    end
 

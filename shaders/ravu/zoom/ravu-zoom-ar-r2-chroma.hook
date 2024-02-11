@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//!PARAM ravu_chroma_ar
+//!PARAM ravu_antiring
 //!DESC RAVU Chroma Antiring Parameter
 //!TYPE float
 //!MINIMUM 0.0
@@ -163,6 +163,9 @@ float coherence = mix(mix(0.0, 1.0, mu >= 0.25), 2.0, mu >= 0.5);
 float coord_y = ((angle * 4.0 + strength) * 3.0 + coherence) / 288.0;
 vec2 res = vec2(0.0);
 vec4 w;
+mat4x2 cg, cg1;
+vec2 lo = vec2(0.0), hi = vec2(0.0);
+vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
 w = texture(ravu_zoom_lut2, vec2(0.0, coord_y) + subpix);
 res += sample0 * w[0];
 res += sample1 * w[1];
@@ -183,11 +186,6 @@ res += sample11 * w[0];
 res += sample10 * w[1];
 res += sample9 * w[2];
 res += sample8 * w[3];
-if (ravu_chroma_ar == 0.0) { res = clamp(res, 0.0, 1.0); }
-else {
-mat4x2 cg, cg1;
-vec2 lo = vec2(0.0), hi = vec2(0.0);
-vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
 w = texture(ravu_zoom_lut2_ar, vec2(0.0, coord_y) + subpix);
 cg = mat4x2(0.1 + sample0, 1.1 - sample0, 0.1 + sample1, 1.1 - sample1);
 cg1 = cg;
@@ -258,8 +256,7 @@ hi2 += cg[0] * w[2] + cg[2] * w[3];
 lo2 += cg[1] * w[2] + cg[3] * w[3];
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
-res = mix(res, clamp(res, lo, hi), ravu_chroma_ar);
-}
+res = mix(res, clamp(res, lo, hi), ravu_antiring);
 return vec4(res, 0.0, 1.0);
 }
 //!TEXTURE ravu_zoom_lut2
