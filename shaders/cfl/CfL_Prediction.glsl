@@ -161,8 +161,8 @@ float cubic(vec2 v) {
 }
 
 vec4 hook() {
-    vec2 mix_coeff = vec2(1.0);
-    vec2 corr_exponent = vec2(8.0);
+    vec2 mix_coeff = vec2(0.8);
+    vec2 corr_exponent = vec2(4.0);
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
     float luma_zero = LUMA_tex(LUMA_pos).x;
