@@ -169,6 +169,7 @@ local fsr             = {
     fsr               = fsr_path .. 'FSR.glsl',
     easu              = fsr_path .. 'FSR_EASU.glsl',
     rcas              = fsr_path .. 'FSR_RCAS.glsl',
+    uv                = fsr_path .. 'FSR_EASU_Chroma.glsl',
 }
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
@@ -226,6 +227,7 @@ local cfl             = {
     l                 = cfl_path .. 'CfL_Prediction_Lite.glsl',
     p                 = cfl_path .. 'CfL_Prediction_Polar.glsl',
 
+    fsr               = cfl_path .. 'CfL_Prediction_FSR.glsl',
     r2                = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
     r3                = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
     r2x               = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
