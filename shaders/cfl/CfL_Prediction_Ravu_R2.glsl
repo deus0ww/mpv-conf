@@ -143,7 +143,7 @@ vec4 hook() {
 //!BIND HOOKED
 //!BIND ravu_zoom_lut2
 //!BIND ravu_zoom_lut2_ar
-//!BIND LUMA
+//!BIND LUMA_LOWRES
 //!SAVE CHROMA_HIGHRES
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
