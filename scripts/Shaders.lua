@@ -157,83 +157,112 @@ end
 local shaders_path = '~~/shaders/'
 
 -- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
-local art_path        = shaders_path .. 'artcnn/'
-local artcnn          = {
-    r8                = art_path .. 'ArtCNN_C4F8.glsl',
-    r16               = art_path .. 'ArtCNN_C4F16.glsl',
+local art_luma_path   = shaders_path .. 'artcnn/Luma/'
+local art_chroma_path = shaders_path .. 'artcnn/Chroma/'
+local art_rgb_path    = shaders_path .. 'artcnn/RGB/'
+local artcnn   = {
+    y32        = art_luma_path   .. 'ArtCNN_C4F32.glsl',
+    y32l       = art_luma_path   .. 'ArtCNN_C4F32_LL.glsl',
+    y32s       = art_luma_path   .. 'ArtCNN_C4F32_SH.glsl',
+    y32dn      = art_luma_path   .. 'ArtCNN_C4F32_DN.glsl',
+    y32ds      = art_luma_path   .. 'ArtCNN_C4F32_DS.glsl',
+    y16        = art_luma_path   .. 'ArtCNN_C4F16.glsl',
+    y16l       = art_luma_path   .. 'ArtCNN_C4F16_LL.glsl',
+    y16s       = art_luma_path   .. 'ArtCNN_C4F16_SH.glsl',
+    y16dn      = art_luma_path   .. 'ArtCNN_C4F16_DN.glsl',
+    y16ds      = art_luma_path   .. 'ArtCNN_C4F16_DS.glsl',
+    y8         = art_luma_path   .. 'ArtCNN_C4F8.glsl',
+    y8l        = art_luma_path   .. 'ArtCNN_C4F8_LL.glsl',
+    y8s        = art_luma_path   .. 'ArtCNN_C4F8_SH.glsl',
+    y8dn       = art_luma_path   .. 'ArtCNN_C4F8_DN.glsl',
+    y8ds       = art_luma_path   .. 'ArtCNN_C4F8_DS.glsl',
+
+    uv32       = art_chroma_path .. 'ArtCNN_C4F32_Chroma.glsl',
+    uv32s      = art_chroma_path .. 'ArtCNN_C4F32_SH_Chroma.glsl',
+    uv16       = art_chroma_path .. 'ArtCNN_C4F16_Chroma.glsl',
+    uv16s      = art_chroma_path .. 'ArtCNN_C4F16_SH_Chroma.glsl',
+    uv8        = art_chroma_path .. 'ArtCNN_C4F8_Chroma.glsl',
+    uv8s       = art_chroma_path .. 'ArtCNN_C4F8_SH_Chroma.glsl',
+
+    rgb32      = art_rgb_path    .. 'ArtCNN_C4F32_RGB.glsl',
+    rgb32s     = art_rgb_path    .. 'ArtCNN_C4F32_SH_RGB.glsl',
+    rgb16      = art_rgb_path    .. 'ArtCNN_C4F16_RGB.glsl',
+    rgb16s     = art_rgb_path    .. 'ArtCNN_C4F16_SH_RGB.glsl',
+    rgb8       = art_rgb_path    .. 'ArtCNN_C4F8_RGB.glsl',
+    rgb8s      = art_rgb_path    .. 'ArtCNN_C4F8_SH_RGB.glsl',
 }
 
 -- FSR by agyild - https://gist.github.com/agyild
-local fsr_path        = shaders_path .. 'fsr/'
-local fsr             = {
-    fsr               = fsr_path .. 'FSR.glsl',
-    easu              = fsr_path .. 'FSR_EASU.glsl',
-    rcas              = fsr_path .. 'FSR_RCAS.glsl',
-    uv                = fsr_path .. 'FSR_EASU_Chroma.glsl',
+local fsr_path = shaders_path .. 'fsr/'
+local fsr      = {
+    fsr        = fsr_path .. 'FSR.glsl',
+    easu       = fsr_path .. 'FSR_EASU.glsl',
+    rcas       = fsr_path .. 'FSR_RCAS.glsl',
+    uv         = fsr_path .. 'FSR_EASU_Chroma.glsl',
 }
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
 -- FSRCNNX by HelpSeeker - https://github.com/HelpSeeker/FSRCNN-TensorFlow/
-local fsrcnnx_path    = shaders_path .. 'fsrcnnx/'
-local fsrcnnx1        = {
-    r16e              = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_distort.glsl',
-    r16l              = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_anime_distort.glsl',
+local fsrcnnx_path = shaders_path .. 'fsrcnnx/'
+local fsrcnnx1 = {
+    r16e       = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_distort.glsl',
+    r16l       = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_anime_distort.glsl',
 }
-local fsrcnnx2        = {
-    r8                = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
-    r8l               = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl',
-    r16               = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
-    r16e              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_distort.glsl',
-    r16l              = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_distort.glsl',
+local fsrcnnx2 = {
+    r8         = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
+    r8l        = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl',
+    r16        = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
+    r16e       = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_distort.glsl',
+    r16l       = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_distort.glsl',
 }
 
 -- RAVU by bjin - https://github.com/bjin/mpv-prescalers
-local ravu_zoom_path  = shaders_path .. 'ravu/zoom/'
-local ravu_lite_path  = shaders_path .. 'ravu/lite/'
-local ravu            = {
-    lite              = {
-        r3            = ravu_lite_path .. 'ravu-lite-ar-r3.hook',
-        r3c           = ravu_lite_path .. 'ravu-lite-ar-r3.compute',
-        r4            = ravu_lite_path .. 'ravu-lite-ar-r4.hook',
-        r4c           = ravu_lite_path .. 'ravu-lite-ar-r4.compute',
+local ravu_zoom_path = shaders_path .. 'ravu/zoom/'
+local ravu_lite_path = shaders_path .. 'ravu/lite/'
+local ravu     = {
+    lite       = {
+        r3     = ravu_lite_path .. 'ravu-lite-ar-r3.hook',
+        r3c    = ravu_lite_path .. 'ravu-lite-ar-r3.compute',
+        r4     = ravu_lite_path .. 'ravu-lite-ar-r4.hook',
+        r4c    = ravu_lite_path .. 'ravu-lite-ar-r4.compute',
     },
-    zoom              = {
-        r2            = ravu_zoom_path .. 'ravu-zoom-ar-r2.hook',
-        r3            = ravu_zoom_path .. 'ravu-zoom-ar-r3.hook',
-        uv_r2         = ravu_zoom_path .. 'ravu-zoom-ar-r2-chroma.hook',
-        uv_r3         = ravu_zoom_path .. 'ravu-zoom-ar-r3-chroma.hook',
-        uv_r2x        = ravu_zoom_path .. 'ravu-zoom-ar-r2x-chroma.hook',
-        uv_r3x        = ravu_zoom_path .. 'ravu-zoom-ar-r3x-chroma.hook',
-        rgb_r2        = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.hook',
-        rgb_r3        = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.hook',
+    zoom       = {
+        r2     = ravu_zoom_path .. 'ravu-zoom-ar-r2.hook',
+        r3     = ravu_zoom_path .. 'ravu-zoom-ar-r3.hook',
+        uv_r2  = ravu_zoom_path .. 'ravu-zoom-ar-r2-chroma.hook',
+        uv_r3  = ravu_zoom_path .. 'ravu-zoom-ar-r3-chroma.hook',
+        uv_r2x = ravu_zoom_path .. 'ravu-zoom-ar-r2x-chroma.hook',
+        uv_r3x = ravu_zoom_path .. 'ravu-zoom-ar-r3x-chroma.hook',
+        rgb_r2 = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.hook',
+        rgb_r3 = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.hook',
     },
 }
 
 -- igv's - https://gist.github.com/igv
-local igv_path        = shaders_path .. 'igv/'
-local igv             = {
-    sssr              = igv_path .. 'SSimSuperRes.glsl',
-    ssds              = igv_path .. 'SSimDownscaler.glsl',
+local igv_path = shaders_path .. 'igv/'
+local igv      = {
+    sssr       = igv_path .. 'SSimSuperRes.glsl',
+    ssds       = igv_path .. 'SSimDownscaler.glsl',
 }
-local as              = {
-    rgb               = igv_path .. 'adaptive-sharpen.glsl',
-    luma              = igv_path .. 'adaptive-sharpen-luma.glsl',
+local as       = {
+    rgb        = igv_path .. 'adaptive-sharpen.glsl',
+    luma       = igv_path .. 'adaptive-sharpen-luma.glsl',
 }
 
 -- CfL by Artoriuz - https://github.com/Artoriuz/glsl-chroma-from-luma-prediction
-local cfl_path        = shaders_path .. 'cfl/'
-local cfl             = {
-    b                 = cfl_path .. 'CfL_Prediction.glsl',
-    l                 = cfl_path .. 'CfL_Prediction_Lite.glsl',
-    p                 = cfl_path .. 'CfL_Prediction_Polar.glsl',
+local cfl_path = shaders_path .. 'cfl/'
+local cfl      = {
+    b          = cfl_path .. 'CfL_Prediction.glsl',
+    l          = cfl_path .. 'CfL_Prediction_Lite.glsl',
+    p          = cfl_path .. 'CfL_Prediction_Polar.glsl',
 
-    fsr               = cfl_path .. 'CfL_Prediction_FSR.glsl',
-    r2                = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
-    r3                = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
-    r2x               = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
-    r3x               = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
+    fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
+    r2         = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
+    r3         = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
+    r2x        = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
+    r3x        = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
 
-    x                 = cfl_path .. 'CfL_Prediction_Test.glsl',
+    x          = cfl_path .. 'CfL_Prediction_Test.glsl',
 }
 
 
