@@ -167,6 +167,7 @@ local artcnn   = {
     y32dn      = art_luma_path   .. 'ArtCNN_C4F32_DN.glsl',
     y32ds      = art_luma_path   .. 'ArtCNN_C4F32_DS.glsl',
     y16        = art_luma_path   .. 'ArtCNN_C4F16.glsl',
+    y16x       = art_luma_path   .. 'ArtCNN_C4F16_DIV2K.glsl',
     y16l       = art_luma_path   .. 'ArtCNN_C4F16_LL.glsl',
     y16s       = art_luma_path   .. 'ArtCNN_C4F16_SH.glsl',
     y16dn      = art_luma_path   .. 'ArtCNN_C4F16_DN.glsl',
