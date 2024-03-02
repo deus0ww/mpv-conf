@@ -157,40 +157,44 @@ end
 local shaders_path = '~~/shaders/'
 
 -- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
-local art_luma_path   = shaders_path .. 'artcnn/Luma/'
-local art_chroma_path = shaders_path .. 'artcnn/Chroma/'
-local art_rgb_path    = shaders_path .. 'artcnn/RGB/'
+local art_y_path   = shaders_path .. 'artcnn/Luma/'
+local art_uv_path  = shaders_path .. 'artcnn/Chroma/'
+local art_yuv_path = shaders_path .. 'artcnn/YCbCr/'
 local artcnn   = {
-    y32        = art_luma_path   .. 'ArtCNN_C4F32.glsl',
-    y32l       = art_luma_path   .. 'ArtCNN_C4F32_LL.glsl',
-    y32s       = art_luma_path   .. 'ArtCNN_C4F32_SH.glsl',
-    y32dn      = art_luma_path   .. 'ArtCNN_C4F32_DN.glsl',
-    y32ds      = art_luma_path   .. 'ArtCNN_C4F32_DS.glsl',
-    y16        = art_luma_path   .. 'ArtCNN_C4F16.glsl',
-    y16x       = art_luma_path   .. 'ArtCNN_C4F16_DIV2K.glsl',
-    y16l       = art_luma_path   .. 'ArtCNN_C4F16_LL.glsl',
-    y16s       = art_luma_path   .. 'ArtCNN_C4F16_SH.glsl',
-    y16dn      = art_luma_path   .. 'ArtCNN_C4F16_DN.glsl',
-    y16ds      = art_luma_path   .. 'ArtCNN_C4F16_DS.glsl',
-    y8         = art_luma_path   .. 'ArtCNN_C4F8.glsl',
-    y8l        = art_luma_path   .. 'ArtCNN_C4F8_LL.glsl',
-    y8s        = art_luma_path   .. 'ArtCNN_C4F8_SH.glsl',
-    y8dn       = art_luma_path   .. 'ArtCNN_C4F8_DN.glsl',
-    y8ds       = art_luma_path   .. 'ArtCNN_C4F8_DS.glsl',
+    y32        = art_y_path   .. 'ArtCNN_C4F32.glsl',
+    y32ll      = art_y_path   .. 'ArtCNN_C4F32_LL.glsl',
+    y32sh      = art_y_path   .. 'ArtCNN_C4F32_SH.glsl',
+    y32dn      = art_y_path   .. 'ArtCNN_C4F32_DN.glsl',
+    y32ds      = art_y_path   .. 'ArtCNN_C4F32_DS.glsl',
+    y16        = art_y_path   .. 'ArtCNN_C4F16.glsl',
+    y16x       = art_y_path   .. 'ArtCNN_C4F16_DIV2K.glsl',
+    y16ll      = art_y_path   .. 'ArtCNN_C4F16_LL.glsl',
+    y16sh      = art_y_path   .. 'ArtCNN_C4F16_SH.glsl',
+    y16dn      = art_y_path   .. 'ArtCNN_C4F16_DN.glsl',
+    y16ds      = art_y_path   .. 'ArtCNN_C4F16_DS.glsl',
+    y8         = art_y_path   .. 'ArtCNN_C4F8.glsl',
+    y8ll       = art_y_path   .. 'ArtCNN_C4F8_LL.glsl',
+    y8sh       = art_y_path   .. 'ArtCNN_C4F8_SH.glsl',
+    y8dn       = art_y_path   .. 'ArtCNN_C4F8_DN.glsl',
+    y8ds       = art_y_path   .. 'ArtCNN_C4F8_DS.glsl',
+    
+    uv32       = art_uv_path  .. 'ArtCNN_C4F32_Chroma.glsl',
+    uv32dn     = art_uv_path  .. 'ArtCNN_C4F32_DN_Chroma.glsl',
+    uv32ds     = art_uv_path  .. 'ArtCNN_C4F32_DS_Chroma.glsl',
+    uv32sh     = art_uv_path  .. 'ArtCNN_C4F32_SH_Chroma.glsl',
+    uv16       = art_uv_path  .. 'ArtCNN_C4F16_Chroma.glsl',
+    uv16dn     = art_uv_path  .. 'ArtCNN_C4F16_DN_Chroma.glsl',
+    uv16ds     = art_uv_path  .. 'ArtCNN_C4F16_DS_Chroma.glsl',
+    uv16sh     = art_uv_path  .. 'ArtCNN_C4F16_SH_Chroma.glsl',
+    uv8        = art_uv_path  .. 'ArtCNN_C4F8_Chroma.glsl',
+    uv8sh      = art_uv_path  .. 'ArtCNN_C4F8_SH_Chroma.glsl',
 
-    uv32       = art_chroma_path .. 'ArtCNN_C4F32_Chroma.glsl',
-    uv32s      = art_chroma_path .. 'ArtCNN_C4F32_SH_Chroma.glsl',
-    uv16       = art_chroma_path .. 'ArtCNN_C4F16_Chroma.glsl',
-    uv16s      = art_chroma_path .. 'ArtCNN_C4F16_SH_Chroma.glsl',
-    uv8        = art_chroma_path .. 'ArtCNN_C4F8_Chroma.glsl',
-    uv8s       = art_chroma_path .. 'ArtCNN_C4F8_SH_Chroma.glsl',
-
-    rgb32      = art_rgb_path    .. 'ArtCNN_C4F32_RGB.glsl',
-    rgb32s     = art_rgb_path    .. 'ArtCNN_C4F32_SH_RGB.glsl',
-    rgb16      = art_rgb_path    .. 'ArtCNN_C4F16_RGB.glsl',
-    rgb16s     = art_rgb_path    .. 'ArtCNN_C4F16_SH_RGB.glsl',
-    rgb8       = art_rgb_path    .. 'ArtCNN_C4F8_RGB.glsl',
-    rgb8s      = art_rgb_path    .. 'ArtCNN_C4F8_SH_RGB.glsl',
+    yuv32      = art_yuv_path .. 'ArtCNN_C4F32_YCbCr.glsl',
+    yuv32dn    = art_yuv_path .. 'ArtCNN_C4F32_DN_YCbCr.glsl',
+    yuv32ds    = art_yuv_path .. 'ArtCNN_C4F32_DS_YCbCr.glsl',
+    yuv16      = art_yuv_path .. 'ArtCNN_C4F16_YCbCr.glsl',
+    yuv16dn    = art_yuv_path .. 'ArtCNN_C4F16_DN_YCbCr.glsl',
+    yuv16ds    = art_yuv_path .. 'ArtCNN_C4F16_DS_YCbCr.glsl',
 }
 
 -- FSR by agyild - https://gist.github.com/agyild
