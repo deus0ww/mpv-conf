@@ -192,9 +192,11 @@ local artcnn   = {
     yuv32      = art_yuv_path .. 'ArtCNN_C4F32_YCbCr.glsl',
     yuv32dn    = art_yuv_path .. 'ArtCNN_C4F32_DN_YCbCr.glsl',
     yuv32ds    = art_yuv_path .. 'ArtCNN_C4F32_DS_YCbCr.glsl',
+    yuv32sh    = art_yuv_path .. 'ArtCNN_C4F32_SH_YCbCr.glsl',
     yuv16      = art_yuv_path .. 'ArtCNN_C4F16_YCbCr.glsl',
     yuv16dn    = art_yuv_path .. 'ArtCNN_C4F16_DN_YCbCr.glsl',
     yuv16ds    = art_yuv_path .. 'ArtCNN_C4F16_DS_YCbCr.glsl',
+    yuv16sh    = art_yuv_path .. 'ArtCNN_C4F16_SH_YCbCr.glsl',
 }
 
 -- FSR by agyild - https://gist.github.com/agyild
