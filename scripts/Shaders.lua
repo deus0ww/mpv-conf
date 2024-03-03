@@ -34,13 +34,13 @@ local opts = {
     preset_4_index        = 2,
 
     preset_hifps_enabled  = true,       -- Target frame time: 15ms
-    preset_hifps_index    = 4,
+    preset_hifps_index    = 3,
 
     preset_lowfps_enabled = true,       -- Target frame time: 90ms
-    preset_lowfps_index   = 1,
+    preset_lowfps_index   = 4,
 
     preset_rgb_enabled    = true,
-    preset_rgb_index      = 6,
+    preset_rgb_index      = 4,
 }
 
 local current_index, enabled = opts.default_index, opts.enabled
@@ -279,11 +279,10 @@ local default_antiring = 0.8 -- For scalers/shaders using libplacebo-based antir
 
 local function default_shaders()
     local s = {}
-    s[#s+1] = ({[3]=fsrcnnx2.r8,   [4]=fsrcnnx2.r16                     })[minmax_scale(3, 4)]
+    s[#s+1] = ({[3]=artcnn.y8ds,   [4]=artcnn.y16dn                     })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = ({[1]=cfl.r3,        [2]=cfl.r2                          })[minmax_scale(1, 2)]
-    --s[#s+1] = as.luma
+    s[#s+1] = ({[1]=cfl.fsr,       [2]=cfl.fsr                          })[minmax_scale(1, 2)]
     return s
 end
 
@@ -316,24 +315,18 @@ local sets = {}
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    return { shaders = s, options = set_params(o, p), label = 'Default' }
+    return { shaders = s, options = set_params(o, p), label = 'Live' }
 end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16e                    })[minmax_scale(3, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Soft' }
-end
-
-sets[#sets+1] = function()
-    local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=fsrcnnx2.r8l,  [4]=fsrcnnx2.r16l                    })[minmax_scale(3, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Softer' }
+    s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
+    return { shaders = s, options = set_params(o, p), label = 'Animated' }
 end
 
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = ({                                                         [4]=fsrcnnx2.r8                      })[minmax_scale(1, 4)]
+    s[#s+1] = ({                                                         [4]=artcnn.y8dn                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = cfl.b
@@ -342,9 +335,9 @@ end
 
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = fsrcnnx2.r16
+    s[#s+1] = artcnn.y16dn
     s[#s+1] = ravu.zoom.r3
-    s[#s+1] = cfl.r3x
+    s[#s+1] = cfl.fsr
     s[#s+1] = ravu.zoom.rgb_r3
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
