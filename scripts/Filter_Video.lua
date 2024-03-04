@@ -1,4 +1,4 @@
--- deus0ww - 2023-12-25
+-- deus0ww - 2024-03-03
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -24,10 +24,10 @@ add({
 add({
     name = 'PostProcess',
     filter_type = 'video',
-    default_on_load = false,
-    reset_on_load = true,
+    reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#pp
+        'pp=ac/-dr',
         'pp=ac',
         'pp=ac/autolevels',
     },
