@@ -281,7 +281,7 @@ local default_antiring = 0.8 -- For scalers/shaders using libplacebo-based antir
 
 local function default_shaders()
     local s = {}
-    s[#s+1] = ({[3]=artcnn.y8ds,   [4]=artcnn.y16dn                     })[minmax_scale(3, 4)]
+    s[#s+1] = ({[3]=artcnn.y8dn,   [4]=artcnn.y16dn                     })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = ({[1]=cfl.fsr,       [2]=cfl.fsr                          })[minmax_scale(1, 2)]
@@ -317,13 +317,13 @@ local sets = {}
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    return { shaders = s, options = set_params(o, p), label = 'Live' }
+    return { shaders = s, options = set_params(o, p), label = 'Default' }
 end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Animated' }
+    return { shaders = s, options = set_params(o, p), label = 'Sharper' }
 end
 
 sets[#sets+1] = function()
