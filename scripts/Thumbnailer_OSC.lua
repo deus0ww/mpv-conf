@@ -1626,7 +1626,7 @@ function window_controls(topbar)
     ne = new_element("wctitle", "button")
     ne.content = function ()
         local title = mp.command_native({"expand-text", user_opts.windowcontrols_title})
-        return title ~= "" and (mp.command_native({"escape-ass", title:gsub("\n", " ")}) or title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")) or "mpv"
+        return title ~= "" and (mp.command_native({"escape-ass", (title:gsub("\n", " "))}) or title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")) or "mpv"
     end
     local left_pad = 5
     local right_pad = 10
@@ -2256,7 +2256,7 @@ function osc_init()
     ne.content = function ()
         local title = state.forced_title or
                       mp.command_native({"expand-text", user_opts.title})
-        return title ~= "" and (mp.command_native({"escape-ass", title:gsub("\n", " ")}) or title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")) or "mpv"
+        return title ~= "" and (mp.command_native({"escape-ass", (title:gsub("\n", " "))}) or title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")) or "mpv"
     end
 
     ne.eventresponder["mbtn_left_up"] = function ()
