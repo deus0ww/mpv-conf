@@ -9,6 +9,7 @@
 local mp = require 'mp'
 local options = require 'mp.options'
 local utils = require 'mp.utils'
+local input = require 'mp.input'
 
 -- Options
 local o = {
@@ -21,6 +22,7 @@ local o = {
     -- For pages which support scrolling
     key_scroll_up = "UP",
     key_scroll_down = "DOWN",
+    key_search = "/",
     scroll_lines = 1,
 
     duration = 4,
@@ -48,16 +50,16 @@ local o = {
     plot_color = "FFFFFF",
 
     -- Text style
-    font = "sans-serif",
+    font = "",
     font_mono = "monospace",   -- monospaced digits are sufficient
     font_mono_digits = "monospace",
     font_size = 8,
-    font_color = "FFFFFF",
+    font_color = "",
     border_size = 0.8,
-    border_color = "262626",
+    border_color = "",
     shadow_x_offset = 0.0,
     shadow_y_offset = 0.0,
-    shadow_color = "000000",
+    shadow_color = "",
     alpha = "11",
 
     -- Custom header for ASS tags to style the text output.
@@ -110,6 +112,7 @@ local cache_recorder_timer = nil
 local curr_page = o.key_page_1
 local pages = {}
 local scroll_bound = false
+local searched_text
 local tm_viz_prev = nil
 -- Save these sequences locally as we'll need them a lot
 local ass_start = mp.get_property_osd("osd-ass-cc/0")
@@ -174,13 +177,26 @@ local function text_style()
     if o.custom_header and o.custom_header ~= "" then
         return o.custom_header
     else
-        local has_shadow = mp.get_property('osd-back-color'):sub(2, 3) == '00'
-        return format("{\\r\\an4\\fs%d\\fn%s\\bord%f\\3c&H%s&" ..
-                      "\\1c&H%s&\\1a&H%s&\\3a&H%s&" ..
-                      (has_shadow and "\\4a&H%s&\\xshad%f\\yshad%f\\4c&H%s&}" or "}"),
-                      o.font_size, o.font, o.border_size,
-                      o.border_color, o.font_color, o.alpha, o.alpha, o.alpha,
-                      o.shadow_x_offset, o.shadow_y_offset, o.shadow_color)
+        local style = "{\\r\\an4\\fs" .. o.font_size .. "\\bord" .. o.border_size
+
+        if o.font ~= "" then
+            style = style .. "\\fn" .. o.font
+        end
+
+        if o.font_color ~= "" then
+            style = style .. "\\1c&H" .. o.font_color .. "&\\1a&H" .. o.alpha .. "&"
+        end
+
+        if o.border_color ~= "" then
+            style = style .. "\\3c&H" .. o.border_color .. "&\\3a&H" .. o.alpha .. "&"
+        end
+
+        if o.shadow_color ~= "" then
+            style = style .. "\\4c&H" .. o.shadow_color .. "&\\4a&H" .. o.alpha .. "&"
+        end
+
+        return style .. "\\xshad" .. o.shadow_x_offset ..
+               "\\yshad" .. o.shadow_y_offset .. "}"
     end
 end
 
@@ -292,8 +308,12 @@ local function sorted_keys(t, comp_fn)
     return keys
 end
 
-local function scroll_hint()
-    local hint = format("(hint: scroll with %s/%s)", o.key_scroll_up, o.key_scroll_down)
+local function scroll_hint(search)
+    local hint = format("(hint: scroll with %s/%s", o.key_scroll_up, o.key_scroll_down)
+    if search then
+        hint = hint .. " and search with " .. o.key_search
+    end
+    hint = hint .. ")"
     if not o.use_ass then return " " .. hint end
     return format(" {\\fs%s}%s{\\fs%s}", o.font_size * 0.66, hint, o.font_size)
 end
@@ -458,6 +478,11 @@ local function get_kbinfo_lines()
                (bind.is_weak == active[bind.key].is_weak and
                 bind.priority > active[bind.key].priority)
            ) and not bind.cmd:find("script-binding stats/__forced_", 1, true)
+           and bind.section ~= "input_forced_console"
+           and (
+               searched_text == nil or
+               (bind.key .. bind.cmd):lower():find(searched_text, 1, true)
+           )
         then
             active[bind.key] = bind
         end
@@ -929,6 +954,10 @@ local function add_video(s)
     if track and append(s, track["codec-desc"], {prefix_sep="", nl="", indent=""}) then
         append(s, track["codec-profile"], {prefix="[", nl="", indent=" ", prefix_sep="",
                no_prefix_markup=true, suffix="]"})
+        if track["codec"] ~= track["decoder"] then
+            append(s, track["decoder"], {prefix="[", nl="", indent=" ", prefix_sep="",
+                   no_prefix_markup=true, suffix="]"})
+        end
         append_property(s, "hwdec-current", {prefix="HW:", nl="",
                         indent=o.prefix_sep .. o.prefix_sep,
                         no_prefix_markup=false, suffix=""}, {no=true, [""]=true})
@@ -988,6 +1017,10 @@ local function add_audio(s)
     local track = mp.get_property_native("current-tracks/audio")
     if track and track["codec-desc"] then
         append(s, track["codec-desc"], {prefix_sep="", nl="", indent=""})
+        if track["codec"] ~= track["decoder"] then
+            append(s, track["decoder"], {prefix="[", nl="", indent=" ", prefix_sep="",
+                   no_prefix_markup=true, suffix="]"})
+        end
         append(s, track["codec-profile"], {prefix="[", nl="", indent=" ", prefix_sep="",
                no_prefix_markup=true, suffix="]"})
     else
@@ -1148,7 +1181,7 @@ local function keybinding_info(after_scroll, bindlist)
     local page = pages[o.key_page_4]
     eval_ass_formatting()
     add_header(header)
-    append(header, "", {prefix=format("%s:%s", page.desc, scroll_hint()), nl="", indent=""})
+    append(header, "", {prefix=format("%s:%s", page.desc, scroll_hint(true)), nl="", indent=""})
     header = {table.concat(header)}
 
     if not kbinfo_lines or not after_scroll then
@@ -1377,11 +1410,57 @@ local function unbind_scroll()
         scroll_bound = false
     end
 end
+
+local function filter_bindings()
+    input.get({
+        prompt = "Filter bindings:",
+        opened = function ()
+            -- This is necessary to close the console if the oneshot
+            -- display_timer expires without typing anything.
+            searched_text = ""
+        end,
+        edited = function (text)
+            reset_scroll_offsets()
+            searched_text = text:lower()
+            print_page(curr_page)
+            if display_timer.oneshot then
+                display_timer:kill()
+                display_timer:resume()
+            end
+        end,
+        submit = input.terminate,
+        closed = function ()
+            searched_text = nil
+            if display_timer:is_enabled() then
+                print_page(curr_page)
+                if display_timer.oneshot then
+                    display_timer:kill()
+                    display_timer:resume()
+                end
+            end
+        end,
+    })
+end
+
+local function bind_search()
+    mp.add_forced_key_binding(o.key_search, "__forced_"..o.key_search, filter_bindings)
+end
+
+local function unbind_search()
+    mp.remove_key_binding("__forced_"..o.key_search)
+end
+
 local function update_scroll_bindings(k)
     if pages[k].scroll then
         bind_scroll()
     else
         unbind_scroll()
+    end
+
+    if k == o.key_page_4 then
+        bind_search()
+    else
+        unbind_search()
     end
 end
 
@@ -1409,6 +1488,7 @@ local function remove_page_bindings()
         mp.remove_key_binding("__forced_"..k)
     end
     unbind_scroll()
+    unbind_search()
 end
 
 
@@ -1471,6 +1551,10 @@ display_timer = mp.add_periodic_timer(o.duration,
     function()
         if display_timer.oneshot then
             display_timer:kill() ; clear_screen() ; remove_page_bindings()
+            -- Close the console only if it was opened for searching bindings.
+            if searched_text then
+                input.terminate()
+            end
         else
             print_page(curr_page)
         end
