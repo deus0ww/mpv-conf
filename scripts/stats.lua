@@ -48,6 +48,7 @@ local o = {
     plot_bg_border_color = "0000FF",
     plot_bg_color = "262626",
     plot_color = "FFFFFF",
+    plot_bg_border_width = 0.5,
 
     -- Text style
     font = "",
@@ -61,6 +62,7 @@ local o = {
     shadow_y_offset = 0.0,
     shadow_color = "",
     alpha = "11",
+    vidscale = true,
 
     -- Custom header for ASS tags to style the text output.
     -- Specifying this will ignore the text style values above and just
@@ -102,6 +104,12 @@ local format = string.format
 local max = math.max
 local min = math.min
 
+-- Scaled metrics
+local font_size = o.font_size
+local border_size = o.border_size
+local shadow_x_offset = o.shadow_x_offset
+local shadow_y_offset = o.shadow_y_offset
+local plot_bg_border_width = o.plot_bg_border_width
 -- Function used to record performance data
 local recorder = nil
 -- Timer used for redrawing (toggling) and clearing the screen (oneshot)
@@ -177,7 +185,7 @@ local function text_style()
     if o.custom_header and o.custom_header ~= "" then
         return o.custom_header
     else
-        local style = "{\\r\\an4\\fs" .. o.font_size .. "\\bord" .. o.border_size
+        local style = "{\\r\\an4\\fs" .. font_size .. "\\bord" .. border_size
 
         if o.font ~= "" then
             style = style .. "\\fn" .. o.font
@@ -195,8 +203,8 @@ local function text_style()
             style = style .. "\\4c&H" .. o.shadow_color .. "&\\4a&H" .. o.alpha .. "&"
         end
 
-        return style .. "\\xshad" .. o.shadow_x_offset ..
-               "\\yshad" .. o.shadow_y_offset .. "}"
+        return style .. "\\xshad" .. shadow_x_offset ..
+               "\\yshad" .. shadow_y_offset .. "}"
     end
 end
 
@@ -226,8 +234,8 @@ local function generate_graph(values, i, len, v_max, v_avg, scale, x_tics)
     end
 
     local x_max = (len - 1) * x_tics
-    local y_offset = o.border_size
-    local y_max = o.font_size * 0.66
+    local y_offset = border_size
+    local y_max = font_size * 0.66
     local x = 0
 
     if v_max > 0 then
@@ -251,9 +259,9 @@ local function generate_graph(values, i, len, v_max, v_avg, scale, x_tics)
 
     s[#s+1] = format("%f %f %f %f", x, y_max, 0, y_max)
 
-    local bg_box = format("{\\bord0.5}{\\3c&H%s&}{\\1c&H%s&}m 0 %f l %f %f %f 0 0 0",
-                          o.plot_bg_border_color, o.plot_bg_color, y_max, x_max, y_max, x_max)
-    return format("%s{\\r}{\\rDefault}{\\pbo%f}{\\shad0}{\\alpha&H00}{\\p1}%s{\\p0}{\\bord0}{\\1c&H%s}{\\p1}%s{\\p0}%s",
+    local bg_box = format("{\\bord%f}{\\3c&H%s&}{\\1c&H%s&}m 0 %f l %f %f %f 0 0 0",
+                          plot_bg_border_width, o.plot_bg_border_color, o.plot_bg_color, y_max, x_max, y_max, x_max)
+    return format("%s{\\rDefault}{\\pbo%f}{\\shad0}{\\alpha&H00}{\\p1}%s{\\p0}{\\bord0}{\\1c&H%s}{\\p1}%s{\\p0}%s",
                   o.prefix_sep, y_offset, bg_box, o.plot_color, table.concat(s), text_style())
 end
 
@@ -315,7 +323,7 @@ local function scroll_hint(search)
     end
     hint = hint .. ")"
     if not o.use_ass then return " " .. hint end
-    return format(" {\\fs%s}%s{\\fs%s}", o.font_size * 0.66, hint, o.font_size)
+    return format(" {\\fs%s}%s{\\fs%s}", font_size * 0.66, hint, font_size)
 end
 
 local function append_perfdata(header, s, dedicated_page, print_passes)
@@ -533,8 +541,8 @@ local function get_kbinfo_lines()
     local kpost = term and " " or format(" {\\fn%s}", o.font)
     local spre = term and kspaces .. "   "
                        or format("{\\q2\\fn%s}%s   {\\fn%s}{\\fs%d\\u1}",
-                                 o.font_mono, kspaces, o.font, 1.3*o.font_size)
-    local spost = term and "" or format("{\\u0\\fs%d}", o.font_size)
+                                 o.font_mono, kspaces, o.font, 1.3*font_size)
+    local spost = term and "" or format("{\\u0\\fs%d}", font_size)
 
     -- create the display lines
     local info_lines = {}
@@ -1378,6 +1386,24 @@ local function print_page(page, after_scroll)
     end
 end
 
+local function update_scale(name, value)
+    -- Calculate scaled metrics.
+    local scale = 1
+    if not o.vidscale then
+        if value <= 1 then
+            value = 1
+        end
+        scale = 720 / value
+    end
+    font_size = o.font_size * scale
+    border_size = o.border_size * scale
+    shadow_x_offset = o.shadow_x_offset * scale
+    shadow_y_offset = o.shadow_y_offset * scale
+    plot_bg_border_width = o.plot_bg_border_width * scale
+    if display_timer:is_enabled() then
+        print_page(curr_page)
+    end
+end
 
 local function clear_screen()
     if o.persistent_overlay then mp.set_osd_ass(0, 0, "") else mp.osd_message("", 0) end
@@ -1614,3 +1640,5 @@ if o.bindlist ~= "no" then
         mp.command("quit")
     end)
 end
+
+mp.observe_property('osd-height', 'native', update_scale)
