@@ -19,28 +19,28 @@ local opts = {
 
     preset_1_enabled      = true,
     preset_1_path         = 'rendered',
-    preset_1_index        = 3,
+    preset_1_index        = 4,
 
     preset_2_enabled      = true,       -- Enable this preset
     preset_2_path         = 'anime',    -- Path search string (Lua pattern)
-    preset_2_index        = 3,          -- Shader set index to enable
+    preset_2_index        = 4,          -- Shader set index to enable
 
     preset_3_enabled      = true,
     preset_3_path         = 'cartoon',
-    preset_3_index        = 3,
+    preset_3_index        = 4,
 
     preset_4_enabled      = false,
     preset_4_path         = '%[.+%]',
     preset_4_index        = 2,
 
     preset_hifps_enabled  = true,       -- Target frame time: 15ms
-    preset_hifps_index    = 4,
+    preset_hifps_index    = 5,
 
     preset_lowfps_enabled = true,       -- Target frame time: 90ms
-    preset_lowfps_index   = 5,
+    preset_lowfps_index   = 6,
 
     preset_rgb_enabled    = true,
-    preset_rgb_index      = 5,
+    preset_rgb_index      = 6,
 }
 
 local current_index, enabled = opts.default_index, opts.enabled
@@ -281,7 +281,7 @@ local default_antiring = 0.8 -- For scalers/shaders using libplacebo-based antir
 
 local function default_shaders()
     local s = {}
-    s[#s+1] = ({[3]=artcnn.y8dn,   [4]=artcnn.y16dn                     })[minmax_scale(3, 4)]
+    s[#s+1] = ({[3]=artcnn.y8,     [4]=artcnn.y16                       })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = ({[1]=cfl.fsr,       [2]=cfl.fsr                          })[minmax_scale(1, 2)]
@@ -317,19 +317,26 @@ local sets = {}
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=artcnn.y8,     [4]=artcnn.y16x                      })[minmax_scale(3, 4)]
+    s[1]    = ({[3]=artcnn.y8,     [4]=artcnn.y16                      })[minmax_scale(3, 4)]
     return { shaders = s, options = set_params(o, p), label = 'Default'   }
 end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
+    s[1]    = ({[3]=artcnn.y8sh,   [4]=artcnn.y16sh                     })[minmax_scale(3, 4)]
+    return { shaders = s, options = set_params(o, p), label = 'Sharpen' }
+end
+
+sets[#sets+1] = function()
+    local s, o, p = default_shaders(), default_options(), default_params()
+    s[1]    = ({[3]=artcnn.y8dn,   [4]=artcnn.y16dn                     })[minmax_scale(3, 4)]
     return { shaders = s, options = set_params(o, p), label = 'Denoise' }
 end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Sharpen' }
+    return { shaders = s, options = set_params(o, p), label = 'Denoise & Sharpen' }
 end
 
 sets[#sets+1] = function()
@@ -343,7 +350,7 @@ end
 
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = artcnn.y16dn
+    s[#s+1] = artcnn.y16ds
     s[#s+1] = ravu.zoom.r3
     s[#s+1] = cfl.fsr
     s[#s+1] = ravu.zoom.rgb_r3
