@@ -9,7 +9,7 @@
 local mp = require 'mp'
 local options = require 'mp.options'
 local utils = require 'mp.utils'
-local input = require 'mp.input'
+local input = mp.input and require 'mp.input'
 
 -- Options
 local o = {
@@ -1443,6 +1443,7 @@ local function unbind_scroll()
 end
 
 local function filter_bindings()
+    if not input then return end
     input.get({
         prompt = "Filter bindings:",
         opened = function ()
