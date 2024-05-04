@@ -65,9 +65,18 @@ local user_opts = {
     chapter_fmt = "Chapter: %s", -- chapter print format for seekbar-hover. "no" to disable
     unicodeminus = false,       -- whether to use the Unicode minus sign character
 
-    font = "sans",
     font_mono = "monospace",
-    font_bold = 600,
+    background_color = "#000000",	-- background color of the osc
+    timecode_color = "#FFFFFF",		-- color of the progress bar and time color
+    title_color = "#FFFFFF",		-- color of the title
+    time_pos_color = "#FFFFFF",		-- color of the timecode at hovered position
+    buttons_color = "#FFFFFF",		-- color of big buttons, wc buttons, and bar small buttons
+    small_buttonsL_color = "#FFFFFF",	-- color of left small buttons
+    small_buttonsR_color = "#FFFFFF",	-- color of right small buttons
+    top_buttons_color = "#FFFFFF",	-- color of top buttons
+    held_element_color = "#999999",	-- color of an element while held down
+
+    time_pos_outline_color = "#000000"	-- color of the border timecodes in slimbox and TimePosBar
 }
 
 -- read options from config and command-line
@@ -79,7 +88,7 @@ opt.read_options(user_opts, "osc", function(list) update_options(list) end)
 
 
 
--- deus0ww - 2024-03-26
+-- deus0ww - 2024-05-04
 
 ------------
 -- tn_osc --
@@ -539,27 +548,32 @@ local osc_param = { -- calculated by osc_init()
     },
 }
 
+function osc_color_convert(color)
+	return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
+end
+
+local font_mono = user_opts.font_mono or mp.get_property("options/osd-font")
 local osc_styles = {
-    bigButtons = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs50\\fnmpv-osd-symbols}",
-    smallButtonsL = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs19\\fnmpv-osd-symbols}",
-    smallButtonsLlabel = ("{\\fscx105\\fscy105\\b%d\\fn%s}"):format(user_opts.font_bold, user_opts.font_mono),
-    smallButtonsR = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs30\\fnmpv-osd-symbols}",
-    topButtons = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\fnmpv-osd-symbols}",
+    bigButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs50\\fnmpv-osd-symbols}",
+    smallButtonsL = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.small_buttonsL_color) .. "\\3c&HFFFFFF\\fs19\\fnmpv-osd-symbols}",
+    smallButtonsLlabel = "{\\fscx105\\fscy105\\fn" .. font_mono .. "}",
+    smallButtonsR = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.small_buttonsR_color) .. "\\3c&HFFFFFF\\fs30\\fnmpv-osd-symbols}",
+    topButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.top_buttons_color) .. "\\3c&HFFFFFF\\fs12\\fnmpv-osd-symbols}",
 
-    elementDown = "{\\1c&H999999}",
-    timecodes = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs20\\b%d\\fn%s}"):format(user_opts.font_bold, user_opts.font_mono),
-    vidtitle = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs12\\b%d\\q2\\fn%s}"):format(user_opts.font_bold, user_opts.font),
-    box = "{\\rDefault\\blur0\\bord1\\1c&H000000\\3c&HFFFFFF}",
+    elementDown = "{\\1c&H" .. osc_color_convert(user_opts.held_element_color) .."}",
+    timecodes = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.timecode_color) .. "\\3c&HFFFFFF\\fs20\\fn" .. font_mono .. "}",
+    vidtitle = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.title_color) .. "\\3c&HFFFFFF\\fs12\\q2}",
+    box = "{\\rDefault\\blur0\\bord1\\1c&H" .. osc_color_convert(user_opts.background_color) .. "\\3c&HFFFFFF}",
 
-    topButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\fnmpv-osd-symbols}",
-    smallButtonsBar = "{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs28\\fnmpv-osd-symbols}",
-    timecodesBar = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs27\\b%d\\fn%s}"):format(user_opts.font_bold, user_opts.font_mono),
-    timePosBar = ("{\\blur0.54\\bord%s\\1c&HFFFFFF\\3c&H000000\\fs27\\b%d\\fn%s}"):format(user_opts.tooltipborder, user_opts.font_bold, user_opts.font_mono),
-    vidtitleBar = ("{\\blur0\\bord0\\1c&HFFFFFF\\3c&HFFFFFF\\fs18\\b%d\\q2\\fn%s}"):format(user_opts.font_bold, user_opts.font),
+    topButtonsBar = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.top_buttons_color) .. "\\3c&HFFFFFF\\fs18\\fnmpv-osd-symbols}",
+    smallButtonsBar = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs28\\fnmpv-osd-symbols}",
+    timecodesBar = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.timecode_color) .."\\3c&HFFFFFF\\fs27\\fn" .. font_mono .. "}",
+    timePosBar = "{\\blur0\\bord".. user_opts.tooltipborder .."\\1c&H" .. osc_color_convert(user_opts.time_pos_color) .. "\\3c&H" .. osc_color_convert(user_opts.time_pos_outline_color) .. "\\fs30\\fn" .. font_mono .. "}",
+    vidtitleBar = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.title_color) .. "\\3c&HFFFFFF\\fs18\\q2}",
 
-    wcButtons = "{\\1c&HFFFFFF\\fs24\\fnmpv-osd-symbols}",
-    wcTitle = "{\\1c&HFFFFFF\\fs24\\q2}",
-    wcBar = "{\\1c&H000000}",
+    wcButtons = "{\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\fs24\\fnmpv-osd-symbols}",
+    wcTitle = "{\\1c&H" .. osc_color_convert(user_opts.title_color) .. "\\fs24\\q2}",
+    wcBar = "{\\1c&H" .. osc_color_convert(user_opts.background_color) .. "}",
 }
 
 -- internal states, do not touch
@@ -1874,9 +1888,9 @@ layouts["slimbox"] = function ()
 
     -- styles
     local styles = {
-        box = "{\\rDefault\\blur0\\bord1\\1c&H000000\\3c&HFFFFFF}",
-        timecodes = "{\\1c&HFFFFFF\\3c&H000000\\fs20\\bord2\\blur1}",
-        tooltip = "{\\1c&HFFFFFF\\3c&H000000\\fs12\\bord1\\blur0.5}",
+        box = "{\\rDefault\\blur0\\bord1\\1c&H" .. osc_color_convert(user_opts.background_color) .. "\\3c&HFFFFFF}",
+        timecodes = "{\\1c&H" .. osc_color_convert(user_opts.timecode_color) .. "\\3c&H" .. osc_color_convert(user_opts.time_pos_outline_color) .. "\\fs20\\bord2\\blur1}",
+        tooltip = "{\\1c&H" .. osc_color_convert(user_opts.time_pos_color).. "\\3c&H" .. osc_color_convert(user_opts.time_pos_outline_color) .. "\\fs12\\bord1\\blur0.5}",
     }
 
 
@@ -2033,7 +2047,7 @@ function bar_layout(direction)
             an = 6, w = 150, h = geo.h }
     lo = add_layout("cache")
     lo.geometry = geo
-    lo.style = osc_styles.vidtitleBar
+    lo.style = osc_styles.timecodes
 
     local t_r = geo.x - geo.w - padX*2
 
@@ -2192,6 +2206,19 @@ function validate_user_opts()
         msg.warn("windowcontrols_alignment cannot be \"" ..
                 user_opts.windowcontrols_alignment .. "\". Ignoring.")
         user_opts.windowcontrols_alignment = "right"
+    end
+
+    local colors = {
+        user_opts.background_color, user_opts.top_buttons_color,
+        user_opts.small_buttonsL_color, user_opts.small_buttonsR_color,
+        user_opts.buttons_color, user_opts.title_color,
+        user_opts.timecode_color, user_opts.time_pos_color,
+        user_opts.held_element_color, user_opts.time_pos_outline_color,
+    }
+    for _, color in pairs(colors) do
+	    if color:find("^#%x%x%x%x%x%x$") == nil then
+		    msg.warn("'" .. color .. "' is not a valid color")
+	    end
     end
 end
 
@@ -2595,11 +2622,10 @@ function osc_init()
         else
             dmx_cache = state.dmx_cache
         end
+        local hr  = math.floor(dmx_cache / 3600)
         local min = math.floor(dmx_cache / 60)
         local sec = math.floor(dmx_cache % 60) -- don't round e.g. 59.9 to 60
-        return "Cache: " .. (min > 0 and
-            string.format("%sm%02.0fs", min, sec) or
-            string.format("%3.0fs", sec))
+        return "Cache: " .. string.format("%02.0f:%02.0f:%02.0f", hr, min, sec)
     end
 
     -- volume
