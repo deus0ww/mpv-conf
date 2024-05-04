@@ -552,7 +552,7 @@ function osc_color_convert(color)
 	return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
 end
 
-local font_mono = user_opts.font_mono or mp.get_property("options/osd-font")
+local font_mono = (user_opts.font_mono and user_opts.font_mono ~= "") and user_opts.font_mono or mp.get_property("options/osd-font")
 local osc_styles = {
     bigButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs50\\fnmpv-osd-symbols}",
     smallButtonsL = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.small_buttonsL_color) .. "\\3c&HFFFFFF\\fs19\\fnmpv-osd-symbols}",
