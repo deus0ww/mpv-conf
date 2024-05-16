@@ -30,8 +30,8 @@ local o = {
     ass_formatting = true,
     persistent_overlay = false,      -- whether the stats can be overwritten by other output
     print_perfdata_passes = false,   -- when true, print the full information about all passes
-    filter_params_max_length = 100,  -- a filter list longer than this many characters will be shown one filter per line instead
-    show_frame_info = false,          -- whether to show the current frame info
+    filter_params_max_length = 100,  -- show one filter per line if list exceeds this length
+    show_frame_info = false,         -- whether to show the current frame info
     term_width_limit = -1,           -- overwrites the terminal width
     term_height_limit = -1,          -- overwrites the terminal height
     debug = false,
@@ -115,7 +115,7 @@ local recorder = nil
 -- Timer used for redrawing (toggling) and clearing the screen (oneshot)
 local display_timer = nil
 -- Timer used to update cache stats.
-local cache_recorder_timer = nil
+local cache_recorder_timer
 -- Current page and <page key>:<page function> mappings
 local curr_page = o.key_page_1
 local pages = {}
@@ -168,7 +168,7 @@ local function no_ASS(t)
 end
 
 
-local function b(t)
+local function bold(t)
     return o.b1 .. t .. o.b0
 end
 
@@ -249,7 +249,7 @@ local function generate_graph(values, i, len, v_max, v_avg, scale, x_tics)
     local s = {format("m 0 0 n %f %f l ", x, y_max - scale * values[i])}
     i = ((i - 2) % len) + 1
 
-    for p = 1, len - 1 do
+    for _ = 1, len - 1 do
         if values[i] then
             x = x - x_tics
             s[#s+1] = format("%f %f ", x, y_max - scale * values[i])
@@ -260,8 +260,10 @@ local function generate_graph(values, i, len, v_max, v_avg, scale, x_tics)
     s[#s+1] = format("%f %f %f %f", x, y_max, 0, y_max)
 
     local bg_box = format("{\\bord%f}{\\3c&H%s&}{\\1c&H%s&}m 0 %f l %f %f %f 0 0 0",
-                          plot_bg_border_width, o.plot_bg_border_color, o.plot_bg_color, y_max, x_max, y_max, x_max)
-    return format("%s{\\rDefault}{\\pbo%f}{\\shad0}{\\alpha&H00}{\\p1}%s{\\p0}{\\bord0}{\\1c&H%s}{\\p1}%s{\\p0}%s",
+                          plot_bg_border_width, o.plot_bg_border_color, o.plot_bg_color,
+                          y_max, x_max, y_max, x_max)
+    return format("%s{\\rDefault}{\\pbo%f}{\\shad0}{\\alpha&H00}{\\p1}%s{\\p0}" ..
+                  "{\\bord0}{\\1c&H%s}{\\p1}%s{\\p0}%s",
                   o.prefix_sep, y_offset, bg_box, o.plot_color, table.concat(s), text_style())
 end
 
@@ -276,7 +278,7 @@ local function append(s, str, attr)
     attr.suffix = attr.suffix or ""
     attr.prefix = attr.prefix or ""
     attr.no_prefix_markup = attr.no_prefix_markup or false
-    attr.prefix = attr.no_prefix_markup and attr.prefix or b(attr.prefix)
+    attr.prefix = attr.no_prefix_markup and attr.prefix or bold(attr.prefix)
     s[#s+1] = format("%s%s%s%s{\\fn%s}%s{\\fn%s}%s", attr.nl, attr.indent,
                      attr.prefix, attr.prefix_sep, o.font_mono_digits, no_ASS(str), o.font, attr.suffix)
     return true
@@ -332,11 +334,6 @@ local function append_perfdata(header, s, dedicated_page, print_passes)
         return
     end
 
-    local ds = mp.get_property_bool("display-sync-active", false)
-    local target_fps = ds and mp.get_property_number("display-fps", 0)
-                       or mp.get_property_number("container-fps", 0)
-    if target_fps > 0 then target_fps = 1 / target_fps * 1e9 end
-
     -- Sums of all last/avg/peak values
     local last_s, avg_s, peak_s = {}, {}, {}
     for frame, data in pairs(vo_p) do
@@ -370,8 +367,8 @@ local function append_perfdata(header, s, dedicated_page, print_passes)
     local h = dedicated_page and header or s
     h[#h+1] = format("%s%s%s%s{\\fs%s}%s{\\fs%s}%s",
                      dedicated_page and "" or o.nl, dedicated_page and "" or o.indent,
-                     b("Frame Timings:"), o.prefix_sep, o.font_size * 0.66,
-                     "(last | average | peak ms)", o.font_size,
+                     bold("Frame Timings:"), o.prefix_sep, font_size * 0.66,
+                     "(last | average | peak ms)", font_size,
                      dedicated_page and scroll_hint() or "")
 
     for _,frame in ipairs(sorted_keys(vo_p)) do  -- ensure fixed display order
@@ -380,7 +377,7 @@ local function append_perfdata(header, s, dedicated_page, print_passes)
 
         if print_passes then
             s[#s+1] = format("%s%s%s:", o.nl, o.indent,
-                             b(frame:gsub("^%l", string.upper)))
+                             bold(frame:gsub("^%l", string.upper)))
 
             local desc
             for _, pass in ipairs(data) do
@@ -413,7 +410,7 @@ local function append_perfdata(header, s, dedicated_page, print_passes)
             s[#s+1] = format(f, o.nl, o.indent, o.indent,
                              o.font_mono_digits, pp(last_s[frame]),
                              pp(avg_s[frame]), pp(peak_s[frame]),
-                             o.prefix_sep, b("Total"), o.font, "", "", "")
+                             o.prefix_sep, bold("Total"), o.font, "", "", "")
         else
             -- for the simplified view, we just print the sum of each pass
             s[#s+1] = format(f, o.nl, o.indent, o.indent, o.font_mono_digits,
@@ -566,7 +563,7 @@ local function append_general_perfdata(s)
         append(s, data.text or data.value, {prefix="["..tostring(i).."] "..data.name..":"})
 
         if o.plot_perfdata and o.use_ass and data.value then
-            buf = perf_buffers[data.name]
+            local buf = perf_buffers[data.name]
             if not buf then
                 buf = {0, pos = 1, len = 50, max = 0}
                 perf_buffers[data.name] = buf
@@ -601,13 +598,17 @@ local function append_display_sync(s)
         local ratio_graph = ""
         local jitter_graph = ""
         if o.plot_vsync_ratio then
-            ratio_graph = generate_graph(vsratio_buf, vsratio_buf.pos, vsratio_buf.len, vsratio_buf.max, nil, 0.8, 1)
+            ratio_graph = generate_graph(vsratio_buf, vsratio_buf.pos,
+                                         vsratio_buf.len, vsratio_buf.max, nil, 0.8, 1)
         end
         if o.plot_vsync_jitter then
-            jitter_graph = generate_graph(vsjitter_buf, vsjitter_buf.pos, vsjitter_buf.len, vsjitter_buf.max, nil, 0.8, 1)
+            jitter_graph = generate_graph(vsjitter_buf, vsjitter_buf.pos,
+                                          vsjitter_buf.len, vsjitter_buf.max, nil, 0.8, 1)
         end
-        append_property(s, "vsync-ratio", {prefix="VSync Ratio:", suffix=o.prefix_sep .. ratio_graph})
-        append_property(s, "vsync-jitter", {prefix="VSync Jitter:", suffix=o.prefix_sep .. jitter_graph})
+        append_property(s, "vsync-ratio", {prefix="VSync Ratio:",
+                                           suffix=o.prefix_sep .. ratio_graph})
+        append_property(s, "vsync-jitter", {prefix="VSync Jitter:",
+                                            suffix=o.prefix_sep .. jitter_graph})
     else
         -- Since no graph is needed we can print ratio/jitter on the same line and save some space
         local vr = append_property(s, "vsync-ratio", {prefix="VSync Ratio:"})
@@ -654,7 +655,7 @@ local function append_filters(s, prop, prefix)
             local sep = format("{\\fn%s}", o.font_mono) .. o.nl .. o.indent .. format("{\\fn%s}", o.font_mono)
             ret = sep .. table.concat(filters, sep)
         end
-        s[#s+1] = o.nl .. o.indent .. b(prefix) .. o.prefix_sep .. ret
+        s[#s+1] = o.nl .. o.indent .. bold(prefix) .. o.prefix_sep .. ret
     end
 end
 
@@ -667,7 +668,7 @@ end
 local function add_file(s)
     append(s, "", {prefix="File:", nl="", indent=""})
     append_property(s, "filename", {prefix_sep="", nl="", indent=""})
-    if not (mp.get_property_osd("filename") == mp.get_property_osd("media-title")) then
+    if mp.get_property_osd("filename") ~= mp.get_property_osd("media-title") then
         append_property(s, "media-title", {prefix="Title:"})
     end
 
@@ -930,7 +931,7 @@ local function add_video_out(s)
 
     local od = mp.get_property_native("osd-dimensions")
     local rt = mp.get_property_native("video-target-params")
-    r = rt or {}
+    local r = rt or {}
 
     -- Add window scale
     r["s"] = scale
@@ -1020,9 +1021,9 @@ local function add_audio(s)
         return
     end
 
-    local merge = function(r, ro, prop)
-        local a = r[prop] or ro[prop]
-        local b = ro[prop] or r[prop]
+    local merge = function(rr, rro, prop)
+        local a = rr[prop] or rro[prop]
+        local b = rro[prop] or rr[prop]
         return (a == b or a == nil) and a or (a .. " ➜ " .. b)
     end
 
@@ -1085,7 +1086,7 @@ end
 --   printable codepoints occupy one terminal cell (we don't have wcwidth)
 --   tabstops are 8, 16, 24..., and the output starts at 0 or a tabstop
 -- note: if maxwidth <= 2 and s doesn't fit: the result is "..." (more than 2)
-function term_ellipsis(s, maxwidth)
+local function term_ellipsis(s, maxwidth)
     local TAB, ESC, SGR_END = 9, 27, ("m"):byte()
     local width, ellipsis = 0, "..."
     local fit_len, in_sgr
@@ -1305,9 +1306,9 @@ local function cache_stats()
            {prefix = "End Cached:"})
 
     local ranges = info["seekable-ranges"] or {}
-    for n, r in ipairs(ranges) do
-        append(stats, mp.format_time(r["start"]) .. " - " ..
-                      mp.format_time(r["end"]),
+    for n, range in ipairs(ranges) do
+        append(stats, mp.format_time(range["start"]) .. " - " ..
+                      mp.format_time(range["end"]),
                {prefix = format("Range %s:", n)})
     end
 
@@ -1391,7 +1392,7 @@ local function print_page(page, after_scroll)
     end
 end
 
-local function update_scale(name, value)
+local function update_scale(_, value)
     -- Calculate scaled metrics.
     local scale = 1
     if not o.vidscale then
@@ -1429,8 +1430,10 @@ local function reset_scroll_offsets()
 end
 local function bind_scroll()
     if not scroll_bound then
-        mp.add_forced_key_binding(o.key_scroll_up, "__forced_"..o.key_scroll_up, scroll_up, {repeatable=true})
-        mp.add_forced_key_binding(o.key_scroll_down, "__forced_"..o.key_scroll_down, scroll_down, {repeatable=true})
+        mp.add_forced_key_binding(o.key_scroll_up, "__forced_" .. o.key_scroll_up,
+                                  scroll_up, {repeatable=true})
+        mp.add_forced_key_binding(o.key_scroll_down, "__forced_" .. o.key_scroll_down,
+                                  scroll_down, {repeatable=true})
         scroll_bound = true
     end
 end
