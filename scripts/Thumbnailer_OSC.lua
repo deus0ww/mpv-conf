@@ -108,7 +108,7 @@ local is_december = os.date("*t").month == 12
 local UNICODE_MINUS = string.char(0xe2, 0x88, 0x92)  -- UTF-8 for U+2212 MINUS SIGN
 
 local function osc_color_convert(color)
-    return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
+	return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
 end
 
 -- luacheck: push ignore
@@ -507,7 +507,8 @@ end
 local has_escape_ass = mp.command_native({"escape-ass", "test"})
 local function escape_ass(ass)
 	ass = tostring(ass)
-	return has_escape_ass and mp.command_native({"escape-ass", ass}) or ass:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
+	return has_escape_ass and mp.command_native({"escape-ass", ass}) or 
+	       ass:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
 end
 
 
@@ -3451,9 +3452,9 @@ local function validate_user_opts()
         user_opts.held_element_color, user_opts.time_pos_outline_color,
     }
     for _, color in pairs(colors) do
-        if color:find("^#%x%x%x%x%x%x$") == nil then
-            msg.warn("'" .. color .. "' is not a valid color")
-        end
+	    if color:find("^#%x%x%x%x%x%x$") == nil then
+		    msg.warn("'" .. color .. "' is not a valid color")
+	    end
     end
 end
 

@@ -147,6 +147,7 @@ end
 
 -- "\\<U+2060>" in UTF-8 (U+2060 is WORD-JOINER)
 local ESC_BACKSLASH = "\\" .. string.char(0xE2, 0x81, 0xA0)
+local has_escape_ass = mp.command_native({"escape-ass", "test"})
 
 local function no_ASS(t)
     if not o.use_ass then
@@ -155,17 +156,9 @@ local function no_ASS(t)
         -- mp.osd_message supports ass-escape using osd-ass-cc/{0|1}
         return ass_stop .. t .. ass_start
     else
-        -- mp.set_osd_ass doesn't support ass-escape. roll our own.
-        -- similar to mpv's sub/osd_libass.c:mangle_ass(...), excluding
-        -- space after newlines because no_ASS is not used with multi-line.
-        -- space at the beginning is replaced with "\\h" because it matters
-        -- at the beginning of a line, and we can't know where our output
-        -- ends up. no issue if it ends up at the middle of a line.
-        return mp.command_native({"escape-ass", tostring(t)}) or
-               tostring(t)
-               :gsub("\\", ESC_BACKSLASH)
-               :gsub("{", "\\{")
-               :gsub("^ ", "\\h")
+        t = tostring(t)
+        return has_escape_ass and mp.command_native({"escape-ass", t}) or 
+               t:gsub("\\", ESC_BACKSLASH):gsub("{", "\\{"):gsub("^ ", "\\h")
     end
 end
 
