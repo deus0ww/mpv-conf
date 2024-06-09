@@ -504,6 +504,12 @@ local function render_wipe()
     state.osd:remove()
 end
 
+local has_escape_ass = mp.command_native({"escape-ass", "test"})
+local function escape_ass(ass)
+	ass = tostring(ass)
+	return has_escape_ass and mp.command_native({"escape-ass", ass}) or ass:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
+end
+
 
 
 
@@ -1062,7 +1068,7 @@ local function show_message(text, duration)
     -- may slow down massively on huge input
     text = string.sub(text, 0, 4000)
 
-    state.message_text = mp.command_native({"escape-ass", text})
+    state.message_text = escape_ass(text)
 
     if not state.message_hide_timer then
         state.message_hide_timer = mp.add_timeout(0, request_tick)
@@ -1780,7 +1786,8 @@ local function window_controls(topbar)
     ne = new_element("wctitle", "button")
     ne.content = function ()
         local title = mp.command_native({"expand-text", user_opts.windowcontrols_title})
-        return title ~= "" and (mp.command_native({"escape-ass", (title:gsub("\n", " "))}) or title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")) or "mpv"
+        title = title:gsub("\n", " ")
+        return title ~= "" and escape_ass(title) or "mpv"
     end
     local left_pad = 5
     local right_pad = 10
@@ -2358,7 +2365,8 @@ local function osc_init()
     ne.content = function ()
         local title = state.forced_title or
                       mp.command_native({"expand-text", user_opts.title})
-        return title ~= "" and (mp.command_native({"escape-ass", (title:gsub("\n", " "))}) or title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")) or "mpv"
+        title = title:gsub("\n", " ")
+        return title ~= "" and escape_ass(title) or "mpv"
     end
 
     ne.eventresponder["mbtn_left_up"] = function ()
