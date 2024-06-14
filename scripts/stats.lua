@@ -392,7 +392,7 @@ local function append_perfdata(header, s, dedicated_page)
                 s[#s+1] = format(f, o.nl, o.indent, o.indent,
                                  o.font_mono_digits, pp(pass["last"]),
                                  pp(pass["avg"]), pp(pass["peak"]),
-                                 o.prefix_sep .. "\\h\\h", p(pass["last"], last_s[frame]),
+                                 o.prefix_sep .. "\\h", p(pass["last"], last_s[frame]),
                                  o.font, o.prefix_sep, o.prefix_sep, desc)
 
                 if o.plot_perfdata and o.use_ass then
