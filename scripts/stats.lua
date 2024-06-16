@@ -380,12 +380,12 @@ local function append_perfdata(header, s, dedicated_page)
             local desc
             for _, pass in ipairs(data) do
                 desc = pass["desc"]
-                desc = desc:find(" %(naive%)")    ~= nil and "NATIVE: " .. desc:gsub(" %(naive%)",  "") or desc
-                desc = desc:find(" %(rgb%)")      ~= nil and "RGB: "    .. desc:gsub(" %(rgb%)",    "") or desc
-                desc = desc:find(" %(luma%)")     ~= nil and "LUMA: "   .. desc:gsub(" %(luma%)",   "") or desc
-                desc = desc:find(" %(chroma%)")   ~= nil and "CHROMA: " .. desc:gsub(" %(chroma%)", "") or desc
-                desc = desc:find(" %(alpha%)")    ~= nil and "ALPHA: "  .. desc:gsub(" %(alpha%)",  "") or desc
-                desc = desc:find(" %(xyz%)")      ~= nil and "XYZ: "    .. desc:gsub(" %(xyz%)",    "") or desc
+                desc = desc:find(" %(naive%)")    ~= nil and "NATIVE " .. desc:gsub(" %(naive%)",  "") or desc
+                desc = desc:find(" %(rgb%)")      ~= nil and "RGB "    .. desc:gsub(" %(rgb%)",    "") or desc
+                desc = desc:find(" %(luma%)")     ~= nil and "LUMA "   .. desc:gsub(" %(luma%)",   "") or desc
+                desc = desc:find(" %(chroma%)")   ~= nil and "CHROMA " .. desc:gsub(" %(chroma%)", "") or desc
+                desc = desc:find(" %(alpha%)")    ~= nil and "ALPHA "  .. desc:gsub(" %(alpha%)",  "") or desc
+                desc = desc:find(" %(xyz%)")      ~= nil and "XYZ "    .. desc:gsub(" %(xyz%)",    "") or desc
                 desc = desc:find("user shader: ") == nil and "{\\b400}" .. desc .. "{\\b0}"
                                                           or "{\\b600}" .. desc:gsub("user shader: ", "") .. "{\\b0}"
 
@@ -978,7 +978,7 @@ local function add_video(s)
         return
     end
 
-    append(s, "", {prefix=o.nl .. o.nl .. "Video:", nl="", indent=""})
+    append(s, "", {prefix="Video:", nl=o.nl .. o.nl, indent=""})
     local track = mp.get_property_native("current-tracks/video")
     if track and append(s, track["codec-desc"], {prefix_sep="", nl="", indent=""}) then
         append(s, track["codec-profile"], {prefix="[", nl="", indent=" ", prefix_sep="",
@@ -1042,7 +1042,7 @@ local function add_audio(s)
         return (a == b or a == nil) and a or (a .. " ➜ " .. b)
     end
 
-    append(s, "", {prefix=o.nl .. o.nl .. "Audio:", nl="", indent=""})
+    append(s, "", {prefix="Audio:", nl=o.nl .. o.nl, indent=""})
     local track = mp.get_property_native("current-tracks/audio")
     if track and track["codec-desc"] then
         append(s, track["codec-desc"], {prefix_sep="", nl="", indent=""})

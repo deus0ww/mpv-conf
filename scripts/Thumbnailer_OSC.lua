@@ -64,17 +64,17 @@ local user_opts = {
     unicodeminus = false,       -- whether to use the Unicode minus sign character
 
     font_mono = "monospace",
-    background_color = "#000000",	-- background color of the osc
-    timecode_color = "#FFFFFF",		-- color of the progress bar and time color
-    title_color = "#FFFFFF",		-- color of the title
-    time_pos_color = "#FFFFFF",		-- color of the timecode at hovered position
-    buttons_color = "#FFFFFF",		-- color of big buttons, wc buttons, and bar small buttons
-    small_buttonsL_color = "#FFFFFF",	-- color of left small buttons
-    small_buttonsR_color = "#FFFFFF",	-- color of right small buttons
-    top_buttons_color = "#FFFFFF",	-- color of top buttons
-    held_element_color = "#999999",	-- color of an element while held down
+    background_color = "#000000",     -- background color of the osc
+    timecode_color = "#FFFFFF",       -- color of the progress bar and time color
+    title_color = "#FFFFFF",          -- color of the title
+    time_pos_color = "#FFFFFF",       -- color of the timecode at hovered position
+    buttons_color = "#FFFFFF",        -- color of big buttons, wc buttons, and bar small buttons
+    small_buttonsL_color = "#FFFFFF", -- color of left small buttons
+    small_buttonsR_color = "#FFFFFF", -- color of right small buttons
+    top_buttons_color = "#FFFFFF",    -- color of top buttons
+    held_element_color = "#999999",   -- color of an element while held down
 
-    time_pos_outline_color = "#000000",	-- color of the border timecodes in slimbox and TimePosBar
+    time_pos_outline_color = "#000000",   -- color of the border timecodes in slimbox and TimePosBar
 
     tick_delay = 1 / 60,                  -- minimum interval between OSC redraws in seconds
     tick_delay_follow_display_fps = false -- use display fps as the minimum interval
@@ -108,7 +108,7 @@ local is_december = os.date("*t").month == 12
 local UNICODE_MINUS = string.char(0xe2, 0x88, 0x92)  -- UTF-8 for U+2212 MINUS SIGN
 
 local function osc_color_convert(color)
-	return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
+    return color:sub(6,7) .. color:sub(4,5) ..  color:sub(2,3)
 end
 
 -- luacheck: push ignore
@@ -2323,6 +2323,7 @@ local function osc_init()
     else
         scale = user_opts.scalewindowed
     end
+    scale = scale * mp.get_property_native("display-hidpi-scale", 1.0)
 
     local scale_with_video
     if user_opts.vidscale == "auto" then
@@ -2330,8 +2331,6 @@ local function osc_init()
     else
         scale_with_video = user_opts.vidscale == "yes"
     end
-
-    scale = scale * mp.get_property_native("display-hidpi-scale", 1.0)
 
     if scale_with_video then
         osc_param.unscaled_y = baseResY
@@ -3394,6 +3393,7 @@ local function idlescreen_visibility(mode, no_osd)
 end
 
 mp.register_script_message("osc-visibility", visibility_mode)
+mp.register_script_message("osc-show", show_osc)
 mp.add_key_binding(nil, "visibility", function() visibility_mode("cycle") end)
 
 mp.register_script_message("osc-idlescreen", idlescreen_visibility)
@@ -3452,9 +3452,9 @@ local function validate_user_opts()
         user_opts.held_element_color, user_opts.time_pos_outline_color,
     }
     for _, color in pairs(colors) do
-	    if color:find("^#%x%x%x%x%x%x$") == nil then
-		    msg.warn("'" .. color .. "' is not a valid color")
-	    end
+        if color:find("^#%x%x%x%x%x%x$") == nil then
+            msg.warn("'" .. color .. "' is not a valid color")
+        end
     end
 end
 
