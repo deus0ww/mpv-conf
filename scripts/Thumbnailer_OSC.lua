@@ -144,6 +144,7 @@ end
 -- internal states, do not touch
 local state = {
     showtime = nil,                         -- time of last invocation (last mouse move)
+    touchtime = nil,                        -- time of last invocation (last touch event)
     osc_visible = false,
     anistart = nil,                         -- time when the animation started
     anitype = nil,                          -- current type of animation
@@ -415,6 +416,12 @@ local function get_hidetimeout()
     return user_opts.hidetimeout
 end
 
+local function get_touchtimeout()
+    if state.touchtime == nil then
+        return 0
+    end
+    return state.touchtime + (get_hidetimeout() / 1000) - mp.get_time()
+end
 
 local function reset_margins()
     if state.using_video_margins then
@@ -2804,12 +2811,17 @@ local function cache_state(_, st)
 end
 
 local function mouse_leave()
-    if get_hidetimeout() >= 0 then
+    if get_hidetimeout() >= 0 and get_touchtimeout() <= 0 then
         hide_osc()
     end
     -- reset mouse position
     state.last_mouseX, state.last_mouseY = nil, nil
     state.mouse_in_window = false
+end
+
+local function handle_touch()
+    --remember last time of invocation (touch event)
+    state.touchtime = mp.get_time()
 end
 
 
@@ -3062,7 +3074,7 @@ local function render()
     -- autohide
     if state.showtime ~= nil and get_hidetimeout() >= 0 then
         local timeout = state.showtime + (get_hidetimeout() / 1000) - now
-        if timeout <= 0 then
+        if timeout <= 0 and get_touchtimeout() <= 0 then
             if state.active_element == nil and not mouse_over_osc then
                 hide_osc()
             end
@@ -3277,6 +3289,7 @@ mp.observe_property("osd-dimensions", "native", function()
     request_init_resize()
 end)
 mp.observe_property('osd-scale-by-window', 'native', request_init_resize)
+mp.observe_property('touch-pos', 'native', handle_touch)
 
 -- mouse show/hide bindings
 mp.set_key_bindings({
