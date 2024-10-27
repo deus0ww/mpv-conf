@@ -102,13 +102,13 @@ local user_opts = {
 
     audio_track_mbtn_left_command = "script-binding select/select-aid; script-message-to osc osc-hide",
     audio_track_mbtn_mid_command = "show-text ${track-list/audio} 3000",
-    audio_track_mbtn_right_command = "show-text ${track-list/audio} 3000",
+    audio_track_mbtn_right_command = "cycle audio",
     audio_track_wheel_down_command = "cycle audio",
     audio_track_wheel_up_command = "cycle audio down",
 
     sub_track_mbtn_left_command = "script-binding select/select-sid; script-message-to osc osc-hide",
     sub_track_mbtn_mid_command = "show-text ${track-list/sub} 3000",
-    sub_track_mbtn_right_command = "show-text ${track-list/sub} 3000",
+    sub_track_mbtn_right_command = "cycle sub",
     sub_track_wheel_down_command = "cycle sub",
     sub_track_wheel_up_command = "cycle sub down",
 
@@ -2454,8 +2454,13 @@ local function osc_init()
 
     ne.enabled = audio_track_count > 0
     ne.content = function ()
+        local aid = mp.get_property("aid")
+        if aid == "no" or aid == "auto" then
+            aid = "-"
+        end
+
         return ("\238\132\134" .. osc_styles.smallButtonsLlabel .. " " ..
-               (mp.get_property_native("aid") or "-") .. "/" .. audio_track_count)
+               aid .. "/" .. audio_track_count)
     end
     ne.eventresponder["mbtn_left_up"] = command_callback(user_opts.audio_track_mbtn_left_command)
     ne.eventresponder["shift+mbtn_left_up"] = command_callback(
@@ -2474,8 +2479,13 @@ local function osc_init()
 
     ne.enabled = sub_track_count > 0
     ne.content = function ()
+        local sid = mp.get_property("sid")
+        if sid == "no" or sid == "auto" then
+            sid = "-"
+        end
+
         return ("\238\132\135" .. osc_styles.smallButtonsLlabel .. " " ..
-               (mp.get_property_native("sid") or "-") .. "/" .. sub_track_count)
+               sid .. "/" .. sub_track_count)
     end
     ne.eventresponder["mbtn_left_up"] = command_callback(user_opts.sub_track_mbtn_left_command)
     ne.eventresponder["shift+mbtn_left_up"] = command_callback(user_opts.sub_track_mbtn_mid_command)
