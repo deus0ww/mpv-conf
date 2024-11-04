@@ -285,7 +285,7 @@ local function default_shaders()
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = get_scale() <= 1.1 and as.luma or nil
-    s[#s+1] = ({[1]=cfl.fsr,       [2]=cfl.fsr                          })[minmax_scale(1, 2)]
+    s[#s+1] = ({[1]=cfl.l,         [2]=cfl.fsr                          })[minmax_scale(1, 2)]
     return s
 end
 
@@ -342,10 +342,10 @@ end
 
 sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = ({                                                         [4]=artcnn.y8dn                      })[minmax_scale(1, 4)]
+    s[#s+1] = ({                                                         [4]=artcnn.y8ds                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = cfl.b
+    s[#s+1] = ({[1]=cfl.l,         [2]=cfl.fsr                                                                })[minmax_scale(1, 2)]
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
@@ -353,7 +353,7 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = artcnn.y16ds
     s[#s+1] = ravu.zoom.r3
-    s[#s+1] = cfl.fsr
+    s[#s+1] = ({[1]=cfl.l,         [2]=cfl.fsr                                                                })[minmax_scale(1, 2)]
     s[#s+1] = ravu.zoom.rgb_r3
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
@@ -361,11 +361,12 @@ sets[#sets+1] = function()
     return { shaders = s, options = set_params(o, p), label = 'Low FPS & RGB' }
 end
 
---    sets[#sets+1] = function()
---        local s, o, p = default_shaders(), default_options(), default_params()
---        s[4] = ({[1]=cfl.x,       [2]=cfl.x                           })[minmax_scale(1, 2)]
---        return { shaders = s, options = set_params(o, p), label = 'Test' }
---    end
+--sets[#sets+1] = function()
+--    local s, o, p = default_shaders(), default_options(), default_params()
+--    s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
+--    s[4]    = cfl.x
+--    return { shaders = s, options = set_params(o, p), label = 'Test' }
+--end
 
 
 
