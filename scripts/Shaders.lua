@@ -12,35 +12,35 @@ local opts = {
     set_timer             = 0,
 
     auto_switch           = true,       -- Auto switch shader preset base on path
-    default_index         = 4,          -- Default shader set
+    default_index         = 2,          -- Default shader set
 
     hifps_threshold       = 29,
     lowfps_threshold      = 15,
 
     preset_1_enabled      = true,
     preset_1_path         = 'rendered',
-    preset_1_index        = 4,
+    preset_1_index        = 2,
 
     preset_2_enabled      = true,       -- Enable this preset
     preset_2_path         = 'anime',    -- Path search string (Lua pattern)
-    preset_2_index        = 4,          -- Shader set index to enable
+    preset_2_index        = 2,          -- Shader set index to enable
 
     preset_3_enabled      = true,
     preset_3_path         = 'cartoon',
-    preset_3_index        = 4,
+    preset_3_index        = 2,
 
     preset_4_enabled      = false,
     preset_4_path         = '%[.+%]',
     preset_4_index        = 2,
 
     preset_hifps_enabled  = true,       -- Target frame time: 15ms
-    preset_hifps_index    = 5,
+    preset_hifps_index    = 3,
 
     preset_lowfps_enabled = true,       -- Target frame time: 90ms
-    preset_lowfps_index   = 6,
+    preset_lowfps_index   = 4,
 
     preset_rgb_enabled    = true,
-    preset_rgb_index      = 6,
+    preset_rgb_index      = 4,
 }
 
 local current_index, enabled = opts.default_index, opts.enabled
@@ -320,18 +320,6 @@ sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1]    = ({[3]=artcnn.y8,     [4]=artcnn.y16                      })[minmax_scale(3, 4)]
     return { shaders = s, options = set_params(o, p), label = 'Default'   }
-end
-
-sets[#sets+1] = function()
-    local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=artcnn.y8sh,   [4]=artcnn.y16sh                     })[minmax_scale(3, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Sharpen' }
-end
-
-sets[#sets+1] = function()
-    local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=artcnn.y8dn,   [4]=artcnn.y16dn                     })[minmax_scale(3, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Denoise' }
 end
 
 sets[#sets+1] = function()
