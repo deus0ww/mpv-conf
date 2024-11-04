@@ -285,7 +285,7 @@ local function default_shaders()
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
     s[#s+1] = get_scale() <= 1.1 and as.luma or nil
-    s[#s+1] = ({[1]=cfl.l,         [2]=cfl.fsr                          })[minmax_scale(1, 2)]
+    s[#s+1] = get_scale() <= 1.1 and cfl.l or cfl.fsr
     return s
 end
 
@@ -345,7 +345,7 @@ sets[#sets+1] = function()
     s[#s+1] = ({                                                         [4]=artcnn.y8ds                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = ({[1]=cfl.l,         [2]=cfl.fsr                                                                })[minmax_scale(1, 2)]
+    s[#s+1] = get_scale() <= 1.1 and cfl.l or cfl.fsr
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
@@ -353,7 +353,7 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = artcnn.y16ds
     s[#s+1] = ravu.zoom.r3
-    s[#s+1] = ({[1]=cfl.l,         [2]=cfl.fsr                                                                })[minmax_scale(1, 2)]
+    s[#s+1] = get_scale() <= 1.1 and cfl.l or cfl.fsr
     s[#s+1] = ravu.zoom.rgb_r3
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
