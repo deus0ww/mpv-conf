@@ -27,6 +27,18 @@
 //!MAXIMUM 1.0
 0.8
 
+//!PARAM chroma_offset_x
+//!TYPE float
+//!MINIMUM -1.0
+//!MAXIMUM  1.0
+0.0
+
+//!PARAM chroma_offset_y
+//!TYPE float
+//!MINIMUM -1.0
+//!MAXIMUM  1.0
+0.0
+
 //!HOOK CHROMA
 //!BIND CHROMA
 //!BIND LUMA
@@ -34,7 +46,7 @@
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Y Box
+//!DESC CfL Downscaling Y Polar Box
 
 #define weight box
 
@@ -50,9 +62,10 @@ float quadratic(const vec2 d) {
     return(0.0);
 }
 
-vec2 scale  = LUMA_size / CHROMA_size;
-vec2 radius = ceil(scale);
-vec2 pp     = fract(LUMA_pos * LUMA_size - 0.5);
+vec2 scale         = LUMA_size / CHROMA_size;
+vec2 radius        = ceil(scale);
+vec2 pp            = fract(LUMA_pos * LUMA_size - 0.5);
+vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
 
 vec4 hook() {
     vec2  d;
@@ -64,7 +77,7 @@ vec4 hook() {
                 w = weight(d / scale);
                 if (w == 0.0) { continue; }
                 wsum += w;
-                ysum += w * LUMA_texOff(d).x;
+                ysum += w * LUMA_texOff(d + chroma_offset).x;
             }
         }
     }
@@ -75,10 +88,10 @@ vec4 hook() {
                 w = weight(d / scale);
                 if (w == 0.0) { continue; }
                 wsum += w * 4.0;
-                ysum += w * (LUMA_texOff(vec2( d.x, d.y)).x +
-                             LUMA_texOff(vec2(-d.x, d.y)).x +
-                             LUMA_texOff(vec2( d.x,-d.y)).x +
-                             LUMA_texOff(vec2(-d.x,-d.y)).x);
+                ysum += w * (LUMA_texOff(vec2( d.x, d.y) + chroma_offset).x +
+                             LUMA_texOff(vec2(-d.x, d.y) + chroma_offset).x +
+                             LUMA_texOff(vec2( d.x,-d.y) + chroma_offset).x +
+                             LUMA_texOff(vec2(-d.x,-d.y) + chroma_offset).x);
             }
         }
     }

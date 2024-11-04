@@ -34,6 +34,18 @@
 //!MAXIMUM 1.0
 0.8
 
+//!PARAM chroma_offset_x
+//!TYPE float
+//!MINIMUM -1.0
+//!MAXIMUM  1.0
+0.0
+
+//!PARAM chroma_offset_y
+//!TYPE float
+//!MINIMUM -1.0
+//!MAXIMUM  1.0
+0.0
+
 //!HOOK CHROMA
 //!BIND CHROMA
 //!BIND LUMA
@@ -57,10 +69,11 @@ float quadratic(const float d) {
     return(0.0);
 }
 
-vec2 scale  = LUMA_size / CHROMA_size;
-vec2 radius = ceil(scale);
-vec2 pp     = fract(LUMA_pos * LUMA_size - 0.5);
-const vec2 axle = vec2(axis == 0, axis == 1);
+const vec2 axle    = vec2(axis == 0, axis == 1);
+vec2 scale         = LUMA_size / CHROMA_size;
+vec2 radius        = ceil(scale);
+vec2 pp            = fract(LUMA_pos * LUMA_size - 0.5);
+vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
 
 vec4 hook() {
     float d, w, wsum, ysum = 0.0;
@@ -70,7 +83,7 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w;
-            ysum += w * LUMA_texOff(axle * vec2(d)).x;
+            ysum += w * LUMA_texOff(axle * vec2(d) + chroma_offset).x;
         }
     }
     else {
@@ -79,8 +92,8 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w * 2.0;
-            ysum += w * (LUMA_texOff(axle * vec2( d)).x +
-                         LUMA_texOff(axle * vec2(-d)).x);
+            ysum += w * (LUMA_texOff(axle * vec2( d) + chroma_offset).x +
+                         LUMA_texOff(axle * vec2(-d) + chroma_offset).x);
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
@@ -109,10 +122,11 @@ float quadratic(const float d) {
     return(0.0);
 }
 
-vec2 scale  = LUMA_LOWRES_size / CHROMA_size;
-vec2 radius = ceil(scale);
-vec2 pp     = fract(LUMA_LOWRES_pos * LUMA_LOWRES_size - 0.5);
-const vec2 axle = vec2(axis == 0, axis == 1);
+const vec2 axle    = vec2(axis == 0, axis == 1);
+vec2 scale         = LUMA_LOWRES_size / CHROMA_size;
+vec2 radius        = ceil(scale);
+vec2 pp            = fract(LUMA_LOWRES_pos * LUMA_LOWRES_size - 0.5);
+vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
 
 vec4 hook() {
     float d, w, wsum, ysum = 0.0;
@@ -122,7 +136,7 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w;
-            ysum += w * LUMA_LOWRES_texOff(axle * vec2(d)).x;
+            ysum += w * LUMA_LOWRES_texOff(axle * vec2(d) + chroma_offset).x;
         }
     }
     else {
@@ -131,8 +145,8 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w * 2.0;
-            ysum += w * (LUMA_LOWRES_texOff(axle * vec2( d)).x +
-                         LUMA_LOWRES_texOff(axle * vec2(-d)).x);
+            ysum += w * (LUMA_LOWRES_texOff(axle * vec2( d) + chroma_offset).x +
+                         LUMA_LOWRES_texOff(axle * vec2(-d) + chroma_offset).x);
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);

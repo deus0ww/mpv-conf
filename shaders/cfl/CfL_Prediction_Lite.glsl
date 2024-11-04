@@ -27,16 +27,28 @@
 //!MAXIMUM 1.0
 0.8
 
+//!PARAM chroma_offset_x
+//!TYPE float
+//!MINIMUM -1.0
+//!MAXIMUM  1.0
+0.0
+
+//!PARAM chroma_offset_y
+//!TYPE float
+//!MINIMUM -1.0
+//!MAXIMUM  1.0
+0.0
+
 //!HOOK CHROMA
 //!BIND LUMA
 //!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Y Box
+//!DESC CfL Downscaling Y Lite
 
 vec4 hook() {
-    return LUMA_tex(LUMA_pos);
+    return LUMA_texOff(vec2(chroma_offset_x, chroma_offset_y));
 }
 
 //!HOOK CHROMA
