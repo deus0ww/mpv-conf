@@ -12,9 +12,9 @@ local opts = {
     set_timer             = 0,
 
     auto_switch           = true,       -- Auto switch shader preset base on path
-    default_index         = 2,          -- Default shader set
+    default_index         = 4,          -- Default shader set
 
-    hifps_threshold       = 31,
+    hifps_threshold       = 29,
     lowfps_threshold      = 15,
 
     preset_1_enabled      = true,
@@ -284,6 +284,7 @@ local function default_shaders()
     s[#s+1] = ({[3]=artcnn.y8,     [4]=artcnn.y16                       })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
+    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
     s[#s+1] = ({[1]=cfl.fsr,       [2]=cfl.fsr                          })[minmax_scale(1, 2)]
     return s
 end
@@ -307,7 +308,7 @@ local function default_params()
         --cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
         ravu_chroma_ar = 0.8,
-        as_sharpness   = get_scale() <= 1.1 and 0.4 or 0.3,
+        as_sharpness   = 0.3,
         fsr_sharpness  = 0.2,
         fsr_pq         = 0,
     }
