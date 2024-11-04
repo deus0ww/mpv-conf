@@ -72,7 +72,7 @@ float quadratic(const float d) {
 const vec2 axle    = vec2(axis == 0, axis == 1);
 vec2 scale         = LUMA_size / CHROMA_size;
 vec2 radius        = ceil(scale);
-vec2 pp            = fract(LUMA_pos * LUMA_size - 0.5);
+vec2 pp            = fract(LUMA_pos * LUMA_size - vec2(0.5));
 vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
 
 vec4 hook() {
@@ -125,7 +125,7 @@ float quadratic(const float d) {
 const vec2 axle    = vec2(axis == 0, axis == 1);
 vec2 scale         = LUMA_LOWRES_size / CHROMA_size;
 vec2 radius        = ceil(scale);
-vec2 pp            = fract(LUMA_LOWRES_pos * LUMA_LOWRES_size - 0.5);
+vec2 pp            = fract(LUMA_LOWRES_pos * LUMA_LOWRES_size - vec2(0.5));
 vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
 
 vec4 hook() {

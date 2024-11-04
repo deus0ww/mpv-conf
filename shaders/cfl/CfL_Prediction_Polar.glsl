@@ -64,7 +64,7 @@ float quadratic(const vec2 d) {
 
 vec2 scale         = LUMA_size / CHROMA_size;
 vec2 radius        = ceil(scale);
-vec2 pp            = fract(LUMA_pos * LUMA_size - 0.5);
+vec2 pp            = fract(LUMA_pos * LUMA_size - vec2(0.5));
 vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
 
 vec4 hook() {
