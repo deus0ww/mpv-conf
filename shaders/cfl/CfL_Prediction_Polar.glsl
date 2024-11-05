@@ -176,7 +176,7 @@ vec4 hook() {
     mix_coeff = vec2(1.0);
 #else
 #ifdef CHROMA_HIGHRES_tex
-    vec2 chroma_spatial = CHROMA_RAVU_tex(CHROMA_RAVU_pos).xy;
+    vec2 chroma_spatial = CHROMA_HIGHRES_tex(CHROMA_HIGHRES_pos).xy;
 #else
     float wt = 0.0;
     vec2 ct = vec2(0.0);

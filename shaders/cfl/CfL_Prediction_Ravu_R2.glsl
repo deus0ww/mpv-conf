@@ -83,7 +83,7 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w;
-            ysum += w * LUMA_texOff(axle * vec2(d) + chroma_offset).x;
+            ysum += w * LUMA_texOff(axle * (vec2(d) + chroma_offset)).x;
         }
     }
     else {
@@ -92,8 +92,8 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w * 2.0;
-            ysum += w * (LUMA_texOff(axle * vec2( d) + chroma_offset).x +
-                         LUMA_texOff(axle * vec2(-d) + chroma_offset).x);
+            ysum += w * (LUMA_texOff(axle * (vec2( d) + chroma_offset)).x +
+                         LUMA_texOff(axle * (vec2(-d) + chroma_offset)).x);
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
@@ -136,7 +136,7 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w;
-            ysum += w * LUMA_LOWRES_texOff(axle * vec2(d) + chroma_offset).x;
+            ysum += w * LUMA_LOWRES_texOff(axle * (vec2(d) + chroma_offset)).x;
         }
     }
     else {
@@ -145,8 +145,8 @@ vec4 hook() {
             w = weight(d / scale[axis]);
             if (w == 0.0) { continue; }
             wsum += w * 2.0;
-            ysum += w * (LUMA_LOWRES_texOff(axle * vec2( d) + chroma_offset).x +
-                         LUMA_LOWRES_texOff(axle * vec2(-d) + chroma_offset).x);
+            ysum += w * (LUMA_LOWRES_texOff(axle * (vec2( d) + chroma_offset)).x +
+                         LUMA_LOWRES_texOff(axle * (vec2(-d) + chroma_offset)).x);
         }
     }
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
