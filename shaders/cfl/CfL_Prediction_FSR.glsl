@@ -152,7 +152,7 @@ vec4 hook() {
     return vec4(ysum / wsum, 0.0, 0.0, 1.0);
 }
 
-//!DESC CfL Upscaling FSR EASU
+//!DESC CfL Upscaling UV FSR EASU
 //!HOOK CHROMA
 //!BIND HOOKED
 //!SAVE CHROMA_HIGHRES
