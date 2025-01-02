@@ -7,7 +7,6 @@
 -- visible.
 
 local mp = require 'mp'
-local options = require 'mp.options'
 local utils = require 'mp.utils'
 local input = mp.input and require 'mp.input'
 
@@ -50,14 +49,14 @@ local o = {
     plot_bg_border_color = "0000FF",
     plot_bg_color = "262626",
     plot_color = "FFFFFF",
-    plot_bg_border_width = 0.5,
+    plot_bg_border_width = 1.25,
 
     -- Text style
     font = "",
     font_mono = "monospace",   -- monospaced digits are sufficient
-    font_size = 8,
+    font_size = 20,
     font_color = "",
-    border_size = 0.8,
+    border_size = 1.65,
     border_color = "",
     shadow_x_offset = 0.0,
     shadow_y_offset = 0.0,
@@ -90,7 +89,11 @@ local o = {
 
     bindlist = "no",  -- print page 4 to the terminal on startup and quit mpv
 }
-options.read_options(o)
+
+local update_scale
+require "mp.options".read_options(o, nil, function ()
+    update_scale()
+end)
 
 local format = string.format
 local max = math.max
@@ -1507,7 +1510,7 @@ local function print_page(page, after_scroll)
     end
 end
 
-local function update_scale(osd_height)
+update_scale = function ()
     local scale_with_video
     if o.vidscale == "auto" then
         scale_with_video = mp.get_property_native("osd-scale-by-window")
@@ -1516,9 +1519,11 @@ local function update_scale(osd_height)
     end
 
     -- Calculate scaled metrics.
-    local scale = 1
+    -- Make font_size=n the same size as --osd-font-size=n.
+    local scale = 288 / 720
+    local osd_height = mp.get_property_native("osd-height")
     if not scale_with_video and osd_height > 0 then
-        scale = 720 / osd_height
+        scale = 288 / osd_height
     end
     font_size = o.font_size * scale
     border_size = o.border_size * scale
@@ -1528,14 +1533,6 @@ local function update_scale(osd_height)
     if display_timer:is_enabled() then
         print_page(curr_page)
     end
-end
-
-local function handle_osd_height_update(_, osd_height)
-    update_scale(osd_height)
-end
-
-local function handle_osd_scale_by_window_update()
-    update_scale(mp.get_property_native("osd-height"))
 end
 
 local function clear_screen()
@@ -1797,5 +1794,5 @@ if o.bindlist ~= "no" then
     end)
 end
 
-mp.observe_property('osd-height', 'native', handle_osd_height_update)
-mp.observe_property('osd-scale-by-window', 'native', handle_osd_scale_by_window_update)
+mp.observe_property("osd-height", "native", update_scale)
+mp.observe_property("osd-scale-by-window", "native", update_scale)
