@@ -20,13 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!PARAM cfl_antiring
-//!DESC CfL Antiring Parameter
-//!TYPE float
-//!MINIMUM 0.0
-//!MAXIMUM 1.0
-0.0
-
 //!PARAM fsr_sharpness
 //!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
 //!TYPE float
@@ -36,26 +29,21 @@
 
 //!PARAM chroma_offset_x
 //!TYPE float
-//!MINIMUM -1.0
-//!MAXIMUM  1.0
 0.0
 
 //!PARAM chroma_offset_y
 //!TYPE float
-//!MINIMUM -1.0
-//!MAXIMUM  1.0
 0.0
 
 //!HOOK CHROMA
-//!BIND CHROMA
 //!BIND LUMA
-//!SAVE LUMA_LOWRES
+//!BIND CHROMA
+//!SAVE LUMA_LR
 //!WIDTH CHROMA.w
 //!HEIGHT LUMA.h
 //!WHEN CHROMA.w LUMA.w <
-//!DESC CfL Downscaling Yx Box
-#define axis 0
-#define weight box
+//!DESC CfL Downscaling Yx Hermite
+#define weight hermite
 
 float box(const float d)       { return float(abs(d) <= 0.5); }
 float triangle(const float d)  { return max(1.0 - abs(d), 0.0); }
@@ -69,46 +57,44 @@ float quadratic(const float d) {
     return(0.0);
 }
 
-const vec2 axle    = vec2(axis == 0, axis == 1);
-vec2 scale         = LUMA_size / CHROMA_size;
-vec2 radius        = ceil(scale);
-vec2 pp            = fract(LUMA_pos * LUMA_size - vec2(0.5));
-vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
+float comp_wd(vec2 v) {
+    float x = min(length(v), 1.0);
+    return weight(x);
+}
 
 vec4 hook() {
-    float d, w, wsum, ysum = 0.0;
-    if(bool(mod(scale[axis], 2))) {
-        for(float i = 1.0 - radius[axis]; i <= radius[axis]; i++) {
-            d = i - pp[axis];
-            w = weight(d / scale[axis]);
-            if (w == 0.0) { continue; }
-            wsum += w;
-            ysum += w * LUMA_texOff(axle * (vec2(d) + chroma_offset)).x;
-        }
+    vec2 luma_pos = LUMA_pos;
+    luma_pos.x += chroma_offset_x / LUMA_size.x;
+    float start  = ceil((luma_pos.x - (1.0 / CHROMA_size.x)) * LUMA_size.x - 0.5);
+    float end = floor((luma_pos.x + (1.0 / CHROMA_size.x)) * LUMA_size.x - 0.5);
+
+    float wt = 0.0;
+    float luma_sum = 0.0;
+    vec2 pos = luma_pos;
+
+    for (float dx = start.x; dx <= end.x; dx++) {
+        pos.x = LUMA_pt.x * (dx + 0.5);
+        vec2 dist = (pos - luma_pos) * CHROMA_size;
+        float wd = comp_wd(dist);
+        float luma_pix = LUMA_tex(pos).x;
+        luma_sum += wd * luma_pix;
+        wt += wd;
     }
-    else {
-        for(float i = 0.0; i <= radius[axis]; i++) {
-            d = i + 0.5;
-            w = weight(d / scale[axis]);
-            if (w == 0.0) { continue; }
-            wsum += w * 2.0;
-            ysum += w * (LUMA_texOff(axle * (vec2( d) + chroma_offset)).x +
-                         LUMA_texOff(axle * (vec2(-d) + chroma_offset)).x);
-        }
-    }
-    return vec4(ysum / wsum, 0.0, 0.0, 1.0);
+
+    vec4 output_pix = vec4(luma_sum /= wt, 0.0, 0.0, 1.0);
+    return clamp(output_pix, 0.0, 1.0);
 }
 
 //!HOOK CHROMA
+//!BIND LUMA_LR
 //!BIND CHROMA
-//!BIND LUMA_LOWRES
-//!SAVE LUMA_LOWRES
+//!BIND LUMA
+//!SAVE LUMA_LR
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
-//!WHEN CHROMA.h LUMA_LOWRES.h <
-//!DESC CfL Downscaling Yy Box
-#define axis 1
-#define weight box
+//!WHEN CHROMA.w LUMA.w <
+//!DESC CfL Downscaling Yy Hermite
+#define weight hermite
 
 float box(const float d)       { return float(abs(d) <= 0.5); }
 float triangle(const float d)  { return max(1.0 - abs(d), 0.0); }
@@ -122,44 +108,42 @@ float quadratic(const float d) {
     return(0.0);
 }
 
-const vec2 axle    = vec2(axis == 0, axis == 1);
-vec2 scale         = LUMA_LOWRES_size / CHROMA_size;
-vec2 radius        = ceil(scale);
-vec2 pp            = fract(LUMA_LOWRES_pos * LUMA_LOWRES_size - vec2(0.5));
-vec2 chroma_offset = vec2(chroma_offset_x, chroma_offset_y);
-
-vec4 hook() {
-    float d, w, wsum, ysum = 0.0;
-    if(bool(mod(scale[axis], 2))) {
-        for(float i = 1.0 - radius[axis]; i <= radius[axis]; i++) {
-            d = i - pp[axis];
-            w = weight(d / scale[axis]);
-            if (w == 0.0) { continue; }
-            wsum += w;
-            ysum += w * LUMA_LOWRES_texOff(axle * (vec2(d) + chroma_offset)).x;
-        }
-    }
-    else {
-        for(float i = 0.0; i <= radius[axis]; i++) {
-            d = i + 0.5;
-            w = weight(d / scale[axis]);
-            if (w == 0.0) { continue; }
-            wsum += w * 2.0;
-            ysum += w * (LUMA_LOWRES_texOff(axle * (vec2( d) + chroma_offset)).x +
-                         LUMA_LOWRES_texOff(axle * (vec2(-d) + chroma_offset)).x);
-        }
-    }
-    return vec4(ysum / wsum, 0.0, 0.0, 1.0);
+float comp_wd(vec2 v) {
+    float x = min(length(v), 1.0);
+    return weight(x);
 }
 
-//!DESC CfL Upscaling UV FSR EASU
+vec4 hook() {
+    vec2 luma_pos = LUMA_LR_pos;
+    luma_pos.y += chroma_offset_y / LUMA_LR_size.y;
+    float start  = ceil((luma_pos.y - (1.0 / CHROMA_size.y)) * LUMA_LR_size.y - 0.5);
+    float end = floor((luma_pos.y + (1.0 / CHROMA_size.y)) * LUMA_LR_size.y - 0.5);
+
+    float wt = 0.0;
+    float luma_sum = 0.0;
+    vec2 pos = luma_pos;
+
+    for (float dy = start; dy <= end; dy++) {
+        pos.y = LUMA_LR_pt.y * (dy + 0.5);
+        vec2 dist = (pos - luma_pos) * CHROMA_size;
+        float wd = comp_wd(dist);
+        float luma_pix = LUMA_LR_tex(pos).x;
+        luma_sum += wd * luma_pix;
+        wt += wd;
+    }
+
+    vec4 output_pix = vec4(luma_sum /= wt, 0.0, 0.0, 1.0);
+    return clamp(output_pix, 0.0, 1.0);
+}
+
 //!HOOK CHROMA
 //!BIND HOOKED
-//!SAVE CHROMA_HIGHRES
+//!SAVE CHROMA_HR
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
 //!OFFSET ALIGN
 //!WHEN HOOKED.w LUMA.w < HOOKED.h LUMA.h < *
+//!DESC CfL Upscaling UV FSR EASU
 
 // User variables - EASU
 #define FSR_EASU_DERING 1          // If set to 0, disables deringing for a small increase in performance. 0 or 1.
@@ -451,8 +435,8 @@ for(int i = 0; i < 2; i++)
 //!HOOK CHROMA
 //!BIND HOOKED
 //!BIND LUMA
-//!BIND LUMA_LOWRES
-//!BIND CHROMA_HIGHRES
+//!BIND LUMA_LR
+//!BIND CHROMA_HR
 //!WHEN CHROMA.w LUMA.w <
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
@@ -463,39 +447,37 @@ for(int i = 0; i < 2; i++)
 #define USE_8_TAP_REGRESSIONS 1
 #define DEBUG 0
 
-#define weight fsr
-
-float fsr(vec2 v) {
-    float d2  = min(dot(v, v), 4.0);
-    float d24 = d2 - 4.0;
-    return d24 * d24 * d24 * (d2 - 1.0);
-}
-
-float cubic(vec2 v) {
-    float d2 = min(dot(v, v), 4.0);
-    float d  = sqrt(d2);
+float comp_wd(vec2 v) {
+    float d = min(length(v), 2.0);
+    float d2 = d * d;
     float d3 = d2 * d;
-    return d < 1.0 ? 1.25 * d3 - 2.25 * d2 + 1.0 : -0.75 * d3 + 3.75 * d2 - 6.0 * d + 3.0;
+
+    if (d < 1.0) {
+        return 1.25 * d3 - 2.25 * d2 + 1.0;
+    } else {
+        return -0.75 * d3 + 3.75 * d2 - 6.0 * d + 3.0;
+    }
 }
 
 vec4 hook() {
+    float ar_strength = 0.8;
     vec2 mix_coeff = vec2(0.8);
     vec2 corr_exponent = vec2(4.0);
 
     vec4 output_pix = vec4(0.0, 0.0, 0.0, 1.0);
-    float luma_zero = LUMA_tex(LUMA_pos).x;
+    float luma_zero = LUMA_texOff(0.0).x;
 
-    vec2 p = HOOKED_pos * HOOKED_size - vec2(0.5);
-    vec2 fp = floor(p);
-    vec2 pp = fract(p);
+    vec2 pp = HOOKED_pos * HOOKED_size - vec2(0.5);
+    vec2 fp = floor(pp);
+    pp -= fp;
 
 #ifdef HOOKED_gather
     const vec2 quad_idx[4] = {{0.0, 0.0}, {2.0, 0.0}, {0.0, 2.0}, {2.0, 2.0}};
     vec4 q[3][4];
     for(int i = 0; i < 4; i++) {
-        q[0][i] = LUMA_LOWRES_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
-        q[1][i] =      HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
-        q[2][i] =      HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 1);
+        q[0][i] = LUMA_LR_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
+        q[1][i] =  HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
+        q[2][i] =  HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 1);
     }
     vec2 chroma_pixels[16] = {
         {q[1][0].w, q[2][0].w},  {q[1][0].z, q[2][0].z},  {q[1][1].w, q[2][1].w},  {q[1][1].z, q[2][1].z},
@@ -517,7 +499,7 @@ vec4 hook() {
     vec2 chroma_pixels[16];
 
     for (int i = 0; i < 16; i++) {
-        luma_pixels[i] = LUMA_LOWRES_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).x;
+        luma_pixels[i] = LUMA_LR_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).x;
         chroma_pixels[i] = HOOKED_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).xy;
     }
 #endif
@@ -526,23 +508,27 @@ vec4 hook() {
     vec2 chroma_spatial = vec2(0.5);
     mix_coeff = vec2(1.0);
 #else
-#ifdef CHROMA_HIGHRES_tex
-    vec2 chroma_spatial = CHROMA_HIGHRES_tex(CHROMA_HIGHRES_pos).xy;
+#ifdef CHROMA_HR_tex
+    vec2 chroma_spatial = CHROMA_HR_tex(CHROMA_HR_pos).xy;
 #else
+    float wd[16];
     float wt = 0.0;
     vec2 ct = vec2(0.0);
+
+    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
+
     const int dx[16] = {-1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2, -1, 0, 1, 2};
     const int dy[16] = {-1, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2};
-    float wd[16];
-    for(int i = 0; i < 16; i++) {
-        wd[i] = weight(vec2(dx[i], dy[i]) - pp);
+
+    for (int i = 0; i < 16; i++) {
+        wd[i] = comp_wd(vec2(dx[i], dy[i]) - pp);
         wt += wd[i];
         ct += wd[i] * chroma_pixels[i];
     }
+
     vec2 chroma_spatial = ct / wt;
-    vec2 chroma_min = min(min(min(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    vec2 chroma_max = max(max(max(chroma_pixels[5], chroma_pixels[6]), chroma_pixels[9]), chroma_pixels[10]);
-    chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), cfl_antiring), 0.0, 1.0);
+    chroma_spatial = clamp(mix(chroma_spatial, clamp(chroma_spatial, chroma_min, chroma_max), ar_strength), 0.0, 1.0);
 #endif
 #endif
 

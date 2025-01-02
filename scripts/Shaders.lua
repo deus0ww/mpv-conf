@@ -261,13 +261,10 @@ local cfl_path = shaders_path .. 'cfl/'
 local cfl      = {
     b          = cfl_path .. 'CfL_Prediction.glsl',
     l          = cfl_path .. 'CfL_Prediction_Lite.glsl',
-    p          = cfl_path .. 'CfL_Prediction_Polar.glsl',
+    s          = cfl_path .. 'CfL_Prediction_Smooth.glsl',
 
     fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
-    r2         = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
-    r3         = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
-    r2x        = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
-    r3x        = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
+    fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',  
 
     x          = cfl_path .. 'CfL_Prediction_Test.glsl',
 }
@@ -284,8 +281,7 @@ local function default_shaders()
     s[#s+1] = ({[3]=artcnn.y8,     [4]=artcnn.y16                       })[minmax_scale(3, 4)]
     s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
-    s[#s+1] = get_scale() <= 1.1 and cfl.l or cfl.fsr
+    s[#s+1] = get_scale() <= 1.1 and cfl.fsr_bi or cfl.fsr
     return s
 end
 
@@ -305,7 +301,6 @@ end
 
 local function default_params()
     return {
-        --cfl_antiring   = default_antiring,
         ravu_antiring  = default_antiring,
         ravu_chroma_ar = 0.8,
         as_sharpness   = 0.3,
@@ -318,13 +313,14 @@ local sets = {}
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=artcnn.y8,     [4]=artcnn.y16                      })[minmax_scale(3, 4)]
+    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
     return { shaders = s, options = set_params(o, p), label = 'Default'   }
 end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
+    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
     return { shaders = s, options = set_params(o, p), label = 'Denoise & Sharpen' }
 end
 
@@ -333,7 +329,7 @@ sets[#sets+1] = function()
     s[#s+1] = ({                                                         [4]=artcnn.y8ds                      })[minmax_scale(1, 4)]
     s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
     s[#s+1] = fsr.easu
-    s[#s+1] = get_scale() <= 1.1 and cfl.l or cfl.fsr
+    s[#s+1] = get_scale() <= 1.1 and cfl.fsr_bi or cfl.fsr
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
@@ -341,7 +337,8 @@ sets[#sets+1] = function()
     local s, o, p = {}, default_options(), default_params()
     s[#s+1] = artcnn.y16ds
     s[#s+1] = ravu.zoom.r3
-    s[#s+1] = get_scale() <= 1.1 and cfl.l or cfl.fsr
+    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
+    s[#s+1] = get_scale() <= 1.1 and cfl.fsr_bi or cfl.fsr
     s[#s+1] = ravu.zoom.rgb_r3
     s[#s+1] = igv.ssds
     o['linear-downscaling'] = 'no'  -- for ssds
