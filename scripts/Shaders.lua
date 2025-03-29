@@ -199,6 +199,31 @@ local artcnn   = {
     yuv16sh    = art_yuv_path .. 'ArtCNN_C4F16_SH_YCbCr.glsl',
 }
 
+-- CuNNy by funnyplanter - https://github.com/funnyplanter/CuNNy
+local cunny_ds_path   = shaders_path .. 'cunny/ds/'
+local cunny_soft_path = shaders_path .. 'cunny/soft/'
+local cunny    = {
+    ds2x12     = cunny_ds_path  .. 'CuNNy-2x12-DS.glsl',
+    ds3x12     = cunny_ds_path  .. 'CuNNy-3x12-DS.glsl',
+    ds4x12     = cunny_ds_path  .. 'CuNNy-4x12-DS.glsl',
+    ds4x16     = cunny_ds_path  .. 'CuNNy-4x16-DS.glsl',
+    ds4x24     = cunny_ds_path  .. 'CuNNy-4x24-DS.glsl',
+    ds4x32     = cunny_ds_path  .. 'CuNNy-4x32-DS.glsl',
+    ds8x32     = cunny_ds_path  .. 'CuNNy-8x32-DS.glsl',
+    dsfast     = cunny_ds_path  .. 'CuNNy-fast-DS.glsl',
+    dsfaster   = cunny_ds_path  .. 'CuNNy-faster-DS.glsl',
+
+    s2x12      = cunny_soft_path .. 'CuNNy-2x12-SOFT.glsl',
+    s3x12      = cunny_soft_path .. 'CuNNy-3x12-SOFT.glsl',
+    s4x12      = cunny_soft_path .. 'CuNNy-4x12-SOFT.glsl',
+    s4x16      = cunny_soft_path .. 'CuNNy-4x16-SOFT.glsl',
+    s4x24      = cunny_soft_path .. 'CuNNy-4x24-SOFT.glsl',
+    s4x32      = cunny_soft_path .. 'CuNNy-4x32-SOFT.glsl',
+    sfast      = cunny_soft_path .. 'CuNNy-fast-SOFT.glsl',
+    sfaster    = cunny_soft_path .. 'CuNNy-faster-SOFT.glsl',
+    sfastest   = cunny_soft_path .. 'CuNNy-veryfast-SOFT.glsl',
+}
+
 -- FSR by agyild - https://gist.github.com/agyild
 local fsr_path = shaders_path .. 'fsr/'
 local fsr      = {
