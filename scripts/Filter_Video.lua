@@ -24,7 +24,8 @@ add({
 add({
     name = 'PostProcess',
     filter_type = 'video',
-    reset_on_load = false,
+    default_on_load = true,
+    reset_on_load = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#pp
         'pp=ac/-dr',
