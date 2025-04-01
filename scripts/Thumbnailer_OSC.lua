@@ -91,8 +91,8 @@ local user_opts = {
     playlist_next_mbtn_right_command = "script-binding select/select-playlist; script-message-to osc osc-hide",
 
     title_mbtn_left_command = "script-binding stats/display-page-5",
-    title_mbtn_mid_command = "show-text ${filename}",
-    title_mbtn_right_command = "show-text ${path}",
+    title_mbtn_mid_command = "show-text ${path}",
+    title_mbtn_right_command = "script-binding select/select-watch-history; script-message-to osc osc-hide",
 
     play_pause_mbtn_left_command = "cycle pause",
     play_pause_mbtn_mid_command = "cycle-values loop-playlist inf no",
@@ -137,6 +137,8 @@ for i = 1, 99 do
     user_opts["custom_button_" .. i .. "_mbtn_left_command"] = ""
     user_opts["custom_button_" .. i .. "_mbtn_mid_command"] = ""
     user_opts["custom_button_" .. i .. "_mbtn_right_command"] = ""
+    user_opts["custom_button_" .. i .. "_wheel_down_command"] = ""
+    user_opts["custom_button_" .. i .. "_wheel_up_command"] = ""
 end
 
 local icon_font = "mpv-osd-symbols"
@@ -600,13 +602,6 @@ local function render_wipe()
     state.osd:remove()
 end
 
-local has_escape_ass = mp.command_native({"escape-ass", "test"})
-local function escape_ass(ass)
-	ass = tostring(ass)
-	return has_escape_ass and mp.command_native({"escape-ass", ass}) or 
-	       ass:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
-end
-
 
 
 
@@ -1050,134 +1045,6 @@ end)
 
 
 
-
-
---
--- Message display
---
-
--- pos is 1 based
-local function limited_list(prop, pos)
-    local proplist = mp.get_property_native(prop, {})
-    local count = #proplist
-    if count == 0 then
-        return count, proplist
-    end
-
-    local fs = tonumber(mp.get_property('options/osd-font-size'))
-    local max = math.ceil(osc_param.unscaled_y*0.75 / fs)
-    if max % 2 == 0 then
-        max = max - 1
-    end
-    local delta = math.ceil(max / 2) - 1
-    local begi = math.max(math.min(pos - delta, count - max + 1), 1)
-    local endi = math.min(begi + max - 1, count)
-
-    local reslist = {}
-    for i=begi, endi do
-        local item = proplist[i]
-        item.current = (i == pos) and true or nil
-        table.insert(reslist, item)
-    end
-    return count, reslist
-end
-
-local function get_playlist()
-    local pos = mp.get_property_number('playlist-pos', 0) + 1
-    local count, limlist = limited_list('playlist', pos)
-    if count == 0 then
-        return 'Empty playlist.'
-    end
-
-    local message = string.format('Playlist [%d/%d]:\n', pos, count)
-    local show = mp.get_property_native('osd-playlist-entry')
-    local trailing_slash_pattern = mp.get_property("platform") == "windows"
-                                   and "[/\\]+$" or "/+$"
-    for _, v in ipairs(limlist) do
-        local entry = v.title
-        if not entry or show ~= 'title' then
-            entry = v.filename
-            if not entry:find("://") then
-                entry = select(2, utils.split_path(
-                    entry:gsub(trailing_slash_pattern, "")))
-            end
-        end
-        if v.title and show == 'both' then
-            entry = string.format('%s (%s)', v.title, entry)
-        end
-        message = string.format('%s %s %s\n', message,
-            (v.current and '●' or '○'), entry)
-    end
-    return message
-end
-
-local function get_chapterlist()
-    local pos = mp.get_property_number('chapter', 0) + 1
-    local count, limlist = limited_list('chapter-list', pos)
-    if count == 0 then
-        return 'No chapters.'
-    end
-
-    local message = string.format('Chapters [%d/%d]:\n', pos, count)
-    for i, v in ipairs(limlist) do
-        local time = mp.format_time(v.time)
-        local title = v.title
-        if title == nil then
-            title = string.format('Chapter %02d', i)
-        end
-        message = string.format('%s[%s] %s %s\n', message, time,
-            (v.current and '●' or '○'), title)
-    end
-    return message
-end
-
-local function render_message(ass)
-    if state.message_hide_timer and state.message_hide_timer:is_enabled() and
-       state.message_text
-    then
-        local _, lines = string.gsub(state.message_text, "\\N", "")
-
-        local fontsize = tonumber(mp.get_property("options/osd-font-size"))
-        local outline = tonumber(mp.get_property("options/osd-border-size"))
-        local maxlines = math.ceil(osc_param.unscaled_y*0.75 / fontsize)
-        local counterscale = osc_param.playresy / osc_param.unscaled_y
-
-        local scale = mp.get_property_native("display-hidpi-scale", 1.0)
-        fontsize = scale * fontsize * counterscale / math.max(0.65 + math.min(lines/maxlines, 1), 1)
-        outline = scale * outline * counterscale / math.max(0.75 + math.min(lines/maxlines, 1)/2, 1)
-
-        local style = "{\\bord" .. outline .. "\\fs" .. fontsize .. "}"
-
-
-        ass:new_event()
-        ass:append(style .. state.message_text)
-    else
-        state.message_text = nil
-    end
-end
-
-local function show_message(text, duration)
-    --print("text: "..text.."   duration: " .. duration)
-    if duration == nil then
-        duration = tonumber(mp.get_property("options/osd-duration")) / 1000
-    elseif type(duration) ~= "number" then
-        print("duration: " .. duration)
-    end
-
-    -- cut the text short, otherwise the following functions
-    -- may slow down massively on huge input
-    text = string.sub(text, 0, 4000)
-
-    state.message_text = escape_ass(text)
-
-    if not state.message_hide_timer then
-        state.message_hide_timer = mp.add_timeout(0, request_tick)
-    end
-    state.message_hide_timer:kill()
-    state.message_hide_timer.timeout = duration
-    state.message_hide_timer:resume()
-    request_tick()
-end
 
 
 --
@@ -1813,7 +1680,7 @@ local function window_controls(topbar)
     ne.content = function ()
         local title = mp.command_native({"expand-text", user_opts.windowcontrols_title})
         title = title:gsub("\n", " ")
-        return title ~= "" and escape_ass(title) or "mpv"
+        return title ~= "" and mp.command_native({"escape-ass", title}) or "mpv"
     end
     local left_pad = 5
     local right_pad = 10
@@ -2452,7 +2319,7 @@ local function osc_init()
         local title = state.forced_title or
                       mp.command_native({"expand-text", user_opts.title})
         title = title:gsub("\n", " ")
-        return title ~= "" and escape_ass(title) or "mpv"
+        return title ~= "" and mp.command_native({"escape-ass", title}) or "mpv"
     end
     bind_mouse_buttons("title")
 
