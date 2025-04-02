@@ -26,17 +26,6 @@
 // Made it directly operate on LUMA plane, since the original shader was operating on LUMA by deriving it from RGB. This should cause a major increase in performance, especially on OpenGL 4.0+ renderers (4+2 texture lookups vs. 12+5)
 // Removed transparency preservation mechanism since the alpha channel is a separate source plane than LUMA
 // Added optional performance-saving lossy optimizations to EASU (Credit: atyuwen, https://atyuwen.github.io/posts/optimizing-fsr/)
-//
-// Notes
-// Per AMD's guidelines only upscales content up to 4x (e.g., 1080p -> 2160p, 720p -> 1440p etc.) and everything else in between,
-// that means FSR will scale up to 4x at maximum, and any further scaling will be processed by mpv's scalers
-
-//!PARAM fsr_sharpness
-//!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
-//!TYPE float
-//!MINIMUM 0.0
-//!MAXIMUM 2.0
-0.2
 
 //!PARAM fsr_pq
 //!DESC FidelityFX Super Resolution PQ Parameter
@@ -49,8 +38,8 @@
 //!BIND HOOKED
 //!DESC FidelityFX Super Resolution EASU
 //!WHEN OUTPUT.w OUTPUT.h * LUMA.w LUMA.h * / 1.0 >
-//!WIDTH OUTPUT.w OUTPUT.w LUMA.w 2 * < * LUMA.w 2 * OUTPUT.w LUMA.w 2 * > * + OUTPUT.w OUTPUT.w LUMA.w 2 * = * +
-//!HEIGHT OUTPUT.h OUTPUT.h LUMA.h 2 * < * LUMA.h 2 * OUTPUT.h LUMA.h 2 * > * + OUTPUT.h OUTPUT.h LUMA.h 2 * = * +
+//!WIDTH OUTPUT.w
+//!HEIGHT OUTPUT.h
 //!COMPONENTS 1
 
 // User variables - EASU
