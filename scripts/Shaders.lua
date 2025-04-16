@@ -126,7 +126,7 @@ local function get_scale()
 end
 
 local function minmax(v, min, max)    return math.min(math.max(v, min), max) end
-local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.25) end
+local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.1) end
 
 local function format_status()
     local temp = (opts.always_fs_scale and 'FS ' or '') .. ('Scale: %.3f'):format(get_scale())
@@ -203,6 +203,8 @@ local artcnn   = {
 local cunny_ds_path   = shaders_path .. 'cunny/ds/'
 local cunny_soft_path = shaders_path .. 'cunny/soft/'
 local cunny    = {
+    dsfaster   = cunny_ds_path  .. 'CuNNy-faster-DS.glsl',
+    dsfast     = cunny_ds_path  .. 'CuNNy-fast-DS.glsl',
     ds2x12     = cunny_ds_path  .. 'CuNNy-2x12-DS.glsl',
     ds3x12     = cunny_ds_path  .. 'CuNNy-3x12-DS.glsl',
     ds4x12     = cunny_ds_path  .. 'CuNNy-4x12-DS.glsl',
@@ -210,9 +212,9 @@ local cunny    = {
     ds4x24     = cunny_ds_path  .. 'CuNNy-4x24-DS.glsl',
     ds4x32     = cunny_ds_path  .. 'CuNNy-4x32-DS.glsl',
     ds8x32     = cunny_ds_path  .. 'CuNNy-8x32-DS.glsl',
-    dsfast     = cunny_ds_path  .. 'CuNNy-fast-DS.glsl',
-    dsfaster   = cunny_ds_path  .. 'CuNNy-faster-DS.glsl',
 
+    sfastest   = cunny_soft_path .. 'CuNNy-veryfast-SOFT.glsl',
+    sfaster    = cunny_soft_path .. 'CuNNy-faster-SOFT.glsl',
     s2x12      = cunny_soft_path .. 'CuNNy-2x12-SOFT.glsl',
     s3x12      = cunny_soft_path .. 'CuNNy-3x12-SOFT.glsl',
     s4x12      = cunny_soft_path .. 'CuNNy-4x12-SOFT.glsl',
@@ -220,8 +222,6 @@ local cunny    = {
     s4x24      = cunny_soft_path .. 'CuNNy-4x24-SOFT.glsl',
     s4x32      = cunny_soft_path .. 'CuNNy-4x32-SOFT.glsl',
     sfast      = cunny_soft_path .. 'CuNNy-fast-SOFT.glsl',
-    sfaster    = cunny_soft_path .. 'CuNNy-faster-SOFT.glsl',
-    sfastest   = cunny_soft_path .. 'CuNNy-veryfast-SOFT.glsl',
 }
 
 -- FSR by agyild - https://gist.github.com/agyild
@@ -320,7 +320,7 @@ end
 
 local function default_options()
     local o = {
-        ['linear-downscaling'] = 'yes',
+        ['linear-downscaling'] = 'no', 
         ['scale-antiring']     = default_antiring,
         ['cscale-antiring']    = default_antiring,
         ['dscale-antiring']    = default_antiring,
@@ -337,8 +337,11 @@ local function default_params()
         ravu_antiring  = default_antiring,
         ravu_chroma_ar = 0.8,
         as_sharpness   = 0.3,
-        fsr_sharpness  = 0.2,
+        fsr_sharpness  = 0.3,
         fsr_pq         = 0,
+        fg_intensity   = 0.06,
+        fgs_intensity  = 0.1,
+        fgs_taps       = 2,
     }
 end
 
