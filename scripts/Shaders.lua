@@ -294,6 +294,13 @@ local cfl      = {
     x          = cfl_path .. 'CfL_Prediction_Test.glsl',
 }
 
+-- FilmGrain by Haasn - https://raw.githubusercontent.com/haasn/gentoo-conf/xor/home/nand/.mpv/shaders/filmgrain.glsl
+local grain_path = shaders_path .. 'filmgrain/'
+local grain    = {
+    v1         = grain_path .. 'filmgrain.glsl',
+    v2         = grain_path .. 'filmgrain-smooth.glsl',
+}
+
 
 
 -------------------
