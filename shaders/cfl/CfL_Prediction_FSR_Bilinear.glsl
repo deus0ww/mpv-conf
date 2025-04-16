@@ -20,13 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-//!PARAM fsr_sharpness
-//!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
-//!TYPE float
-//!MINIMUM 0.0
-//!MAXIMUM 2.0
-0.2
-
 //!HOOK CHROMA
 //!BIND LUMA
 //!BIND HOOKED
