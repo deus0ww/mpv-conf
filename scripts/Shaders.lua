@@ -230,7 +230,8 @@ local fsr      = {
     fsr        = fsr_path .. 'FSR.glsl',
     easu       = fsr_path .. 'FSR_EASU.glsl',
     rcas       = fsr_path .. 'FSR_RCAS.glsl',
-    uv         = fsr_path .. 'FSR_EASU_Chroma.glsl',
+    uveasu     = fsr_path .. 'FSR_EASU_Chroma.glsl',
+    uvrcas     = fsr_path .. 'FSR_RCAS_Chroma.glsl',
 }
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
