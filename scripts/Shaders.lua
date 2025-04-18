@@ -126,7 +126,7 @@ local function get_scale()
 end
 
 local function minmax(v, min, max)    return math.min(math.max(v, min), max) end
-local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.1) end
+local function minmax_scale(min, max) return math.floor(minmax(get_scale(), min, max) + 0.11) end
 
 local function format_status()
     local temp = (opts.always_fs_scale and 'FS ' or '') .. ('Scale: %.3f'):format(get_scale())
@@ -326,7 +326,7 @@ local function default_options()
         ['dscale-antiring']    = default_antiring,
      }
     if (get_scale() <= 1.1) or not enabled then
-        return set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
+        return set_scalers(o, 'ewa_lanczos4sharpest', 'ewa_lanczos4sharpest', 'lanczos')
     else
         return set_scalers(o, 'lanczos', 'lanczos', 'lanczos')
     end
