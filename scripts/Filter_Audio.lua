@@ -62,7 +62,7 @@ add({
 add({
     name = 'Downmix',
     filter_type = 'audio',
-    default_on_load = true,
+    default_on_load = false,
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#pan
@@ -109,7 +109,7 @@ add({
 add({
     name = 'ExtraStereo',
     filter_type = 'audio',
-    default_on_load = true,
+    default_on_load = false,
     default_index = 2,
     reset_on_load = false,
     filters = {
