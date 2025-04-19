@@ -302,6 +302,12 @@ local grain    = {
     v2         = grain_path .. 'filmgrain-smooth.glsl',
 }
 
+-- Shaders by Garamond13 - https://github.com/garamond13
+local g13      = shaders_path .. 'g13/'
+local g13      = {
+    blur       = g13 .. 'gaussianBlur.glsl',
+}
+
 
 
 -------------------
@@ -339,9 +345,11 @@ local function default_params()
         as_sharpness   = 0.3,
         fsr_sharpness  = 0.3,
         fsr_pq         = 0,
-        fg_intensity   = 0.06,
-        fgs_intensity  = 0.1,
-        fgs_taps       = 2,
+        fg_intensity   = 0.03 + get_scale() / 100,
+        fgs_intensity  = 0.07,
+        fgs_taps       = 1,
+        blur_sigma     = 0.5,
+        blur_radius    = 1.0,
     }
 end
 
