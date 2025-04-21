@@ -2590,10 +2590,9 @@ local function osc_init()
         else
             dmx_cache = state.dmx_cache
         end
-        local hr  = math.floor(dmx_cache / 3600)
         local min = math.floor(dmx_cache / 60)
         local sec = math.floor(dmx_cache % 60) -- don't round e.g. 59.9 to 60
-        return "Cache: " .. string.format("%02.0f:%02.0f:%02.0f", hr, min, sec)
+        return "Cache: " .. string.format("%02.0f:%02.0f:%02.0f", math.floor(dmx_cache / 3600), min, sec)
     end
 
     -- volume
@@ -3113,6 +3112,7 @@ mp.register_event("shutdown", shutdown)
 mp.register_event("start-file", request_init)
 mp.observe_property("track-list", "native", request_init)
 mp.observe_property("playlist-count", "native", request_init)
+mp.observe_property("playlist-pos", "native", request_init)
 mp.observe_property("chapter-list", "native", function(_, list)
     list = list or {}  -- safety, shouldn't return nil
     table.sort(list, function(a, b) return a.time < b.time end)

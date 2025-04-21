@@ -38,11 +38,11 @@ local o = {
     debug = false,
 
     -- Graph options and style
-    plot_perfdata = true,
-    plot_vsync_ratio = true,
-    plot_vsync_jitter = true,
-    plot_tonemapping_lut = false,
+    plot_perfdata = false,
+    plot_vsync_ratio = false,
+    plot_vsync_jitter = false,
     plot_cache = true,
+    plot_tonemapping_lut = false,
     skip_frames = 5,
     global_max = true,
     flush_graph_data = true,         -- clear data buffers when toggling
