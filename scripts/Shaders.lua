@@ -215,13 +215,13 @@ local cunny    = {
 
     sfastest   = cunny_soft_path .. 'CuNNy-veryfast-SOFT.glsl',
     sfaster    = cunny_soft_path .. 'CuNNy-faster-SOFT.glsl',
+    sfast      = cunny_soft_path .. 'CuNNy-fast-SOFT.glsl',
     s2x12      = cunny_soft_path .. 'CuNNy-2x12-SOFT.glsl',
     s3x12      = cunny_soft_path .. 'CuNNy-3x12-SOFT.glsl',
     s4x12      = cunny_soft_path .. 'CuNNy-4x12-SOFT.glsl',
     s4x16      = cunny_soft_path .. 'CuNNy-4x16-SOFT.glsl',
     s4x24      = cunny_soft_path .. 'CuNNy-4x24-SOFT.glsl',
     s4x32      = cunny_soft_path .. 'CuNNy-4x32-SOFT.glsl',
-    sfast      = cunny_soft_path .. 'CuNNy-fast-SOFT.glsl',
 }
 
 -- FSR by agyild - https://gist.github.com/agyild
@@ -345,7 +345,7 @@ local function default_params()
         as_sharpness   = 0.3,
         fsr_sharpness  = 0.3,
         fsr_pq         = 0,
-        fg_intensity   = 0.03 + get_scale() / 100,
+        fg_intensity   = 0.06,
         fgs_intensity  = 0.07,
         fgs_taps       = 1,
         blur_sigma     = 0.5,
