@@ -65,32 +65,24 @@ float APrxLoRsqF1(float a) {
 	return uintBitsToFloat(uint(0x5f347d74) - (floatBitsToUint(a) >> uint(1)));
 }
 
-float AMin3F1(float x, float y, float z) {
+vec3 AMin3F3(vec3 x, vec3 y, vec3 z) {
 	return min(x, min(y, z));
 }
 
-float AMax3F1(float x, float y, float z) {
+vec3 AMax3F3(vec3 x, vec3 y, vec3 z) {
 	return max(x, max(y, z));
 }
 
-#if (FSR_PQ == 1)
-
-float ToGamma2(float a) {
-	return pow(a, 4.0);
-}
-
-#endif
-
  // Filtering for a given tap for the scalar.
  void FsrEasuTap(
-	inout float aC,	// Accumulated color, with negative lobe.
+	inout vec3 aC,  // Accumulated color, with negative lobe.
 	inout float aW, // Accumulated weight.
 	vec2 off,       // Pixel offset from resolve position to tap.
 	vec2 dir,       // Gradient direction.
 	vec2 len,       // Length.
 	float lob,      // Negative lobe strength.
-	float clp,		// Clipping point.
-	float c){		// Tap color.
+	float clp,      // Clipping point.
+	vec3 c){        // Tap color.
 	// Rotate offset by direction.
 	vec2 v;
 	v.x = (off.x * ( dir.x)) + (off.y * dir.y);
@@ -222,32 +214,75 @@ vec4 hook() {
 	//  a b
 	//  r g
 	// Allowing dead-code removal to remove the 'z's.
-	const ivec2 quad_idx[4] = {{ 1,-1}, { 0, 1}, { 2, 1}, { 1, 3}};
-	mat2x4 bczz = mat2x4(HOOKED_gather(vec2((fp + quad_idx[0]) * HOOKED_pt), 0),
-                         HOOKED_gather(vec2((fp + quad_idx[0]) * HOOKED_pt), 1));
-	mat2x4 ijfe = mat2x4(HOOKED_gather(vec2((fp + quad_idx[1]) * HOOKED_pt), 0),
-                         HOOKED_gather(vec2((fp + quad_idx[1]) * HOOKED_pt), 1));
-	mat2x4 klhg = mat2x4(HOOKED_gather(vec2((fp + quad_idx[2]) * HOOKED_pt), 0),
-                         HOOKED_gather(vec2((fp + quad_idx[2]) * HOOKED_pt), 1));
-	mat2x4 zzon = mat2x4(HOOKED_gather(vec2((fp + quad_idx[3]) * HOOKED_pt), 0),
-                         HOOKED_gather(vec2((fp + quad_idx[3]) * HOOKED_pt), 1));
+	
+ #if (defined(HOOKED_gather) && (__VERSION__ >= 400 || (GL_ES && __VERSION__ >= 310)))
+	vec4 bczzR = HOOKED_gather(vec2((fp + vec2(1.0, -1.0)) * HOOKED_pt), 0);
+	vec4 bczzG = HOOKED_gather(vec2((fp + vec2(1.0, -1.0)) * HOOKED_pt), 1);
+	vec4 bczzB = HOOKED_gather(vec2((fp + vec2(1.0, -1.0)) * HOOKED_pt), 2);
+	
+	vec4 ijfeR = HOOKED_gather(vec2((fp + vec2(0.0, 1.0)) * HOOKED_pt), 0);
+	vec4 ijfeG = HOOKED_gather(vec2((fp + vec2(0.0, 1.0)) * HOOKED_pt), 1);
+	vec4 ijfeB = HOOKED_gather(vec2((fp + vec2(0.0, 1.0)) * HOOKED_pt), 2);
+	
+	vec4 klhgR = HOOKED_gather(vec2((fp + vec2(2.0, 1.0)) * HOOKED_pt), 0);
+	vec4 klhgG = HOOKED_gather(vec2((fp + vec2(2.0, 1.0)) * HOOKED_pt), 1);
+	vec4 klhgB = HOOKED_gather(vec2((fp + vec2(2.0, 1.0)) * HOOKED_pt), 2);
+	
+	vec4 zzonR = HOOKED_gather(vec2((fp + vec2(1.0, 3.0)) * HOOKED_pt), 0);
+	vec4 zzonG = HOOKED_gather(vec2((fp + vec2(1.0, 3.0)) * HOOKED_pt), 1);
+	vec4 zzonB = HOOKED_gather(vec2((fp + vec2(1.0, 3.0)) * HOOKED_pt), 2);
+#else
+	// pre-OpenGL 4.0 compatibility
+	vec3 b = HOOKED_tex(vec2((fp + vec2(0.5, -0.5)) * HOOKED_pt)).rgb;
+	vec3 c = HOOKED_tex(vec2((fp + vec2(1.5, -0.5)) * HOOKED_pt)).rgb;
 
-for(int i = 0; i < 2; i++)
-{
+	vec3 e = HOOKED_tex(vec2((fp + vec2(-0.5, 0.5)) * HOOKED_pt)).rgb;
+	vec3 f = HOOKED_tex(vec2((fp + vec2( 0.5, 0.5)) * HOOKED_pt)).rgb;
+	vec3 g = HOOKED_tex(vec2((fp + vec2( 1.5, 0.5)) * HOOKED_pt)).rgb;
+	vec3 h = HOOKED_tex(vec2((fp + vec2( 2.5, 0.5)) * HOOKED_pt)).rgb;
+
+	vec3 i = HOOKED_tex(vec2((fp + vec2(-0.5, 1.5)) * HOOKED_pt)).rgb;
+	vec3 j = HOOKED_tex(vec2((fp + vec2( 0.5, 1.5)) * HOOKED_pt)).rgb;
+	vec3 k = HOOKED_tex(vec2((fp + vec2( 1.5, 1.5)) * HOOKED_pt)).rgb;
+	vec3 l = HOOKED_tex(vec2((fp + vec2( 2.5, 1.5)) * HOOKED_pt)).rgb;
+
+	vec3 n = HOOKED_tex(vec2((fp + vec2(0.5, 2.5) ) * HOOKED_pt)).rgb;
+	vec3 o = HOOKED_tex(vec2((fp + vec2(1.5, 2.5) ) * HOOKED_pt)).rgb;
+
+	vec4 bczzR = vec4(b.r, c.r, 0.0, 0.0);
+	vec4 bczzG = vec4(b.g, c.g, 0.0, 0.0);
+	vec4 bczzB = vec4(b.b, c.b, 0.0, 0.0);
+	
+	vec4 ijfeR = vec4(i.r, j.r, f.r, e.r);
+	vec4 ijfeG = vec4(i.g, j.g, f.g, e.g);
+	vec4 ijfeB = vec4(i.b, j.b, f.b, e.b);
+	
+	vec4 klhgR = vec4(k.r, l.r, h.r, g.r);
+	vec4 klhgG = vec4(k.g, l.g, h.g, g.g);
+	vec4 klhgB = vec4(k.b, l.b, h.b, g.b);
+	
+	vec4 zzonR = vec4(0.0, 0.0, o.r, n.r);
+	vec4 zzonG = vec4(0.0, 0.0, o.g, n.g);
+	vec4 zzonB = vec4(0.0, 0.0, o.b, n.b);
+#endif
 	//------------------------------------------------------------------------------------------------------------------------------
+	vec4 bczzL = bczzB + bczzR + bczzG;
+	vec4 ijfeL = ijfeB + ijfeR + ijfeG;
+	vec4 klhgL = klhgB + klhgR + klhgG;
+	vec4 zzonL = zzonB + zzonR + zzonG;
 	// Rename.
-	float bL = bczz[i].x;
-	float cL = bczz[i].y;
-	float iL = ijfe[i].x;
-	float jL = ijfe[i].y;
-	float fL = ijfe[i].z;
-	float eL = ijfe[i].w;
-	float kL = klhg[i].x;
-	float lL = klhg[i].y;
-	float hL = klhg[i].z;
-	float gL = klhg[i].w;
-	float oL = zzon[i].z;
-	float nL = zzon[i].w;
+	float bL = bczzL.x;
+	float cL = bczzL.y;
+	float iL = ijfeL.x;
+	float jL = ijfeL.y;
+	float fL = ijfeL.z;
+	float eL = ijfeL.w;
+	float kL = klhgL.x;
+	float lL = klhgL.y;
+	float hL = klhgL.z;
+	float gL = klhgL.w;
+	float oL = zzonL.z;
+	float nL = zzonL.w;
 
 	// Accumulate for bilinear interpolation.
 	vec2 dir = vec2(0.0);
@@ -302,30 +337,30 @@ for(int i = 0; i < 2; i++)
 	//  e f g h
 	//  i j k l
 	//    n o
-	float aC = 0.0;
+	vec3 aC = vec3(0.0);
 	float aW = 0.0;
-	FsrEasuTap(aC, aW, vec2( 0.0,-1.0) - pp, dir, len2, lob, clp, bL); // b
-	FsrEasuTap(aC, aW, vec2( 1.0,-1.0) - pp, dir, len2, lob, clp, cL); // c
-	FsrEasuTap(aC, aW, vec2(-1.0, 1.0) - pp, dir, len2, lob, clp, iL); // i
-	FsrEasuTap(aC, aW, vec2( 0.0, 1.0) - pp, dir, len2, lob, clp, jL); // j
-	FsrEasuTap(aC, aW, vec2( 0.0, 0.0) - pp, dir, len2, lob, clp, fL); // f
-	FsrEasuTap(aC, aW, vec2(-1.0, 0.0) - pp, dir, len2, lob, clp, eL); // e
-	FsrEasuTap(aC, aW, vec2( 1.0, 1.0) - pp, dir, len2, lob, clp, kL); // k
-	FsrEasuTap(aC, aW, vec2( 2.0, 1.0) - pp, dir, len2, lob, clp, lL); // l
-	FsrEasuTap(aC, aW, vec2( 2.0, 0.0) - pp, dir, len2, lob, clp, hL); // h
-	FsrEasuTap(aC, aW, vec2( 1.0, 0.0) - pp, dir, len2, lob, clp, gL); // g
-	FsrEasuTap(aC, aW, vec2( 1.0, 2.0) - pp, dir, len2, lob, clp, oL); // o
-	FsrEasuTap(aC, aW, vec2( 0.0, 2.0) - pp, dir, len2, lob, clp, nL); // n
+	FsrEasuTap(aC, aW, vec2( 0.0,-1.0) - pp, dir, len2, lob, clp, vec3(bczzR.x, bczzG.x, bczzB.x)); // b
+	FsrEasuTap(aC, aW, vec2( 1.0,-1.0) - pp, dir, len2, lob, clp, vec3(bczzR.y, bczzG.y, bczzB.y)); // c
+	FsrEasuTap(aC, aW, vec2(-1.0, 1.0) - pp, dir, len2, lob, clp, vec3(ijfeR.x, ijfeG.x, ijfeB.x)); // i
+	FsrEasuTap(aC, aW, vec2( 0.0, 1.0) - pp, dir, len2, lob, clp, vec3(ijfeR.y, ijfeG.y, ijfeB.y)); // j
+	FsrEasuTap(aC, aW, vec2( 0.0, 0.0) - pp, dir, len2, lob, clp, vec3(ijfeR.z, ijfeG.z, ijfeB.z)); // f
+	FsrEasuTap(aC, aW, vec2(-1.0, 0.0) - pp, dir, len2, lob, clp, vec3(ijfeR.w, ijfeG.w, ijfeB.w)); // e
+	FsrEasuTap(aC, aW, vec2( 1.0, 1.0) - pp, dir, len2, lob, clp, vec3(klhgR.x, klhgG.x, klhgB.x)); // k
+	FsrEasuTap(aC, aW, vec2( 2.0, 1.0) - pp, dir, len2, lob, clp, vec3(klhgR.y, klhgG.y, klhgB.y)); // l
+	FsrEasuTap(aC, aW, vec2( 2.0, 0.0) - pp, dir, len2, lob, clp, vec3(klhgR.z, klhgG.z, klhgB.z)); // h
+	FsrEasuTap(aC, aW, vec2( 1.0, 0.0) - pp, dir, len2, lob, clp, vec3(klhgR.w, klhgG.w, klhgB.w)); // g
+	FsrEasuTap(aC, aW, vec2( 1.0, 2.0) - pp, dir, len2, lob, clp, vec3(zzonR.z, zzonG.z, zzonB.z)); // o
+	FsrEasuTap(aC, aW, vec2( 0.0, 2.0) - pp, dir, len2, lob, clp, vec3(zzonR.w, zzonG.w, zzonB.w)); // n
 	//------------------------------------------------------------------------------------------------------------------------------
 	// Normalize and dering.
-	pix[i] = aC / aW;
+	pix.rgb = aC / aW;
 #if (FSR_EASU_DERING == 1)
-	float min1 = min(AMin3F1(fL, gL, jL), kL);
-	float max1 = max(AMax3F1(fL, gL, jL), kL);
-	pix[i] = clamp(pix[i], min1, max1);
+	vec3 min4 = min(AMin3F3(vec3(ijfeR.z, ijfeG.z, ijfeB.z), vec3(klhgR.w, klhgG.w, klhgB.w), vec3(ijfeR.y, ijfeG.y, ijfeB.y)), vec3(klhgR.x, klhgG.x, klhgB.x));
+	vec3 max4 = max(AMax3F3(vec3(ijfeR.z, ijfeG.z, ijfeB.z), vec3(klhgR.w, klhgG.w, klhgB.w), vec3(ijfeR.y, ijfeG.y, ijfeB.y)), vec3(klhgR.x, klhgG.x, klhgB.x));
+	pix.rgb = clamp(pix.rgb, min4, max4);
 #endif
-	pix[i] = clamp(pix[i], 0.0, 1.0);
-}
+	pix.rgb = clamp(pix.rgb, 0.0, 1.0);
+
 	return pix;
 }
 
