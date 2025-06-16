@@ -227,11 +227,14 @@ local cunny    = {
 -- FSR by agyild - https://gist.github.com/agyild
 local fsr_path = shaders_path .. 'fsr/'
 local fsr      = {
-    fsr        = fsr_path .. 'FSR.glsl',
-    easu       = fsr_path .. 'FSR_EASU.glsl',
-    rcas       = fsr_path .. 'FSR_RCAS.glsl',
-    uveasu     = fsr_path .. 'FSR_EASU_Chroma.glsl',
-    uvrcas     = fsr_path .. 'FSR_RCAS_Chroma.glsl',
+    full       = fsr_path .. 'FSR.glsl',
+    y_easu     = fsr_path .. 'FSR_EASU.glsl',
+    y_rcas     = fsr_path .. 'FSR_RCAS.glsl',
+    uv_easu    = fsr_path .. 'FSR_EASU_Chroma.glsl',
+    uv_rcas    = fsr_path .. 'FSR_RCAS_Chroma.glsl',
+    rgb_easu   = fsr_path .. 'FSR_EASU_RGB.glsl',
+    rgb_rcas   = fsr_path .. 'FSR_RCAS_RGB.glsl',
+    
 }
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
@@ -298,8 +301,8 @@ local cfl      = {
 -- FilmGrain by Haasn - https://raw.githubusercontent.com/haasn/gentoo-conf/xor/home/nand/.mpv/shaders/filmgrain.glsl
 local grain_path = shaders_path .. 'filmgrain/'
 local grain    = {
-    v1         = grain_path .. 'filmgrain.glsl',
-    v2         = grain_path .. 'filmgrain-smooth.glsl',
+    g          = grain_path .. 'filmgrain.glsl',
+    s          = grain_path .. 'filmgrain-smooth.glsl',
 }
 
 -- Shaders by Garamond13 - https://github.com/garamond13
@@ -340,16 +343,20 @@ end
 
 local function default_params()
     return {
-        ravu_antiring  = default_antiring,
-        ravu_chroma_ar = 0.8,
-        as_sharpness   = 0.3,
-        fsr_sharpness  = 0.3,
-        fsr_pq         = 0,
-        fg_intensity   = 0.06,
-        fgs_intensity  = 0.07,
-        fgs_taps       = 1,
-        blur_sigma     = 0.5,
+        as_sharpness   = 0.4,
+
         blur_radius    = 1.0,
+        blur_sigma     = 0.5,
+
+        fg_intensity   = math.min(0.08, 0.02 + scale / 100),
+        fgs_intensity  = math.min(0.09, 0.03 + scale / 100),
+        fgs_taps       = 1,
+
+        fsr_pq         = 0,
+        fsr_sharpness  = math.max(0.20, 0.60 - scale / 10),
+
+        ravu_antiring  = default_antiring,
+        ravu_chroma_ar = default_antiring,
     }
 end
 
@@ -389,13 +396,6 @@ sets[#sets+1] = function()
     set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
     return { shaders = s, options = set_params(o, p), label = 'Low FPS & RGB' }
 end
-
---sets[#sets+1] = function()
---    local s, o, p = default_shaders(), default_options(), default_params()
---    s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
---    s[4]    = cfl.x
---    return { shaders = s, options = set_params(o, p), label = 'Test' }
---end
 
 
 

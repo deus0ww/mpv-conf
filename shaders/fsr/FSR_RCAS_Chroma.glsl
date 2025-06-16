@@ -28,13 +28,6 @@
 //!MAXIMUM 2.0
 0.2
 
-//!PARAM fsr_pq
-//!DESC FidelityFX Super Resolution PQ Parameter
-//!TYPE int
-//!MINIMUM 0
-//!MAXIMUM 1
-0
-
 //!HOOK CHROMA
 //!BIND HOOKED
 //!DESC FidelityFX Super Resolution RCAS Chroma
@@ -42,7 +35,6 @@
 // User variables - RCAS
 #define SHARPNESS fsr_sharpness // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.
 #define FSR_RCAS_DENOISE 1      // If set to 1, lessens the sharpening on noisy areas. Can be disabled for better performance. 0 or 1.
-#define FSR_PQ fsr_pq           // Whether the source content has PQ gamma or not. Needs to be set to the same value for both passes. 0 or 1.
 
 // Shader code
 
@@ -60,14 +52,6 @@ vec2 AMax3F1(vec2 x, vec2 y, vec2 z) {
 vec2 AMin3F1(vec2 x, vec2 y, vec2 z) {
 	return min(x, min(y, z));
 }
-
-#if (FSR_PQ == 1)
-
-float FromGamma2(float a) {
-	return sqrt(sqrt(a));
-}
-
-#endif
 
 vec4 hook() {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
@@ -111,5 +95,6 @@ vec4 hook() {
 	vec2 rcpL = APrxMedRcpF1(4.0 * lobe + 1.0);
 	vec4 pix = vec4(0.0, 0.0, 0.0, 1.0);
 	pix.rg = vec2((lobe * b + lobe * d + lobe * h + lobe * f + e) * rcpL);
+
 	return pix;
 }
