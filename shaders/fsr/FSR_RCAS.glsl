@@ -22,14 +22,14 @@
 // ported to mpv by agyild
 
 //!PARAM fsr_sharpness
-//!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
+//!DESC FidelityFX FSR RCAS Sharpness Parameter
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 2.0
 0.2
 
 //!PARAM fsr_pq
-//!DESC FidelityFX Super Resolution PQ Parameter
+//!DESC FidelityFX FSR PQ Parameter
 //!TYPE int
 //!MINIMUM 0
 //!MAXIMUM 1
@@ -37,7 +37,7 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution RCAS
+//!DESC FidelityFX FSR RCAS Luma
 //!COMPONENTS 1
 
 // User variables - RCAS

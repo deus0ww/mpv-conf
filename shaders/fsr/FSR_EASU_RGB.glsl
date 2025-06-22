@@ -28,7 +28,7 @@
 
 //!HOOK MAIN
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution EASU RGB 
+//!DESC FidelityFX FSR EASU RGB 
 //!WHEN OUTPUT.w OUTPUT.h * MAIN.w MAIN.h * / 1.0 >
 //!WIDTH OUTPUT.w
 //!HEIGHT OUTPUT.h

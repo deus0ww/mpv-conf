@@ -28,7 +28,7 @@
 // Added optional performance-saving lossy optimizations to EASU (Credit: atyuwen, https://atyuwen.github.io/posts/optimizing-fsr/)
 
 //!PARAM fsr_pq
-//!DESC FidelityFX Super Resolution PQ Parameter
+//!DESC FidelityFX FSR PQ Parameter
 //!TYPE int
 //!MINIMUM 0
 //!MAXIMUM 1
@@ -36,7 +36,7 @@
 
 //!HOOK LUMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution EASU
+//!DESC FidelityFX FSR EASU Luma
 //!WHEN OUTPUT.w OUTPUT.h * LUMA.w LUMA.h * / 1.0 >
 //!WIDTH OUTPUT.w
 //!HEIGHT OUTPUT.h

@@ -22,7 +22,7 @@
 // ported to mpv by agyild
 
 //!PARAM fsr_sharpness
-//!DESC FidelityFX Super Resolution RCAS Sharpness Parameter
+//!DESC FidelityFX FSR RCAS Sharpness Parameter
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 2.0
@@ -30,7 +30,7 @@
 
 //!HOOK CHROMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution RCAS Chroma
+//!DESC FidelityFX FSR RCAS Chroma
 
 // User variables - RCAS
 #define SHARPNESS fsr_sharpness // Controls the amount of sharpening. The scale is {0.0 := maximum, to N>0, where N is the number of stops (halving) of the reduction of sharpness}. 0.0 to 2.0.

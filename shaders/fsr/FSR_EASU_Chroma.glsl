@@ -29,7 +29,7 @@
 
 //!HOOK CHROMA
 //!BIND HOOKED
-//!DESC FidelityFX Super Resolution EASU Chroma
+//!DESC FidelityFX FSR EASU Chroma
 //!WHEN LUMA.w LUMA.h * CHROMA.w CHROMA.h * / 1.0 >
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
