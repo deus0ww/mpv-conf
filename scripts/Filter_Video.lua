@@ -1,4 +1,4 @@
--- deus0ww - 2024-03-03
+-- deus0ww - 2025-06-27
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -7,7 +7,7 @@ local filter_list = {}
 local function add(filter) filter_list[#filter_list+1] = filter end
 
 add({
-    name = 'DenoiseVideo',
+    name = 'RemoveGrain',
     filter_type = 'video',
     default_index = 2,
     reset_on_load = false,
@@ -22,15 +22,12 @@ add({
 })
 
 add({
-    name = 'PostProcess',
+    name = 'DenoiseVideo',
     filter_type = 'video',
-    default_on_load = false,
-    reset_on_load = true,
+    reset_on_load = false,
     filters = {
-    -- https://ffmpeg.org/ffmpeg-filters.html#pp
-        'pp=ac/-dr',
-        'pp=ac',
-        'pp=ac/autolevels',
+    -- https://ffmpeg.org/ffmpeg-filters.html#hqdn3d
+        'hqdn3d=luma_spatial=4.0:chroma_spatial=3.0:luma_tmp=6.0:chroma_tmp=4.0',
     },
 })
 
