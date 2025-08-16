@@ -299,9 +299,15 @@ end
 -- exclude: Optional table containing keys which are considered invalid values
 --          for this property. Specifying this will replace empty string as
 --          default invalid value (nil is always invalid).
-local function append_property(s, prop, attr, excluded)
+-- cached : If true, use get_property_cached instead of get_property_osd
+local function append_property(s, prop, attr, excluded, cached)
     excluded = excluded or {[""] = true}
-    local ret = mp.get_property_osd(prop)
+    local ret
+    if cached then
+        ret = get_property_cached(prop)
+    else
+        ret = mp.get_property_osd(prop)
+    end
     if not ret or excluded[ret] then
         if o.debug then
             print("No value for property: " .. prop)
@@ -835,8 +841,8 @@ local function append_hdr(s, hdr, video_out)
             indent = o.prefix_sep .. o.prefix_sep
         end
         if should_show(hdr["max-cll"]) then
-            append(s, hdr["max-cll"], {prefix="MaxCLL:", suffix=" cd/m²", nl="",
-                                       indent=indent})
+            append(s, string.format("%.0f", hdr["max-cll"]), {prefix="MaxCLL:",
+                                    suffix=" cd/m²", nl="", indent=indent})
             indent = o.prefix_sep .. o.prefix_sep
         end
         if hdr["max-fall"] and hdr["max-fall"] > 0 then
@@ -894,7 +900,21 @@ local function append_img_params(s, r, ro)
 
     -- Group these together to save vertical space
     append(s, r["colormatrix"], {prefix="Colormatrix:"})
-    append(s, r["primaries"], {prefix="Primaries:", nl="", indent=indent})
+    if r["prim-red-x"] or r["prim-red-y"] or
+       r["prim-green-x"] or r["prim-green-y"] or
+       r["prim-blue-x"] or r["prim-blue-y"] or
+       r["prim-white-x"] or r["prim-white-y"] then
+        append(s, string.format("[%.3f %.3f, %.3f %.3f, %.3f %.3f, %.3f %.3f]",
+                                r["prim-red-x"] or 0, r["prim-red-y"] or 0,
+                                r["prim-green-x"] or 0, r["prim-green-y"] or 0,
+                                r["prim-blue-x"] or 0, r["prim-blue-y"] or 0,
+                                r["prim-white-x"] or 0, r["prim-white-y"] or 0),
+            {prefix="Primaries:", nl="", indent=indent})
+        append(s, r["primaries"], {prefix="in", nl="", indent=" ", prefix_sep=" ",
+                                   no_prefix_markup=true})
+    else
+        append(s, r["primaries"], {prefix="Primaries:", nl="", indent=indent})
+    end
     append(s, r["gamma"], {prefix="Transfer:", nl="", indent=indent})
 end
 
@@ -932,8 +952,8 @@ local function add_video_out(s)
     append(s, "", {prefix="Display:", nl=o.nl .. o.nl, indent=""})
     append(s, vo, {prefix_sep="", nl="", indent=""})
 
-    append(s, get_property_cached("display-names"), {prefix_sep="", prefix="(", suffix=")",
-           no_prefix_markup=true, nl="", indent=" "})
+    append_property(s, "display-names", {prefix_sep="", prefix="(", suffix=")",
+                    no_prefix_markup=true, nl="", indent=" "}, nil, true)
     append(s, mp.get_property_native("current-gpu-context"),
            {prefix="Context:", nl="", indent=o.prefix_sep .. o.prefix_sep})
     append_property(s, "avsync", {prefix="A-V:"})
@@ -1004,9 +1024,9 @@ local function add_video(s)
             append(s, track["decoder"], {prefix="[", nl="", indent=" ", prefix_sep="",
                    no_prefix_markup=true, suffix="]"})
         end
-        append(s, get_property_cached("hwdec-current"), {prefix="HW:", nl="",
-               indent=o.prefix_sep .. o.prefix_sep,
-               no_prefix_markup=false, suffix=""}, {no=true, [""]=true})
+        append_property(s, "hwdec-current", {prefix="HW:", nl="",
+                        indent=o.prefix_sep .. o.prefix_sep,
+                        no_prefix_markup=false, suffix=""}, {no=true, [""]=true}, true)
     end
     local has_prefix = false
     if o.show_frame_info then
