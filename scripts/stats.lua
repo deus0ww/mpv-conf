@@ -649,7 +649,7 @@ local function append_filters(s, prop, prefix)
         end
 
         if f.label ~= nil then
-            n =("%-18s %-12s"):format("@" .. f.label .. ":", n)
+            n =("%-18s %-6s"):format("@" .. f.label .. ":", n)
         end
 
         local p = {}
@@ -657,13 +657,13 @@ local function append_filters(s, prop, prefix)
             p[#p+1] = key .. "=" .. f.params[key]
         end
         if #p > 0 then
-            p = " [" .. table.concat(p, " "):gsub("@0=","") .. "]"
+            p = " [" .. table.concat(p, " "):gsub("@0=",""):gsub("graph=",""):gsub("o=","") .. "]"
         else
             p = ""
         end
 
         length = length + n:len() + p:len()
-        filters[#filters+1] = (n and no_ASS(n) or "") .. (p and no_ASS(p) or "")
+        filters[#filters+1] = no_ASS(n) .. no_ASS(p)
     end
 
     if #filters > 0 then
@@ -671,10 +671,10 @@ local function append_filters(s, prop, prefix)
         if length < o.filter_params_max_length then
             ret = table.concat(filters, ", ")
         else
-            local sep = format("{\\fn%s}", o.font_mono) .. o.nl .. o.indent .. format("{\\fn%s}", o.font_mono)
+            local sep = o.nl .. o.indent .. o.indent
             ret = sep .. table.concat(filters, sep)
         end
-        s[#s+1] = o.nl .. o.indent .. bold(prefix) .. o.prefix_sep .. ret
+        s[#s+1] = o.nl .. o.indent .. bold(prefix) .. o.prefix_sep .. format("{\\fn%s}", o.font_mono) .. ret .. format("{\\fn%s}", o.font)
     end
 end
 
