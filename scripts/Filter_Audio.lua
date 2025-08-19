@@ -21,6 +21,7 @@ add({
 add({
     name = 'DenoiseAudio',
     filter_type = 'audio',
+    is_lavfi = true,
     reset_on_load = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#anlmdn
@@ -43,6 +44,7 @@ add({
 add({
     name = 'VoicePass',
     filter_type = 'audio',
+    is_lavfi = true,
     reset_on_load = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#highpass
@@ -52,16 +54,17 @@ add({
         -- t: Type band-width of filter.
         -- w: Band-width.                   (0.707q)
         -- n: Normalize                     (disabled)
-        'lavfi=graph=[highpass=frequency=100,lowpass=frequency=12000]',
-        'lavfi=graph=[highpass=frequency=200,lowpass=frequency=10000]',
-        'lavfi=graph=[highpass=frequency=300,lowpass=frequency=8000]',
-        'lavfi=graph=[highpass=frequency=400,lowpass=frequency=6000]',
+        'highpass=frequency=100,lowpass=frequency=12000',
+        'highpass=frequency=200,lowpass=frequency=10000',
+        'highpass=frequency=300,lowpass=frequency=8000',
+        'highpass=frequency=400,lowpass=frequency=6000',
     },
 })
 
 add({
     name = 'Downmix',
     filter_type = 'audio',
+    is_lavfi = true,
     default_on_load = false,
     reset_on_load = false,
     filters = {
@@ -80,6 +83,7 @@ add({
 add({
     name = 'Compressor',
     filter_type = 'audio',
+    is_lavfi = true,
     reset_on_load = false,
     filters = {
     -- igh
@@ -95,6 +99,7 @@ add({
 add({
     name = 'Normalize',
     filter_type = 'audio',
+    is_lavfi = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#dynaudnorm
         -- f: Frame length.                 (500)           (10 - 8000 ms)
@@ -109,6 +114,7 @@ add({
 add({
     name = 'ExtraStereo',
     filter_type = 'audio',
+    is_lavfi = true,
     default_on_load = false,
     default_index = 2,
     reset_on_load = false,
@@ -130,6 +136,7 @@ add({
 add({
     name = 'Crystalizer',
     filter_type = 'audio',
+    is_lavfi = true,
     default_on_load = true,
     default_index = 4,
     reset_on_load = false,

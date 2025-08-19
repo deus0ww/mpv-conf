@@ -9,6 +9,7 @@ local function add(filter) filter_list[#filter_list+1] = filter end
 add({
     name = 'RemoveGrain',
     filter_type = 'video',
+    is_lavfi = true,
     default_index = 2,
     reset_on_load = false,
     filters = {
@@ -24,6 +25,7 @@ add({
 add({
     name = 'DenoiseVideo',
     filter_type = 'video',
+    is_lavfi = true,
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#hqdn3d
@@ -34,6 +36,7 @@ add({
 add({
     name = 'Deinterlace',
     filter_type = 'video',
+    is_lavfi = true,
     filters = {
     -- Too Slow:     nnedi
 
@@ -47,17 +50,18 @@ add({
         -- combmatch: none, sc, full        (sc)
     -- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
         'bwdif=mode=send_frame',
-        'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame]',
-        'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate]',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate',
         'bwdif',
-        'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif]',
-        'lavfi=graph=[fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate]',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate',
     },
 })
 
 add({
     name = 'TempDenoiseVideo',
     filter_type = 'video',
+    is_lavfi = true,
     reset_on_load = false,
     filters = {
     -- Too Blurry:   hqdn3d
@@ -80,6 +84,7 @@ add({
 add({
     name = 'Noise',
     filter_type = 'video',
+    is_lavfi = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#noise
         -- alls, c#s: Noise strength        (0)             (0, 100)
@@ -97,6 +102,7 @@ add({
 add({
     name = 'Invert',
     filter_type = 'video',
+    is_lavfi = true,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#negate
         'negate',

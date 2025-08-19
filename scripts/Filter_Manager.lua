@@ -25,10 +25,15 @@ local function show_status(filter, no_osd)
     end)
 end
 
+local function add_lavfi(filter)
+    local f = filter.filters[filter.current_index]
+    return filter.is_lavfi and ('lavfi=graph="' .. f .. '":o="threads=4"') or f
+end
+
 local cmd = {
-    enable  = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:%s' ):format(filter.name, filter.filters[filter.current_index])}) end,
-    disable = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:!%s'):format(filter.name, filter.filters[filter.current_index])}) end,
-    add     = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:!%s'):format(filter.name, filter.filters[filter.current_index])}) end,
+    enable  = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:%s' ):format(filter.name, add_lavfi(filter))}) end,
+    disable = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:!%s'):format(filter.name, add_lavfi(filter))}) end,
+    add     = function(filter) mp.command_native({type_map[filter.filter_type], 'add', ('@%s:!%s'):format(filter.name, add_lavfi(filter))}) end,
     remove  = function(filter) mp.command_native({type_map[filter.filter_type], 'del', ('@%s'    ):format(filter.name)}) end,
     clear   = function() mp.set_property_native(type_map['audio'], {})
                          mp.set_property_native(type_map['video'], {}) end,
