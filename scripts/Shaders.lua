@@ -306,9 +306,9 @@ local grain    = {
 }
 
 -- Shaders by Garamond13 - https://github.com/garamond13
-local g13      = shaders_path .. 'g13/'
+local g13_path = shaders_path .. 'g13/'
 local g13      = {
-    blur       = g13 .. 'gaussianBlur.glsl',
+    blur       = g13_path .. 'gaussianBlur.glsl',
 }
 
 
@@ -342,6 +342,7 @@ local function default_options()
 end
 
 local function default_params()
+    local scale = get_scale()
     return {
         as_sharpness   = 0.4,
 
@@ -349,7 +350,7 @@ local function default_params()
         blur_sigma     = 0.5,
 
         fg_intensity   = math.min(0.08, 0.02 + scale / 100),
-        fgs_intensity  = math.min(0.09, 0.03 + scale / 100),
+        fgs_intensity  = math.min(0.08, 0.02 + scale / 100),
         fgs_taps       = 1,
 
         fsr_pq         = 0,
@@ -364,8 +365,7 @@ local sets = {}
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
-    return { shaders = s, options = set_params(o, p), label = 'Default'   }
+    return { shaders = s, options = set_params(o, p), label = 'Default' }
 end
 
 sets[#sets+1] = function()
