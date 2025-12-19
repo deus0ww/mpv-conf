@@ -1,4 +1,4 @@
--- deus0ww - 2025-06-27
+-- deus0ww - 2025-12-19
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -78,6 +78,17 @@ add({
         (('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '7')),
         (('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '9')),
         (('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '11')),
+    },
+})
+
+add({
+    name = 'StabilizeVideo',
+    filter_type = 'video',
+    is_lavfi = true,
+    has_prop = true,
+    filters = {
+    -- https://ffmpeg.org/ffmpeg-filters.html#vidstabtransform-1
+        'vidstabtransform=optzoom=0:input=/Users/Shared/Library/Caches/mpv/vidstab/${filename}.trf',
     },
 })
 

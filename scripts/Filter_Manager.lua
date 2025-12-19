@@ -1,4 +1,4 @@
--- deus0ww - 2020-06-17
+-- deus0ww - 2025-12-19
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -27,6 +27,7 @@ end
 
 local function add_lavfi(filter)
     local f = filter.filters[filter.current_index]
+    if filter.has_prop then f = mp.command_native({"expand-text", f}) end
     return filter.is_lavfi and ('lavfi=graph="' .. f .. '":o="threads=4"') or f
 end
 
