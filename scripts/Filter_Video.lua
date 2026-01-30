@@ -1,10 +1,50 @@
--- deus0ww - 2025-12-19
+-- deus0ww - 2025-12-21
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
 
 local filter_list = {}
 local function add(filter) filter_list[#filter_list+1] = filter end
+
+add({
+    name = 'Deinterlace',
+    filter_type = 'video',
+    is_lavfi = true,
+    filters = {
+    -- Too Slow:     nnedi
+
+    -- https://ffmpeg.org/ffmpeg-filters.html#bwdif
+        -- mode: send_frame, send_field     (send_field)
+        -- parity: ttf, bff, auto           (auto)
+        -- deint: all, interlaced           (all)
+    -- https://ffmpeg.org/ffmpeg-filters.html#fieldmatch
+        -- order: ttf, bff, auto            (auto)
+        -- mode: pc, pc_n, pc_u, pc_n_ub, pcn, pcn_ub   (pc_n)
+        -- combmatch: none, sc, full        (sc)
+    -- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
+        'bwdif=mode=send_frame',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate',
+        'bwdif',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif',
+        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate',
+    },
+})
+
+add({
+    name = 'StabilizeVideo',
+    filter_type = 'video',
+    is_lavfi = true,
+    has_prop = true,
+    filters = {
+    -- https://ffmpeg.org/ffmpeg-filters.html#deshake
+        'deshake=rx=64:ry=64:edge=clamp:contrast=64',
+        'deshake',
+    -- https://ffmpeg.org/ffmpeg-filters.html#vidstabtransform-1
+        'vidstabtransform=smoothing=1:crop=black:optzoom=0:interpol=bicubic:input=/Users/Shared/Library/Caches/mpv/vidstab/${filename}.trf',
+        'vidstabtransform=input=/Users/Shared/Library/Caches/mpv/vidstab/${filename}.trf',
+    },
+})
 
 add({
     name = 'RemoveGrain',
@@ -34,31 +74,6 @@ add({
 })
 
 add({
-    name = 'Deinterlace',
-    filter_type = 'video',
-    is_lavfi = true,
-    filters = {
-    -- Too Slow:     nnedi
-
-    -- https://ffmpeg.org/ffmpeg-filters.html#bwdif
-        -- mode: send_frame, send_field     (send_field)
-        -- parity: ttf, bff, auto           (auto)
-        -- deint: all, interlaced           (all)
-    -- https://ffmpeg.org/ffmpeg-filters.html#fieldmatch
-        -- order: ttf, bff, auto            (auto)
-        -- mode: pc, pc_n, pc_u, pc_n_ub, pcn, pcn_ub   (pc_n)
-        -- combmatch: none, sc, full        (sc)
-    -- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
-        'bwdif=mode=send_frame',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate',
-        'bwdif',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate',
-    },
-})
-
-add({
     name = 'TempDenoiseVideo',
     filter_type = 'video',
     is_lavfi = true,
@@ -78,17 +93,6 @@ add({
         (('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.08'):gsub('S', '7')),
         (('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '9')),
         (('atadenoise=0a=A:0b=B:1a=A:1b=B:2a=A:2b=B:s=S'):gsub('A', '0.04'):gsub('B', '0.16'):gsub('S', '11')),
-    },
-})
-
-add({
-    name = 'StabilizeVideo',
-    filter_type = 'video',
-    is_lavfi = true,
-    has_prop = true,
-    filters = {
-    -- https://ffmpeg.org/ffmpeg-filters.html#vidstabtransform-1
-        'vidstabtransform=optzoom=0:input=/Users/Shared/Library/Caches/mpv/vidstab/${filename}.trf',
     },
 })
 
