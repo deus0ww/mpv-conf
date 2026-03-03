@@ -2867,7 +2867,7 @@ local function render()
 
         -- store initial mouse position
         if (state.last_mouseX == nil or state.last_mouseY == nil)
-            and not (mouseX == nil or mouseY == nil) then
+            and not (mouseX == nil or mouseY == nil or mouseX == -1 or mouseY == -1) then
 
             state.last_mouseX, state.last_mouseY = mouseX, mouseY
         end
@@ -2967,7 +2967,7 @@ local function render()
                 if state.osc_visible then
                     mp.enable_key_bindings("window-controls-title", "allow-vo-dragging")
                 else
-                    mp.disable_key_bindings("window-controls-title", "allow-vo-dragging")
+                    mp.disable_key_bindings("window-controls-title")
                 end
                 state.windowcontrols_title = state.osc_visible
             end
