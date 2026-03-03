@@ -20,21 +20,21 @@
 //   the previous one was using the Edge Direction variant, causing it
 //   to produce blurry output.
 
-//!PARAM UseEdgeDirection
+//!PARAM sgsr_UseEdgeDirection
 //!DESC Enables the direction-aware upscaling algorithm. This is critical for quality, as it preserves sharp edges by avoiding blurring across them. Disabling it falls back to a simpler and faster filter.
 //!TYPE DEFINE
 //!MINIMUM 0
 //!MAXIMUM 1
 1
 
-//!PARAM EdgeThreshold
+//!PARAM sgsr_EdgeThreshold
 //!DESC Controls the sensitivity of the edge detection. The sharpening logic is only applied to areas considered an "edge". Higher values increase performance by processing fewer pixels but may miss subtle details. Lower values process more of the image, increasing detail at the cost of performance and potentially amplifying noise.
 //!TYPE CONSTANT float
 //!MINIMUM 1.0
 //!MAXIMUM 16.0
 4.0
 
-//!PARAM EdgeSharpness
+//!PARAM sgsr_EdgeSharpness
 //!DESC Controls the strength of the sharpening effect applied to detected edges. Higher values create a sharper, more pronounced image but can introduce "ringing" or halo artifacts if set too high. This setting has no impact on performance.
 //!TYPE CONSTANT float
 //!MINIMUM 1.0
@@ -59,13 +59,13 @@ float fastLanczos2(float x)
 	return wB * wA;
 }
 
-#if (UseEdgeDirection == 1)
+#if (sgsr_UseEdgeDirection == 1)
 vec2 weightY(float dx, float dy, float c, vec3 data)
 #else
 vec2 weightY(float dx, float dy, float c, float data)
 #endif
 {
-#if (UseEdgeDirection == 1)
+#if (sgsr_UseEdgeDirection == 1)
 	float std = data.x;
 	vec2 dir = data.yz;
 
@@ -99,7 +99,7 @@ vec4 hook()
 	vec4 left = HOOKED_gather(coord, 0);
 
 	float edgeVote = abs(left.z - left.y) + abs(color.x - left.y)  + abs(color.x - left.z) ;
-	if (edgeVote > (EdgeThreshold / 255))
+	if (edgeVote > (sgsr_EdgeThreshold / 255))
 	{
 		coord.x += HOOKED_pt.x;
 
@@ -116,7 +116,7 @@ vec4 hook()
 
 		float sum = dot(abs(left) + abs(right) + abs(upDown), vec4(1.0));
 
-#if (UseEdgeDirection == 1)
+#if (sgsr_UseEdgeDirection == 1)
 		float sumMean = 1.014185e+01 / sum;
 		float std = sumMean * sumMean;
 		vec3 data = vec3(std, edgeDirection(left, right));
@@ -140,7 +140,7 @@ vec4 hook()
 		float finalY = aWY.y / aWY.x;
 		float maxY = max(max(left.y, left.z), max(right.x, right.w));
 		float minY = min(min(left.y, left.z), min(right.x, right.w));
-		float deltaY = clamp(EdgeSharpness * finalY, minY, maxY) - color.w;
+		float deltaY = clamp(sgsr_EdgeSharpness * finalY, minY, maxY) - color.w;
 
 		//smooth high contrast input
 		deltaY = clamp(deltaY, -23.0 / 255.0, 23.0 / 255.0);

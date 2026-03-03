@@ -224,7 +224,7 @@ local cunny    = {
     s4x32      = cunny_soft_path .. 'CuNNy-4x32-SOFT.glsl',
 }
 
--- FSR by agyild - https://gist.github.com/agyild
+-- Shaders by Agyild - https://gist.github.com/agyild
 local fsr_path = shaders_path .. 'fsr/'
 local fsr      = {
     full       = fsr_path .. 'FSR.glsl',
@@ -234,8 +234,8 @@ local fsr      = {
     uv_rcas    = fsr_path .. 'FSR_RCAS_Chroma.glsl',
     rgb_easu   = fsr_path .. 'FSR_EASU_RGB.glsl',
     rgb_rcas   = fsr_path .. 'FSR_RCAS_RGB.glsl',
-    
 }
+local sgsr     = shaders_path .. 'agyild/' .. 'SGSR.glsl'
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
 -- FSRCNNX by HelpSeeker - https://github.com/HelpSeeker/FSRCNN-TensorFlow/
@@ -358,6 +358,10 @@ local function default_params()
 
         ravu_antiring  = default_antiring,
         ravu_chroma_ar = default_antiring,
+        
+        sgsr_UseEdgeDirection = 1,
+        sgsr_EdgeThreshold    = 4.0,
+        sgsr_EdgeSharpness    = 1.0,
     }
 end
 
