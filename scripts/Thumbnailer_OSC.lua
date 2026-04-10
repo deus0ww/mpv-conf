@@ -70,6 +70,7 @@ local user_opts = {
     icon_style = "layout",      -- icon style: layout/classic/fluent
 
     font_mono = "monospace",
+    font_icon = "mpv-osd-symbols",
     background_color = "#000000",     -- background color of the osc
     timecode_color = "#FFFFFF",       -- color of the progress bar and time color
     title_color = "#FFFFFF",          -- color of the title
@@ -260,6 +261,7 @@ local function set_osc_styles()
         smallButtonsLlabel = "{\\fscx105\\fscy105\\fn" .. font_mono .. "}",
         smallButtonsR = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.small_buttonsR_color) .. "\\3c&HFFFFFF\\fs30\\fn" .. icon_font .. "}",
         topButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.top_buttons_color) .. "\\3c&HFFFFFF\\fs12\\fn" .. icon_font .. "}",
+        customButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.top_buttons_color) .. "\\3c&HFFFFFF\\fs30\\q2\\fn" .. user_opts.font_icon .. "}",
 
         elementDown = "{\\1c&H" .. osc_color_convert(user_opts.held_element_color) .."}",
         timecodes = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.timecode_color) .. "\\3c&HFFFFFF\\fs20\\fn" .. font_mono .. "}",
@@ -2273,7 +2275,7 @@ local function bar_layout(direction, slim)
         t_r = t_r - geo.w
         lo = add_layout("custom_button_" .. i)
         lo.geometry = geo
-        lo.style = osc_styles.vidtitleBar
+        lo.style = osc_styles.customButtons
     end
 
     t_r = t_r - padX
@@ -2289,7 +2291,7 @@ local function bar_layout(direction, slim)
         geo = { x = t_r, y = geo.y, an = 6, w = 150, h = geo.h }
         lo = add_layout("cache")
         lo.geometry = geo
-        lo.style = osc_styles.vidtitleBar
+        lo.style = osc_styles.timecodes
     end
 
     t_r = t_r - geo.w - padX
@@ -2588,7 +2590,7 @@ layouts["floating"] = function ()
     for i = 1, last_custom_button do
         lo = add_layout("custom_button_" .. i)
         lo.geometry = {x = ll, y = ctrl_pos, an = 4, w = btn_size, h = btn_size  }
-        lo.style = osc_styles.vidtitleBar
+        lo.style = osc_styles.customButtons
         ll = ll + btn_size + btn_pad
     end
 
@@ -3000,7 +3002,7 @@ local function osc_init()
         end
         local min = math.floor(dmx_cache / 60)
         local sec = math.floor(dmx_cache % 60) -- don't round e.g. 59.9 to 60
-        return "Cache: " .. string.format("%02.0f:%02.0f:%02.0f", math.floor(dmx_cache / 3600), min, sec)
+        return "Cache: " .. string.format("%02.0f:%02.0f", min, sec)
     end
 
     -- volume
