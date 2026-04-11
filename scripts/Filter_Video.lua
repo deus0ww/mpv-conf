@@ -69,6 +69,8 @@ add({
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#hqdn3d
+        'hqdn3d=luma_spatial=1.0:chroma_spatial=1.0:luma_tmp=3.0:chroma_tmp=2.0',
+        'hqdn3d=luma_spatial=2.0:chroma_spatial=1.5:luma_tmp=3.0:chroma_tmp=2.0',
         'hqdn3d=luma_spatial=4.0:chroma_spatial=3.0:luma_tmp=6.0:chroma_tmp=4.0',
     },
 })
