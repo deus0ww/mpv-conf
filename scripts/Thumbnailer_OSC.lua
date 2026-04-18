@@ -61,7 +61,7 @@ local user_opts = {
     windowcontrols_independent = true, -- show window controls and bottom bar independently
     floatingtitle = true,         -- show title in the floating layout?
     floatingwidth = 700,          -- width of the floating layout
-    floatingalpha = 130,          -- alpha of the floating layout background
+    floatingalpha = 105,          -- alpha of the floating layout background
     tracknumberswidth = 35,       -- width for track number labels (0 = icon only)
     greenandgrumpy = false,     -- disable santa hat
     livemarkers = true,         -- update seekbar chapter markers on duration change
@@ -85,6 +85,8 @@ local user_opts = {
 
     tick_delay = 1 / 60,                   -- minimum interval between OSC redraws in seconds
     tick_delay_follow_display_fps = false, -- use display fps as the minimum interval
+
+    max_thumb_size = 200, -- maximum display size of preview thumbnails
 
     -- luacheck: push ignore
     -- luacheck: max line length
@@ -277,9 +279,9 @@ local function set_osc_styles()
         wcButtons = "{\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\fs24\\fn" .. icon_font .. "}",
         wcTitle = "{\\1c&H" .. osc_color_convert(user_opts.title_color) .. "\\fs24\\q2}",
         wcBar = "{\\1c&H" .. osc_color_convert(user_opts.background_color) .. "}",
-        floatingButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs26\\fn" .. icon_font .. "}",
-        floatingButtonslabel = "{\\fs26\\fn" .. mp.get_property("options/osd-font") .. "}",
-        floatingButtonsBig = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs30\\fn" .. icon_font .. "}",
+        floatingButtons = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs22\\fn" .. icon_font .. "}",
+        floatingButtonslabel = "{\\fs22\\fn" .. mp.get_property("options/osd-font") .. "}",
+        floatingButtonsBig = "{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.buttons_color) .. "\\3c&HFFFFFF\\fs26\\fn" .. icon_font .. "}",
         floatingBox = "{\\rDefault\\blur0\\bord0\\1c&H" ..
             osc_color_convert(user_opts.background_color) .. "\\3c&H" ..
             osc_color_convert(user_opts.background_color) .. "}",
@@ -315,10 +317,11 @@ local state = {
     tick_timer = nil,
     tick_last_time = 0,                     -- when the last tick() was run
     hide_timer = nil,
-    cache_state = nil,
-    idle = false,
+    demuxer_cache_state = nil,
+    idle_active = false,
     audio_track_count = 0,
     sub_track_count = 0,
+    track_position = {},
     no_video = false,
     file_loaded = false,
     enabled = true,
@@ -328,7 +331,7 @@ local state = {
     dmx_cache = 0,
     using_video_margins = false,
     border = true,
-    maximized = false,
+    window_maximized = false,
     osd = mp.create_osd_overlay("ass-events"),
     logo_osd = mp.create_osd_overlay("ass-events"),
     chapter_list = {},                      -- sorted by time
@@ -369,6 +372,14 @@ local santa_hat_lines = {
 --
 -- Helper functions
 --
+
+local function observe_cached(property, callback)
+    local key = property:gsub("-", "_")
+    mp.observe_property(property, "native", function (_, value)
+        state[key] = value
+        callback()
+    end)
+end
 
 local function kill_animation(anitype_key, anistart_key, animation_key)
     state[anitype_key]   = nil
@@ -598,7 +609,7 @@ local function get_touchtimeout()
 end
 
 local function cache_enabled()
-    return state.cache_state and #state.cache_state["seekable-ranges"] > 0
+    return state.demuxer_cache_state and #state.demuxer_cache_state["seekable-ranges"] > 0
 end
 
 local function reset_margins()
@@ -712,12 +723,18 @@ end
 local function update_tracklist(_, track_list)
     state.audio_track_count = 0
     state.sub_track_count = 0
+    state.track_position = {}
+    state.no_video = true
 
-    for _, track in pairs(track_list) do
+    for _, track in ipairs(track_list) do
         if track.type == "audio" then
             state.audio_track_count = state.audio_track_count + 1
+            state.track_position[track.id .. "audio"] = state.audio_track_count
         elseif track.type == "sub" then
             state.sub_track_count = state.sub_track_count + 1
+            state.track_position[track.id .. "sub"] = state.sub_track_count
+        elseif track.type == "video" and track.selected then
+            state.no_video = false
         end
     end
 
@@ -1210,6 +1227,14 @@ local function prepare_elements()
         -- Calculate the hitbox
         local bX1, bY1, bX2, bY2 = get_hitbox_coords_geo(elem_geo)
         element.hitbox = {x1 = bX1, y1 = bY1, x2 = bX2, y2 = bY2}
+        if element.layout.hitbox then
+            if element.layout.hitbox.x1 then
+                element.hitbox.x1 = element.layout.hitbox.x1
+            end
+            if element.layout.hitbox.x2 then
+                element.hitbox.x2 = element.layout.hitbox.x2
+            end
+        end
 
         local style_ass = assdraw.ass_new()
 
@@ -1605,8 +1630,59 @@ local function render_elements(master_ass)
                     ass_append_alpha(elem_ass, slider_lo.alpha, 0)
                     elem_ass:append(tooltiplabel)
 
+                    local hover_sec = mp.get_property_number("duration", 0) * (sliderpos / 100)
+                    mp.set_property_number("user-data/osc/hover-sec", hover_sec)
+
+                    -- thumbnail
+                    local osd_w, osd_h = mp.get_osd_size()
+                    local vop = mp.get_property_native("video-out-params")
+                    local draw_thumbnail = osd_w > 0 and vop
+                    if draw_thumbnail then
+                        local r_w, r_h = get_virt_scale_factor()
+                        local thumb_max = math.min(user_opts.max_thumb_size,
+                            math.min(osd_w, osd_h) * 0.25)
+                        local scale = thumb_max / math.max(vop.dw, vop.dh)
+                        local thumb_w = math.floor(vop.dw * scale + 0.5)
+                        local thumb_h = math.floor(vop.dh * scale + 0.5)
+                        local tooltip_font_size = (user_opts.layout == "box" or
+                            user_opts.layout == "slimbox") and 2 or 12
+                        local thumb_tx = tx
+                        local thumb_ty = user_opts.layout ~= "topbar" and element.hitbox.y1 - 8 or
+                            element.hitbox.y2 + tooltip_font_size + 8
+                        local thumb_pad = 4
+                        local thumb_margin_x = 20 / r_w
+                        local thumb_margin_y = (4 + user_opts.tooltipborder) / r_h + thumb_pad
+                        local thumb_x = math.min(osd_w - thumb_w - thumb_margin_x,
+                            math.max(thumb_margin_x, thumb_tx / r_w - thumb_w / 2))
+                        local thumb_y = thumb_ty / r_h + (user_opts.layout ~= "topbar" and
+                            -(thumb_h + tooltip_font_size / r_h + thumb_margin_y) or
+                            thumb_margin_y)
+
+                        local thumb_req = {
+                            x = math.floor(thumb_x + 0.5), y = math.floor(thumb_y + 0.5),
+                            w = math.floor(thumb_w + 0.5), h = math.floor(thumb_h + 0.5),
+                        }
+
+                        local thumb_ass = assdraw.ass_new()
+                        thumb_ass:new_event()
+                        thumb_ass:pos(thumb_req.x, thumb_req.y)
+                        thumb_ass:an(7)
+                        thumb_ass:append(osc_styles.timePosBar)
+                        thumb_ass:append("{\\1a&H20&}")
+                        thumb_ass:draw_start()
+                        thumb_ass:rect_cw(-thumb_pad, -thumb_pad,
+                            thumb_req.w + thumb_pad, thumb_req.h + thumb_pad)
+                        thumb_ass:draw_stop()
+                        thumb_req.ass = thumb_ass.text
+
+                        mp.set_property_native("user-data/osc/draw-preview", thumb_req)
+                    end
+                    
                     display_tn_osc(ty, sliderpos, elem_ass)
                 else
+                    mp.set_property_native("user-data/osc/hover-sec", nil)
+                    mp.set_property_native("user-data/osc/draw-preview", nil)
+                    
                     hide_thumbnail()
                 end
             end
@@ -1802,6 +1878,9 @@ local function window_controls(topbar)
     lo = add_layout("close")
     lo.geometry = alignment == "left" and first_geo or third_geo
     lo.style = osc_styles.wcButtons
+    if alignment == "left" then
+        lo.hitbox = { x1 = 0 }
+    end
 
     -- Minimize: 🗕
     ne = new_element("minimize", "button")
@@ -1816,7 +1895,7 @@ local function window_controls(topbar)
     -- Maximize: 🗖 /🗗
     ne = new_element("maximize", "button")
     ne.is_wc = true
-    if state.maximized or state.fullscreen then
+    if state.window_maximized or state.fullscreen then
         ne.content = icons.unmaximize
     else
         ne.content = icons.maximize
@@ -2252,6 +2331,7 @@ local function bar_layout(direction, slim)
     lo = add_layout("menu")
     lo.geometry = geo
     lo.style = osc_styles.topButtonsBar
+    lo.hitbox = { x1 = 0 }
 
     -- Playlist prev/next
     geo = { x = geo.x + geo.w + padX, y = geo.y, an = geo.an, w = geo.w, h = geo.h }
@@ -2276,6 +2356,9 @@ local function bar_layout(direction, slim)
         lo = add_layout("custom_button_" .. i)
         lo.geometry = geo
         lo.style = osc_styles.customButtons
+        if i == last_custom_button then
+            lo.hitbox = { x2 = math.huge }
+        end
     end
 
     t_r = t_r - padX
@@ -2286,6 +2369,7 @@ local function bar_layout(direction, slim)
         lo = add_layout("fullscreen")
         lo.geometry = geo
         lo.style = osc_styles.topButtonsBar
+        lo.hitbox = { x2 = math.huge }
     else
         -- Cache
         geo = { x = t_r, y = geo.y, an = 6, w = 150, h = geo.h }
@@ -2315,6 +2399,7 @@ local function bar_layout(direction, slim)
     lo = add_layout("play_pause")
     lo.geometry = geo
     lo.style = osc_styles.smallButtonsBar
+    lo.hitbox = { x1 = 0 }
 
     geo = { x = geo.x + geo.w + padX, y = geo.y, an = geo.an, w = geo.w, h = geo.h }
     lo = add_layout("chapter_prev")
@@ -2341,6 +2426,7 @@ local function bar_layout(direction, slim)
     lo = add_layout("fullscreen")
     lo.geometry = geo
     lo.style = osc_styles.smallButtonsBar
+    lo.hitbox = { x2 = math.huge }
 
     -- Volume
     geo = { x = geo.x - geo.w - padX, y = geo.y, an = geo.an, w = geo.w, h = geo.h }
@@ -2808,7 +2894,8 @@ local function osc_init()
         if user_opts.tracknumberswidth == 0 then
             return icons.audio
         end
-        local track = mp.get_property_number("aid", "-")
+        local tid = mp.get_property_number("aid", 0)
+        local track = state.track_position[tid .. "audio"] or "-"
         local count = state.audio_track_count
         return icons.audio .. label_style .. " " ..
                (user_opts.layout == "floating" and to_fraction(track, count)
@@ -2824,7 +2911,8 @@ local function osc_init()
         if user_opts.tracknumberswidth == 0 then
             return icons.subtitle
         end
-        local track = mp.get_property_number("sid", "-")
+        local tid = mp.get_property_number("sid", 0)
+        local track = state.track_position[tid .. "sub"] or "-"
         local count = state.sub_track_count
         return icons.subtitle .. label_style .. " " ..
                (user_opts.layout == "floating" and to_fraction(track, count)
@@ -2879,7 +2967,7 @@ local function osc_init()
             return nil
         end
         local nranges = {}
-        for _, range in pairs(state.cache_state["seekable-ranges"]) do
+        for _, range in pairs(state.demuxer_cache_state["seekable-ranges"]) do
             nranges[#nranges + 1] = {
                 ["start"] = 100 * range["start"] / duration,
                 ["end"] = 100 * range["end"] / duration,
@@ -2993,7 +3081,7 @@ local function osc_init()
         if not cache_enabled() then
             return ""
         end
-        local dmx_cache = state.cache_state["cache-duration"]
+        local dmx_cache = state.demuxer_cache_state["cache-duration"]
         local thresh = math.min(state.dmx_cache * 0.05, 5)  -- 5% or 5s
         if dmx_cache and math.abs(dmx_cache - state.dmx_cache) >= thresh then
             state.dmx_cache = dmx_cache
@@ -3115,11 +3203,6 @@ end
 
 local function hide_wc()
     hide_bar("wc", "wc_visible", "wc_anitype", set_wc_visible)
-end
-
-local function cache_state(_, st)
-    state.cache_state = st
-    request_tick()
 end
 
 local function mouse_leave()
@@ -3443,7 +3526,7 @@ local function render_logo()
         end
     end
 
-    if state.idle then
+    if state.idle_active then
         ass:new_event()
         ass:pos(display_w / 2, icon_y + 65)
         ass:an(8)
@@ -3461,7 +3544,7 @@ tick = function()
 
     if not state.enabled then return end
 
-    if state.idle then
+    if state.idle_active then
         -- render idle message
         msg.trace("idle message")
         if user_opts.idlescreen then
@@ -3502,9 +3585,9 @@ tick = function()
 
     local function tick_animation(anitype_key, anistart_key, animation_key, allow_idle)
         -- state.anistart can be nil - animation should now start, or it can
-        -- be a timestamp when it started. state.idle has no animation.
+        -- be a timestamp when it started. state.idle_active has no animation.
         if state[anitype_key] ~= nil then
-            if (allow_idle or not state.idle) and
+            if (allow_idle or not state.idle_active) and
                (not state[anistart_key] or
                 mp.get_time() < 1 + state[anistart_key] + user_opts.fadeduration/1000)
             then
@@ -3560,10 +3643,8 @@ mp.register_event("start-file", request_init)
 mp.observe_property("track-list", "native", update_tracklist)
 mp.observe_property("playlist-count", "native", request_init)
 mp.observe_property("playlist-pos", "native", request_init)
-mp.observe_property("chapter-list", "native", function(_, list)
-    list = list or {}  -- safety, shouldn't return nil
-    table.sort(list, function(a, b) return a.time < b.time end)
-    state.chapter_list = list
+observe_cached("chapter-list", function ()
+    table.sort(state.chapter_list, function(a, b) return a.time < b.time end)
     update_duration_watch()
     request_init()
 end)
@@ -3602,31 +3683,14 @@ mp.register_script_message("osc-tracklist", function(dur)
     mp.command("show-text ${track-list} " .. (dur and dur * 1000 or ""))
 end)
 
-mp.observe_property("fullscreen", "bool", function(_, val)
-    state.fullscreen = val
+observe_cached("fullscreen", function ()
     state.marginsREQ = true
     request_init_resize()
 end)
-mp.observe_property("border", "bool", function(_, val)
-    state.border = val
-    request_init_resize()
-end)
-mp.observe_property("title-bar", "bool", function(_, val)
-    state.title_bar = val
-    request_init_resize()
-end)
-mp.observe_property("window-maximized", "bool", function(_, val)
-    state.maximized = val
-    request_init_resize()
-end)
-mp.observe_property("idle-active", "bool", function(_, val)
-    state.idle = val
-    request_tick()
-end)
-mp.observe_property("current-tracks/video", "native", function(_, val)
-    state.no_video = val == nil
-    request_tick()
-end)
+observe_cached("border", request_init_resize)
+observe_cached("title-bar", request_init_resize)
+observe_cached("window-maximized", request_init_resize)
+observe_cached("idle-active", request_tick)
 
 mp.register_event("file-loaded", function()
     state.file_loaded = true
@@ -3635,6 +3699,8 @@ mp.register_event("file-loaded", function()
 end)
 mp.add_hook("on_unload", 50, function()
     state.file_loaded = false
+    mp.set_property_native("user-data/osc/hover-sec", nil)
+    mp.set_property_native("user-data/osc/draw-preview", nil)
     request_tick()
 end)
 
@@ -3642,7 +3708,7 @@ mp.observe_property("display-fps", "number", set_tick_delay)
 mp.observe_property("pause", "bool", request_tick)
 mp.observe_property("volume", "number", request_tick)
 mp.observe_property("mute", "bool", request_tick)
-mp.observe_property("demuxer-cache-state", "native", cache_state)
+observe_cached("demuxer-cache-state", request_tick)
 mp.observe_property("vo-configured", "bool", request_tick)
 mp.observe_property("playback-time", "number", request_tick)
 mp.observe_property("osd-dimensions", "native", function()
