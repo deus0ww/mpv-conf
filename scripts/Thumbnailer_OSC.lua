@@ -139,6 +139,26 @@ local user_opts = {
     fullscreen_mbtn_left_command = "cycle fullscreen",
     fullscreen_mbtn_mid_command = "",
     fullscreen_mbtn_right_command = "cycle window-maximized",
+
+    skip_backward_mbtn_left_down_command = "seek -5",
+    skip_backward_mbtn_mid_down_command = "frame-back-step",
+    skip_backward_mbtn_right_down_command = "seek -30",
+
+    skip_forward_mbtn_left_down_command = "seek 10",
+    skip_forward_mbtn_mid_down_command = "frame-step",
+    skip_forward_mbtn_right_down_command = "seek 60",
+
+    close_mbtn_left_command = "quit",
+    close_mbtn_mid_command = "",
+    close_mbtn_right_command = "",
+
+    minimize_mbtn_left_command = "cycle window-minimized",
+    minimize_mbtn_mid_command = "",
+    minimize_mbtn_right_command = "",
+
+    maximize_mbtn_left_command = "cycle ${?fullscreen==yes:fullscreen}${!fullscreen==yes:window-maximized}",
+    maximize_mbtn_mid_command = "",
+    maximize_mbtn_right_command = "",
     -- luacheck: pop
 }
 
@@ -1799,6 +1819,38 @@ local function add_layout(name)
     end
 end
 
+local function bind_mouse_buttons(element_name)
+    for _, button in pairs({"mbtn_left", "mbtn_mid", "mbtn_right"}) do
+        local up_command = user_opts[element_name .. "_" .. button .. "_command"]
+
+        if up_command and up_command ~= "" then
+            elements[element_name].eventresponder[button .. "_up"] = function ()
+                mp.command(up_command)
+            end
+        end
+
+        local down_command = user_opts[element_name .. "_" .. button .. "_down_command"]
+
+        if down_command and down_command ~= "" then
+            elements[element_name].eventresponder[button .. "_down"] = function ()
+                mp.command(down_command)
+            end
+        end
+    end
+
+    if user_opts.scrollcontrols then
+        for _, button in pairs({"wheel_down", "wheel_up"}) do
+            local command = user_opts[element_name .. "_" .. button .. "_command"]
+
+            if command and command ~= "" then
+                elements[element_name].eventresponder[button .. "_press"] = function ()
+                    mp.command(command)
+                end
+            end
+        end
+    end
+end
+
 -- Window Controls
 local function window_controls(topbar)
     local wc_geo = {
@@ -1885,8 +1937,7 @@ local function window_controls(topbar)
     ne = new_element("close", "button")
     ne.is_wc = true
     ne.content = icons.close
-    ne.eventresponder["mbtn_left_up"] =
-        function () mp.commandv("quit") end
+    bind_mouse_buttons("close")
     lo = add_layout("close")
     lo.geometry = alignment == "left" and first_geo or third_geo
     lo.style = osc_styles.wcButtons
@@ -1898,8 +1949,7 @@ local function window_controls(topbar)
     ne = new_element("minimize", "button")
     ne.is_wc = true
     ne.content = icons.minimize
-    ne.eventresponder["mbtn_left_up"] =
-        function () mp.commandv("cycle", "window-minimized") end
+    bind_mouse_buttons("minimize")
     lo = add_layout("minimize")
     lo.geometry = alignment == "left" and second_geo or first_geo
     lo.style = osc_styles.wcButtons
@@ -1912,14 +1962,7 @@ local function window_controls(topbar)
     else
         ne.content = icons.maximize
     end
-    ne.eventresponder["mbtn_left_up"] =
-        function ()
-            if state.fullscreen then
-                mp.commandv("cycle", "fullscreen")
-            else
-                mp.commandv("cycle", "window-maximized")
-            end
-        end
+    bind_mouse_buttons("maximize")
     lo = add_layout("maximize")
     lo.geometry = alignment == "left" and third_geo or second_geo
     lo.style = osc_styles.wcButtons
@@ -2718,31 +2761,6 @@ layouts["floating"] = function ()
     lo.style = osc_styles.floatingButtons
 end
 
-
-local function bind_mouse_buttons(element_name)
-    for _, button in pairs({"mbtn_left", "mbtn_mid", "mbtn_right"}) do
-        local command = user_opts[element_name .. "_" .. button .. "_command"]
-
-        if command ~= "" then
-            elements[element_name].eventresponder[button .. "_up"] = function ()
-                mp.command(command)
-            end
-        end
-    end
-
-    if user_opts.scrollcontrols then
-        for _, button in pairs({"wheel_down", "wheel_up"}) do
-            local command = user_opts[element_name .. "_" .. button .. "_command"]
-
-            if command and command ~= "" then
-                elements[element_name].eventresponder[button .. "_press"] = function ()
-                    mp.command(command)
-                end
-            end
-        end
-    end
-end
-
 local function to_fraction(num, den)
     local sup = {['0']='\226\129\176',['1']='\194\185',    ['2']='\194\178',
                  ['3']='\194\179',    ['4']='\226\129\180',['5']='\226\129\181',
@@ -2859,24 +2877,14 @@ local function osc_init()
 
     ne.softrepeat = true
     ne.content = icons.skip_backward
-    ne.eventresponder["mbtn_left_down"] =
-        function () mp.commandv("seek", -5) end
-    ne.eventresponder["mbtn_mid"] =
-        function () mp.commandv("frame-back-step") end
-    ne.eventresponder["mbtn_right_down"] =
-        function () mp.commandv("seek", -30) end
+    bind_mouse_buttons("skip_backward")
 
     --skip_forward
     ne = new_element("skip_forward", "button")
 
     ne.softrepeat = true
     ne.content = icons.skip_forward
-    ne.eventresponder["mbtn_left_down"] =
-        function () mp.commandv("seek", 10) end
-    ne.eventresponder["mbtn_mid"] =
-        function () mp.commandv("frame-step") end
-    ne.eventresponder["mbtn_right_down"] =
-        function () mp.commandv("seek", 60) end
+    bind_mouse_buttons("skip_forward")
 
     --chapter_prev
     ne = new_element("chapter_prev", "button")
