@@ -1,4 +1,4 @@
--- deus0ww - 2025-12-21
+-- deus0ww - 2026-04-24
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -66,11 +66,12 @@ add({
     name = 'DenoiseVideo',
     filter_type = 'video',
     is_lavfi = true,
+    default_index = 2,
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#hqdn3d
         'hqdn3d=luma_spatial=1.0:chroma_spatial=1.0:luma_tmp=3.0:chroma_tmp=2.0',
-        'hqdn3d=luma_spatial=2.0:chroma_spatial=1.5:luma_tmp=3.0:chroma_tmp=2.0',
+        'hqdn3d=luma_spatial=2.0:chroma_spatial=3.0:luma_tmp=3.0:chroma_tmp=4.0',
         'hqdn3d=luma_spatial=4.0:chroma_spatial=3.0:luma_tmp=6.0:chroma_tmp=4.0',
     },
 })
