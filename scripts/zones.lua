@@ -33,21 +33,18 @@ local mp = require 'mp'
 local _show_zones_info_by_default = false;
 local _zones_key = "Ctrl+Alt+Z"
 
-local ZONE_THRESH_PERCENTAGE = 20;
+local ZONE_THRESH_PERCENTAGE = 25;
 -- -- sides get 20% each, mid gets 60%, same vertically
 local VERT = {'top', 'middle', 'bottom'}
 local HORZ = {'left', 'middle', 'right'}
 
 local msg = mp.msg
 
-local mouseX, mouseY = nil, nil
-mp.add_key_binding('mouse_move', function() mouseX, mouseY = mp.get_mouse_pos() end)
-mp.register_event( 'start-file', function() mouseX, mouseY = nil, nil end)
-
 function getMouseZone()
     -- returns the mouse zone as two strings [top/middle/bottom], [left/middle/right], e.g. "middle", "right"
 
     local screenW, screenH = mp.get_osd_size()
+    local mouseX, mouseY   = mp.get_mouse_pos()
     if mouseX == nil or mouseY == nil then return nil, nil end
 
     local threshY = screenH * ZONE_THRESH_PERCENTAGE / 100
