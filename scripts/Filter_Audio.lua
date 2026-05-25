@@ -9,7 +9,7 @@ local function add(filter) filter_list[#filter_list+1] = filter end
 add({
     name = 'Format',
     filter_type = 'audio',
-    default_on_load = true,
+    default_on_load = false,
     reset_on_load = true,
     filters = {
     -- https://mpv.io/manual/master/#audio-filters-format
@@ -137,7 +137,7 @@ add({
     name = 'Crystalizer',
     filter_type = 'audio',
     is_lavfi = true,
-    default_on_load = true,
+    default_on_load = false,
     default_index = 4,
     reset_on_load = false,
     filters = {
