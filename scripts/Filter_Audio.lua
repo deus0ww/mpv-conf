@@ -9,7 +9,7 @@ local function add(filter) filter_list[#filter_list+1] = filter end
 add({
     name = 'Format',
     filter_type = 'audio',
-    default_on_load = false,
+    default_on_load = true,
     reset_on_load = true,
     filters = {
     -- https://mpv.io/manual/master/#audio-filters-format
