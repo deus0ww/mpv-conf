@@ -235,7 +235,10 @@ local fsr      = {
     rgb_easu   = fsr_path .. 'FSR_EASU_RGB.glsl',
     rgb_rcas   = fsr_path .. 'FSR_RCAS_RGB.glsl',
 }
-local sgsr     = shaders_path .. 'agyild/' .. 'SGSR.glsl'
+local sgsr     = {
+    y  = shaders_path .. 'agyild/' .. 'SGSR.glsl',
+    uv = shaders_path .. 'agyild/' .. 'SGSR_Chroma.glsl',
+}
 
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
 -- FSRCNNX by HelpSeeker - https://github.com/HelpSeeker/FSRCNN-TensorFlow/
@@ -293,7 +296,9 @@ local cfl      = {
     s          = cfl_path .. 'CfL_Prediction_Smooth.glsl',
 
     fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
-    fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',  
+    fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',
+    
+    gsr        = cfl_path .. 'CfL_Prediction_GSR.glsl',
 
     x          = cfl_path .. 'CfL_Prediction_Test.glsl',
 }

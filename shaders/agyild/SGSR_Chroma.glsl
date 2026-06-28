@@ -34,13 +34,13 @@
 //!MAXIMUM 2.0
 2.0
 
-//!HOOK LUMA
+//!HOOK CHROMA
 //!BIND HOOKED
-//!DESC Snapdragon GSR
+//!DESC Snapdragon GSR UV
 //!WHEN OUTPUT.w OUTPUT.h * HOOKED.w HOOKED.h * / 1.0 >
 //!WIDTH OUTPUT.w
 //!HEIGHT OUTPUT.h
-//!COMPONENTS 1
+//!COMPONENTS 2
 
 // Shader code
 
@@ -129,6 +129,51 @@ vec4 hook()
 		//smooth high contrast input
 		deltaY  = clamp(deltaY, -23.0 / 255.0, 23.0 / 255.0);
 		color.x = clamp((color.x + deltaY), 0.0, 1.0);
+	}
+	
+	left = HOOKED_gather(coord, 1);
+
+	edgeVote = abs(left.z - left.y) + abs(color.y - left.y)  + abs(color.y - left.z) ;
+	if (edgeVote > (sgsr_EdgeThreshold / 255))
+	{
+		coord.x += HOOKED_pt.x;
+
+		right = HOOKED_gather(coord + vec2(HOOKED_pt.x,  0.0), 1);
+		upDown;
+		upDown.xy  = HOOKED_gather(coord + vec2(0.0, -HOOKED_pt.y), 1).wz;
+		upDown.zw  = HOOKED_gather(coord + vec2(0.0,  HOOKED_pt.y), 1).yx;
+
+		mean = (left.y + left.z + right.x + right.w) * 0.25;
+		left   -= vec4(mean);
+		right  -= vec4(mean);
+		upDown -= vec4(mean);
+		diff = color.y - mean;
+		sum = dot(abs(left) + abs(right) + abs(upDown), vec4(1.0));
+
+		sumMean = 1.014185e+01 / sum;
+		std  = sumMean * sumMean;
+		data = vec3(std, edgeDirection(left, right));
+		aWY  = weightY(pl.x,       pl.y + 1.0, upDown.x, data);
+        aWY += weightY(pl.x - 1.0, pl.y + 1.0, upDown.y, data);
+        aWY += weightY(pl.x - 1.0, pl.y - 2.0, upDown.z, data);
+        aWY += weightY(pl.x,       pl.y - 2.0, upDown.w, data);
+        aWY += weightY(pl.x + 1.0, pl.y - 1.0,   left.x, data);
+        aWY += weightY(pl.x,       pl.y - 1.0,   left.y, data);
+        aWY += weightY(pl.x,       pl.y,         left.z, data);
+        aWY += weightY(pl.x + 1.0, pl.y,         left.w, data);
+        aWY += weightY(pl.x - 1.0, pl.y - 1.0,  right.x, data);
+        aWY += weightY(pl.x - 2.0, pl.y - 1.0,  right.y, data);
+        aWY += weightY(pl.x - 2.0, pl.y,        right.z, data);
+        aWY += weightY(pl.x - 1.0, pl.y,        right.w, data);
+
+		finalY = aWY.y / aWY.x;
+		maxY   = max(max(left.y, left.z), max(right.x, right.w));
+		minY   = min(min(left.y, left.z), min(right.x, right.w));
+		deltaY = clamp(sgsr_EdgeSharpness * finalY, minY, maxY) - diff;
+
+		//smooth high contrast input
+		deltaY  = clamp(deltaY, -23.0 / 255.0, 23.0 / 255.0);
+		color.y = clamp((color.y + deltaY), 0.0, 1.0);
 	}
 	return color;
 }
