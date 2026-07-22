@@ -66,7 +66,6 @@ local user_opts = {
     floatingalpha = 105,          -- alpha of the floating layout background
     tracknumberswidth = 35,       -- width for track number labels (0 = icon only)
     greenandgrumpy = false,     -- disable santa hat
-    livemarkers = true,         -- update seekbar chapter markers on duration change
     chapter_fmt = "Chapter: %s", -- chapter print format for seekbar-hover. "no" to disable
     unicodeminus = false,       -- whether to use the Unicode minus sign character
     icon_style = "layout",      -- icon style: layout/classic/fluent
@@ -350,6 +349,7 @@ local state = {
     playlist_count = 0,
     playlist_pos_1 = 0,
     duration = nil,
+    has_duration = false,
     pause = false,
     volume = 0,
     mute = false,
@@ -791,6 +791,105 @@ end
 
 local function window_controls_alignment()
     return user_opts.windowcontrols_alignment
+end
+
+
+--
+-- Element Management
+--
+
+local elements = {}
+
+local function update_slider(element)
+    local elem_geo = element.layout.geometry
+    local r1 = 0
+    local r2 = 0
+    local slider_lo = element.layout.slider
+    -- offset between element outline and drag-area
+    local foV = slider_lo.border + slider_lo.gap
+
+    -- calculate positions of min and max points
+    if slider_lo.stype ~= "bar" then
+        r1 = elem_geo.h / 2
+        element.slider.min.ele_pos = elem_geo.h / 2
+        element.slider.max.ele_pos = elem_geo.w - (elem_geo.h / 2)
+        if slider_lo.stype == "diamond" then
+            r2 = (elem_geo.h - 2 * slider_lo.border) / 2
+        elseif slider_lo.stype == "knob" then
+            r2 = r1
+        end
+    else
+        element.slider.min.ele_pos = slider_lo.border + slider_lo.gap
+        element.slider.max.ele_pos = elem_geo.w - (slider_lo.border + slider_lo.gap)
+    end
+
+    element.slider.min.glob_pos =
+    element.hitbox.x1 + element.slider.min.ele_pos
+    element.slider.max.glob_pos =
+    element.hitbox.x1 + element.slider.max.ele_pos
+
+    local static_ass = assdraw.ass_new()
+    static_ass:draw_start()
+
+    -- the box
+    ass_draw_rr_h_cw(static_ass, 0, 0, elem_geo.w, elem_geo.h, r1,
+                     slider_lo.stype == "diamond")
+
+    -- the "hole"
+    ass_draw_rr_h_ccw(static_ass, slider_lo.border, slider_lo.border,
+                      elem_geo.w - slider_lo.border, elem_geo.h - slider_lo.border,
+                      r2, slider_lo.stype == "diamond")
+
+    -- marker nibbles
+    if element.slider.markerF ~= nil and slider_lo.gap > 0 then
+        local markers = element.slider.markerF()
+        for _,marker in pairs(markers) do
+            if marker > element.slider.min.value and
+                marker < element.slider.max.value then
+
+                local s = get_slider_ele_pos_for(element, marker)
+
+                if slider_lo.gap > 1 then -- draw triangles
+
+                    local a = slider_lo.gap / 0.5 --0.866
+
+                    --top
+                    if slider_lo.nibbles_top then
+                        static_ass:move_to(s - (a / 2), slider_lo.border)
+                        static_ass:line_to(s + (a / 2), slider_lo.border)
+                        static_ass:line_to(s, foV)
+                    end
+
+                    --bottom
+                    if slider_lo.nibbles_bottom then
+                        static_ass:move_to(s - (a / 2),
+                            elem_geo.h - slider_lo.border)
+                        static_ass:line_to(s,
+                            elem_geo.h - foV)
+                        static_ass:line_to(s + (a / 2),
+                            elem_geo.h - slider_lo.border)
+                    end
+
+                else -- draw 2x1px nibbles
+
+                    --top
+                    if slider_lo.nibbles_top then
+                        static_ass:rect_cw(s - 1, slider_lo.border,
+                            s + 1, slider_lo.border + slider_lo.gap);
+                    end
+
+                    --bottom
+                    if slider_lo.nibbles_bottom then
+                        static_ass:rect_cw(s - 1,
+                            elem_geo.h - slider_lo.border - slider_lo.gap,
+                            s + 1, elem_geo.h - slider_lo.border);
+                    end
+                end
+            end
+        end
+    end
+
+    element.static_ass = static_ass
 end
 
 
@@ -1285,112 +1384,18 @@ local function prepare_elements()
 
         element.style_ass = style_ass
 
-        local static_ass = assdraw.ass_new()
-
-
         if element.type == "box" then
             --draw box
+            local static_ass = assdraw.ass_new()
             static_ass:draw_start()
             ass_draw_rr_h_cw(static_ass, 0, 0, elem_geo.w, elem_geo.h,
                              element.layout.box.radius, element.layout.box.hexagon)
             static_ass:draw_stop()
+            element.static_ass = static_ass
 
         elseif element.type == "slider" then
-            --draw static slider parts
-
-            local r1 = 0
-            local r2 = 0
-            local slider_lo = element.layout.slider
-            -- offset between element outline and drag-area
-            local foV = slider_lo.border + slider_lo.gap
-
-            -- calculate positions of min and max points
-            if slider_lo.stype ~= "bar" then
-                r1 = elem_geo.h / 2
-                element.slider.min.ele_pos = elem_geo.h / 2
-                element.slider.max.ele_pos = elem_geo.w - (elem_geo.h / 2)
-                if slider_lo.stype == "diamond" then
-                    r2 = (elem_geo.h - 2 * slider_lo.border) / 2
-                elseif slider_lo.stype == "knob" then
-                    r2 = r1
-                end
-            else
-                element.slider.min.ele_pos =
-                    slider_lo.border + slider_lo.gap
-                element.slider.max.ele_pos =
-                    elem_geo.w - (slider_lo.border + slider_lo.gap)
-            end
-
-            element.slider.min.glob_pos =
-                element.hitbox.x1 + element.slider.min.ele_pos
-            element.slider.max.glob_pos =
-                element.hitbox.x1 + element.slider.max.ele_pos
-
-            -- -- --
-
-            static_ass:draw_start()
-
-            -- the box
-            ass_draw_rr_h_cw(static_ass, 0, 0, elem_geo.w, elem_geo.h, r1,
-                             slider_lo.stype == "diamond")
-
-            -- the "hole"
-            ass_draw_rr_h_ccw(static_ass, slider_lo.border, slider_lo.border,
-                              elem_geo.w - slider_lo.border, elem_geo.h - slider_lo.border,
-                              r2, slider_lo.stype == "diamond")
-
-            -- marker nibbles
-            if element.slider.markerF ~= nil and slider_lo.gap > 0 then
-                local markers = element.slider.markerF()
-                for _,marker in pairs(markers) do
-                    if marker > element.slider.min.value and
-                        marker < element.slider.max.value then
-
-                        local s = get_slider_ele_pos_for(element, marker)
-
-                        if slider_lo.gap > 1 then -- draw triangles
-
-                            local a = slider_lo.gap / 0.5 --0.866
-
-                            --top
-                            if slider_lo.nibbles_top then
-                                static_ass:move_to(s - (a / 2), slider_lo.border)
-                                static_ass:line_to(s + (a / 2), slider_lo.border)
-                                static_ass:line_to(s, foV)
-                            end
-
-                            --bottom
-                            if slider_lo.nibbles_bottom then
-                                static_ass:move_to(s - (a / 2),
-                                    elem_geo.h - slider_lo.border)
-                                static_ass:line_to(s,
-                                    elem_geo.h - foV)
-                                static_ass:line_to(s + (a / 2),
-                                    elem_geo.h - slider_lo.border)
-                            end
-
-                        else -- draw 2x1px nibbles
-
-                            --top
-                            if slider_lo.nibbles_top then
-                                static_ass:rect_cw(s - 1, slider_lo.border,
-                                    s + 1, slider_lo.border + slider_lo.gap);
-                            end
-
-                            --bottom
-                            if slider_lo.nibbles_bottom then
-                                static_ass:rect_cw(s - 1,
-                                    elem_geo.h -slider_lo.border -slider_lo.gap,
-                                    s + 1, elem_geo.h - slider_lo.border);
-                            end
-                        end
-                    end
-                end
-            end
+            update_slider(element)
         end
-
-        element.static_ass = static_ass
-
 
         -- if the element is supposed to be disabled,
         -- style it accordingly and kill the eventresponders
@@ -3666,8 +3671,13 @@ observe_cached("chapter-list", function ()
     request_init()
 end)
 observe_cached("duration", function ()
-    if user_opts.livemarkers and state.chapter_list[1] then
+    local has_duration = state.duration ~= nil and state.duration > 0
+    if has_duration ~= state.has_duration then
+        state.has_duration = has_duration
         request_init()
+    elseif state.chapter_list[1] and state.slider_element then
+        update_slider(state.slider_element)
+        request_tick()
     end
 end)
 
