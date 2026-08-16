@@ -23,7 +23,7 @@
 //!HOOK CHROMA
 //!BIND LUMA
 //!BIND HOOKED
-//!SAVE LUMA_LR
+//!SAVE LUMA_LOWRES
 //!WIDTH CHROMA.w
 //!HEIGHT CHROMA.h
 //!WHEN CHROMA.w LUMA.w <
@@ -36,7 +36,7 @@ vec4 hook() {
 //!HOOK CHROMA
 //!BIND HOOKED
 //!BIND LUMA
-//!BIND LUMA_LR
+//!BIND LUMA_LOWRES
 //!WHEN CHROMA.w LUMA.w <
 //!WIDTH LUMA.w
 //!HEIGHT LUMA.h
@@ -70,7 +70,7 @@ vec4 hook() {
     vec4 chroma_quads[4][2];
 
     for (int i = 0; i < 4; i++) {
-        luma_quads[i] = LUMA_LR_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
+        luma_quads[i] = LUMA_LOWRES_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
         chroma_quads[i][0] = HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 0);
         chroma_quads[i][1] = HOOKED_gather(vec2((fp + quad_idx[i]) * HOOKED_pt), 1);
     }
@@ -112,7 +112,7 @@ vec4 hook() {
     vec2 chroma_pixels[12];
 
     for (int i = 0; i < 12; i++) {
-        luma_pixels[i] = LUMA_LR_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).x;
+        luma_pixels[i] = LUMA_LOWRES_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).x;
         chroma_pixels[i] = HOOKED_tex(vec2((fp + pix_idx[i]) * HOOKED_pt)).xy;
     }
 #endif
@@ -143,6 +143,8 @@ vec4 hook() {
 
     float luma_avg = 0.0;
     float luma_var = 0.0;
+    float luma_min = luma_pixels[0];
+    float luma_max = luma_pixels[0];
     vec2 chroma_avg = vec2(0.0);
     vec2 chroma_var = vec2(0.0);
     vec2 luma_chroma_cov = vec2(0.0);
@@ -156,12 +158,18 @@ vec4 hook() {
     chroma_avg /= 12.0;
 
     for (int i = 0; i < 12; i++) {
+        luma_min = min(luma_min, luma_pixels[i]);
+        luma_max = max(luma_max, luma_pixels[i]);
         luma_var += pow(luma_pixels[i] - luma_avg, 2.0);
         chroma_var += pow(chroma_pixels[i] - chroma_avg, vec2(2.0));
         luma_chroma_cov += (luma_pixels[i] - luma_avg) * (chroma_pixels[i] - chroma_avg);
     }
 
     vec2 corr = clamp(abs(luma_chroma_cov / max(sqrt(luma_var * chroma_var), 1e-6)), 0.0, 1.0);
+
+    float luma_range = max(luma_max - luma_min, 1e-6);
+    float extrapolation = max(max(luma_zero - luma_max, luma_min - luma_zero), 0.0) / luma_range;
+    mix_coeff *= clamp((8.0 - extrapolation) / 4.0, 0.0, 1.0);
 
     vec2 alpha = luma_chroma_cov / max(luma_var, 1e-6);
     vec2 beta = chroma_avg - alpha * luma_avg;
