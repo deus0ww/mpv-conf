@@ -197,6 +197,10 @@ local artcnn   = {
     yuv16dn    = art_yuv_path .. 'ArtCNN_C4F16_DN_YCbCr.glsl',
     yuv16ds    = art_yuv_path .. 'ArtCNN_C4F16_DS_YCbCr.glsl',
     yuv16sh    = art_yuv_path .. 'ArtCNN_C4F16_SH_YCbCr.glsl',
+    
+    yuvr32dn    = art_yuv_path .. 'ArtCNN_R4F32_YCbCr_DN.glsl',
+    yuvr32ds    = art_yuv_path .. 'ArtCNN_R4F32_YCbCr_DS.glsl',
+    yuvr32      = art_yuv_path .. 'ArtCNN_R4F32_YCbCr.glsl',
 }
 
 -- CuNNy by funnyplanter - https://github.com/funnyplanter/CuNNy
