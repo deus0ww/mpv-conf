@@ -1,4 +1,4 @@
--- deus0ww - 2021-05-07
+-- deus0ww - 2026-10-10
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -17,14 +17,14 @@ end
 local OPERATING_SYSTEM = get_os()
 
 local host_profile = {
-    ['WW-MP2008']  = 'ww-macpro-2008',
-    ['WW-MBP2009'] = 'ww-mbp-2009',
-    ['WW-MBP2012'] = 'ww-mbp-2012',
-    ['WW-Mini']    = 'ww-mini',
-    ['MAC']        = 'ww-mac',
-    ['WIN']        = 'ww-pc',
-    ['NIX']        = 'ww-nix',
-    ['NA']         = 'ww-nix',
+    ['WW-MBP2009']    = 'ww-mbp-2009',
+    ['WW-MBP2012']    = 'ww-mbp-2012',
+    ['WW-Mini']       = 'ww-mini',
+    ['WW-Mac-Studio'] = 'ww-mac-studio',
+    ['MAC']           = 'ww-mac',
+    ['WIN']           = 'ww-pc',
+    ['NIX']           = 'ww-nix',
+    ['NA']            = 'ww-nix',
 }
 
 local function get_hostname()
