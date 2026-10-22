@@ -156,6 +156,54 @@ end
 --------------------
 local shaders_path = '~~/shaders/'
 
+-- AviSynthAiUpscale by Alexkral - https://github.com/Alexkral/AviSynthAiUpscale
+local aiu_photo_path = shaders_path .. 'AiUpscale/Photo/'
+local aiu_line_path  = shaders_path .. 'AiUpscale/LineArt/'
+
+local aiu = {
+	p2x1  = aiu_photo_path .. '2x/AiUpscale_Fast_2x_Photo.glsl',
+	p2x1s = aiu_photo_path .. '2x/AiUpscale_Fast_Sharp_2x_Photo.glsl',
+	p2x3  = aiu_photo_path .. '2x/AiUpscale_HQ_2x_Photo.glsl',
+	p2x3s = aiu_photo_path .. '2x/AiUpscale_HQ_Sharp_2x_Photo.glsl',
+	p2x2  = aiu_photo_path .. '2x/AiUpscale_Medium_2x_Photo.glsl',
+	p2x2s = aiu_photo_path .. '2x/AiUpscale_Medium_Sharp_2x_Photo.glsl',
+	
+	p3x1  = aiu_photo_path .. '3x/AiUpscale_Fast_3x_Photo.glsl',
+	p3x1s = aiu_photo_path .. '3x/AiUpscale_Fast_Sharp_3x_Photo.glsl',
+	p3x3  = aiu_photo_path .. '3x/AiUpscale_HQ_3x_Photo.glsl',
+	p3x3s = aiu_photo_path .. '3x/AiUpscale_HQ_Sharp_3x_Photo.glsl',
+	p3x2  = aiu_photo_path .. '3x/AiUpscale_Medium_3x_Photo.glsl',
+	p3x2s = aiu_photo_path .. '3x/AiUpscale_Medium_Sharp_3x_Photo.glsl',
+	
+	p4x1  = aiu_photo_path .. '4x/AiUpscale_Fast_4x_Photo.glsl',
+	p4x1s = aiu_photo_path .. '4x/AiUpscale_Fast_Sharp_4x_Photo.glsl',
+	p4x3  = aiu_photo_path .. '4x/AiUpscale_HQ_4x_Photo.glsl',
+	p4x3s = aiu_photo_path .. '4x/AiUpscale_HQ_Sharp_4x_Photo.glsl',
+	p4x2  = aiu_photo_path .. '4x/AiUpscale_Medium_4x_Photo.glsl',
+	p4x2s = aiu_photo_path .. '4x/AiUpscale_Medium_Sharp_4x_Photo.glsl',
+	
+	l2x1  = aiu_line_path .. '2x/AiUpscale_Fast_2x_LineArt.glsl',
+	l2x1s = aiu_line_path .. '2x/AiUpscale_Fast_Sharp_2x_LineArt.glsl',
+	l2x3  = aiu_line_path .. '2x/AiUpscale_HQ_2x_LineArt.glsl',
+	l2x3s = aiu_line_path .. '2x/AiUpscale_HQ_Sharp_2x_LineArt.glsl',
+	l2x2  = aiu_line_path .. '2x/AiUpscale_Medium_2x_LineArt.glsl',
+	l2x2s = aiu_line_path .. '2x/AiUpscale_Medium_Sharp_2x_LineArt.glsl',
+	
+	l3x1  = aiu_line_path .. '3x/AiUpscale_Fast_3x_LineArt.glsl',
+	l3x1s = aiu_line_path .. '3x/AiUpscale_Fast_Sharp_3x_LineArt.glsl',
+	l3x3  = aiu_line_path .. '3x/AiUpscale_HQ_3x_LineArt.glsl',
+	l3x3s = aiu_line_path .. '3x/AiUpscale_HQ_Sharp_3x_LineArt.glsl',
+	l3x2  = aiu_line_path .. '3x/AiUpscale_Medium_3x_LineArt.glsl',
+	l3x2s = aiu_line_path .. '3x/AiUpscale_Medium_Sharp_3x_LineArt.glsl',
+	
+	l4x1  = aiu_line_path .. '4x/AiUpscale_Fast_4x_LineArt.glsl',
+	l4x1s = aiu_line_path .. '4x/AiUpscale_Fast_Sharp_4x_LineArt.glsl',
+	l4x3  = aiu_line_path .. '4x/AiUpscale_HQ_4x_LineArt.glsl',
+	l4x3s = aiu_line_path .. '4x/AiUpscale_HQ_Sharp_4x_LineArt.glsl',
+	l4x2  = aiu_line_path .. '4x/AiUpscale_Medium_4x_LineArt.glsl',
+	l4x2s = aiu_line_path .. '4x/AiUpscale_Medium_Sharp_4x_LineArt.glsl',
+}
+
 -- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
 local art_y_path   = shaders_path .. 'artcnn/Luma/'
 local art_uv_path  = shaders_path .. 'artcnn/Chroma/'
@@ -198,9 +246,9 @@ local artcnn   = {
     yuv16ds    = art_yuv_path .. 'ArtCNN_C4F16_DS_YCbCr.glsl',
     yuv16sh    = art_yuv_path .. 'ArtCNN_C4F16_SH_YCbCr.glsl',
     
-    yuvr32dn    = art_yuv_path .. 'ArtCNN_R4F32_YCbCr_DN.glsl',
-    yuvr32ds    = art_yuv_path .. 'ArtCNN_R4F32_YCbCr_DS.glsl',
-    yuvr32      = art_yuv_path .. 'ArtCNN_R4F32_YCbCr.glsl',
+    yuvr32dn   = art_yuv_path .. 'ArtCNN_R4F32_YCbCr_DN.glsl',
+    yuvr32ds   = art_yuv_path .. 'ArtCNN_R4F32_YCbCr_DS.glsl',
+    yuvr32     = art_yuv_path .. 'ArtCNN_R4F32_YCbCr.glsl',
 }
 
 -- CuNNy by funnyplanter - https://github.com/funnyplanter/CuNNy
