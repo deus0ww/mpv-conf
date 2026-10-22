@@ -12,9 +12,9 @@ local opts = {
     set_timer             = 0,
 
     auto_switch           = true,       -- Auto switch shader preset base on path
-    default_index         = 2,          -- Default shader set
+    default_index         = 1,          -- Default shader set
 
-    hifps_threshold       = 29,
+    hifps_threshold       = 30,
     lowfps_threshold      = 15,
 
     preset_1_enabled      = true,
@@ -39,8 +39,8 @@ local opts = {
     preset_lowfps_enabled = true,       -- Target frame time: 90ms
     preset_lowfps_index   = 4,
 
-    preset_rgb_enabled    = true,
-    preset_rgb_index      = 4,
+    preset_rgb_enabled    = false,
+    preset_rgb_index      = 1,
 }
 
 local current_index, enabled = opts.default_index, opts.enabled
@@ -247,15 +247,15 @@ local sgsr     = {
 -- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
 -- FSRCNNX by HelpSeeker - https://github.com/HelpSeeker/FSRCNN-TensorFlow/
 local fsrcnnx_path = shaders_path .. 'fsrcnnx/'
-local fsrcnnx1 = {
-    r16e       = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_distort.glsl',
-    r16l       = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_anime_distort.glsl',
-}
-local fsrcnnx2 = {
+local fsrcnnx  = {
     r8         = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
     r8l        = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1_LineArt.glsl',
     r16        = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1.glsl',
-    r16e       = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_distort.glsl',
+}
+local fsrcnnxd = {
+    x16        = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_distort.glsl',
+    x16l       = fsrcnnx_path .. 'FSRCNNX_x1_16-0-4-1_anime_distort.glsl',
+    r16        = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_distort.glsl',
     r16l       = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_distort.glsl',
 }
 
