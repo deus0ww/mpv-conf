@@ -1,4 +1,4 @@
--- deus0ww - 2023-12-09
+-- deus0ww - 2026-10-22
 
 local mp      = require 'mp'
 local msg     = require 'mp.msg'
@@ -375,15 +375,6 @@ local g13      = {
 -------------------
 local default_antiring = 0.8 -- For scalers/shaders using libplacebo-based antiring filter
 
-local function default_shaders()
-    local s = {}
-    s[#s+1] = ({[3]=artcnn.y8,     [4]=artcnn.y16                       })[minmax_scale(3, 4)]
-    s[#s+1] = ({[3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(3, 5)]
-    s[#s+1] = fsr.easu
-    s[#s+1] = get_scale() <= 1.1 and cfl.fsr_bi or cfl.fsr
-    return s
-end
-
 local function default_options()
     local o = {
         ['linear-downscaling'] = 'no', 
@@ -422,6 +413,20 @@ local function default_params()
     }
 end
 
+local function default_shaders()
+    local s = {}
+    -- s[1] = artcnn.y32
+    -- s[1] = ({[1]='',      [2]=cunny.s4x24,  [3]=cunny.s4x24,  [4]=cunny.s4x32  })[minmax_scale(1, 4)]
+	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3s,   })[minmax_scale(1, 4)]
+    s[2] = ravu.zoom.r2
+    s[3] = fsr.y_easu
+    s[4] = get_scale() < 2.0 and as.luma          or ''
+    s[5] = cfl.fsr
+    s[6] = is_rgb()          and ravu.zoom.rgb_r3 or ''
+    s[7] = is_rgb()          and igv.ssds         or ''
+    return s
+end
+
 local sets = {}
 
 sets[#sets+1] = function()
@@ -431,31 +436,22 @@ end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[1]    = ({[3]=artcnn.y8ds,   [4]=artcnn.y16ds                     })[minmax_scale(3, 4)]
-    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
-    return { shaders = s, options = set_params(o, p), label = 'Denoise & Sharpen' }
+    s[1] = ({[1]='',      [2]=cunny.ds4x24, [3]=cunny.ds4x24, [4]=cunny.ds4x32 })[minmax_scale(1, 4)]
+    return { shaders = s, options = set_params(o, p), label = 'Denoised & Sharpened' }
 end
 
 sets[#sets+1] = function()
-    local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = ({                                                         [4]=artcnn.y8ds                      })[minmax_scale(1, 4)]
-    s[#s+1] = ({[1]=ravu.zoom.r3,  [2]=ravu.lite.r4c, [3]=ravu.zoom.r3,  [4]=ravu.lite.r4c, [5]=ravu.zoom.r3  })[minmax_scale(1, 5)]
-    s[#s+1] = fsr.easu
-    s[#s+1] = get_scale() <= 1.1 and cfl.fsr_bi or cfl.fsr
+    local s, o, p = default_shaders(), default_options(), default_params()
+    -- s[1] = ({[1]='',      [2]=cunny.s4x12,  [3]=cunny.s4x16,  [4]=cunny.s4x24,  [5]=cunny.s4x32 })[minmax_scale(1, 5)]
+	s[1] = ({[1]='',      [2]=aiu.p2x2s,    [3]=aiu.p3x2s,    [4]=aiu.p4x2s,   })[minmax_scale(1, 4)]
     return { shaders = s, options = set_params(o, p), label = 'High FPS' }
 end
 
 sets[#sets+1] = function()
-    local s, o, p = {}, default_options(), default_params()
-    s[#s+1] = artcnn.y16ds
-    s[#s+1] = ravu.zoom.r3
-    s[#s+1] = get_scale() <= 1.1 and as.luma or nil
-    s[#s+1] = get_scale() <= 1.1 and cfl.fsr_bi or cfl.fsr
-    s[#s+1] = ravu.zoom.rgb_r3
-    s[#s+1] = igv.ssds
-    o['linear-downscaling'] = 'no'  -- for ssds
-    set_scalers(o, 'ewa_lanczossharp', 'ewa_lanczossharp', 'lanczos')
-    return { shaders = s, options = set_params(o, p), label = 'Low FPS & RGB' }
+    local s, o, p = default_shaders(), default_options(), default_params()
+    s[2] = ravu.zoom.r3
+    set_scalers(o, 'ewa_lanczos4sharpest', 'ewa_lanczos4sharpest', 'lanczos')
+    return { shaders = s, options = set_params(o, p), label = 'Low FPS & Images' }
 end
 
 
