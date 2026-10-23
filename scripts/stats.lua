@@ -37,6 +37,7 @@ local o = {
     term_clip = true,
     track_info_selected_only = true, -- only show selected track info
     debug = false,
+    max_content_lines = 40,
 
     -- Graph options and style
     plot_perfdata = false,
@@ -1174,7 +1175,7 @@ local function finalize_page(header, content, apply_scroll)
         -- Up to 40 lines for libass because it can put a big performance toll on
         -- libass to process many lines which end up outside (below) the screen.
         -- In the terminal reduce height by 2 for the status line (can be more then one line)
-        local max_content_lines = (o.use_ass and 40 or term_height - 2) - #header
+        local max_content_lines = (o.use_ass and o.max_content_lines or term_height - 2) - #header
         -- in the terminal the scrolling should stop once the last line is visible
         local max_offset = o.use_ass and #content or #content - max_content_lines + 1
         from = max(1, min((pages[curr_page].offset or 1), max_offset))
