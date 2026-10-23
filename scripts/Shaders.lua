@@ -14,7 +14,7 @@ local opts = {
     auto_switch           = true,       -- Auto switch shader preset base on path
     default_index         = 1,          -- Default shader set
 
-    hifps_threshold       = 30,
+    hifps_threshold       = 31,
     lowfps_threshold      = 15,
 
     preset_1_enabled      = true,
