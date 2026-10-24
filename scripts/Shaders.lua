@@ -34,10 +34,10 @@ local opts = {
     preset_4_index        = 2,
 
     preset_hifps_enabled  = true,       -- Target frame time: 15ms
-    preset_hifps_index    = 3,
+    preset_hifps_index    = 1,
 
-    preset_lowfps_enabled = true,       -- Target frame time: 90ms
-    preset_lowfps_index   = 4,
+    preset_lowfps_enabled = false,      -- Target frame time: 90ms
+    preset_lowfps_index   = 1,
 
     preset_rgb_enabled    = false,
     preset_rgb_index      = 1,
@@ -413,12 +413,18 @@ local function default_params()
     }
 end
 
+--	s[1] = artcnn.y32ds
+--  s[1] = cunny.s4x32
+--  s[1] = cunny.ds8x32
+--  s[1] = ({[1]='',      [2]=aiu.p2x3,     [3]=aiu.p3x3,     [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
+--	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3s,   })[minmax_scale(1, 4)]
+--	s[1] = ({[1]='',      [2]=aiu.l2x3,     [3]=aiu.l3x3,     [4]=aiu.l4x3,    })[minmax_scale(1, 4)]
+--	s[1] = ({[1]='',      [2]=aiu.l2x3s,    [3]=aiu.l3x3s,    [4]=aiu.l4x3s,   })[minmax_scale(1, 4)]
+
 local function default_shaders()
     local s = {}
-    -- s[1] = artcnn.y32
-    -- s[1] = ({[1]='',      [2]=cunny.s4x24,  [3]=cunny.s4x24,  [4]=cunny.s4x32  })[minmax_scale(1, 4)]
 	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3s,   })[minmax_scale(1, 4)]
-    s[2] = ravu.zoom.r2
+    s[2] = ravu.zoom.r3
     s[3] = fsr.y_easu
     s[4] = get_scale() < 2.0 and as.luma          or ''
     s[5] = cfl.fsr
@@ -431,27 +437,14 @@ local sets = {}
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    return { shaders = s, options = set_params(o, p), label = 'Default' }
+    return { shaders = s, options = set_params(o, p), label = 'Photographic [Default]' }
 end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[1] = ({[1]='',      [2]=cunny.ds4x24, [3]=cunny.ds4x24, [4]=cunny.ds4x32 })[minmax_scale(1, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Denoised & Sharpened' }
-end
-
-sets[#sets+1] = function()
-    local s, o, p = default_shaders(), default_options(), default_params()
-    -- s[1] = ({[1]='',      [2]=cunny.s4x12,  [3]=cunny.s4x16,  [4]=cunny.s4x24,  [5]=cunny.s4x32 })[minmax_scale(1, 5)]
-	s[1] = ({[1]='',      [2]=aiu.p2x2s,    [3]=aiu.p3x2s,    [4]=aiu.p4x2s,   })[minmax_scale(1, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'High FPS' }
-end
-
-sets[#sets+1] = function()
-    local s, o, p = default_shaders(), default_options(), default_params()
-    s[2] = ravu.zoom.r3
-    set_scalers(o, 'ewa_lanczos4sharpest', 'ewa_lanczos4sharpest', 'lanczos')
-    return { shaders = s, options = set_params(o, p), label = 'Low FPS & Images' }
+    s[1] = cunny.ds8x32
+    s[4] = as.luma
+    return { shaders = s, options = set_params(o, p), label = 'Animated [Denoised & Sharpened]' }
 end
 
 
