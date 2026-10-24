@@ -1,4 +1,4 @@
--- deus0ww - 2023-12-25
+-- deus0ww - 2026-10-24
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -115,8 +115,8 @@ add({
     name = 'ExtraStereo',
     filter_type = 'audio',
     is_lavfi = true,
-    default_on_load = false,
-    default_index = 2,
+    default_on_load = true,
+    default_index = 1,
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#extrastereo
@@ -137,8 +137,8 @@ add({
     name = 'Crystalizer',
     filter_type = 'audio',
     is_lavfi = true,
-    default_on_load = false,
-    default_index = 4,
+    default_on_load = true,
+    default_index = 3,
     reset_on_load = false,
     filters = {
     -- https://ffmpeg.org/ffmpeg-filters.html#crystalizer
