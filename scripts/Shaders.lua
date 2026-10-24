@@ -204,6 +204,17 @@ local aiu = {
 	l4x2s = aiu_line_path .. '4x/AiUpscale_Medium_Sharp_4x_LineArt.glsl',
 }
 
+-- AniSD/4K by Sirosky
+-- https://github.com/Sirosky/Upscale-Hub/releases/tag/Ani4k-v2-ArtCNN
+-- https://github.com/Sirosky/Upscale-Hub/releases/tag/AniSD-ArtCNN
+local ani_path = shaders_path .. 'Ani/'
+local ani = {
+	uhdc  = ani_path .. 'Ani4Kv2_ArtCNN_C4F32_i2_CMP.glsl',
+	uhd   = ani_path .. 'Ani4Kv2_ArtCNN_C4F32_i2.glsl',
+	sdc   = ani_path .. 'AniSD_ArtCNN_C4F32_i4_CMP.glsl',
+	sd    = ani_path .. 'AniSD_ArtCNN_C4F32_i4.glsl',
+}
+
 -- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
 local art_y_path   = shaders_path .. 'artcnn/Luma/'
 local art_uv_path  = shaders_path .. 'artcnn/Chroma/'
@@ -420,6 +431,8 @@ end
 --	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3s,   })[minmax_scale(1, 4)]
 --	s[1] = ({[1]='',      [2]=aiu.l2x3,     [3]=aiu.l3x3,     [4]=aiu.l4x3,    })[minmax_scale(1, 4)]
 --	s[1] = ({[1]='',      [2]=aiu.l2x3s,    [3]=aiu.l3x3s,    [4]=aiu.l4x3s,   })[minmax_scale(1, 4)]
+--  s[1] = ({[1]='',      [2]=ani.uhdc,     [3]=ani.uhdc,     [4]=ani.sdc,     })[minmax_scale(1, 4)]
+--  s[1] = ({[1]='',      [2]=cunny.ds8x32, [3]=cunny.ds8x32, [4]=ani.sdc,     })[minmax_scale(1, 4)]
 
 local function default_shaders()
     local s = {}
@@ -442,7 +455,7 @@ end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-    s[1] = cunny.ds8x32
+	s[1] = ({[1]='',      [2]=cunny.ds8x32, [3]=cunny.ds8x32, [4]=ani.sdc,     })[minmax_scale(1, 4)]
     s[4] = as.luma
     return { shaders = s, options = set_params(o, p), label = 'Animated [Denoised & Sharpened]' }
 end
