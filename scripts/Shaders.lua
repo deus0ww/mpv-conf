@@ -340,15 +340,23 @@ local ravu     = {
     },
 }
 
--- igv's - https://gist.github.com/igv
-local igv_path = shaders_path .. 'igv/'
-local igv      = {
-    sssr       = igv_path .. 'SSimSuperRes.glsl',
-    ssds       = igv_path .. 'SSimDownscaler.glsl',
+-- SSimSR/DS by igv - https://gist.github.com/igv
+local ssim_path = shaders_path .. 'ssim/'
+local ssim      = {
+    sr          = ssim_path .. 'SSimSuperRes.glsl',
+    ds          = ssim_path .. 'SSimDownscaler.glsl',
 }
-local as       = {
-    rgb        = igv_path .. 'adaptive-sharpen.glsl',
-    luma       = igv_path .. 'adaptive-sharpen-luma.glsl',
+
+-- Adaptive Sharpen
+-- igv - https://gist.github.com/igv
+-- flowreen - https://github.com/flowreen/Miscellaneous-shaders/
+local as_path = shaders_path .. 'adaptive-sharpen/'
+local as     = {
+    rgb     = as_path .. 'adaptive-sharpen.glsl',
+    luma    = as_path .. 'adaptive-sharpen-luma.glsl',
+    
+    rgb2    = as_path .. 'Adaptive-sharpen-2p.glsl',
+    luma2   = as_path .. 'Adaptive-sharpen-2p-luma.glsl',
 }
 
 -- CfL by Artoriuz - https://github.com/Artoriuz/glsl-chroma-from-luma-prediction
@@ -439,7 +447,7 @@ local function default_shaders()
 	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3s,   })[minmax_scale(1, 4)]
     s[2] = ravu.zoom.r3
     s[3] = fsr.y_easu
-    s[4] = get_scale() < 2.0 and as.luma          or ''
+    s[4] = get_scale() < 4.0 and as.luma          or ''
     s[5] = cfl.fsr
     s[6] = is_rgb()          and ravu.zoom.rgb_r3 or ''
     s[7] = is_rgb()          and igv.ssds         or ''
