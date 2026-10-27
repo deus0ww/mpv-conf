@@ -33,11 +33,17 @@ add({
         'anlmdn=s=0.10:m=15',
 
     -- https://ffmpeg.org/ffmpeg-filters.html#afftdn
-        --'afftdn=nr=12:nf=-48',
-        --'afftdn=nr=18:nf=-42',
-        --'afftdn=nr=24:nf=-36',
-        --'afftdn=nr=30:nf=-36',
-        --'afftdn=nr=36:nf=-36',
+    	-- nr: Noise Reduction              (12)            (0.01 - 97)
+    	-- nf: Noise Floor                  (-50)           (-80 - -20)
+    	-- rf: Residual Floor               (-38)           (-80 - -20)
+    	-- tn: Noise Floor Tracking         (0)             (0, 1)
+    	-- tr: Residual Tracking            (0)             (0, 1)
+    	
+        'afftdn=nr=12:nf=-48:tn=1',
+        'afftdn=nr=18:nf=-42:tn=1',
+        'afftdn=nr=24:nf=-36:tn=1',
+        'afftdn=nr=30:nf=-36:tn=1',
+        'afftdn=nr=36:nf=-36:tn=1',
     },
 })
 
