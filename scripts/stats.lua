@@ -1591,6 +1591,10 @@ local function bind_scroll()
                                   scroll_up, {repeatable=true})
         mp.add_forced_key_binding(o.key_scroll_down, "__forced_" .. o.key_scroll_down,
                                   scroll_down, {repeatable=true})
+        mp.add_forced_key_binding('WHEEL_UP', "__forced_" .. 'WHEEL_UP',
+                                  scroll_up, {repeatable=false})
+        mp.add_forced_key_binding('WHEEL_DOWN', "__forced_" .. 'WHEEL_DOWN',
+                                  scroll_down, {repeatable=false})
         scroll_bound = true
     end
 end
@@ -1598,6 +1602,8 @@ local function unbind_scroll()
     if scroll_bound then
         mp.remove_key_binding("__forced_"..o.key_scroll_up)
         mp.remove_key_binding("__forced_"..o.key_scroll_down)
+        mp.remove_key_binding("__forced_"..'WHEEL_UP')
+        mp.remove_key_binding("__forced_"..'WHEEL_DOWN')
         scroll_bound = false
     end
 end
