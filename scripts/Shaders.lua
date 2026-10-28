@@ -413,7 +413,7 @@ local function default_params()
     return {
         as_sharpness   = 0.4,
 
-        blur_radius    = 1.0,
+        blur_radius    = 2,
         blur_sigma     = 0.5,
 
         fg_intensity   = math.min(0.08, 0.02 + scale / 100),
@@ -444,13 +444,14 @@ end
 
 local function default_shaders()
     local s = {}
-	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3s,   })[minmax_scale(1, 4)]
+	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
     s[2] = ravu.zoom.r3
     s[3] = fsr.y_easu
-    s[4] = get_scale() < 4.0 and as.luma          or ''
+    s[4] = '' -- get_scale() < 2.0 and as.luma2         or ''
     s[5] = cfl.fsr
     s[6] = is_rgb()          and ravu.zoom.rgb_r3 or ''
-    s[7] = is_rgb()          and igv.ssds         or ''
+    s[7] = get_scale() < 2.0 and as.rgb2          or ''
+    s[8] = is_rgb()          and igv.ssds         or ''
     return s
 end
 
@@ -464,7 +465,7 @@ end
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
 	s[1] = ({[1]='',      [2]=cunny.ds8x32, [3]=cunny.ds8x32, [4]=ani.sdc,     })[minmax_scale(1, 4)]
-    s[4] = as.luma
+    s[7] = as.rgb2
     return { shaders = s, options = set_params(o, p), label = 'Animated [Denoised & Sharpened]' }
 end
 

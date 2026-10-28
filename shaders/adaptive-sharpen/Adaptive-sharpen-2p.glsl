@@ -43,7 +43,7 @@
 
 //-------------------------------------------------------------------------------------------------
 
-//!HOOK OUTPUT
+//!HOOK SCALED
 //!BIND HOOKED
 //!SAVE ASEDGE
 //!COMPONENTS 4
@@ -93,7 +93,7 @@ vec4 hook() {
     return vec4(cO, edge*c_comp + a_offset);
 }
 
-//!HOOK OUTPUT
+//!HOOK SCALED
 //!BIND HOOKED
 //!BIND ASEDGE
 //!DESC Adaptive Sharpen Pass 2
