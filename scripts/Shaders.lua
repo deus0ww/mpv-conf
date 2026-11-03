@@ -373,6 +373,9 @@ local cfl      = {
     fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
     fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',
     
+    ravu_r2x   = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
+    ravu_r3x   = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
+
     gsr        = cfl_path .. 'CfL_Prediction_GSR.glsl',
 
     x          = cfl_path .. 'CfL_Prediction_Test.glsl',
