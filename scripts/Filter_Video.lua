@@ -1,4 +1,4 @@
--- deus0ww - 2026-04-24
+-- deus0ww - 2026-10-28
 
 local mp      = require 'mp'
 local utils   = require 'mp.utils'
@@ -22,12 +22,8 @@ add({
         -- mode: pc, pc_n, pc_u, pc_n_ub, pcn, pcn_ub   (pc_n)
         -- combmatch: none, sc, full        (sc)
     -- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
-        'bwdif=mode=send_frame',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif=mode=send_frame,mpdecimate',
         'bwdif',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif',
-        'fieldmatch=mode=pc_n_ub:combmatch=full,bwdif,mpdecimate',
+        'bwdif=mode=send_frame',
     },
 })
 
