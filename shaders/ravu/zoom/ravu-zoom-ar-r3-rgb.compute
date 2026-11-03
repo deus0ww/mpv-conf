@@ -1,37 +1,49 @@
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //!PARAM ravu_antiring
-//!DESC RAVU Chroma Antiring Parameter
+//!DESC RAVU Antiring Parameter
 //!TYPE float
 //!MINIMUM 0.0
 //!MAXIMUM 1.0
 0.8
 
-//!DESC RAVU-Zoom-AR UV [R3]
-//!HOOK CHROMA
+//!DESC RAVU-Zoom-AR [RGB R3 Compute]
+//!HOOK MAIN
 //!BIND HOOKED
 //!BIND ravu_zoom_lut3
 //!BIND ravu_zoom_lut3_ar
-//!BIND LUMA
-//!WIDTH LUMA.w
-//!HEIGHT LUMA.h
+//!WIDTH OUTPUT.w
+//!HEIGHT OUTPUT.h
 //!OFFSET ALIGN
-//!WHEN HOOKED.w LUMA.w < HOOKED.h LUMA.h < *
+//!WHEN HOOKED.w OUTPUT.w < HOOKED.h OUTPUT.h < *
+//!COMPUTE 32 8
+const vec3 color_primary = vec3(0.2126, 0.7152, 0.0722);
 #define LUTPOS(x, lut_size) mix(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
-vec4 hook() {
-vec2 pos = HOOKED_pos * HOOKED_size;
+shared vec3 samples[532];
+void hook() {
+ivec2 group_begin = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);
+ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize) - ivec2(1);
+ivec2 rectl = ivec2(floor(HOOKED_size * HOOKED_map(group_begin) - 0.5001)) - 2;
+ivec2 rectr = ivec2(floor(HOOKED_size * HOOKED_map(group_end) - 0.4999)) + 3;
+ivec2 rect = rectr - rectl + 1;
+for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_WorkGroupSize.x * gl_WorkGroupSize.y)) {
+    int y = id / rect.x, x = id % rect.x;
+    samples[x + y * 38] = HOOKED_tex(HOOKED_pt * (vec2(rectl + ivec2(x, y)) + vec2(0.5,0.5))).xyz;
+}
+barrier();
+vec2 pos = HOOKED_size * HOOKED_map(ivec2(gl_GlobalInvocationID));
 vec2 subpix = fract(pos - 0.5);
 pos -= subpix;
 subpix = LUTPOS(subpix, vec2(9.0));
@@ -40,123 +52,76 @@ vec2 subpix_ar = subpix / vec2(2.0, 288.0);
 vec2 subpix_inv_ar = subpix_inv / vec2(2.0, 288.0);
 subpix /= vec2(5.0, 288.0);
 subpix_inv /= vec2(5.0, 288.0);
-
-const ivec2 quad_idx[9] = {{-2,-2}, {-2, 0}, {-2, 2}, { 0,-2}, { 0, 0}, { 0, 2}, { 2, -2}, { 2, 0}, { 2, 2}};
-vec4 q[3][9];
-for(int i = 0; i < 9; i++) {
-    q[0][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 0);
-    q[1][i] = HOOKED_mul * textureGatherOffset(HOOKED_raw, pos * HOOKED_pt, quad_idx[i], 1);
-#ifdef LUMA_LOWRES_tex
-    q[2][i] = LUMA_LOWRES_mul * textureGatherOffset(LUMA_LOWRES_raw, pos * HOOKED_pt, quad_idx[i], 0);
-}
-float luma0  = q[2][0].w;
-float luma1  = q[2][0].x;
-float luma2  = q[2][1].w;
-float luma3  = q[2][1].x;
-float luma4  = q[2][2].w;
-float luma5  = q[2][2].x;
-float luma6  = q[2][0].z;
-float luma7  = q[2][0].y;
-float luma8  = q[2][1].z;
-float luma9  = q[2][1].y;
-float luma10 = q[2][2].z;
-float luma11 = q[2][2].y;
-float luma12 = q[2][3].w;
-float luma13 = q[2][3].x;
-float luma14 = q[2][4].w;
-float luma15 = q[2][4].x;
-float luma16 = q[2][5].w;
-float luma17 = q[2][5].x;
-float luma18 = q[2][3].z;
-float luma19 = q[2][3].y;
-float luma20 = q[2][4].z;
-float luma21 = q[2][4].y;
-float luma22 = q[2][5].z;
-float luma23 = q[2][5].y;
-float luma24 = q[2][6].w;
-float luma25 = q[2][6].x;
-float luma26 = q[2][7].w;
-float luma27 = q[2][7].x;
-float luma28 = q[2][8].w;
-float luma29 = q[2][8].x;
-float luma30 = q[2][6].z;
-float luma31 = q[2][6].y;
-float luma32 = q[2][7].z;
-float luma33 = q[2][7].y;
-float luma34 = q[2][8].z;
-float luma35 = q[2][8].y;
-#else
-}
-float luma1  = LUMA_tex(HOOKED_pt * (pos + vec2(-2.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma2  = LUMA_tex(HOOKED_pt * (pos + vec2(-2.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma3  = LUMA_tex(HOOKED_pt * (pos + vec2(-2.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma4  = LUMA_tex(HOOKED_pt * (pos + vec2(-2.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma6  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,-2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma7  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma8  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma9  = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma10 = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma11 = LUMA_tex(HOOKED_pt * (pos + vec2(-1.0, 3.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma12 = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0,-2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma13 = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma14 = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma15 = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma16 = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma17 = LUMA_tex(HOOKED_pt * (pos + vec2( 0.0, 3.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma18 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0,-2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma19 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma20 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma21 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma22 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma23 = LUMA_tex(HOOKED_pt * (pos + vec2( 1.0, 3.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma24 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0,-2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma25 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma26 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma27 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma28 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma29 = LUMA_tex(HOOKED_pt * (pos + vec2( 2.0, 3.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma31 = LUMA_tex(HOOKED_pt * (pos + vec2( 3.0,-1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma32 = LUMA_tex(HOOKED_pt * (pos + vec2( 3.0, 0.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma33 = LUMA_tex(HOOKED_pt * (pos + vec2( 3.0, 1.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-float luma34 = LUMA_tex(HOOKED_pt * (pos + vec2( 3.0, 2.0) - HOOKED_off) + LUMA_pt * tex_offset).x;
-#endif
-vec2 sample0  = {q[0][0].w, q[1][0].w};
-vec2 sample1  = {q[0][0].x, q[1][0].x};
-vec2 sample2  = {q[0][1].w, q[1][1].w};
-vec2 sample3  = {q[0][1].x, q[1][1].x};
-vec2 sample4  = {q[0][2].w, q[1][2].w};
-vec2 sample5  = {q[0][2].x, q[1][2].x};
-vec2 sample6  = {q[0][0].z, q[1][0].z};
-vec2 sample7  = {q[0][0].y, q[1][0].y};
-vec2 sample8  = {q[0][1].z, q[1][1].z};
-vec2 sample9  = {q[0][1].y, q[1][1].y};
-vec2 sample10 = {q[0][2].z, q[1][2].z};
-vec2 sample11 = {q[0][2].y, q[1][2].y};
-vec2 sample12 = {q[0][3].w, q[1][3].w};
-vec2 sample13 = {q[0][3].x, q[1][3].x};
-vec2 sample14 = {q[0][4].w, q[1][4].w};
-vec2 sample15 = {q[0][4].x, q[1][4].x};
-vec2 sample16 = {q[0][5].w, q[1][5].w};
-vec2 sample17 = {q[0][5].x, q[1][5].x};
-vec2 sample18 = {q[0][3].z, q[1][3].z};
-vec2 sample19 = {q[0][3].y, q[1][3].y};
-vec2 sample20 = {q[0][4].z, q[1][4].z};
-vec2 sample21 = {q[0][4].y, q[1][4].y};
-vec2 sample22 = {q[0][5].z, q[1][5].z};
-vec2 sample23 = {q[0][5].y, q[1][5].y};
-vec2 sample24 = {q[0][6].w, q[1][6].w};
-vec2 sample25 = {q[0][6].x, q[1][6].x};
-vec2 sample26 = {q[0][7].w, q[1][7].w};
-vec2 sample27 = {q[0][7].x, q[1][7].x};
-vec2 sample28 = {q[0][8].w, q[1][8].w};
-vec2 sample29 = {q[0][8].x, q[1][8].x};
-vec2 sample30 = {q[0][6].z, q[1][6].z};
-vec2 sample31 = {q[0][6].y, q[1][6].y};
-vec2 sample32 = {q[0][7].z, q[1][7].z};
-vec2 sample33 = {q[0][7].y, q[1][7].y};
-vec2 sample34 = {q[0][8].z, q[1][8].z};
-vec2 sample35 = {q[0][8].y, q[1][8].y};
-
+ivec2 ipos = ivec2(floor(pos)) - rectl;
+int lpos = ipos.x + ipos.y * 38;
+vec3 sample0 = samples[-78 + lpos];
+vec3 sample1 = samples[-40 + lpos];
+vec3 sample2 = samples[-2 + lpos];
+vec3 sample3 = samples[36 + lpos];
+vec3 sample4 = samples[74 + lpos];
+vec3 sample5 = samples[112 + lpos];
+vec3 sample6 = samples[-77 + lpos];
+vec3 sample7 = samples[-39 + lpos];
+vec3 sample8 = samples[-1 + lpos];
+vec3 sample9 = samples[37 + lpos];
+vec3 sample10 = samples[75 + lpos];
+vec3 sample11 = samples[113 + lpos];
+vec3 sample12 = samples[-76 + lpos];
+vec3 sample13 = samples[-38 + lpos];
+vec3 sample14 = samples[0 + lpos];
+vec3 sample15 = samples[38 + lpos];
+vec3 sample16 = samples[76 + lpos];
+vec3 sample17 = samples[114 + lpos];
+vec3 sample18 = samples[-75 + lpos];
+vec3 sample19 = samples[-37 + lpos];
+vec3 sample20 = samples[1 + lpos];
+vec3 sample21 = samples[39 + lpos];
+vec3 sample22 = samples[77 + lpos];
+vec3 sample23 = samples[115 + lpos];
+vec3 sample24 = samples[-74 + lpos];
+vec3 sample25 = samples[-36 + lpos];
+vec3 sample26 = samples[2 + lpos];
+vec3 sample27 = samples[40 + lpos];
+vec3 sample28 = samples[78 + lpos];
+vec3 sample29 = samples[116 + lpos];
+vec3 sample30 = samples[-73 + lpos];
+vec3 sample31 = samples[-35 + lpos];
+vec3 sample32 = samples[3 + lpos];
+vec3 sample33 = samples[41 + lpos];
+vec3 sample34 = samples[79 + lpos];
+vec3 sample35 = samples[117 + lpos];
+float luma1 = dot(sample1, color_primary);
+float luma2 = dot(sample2, color_primary);
+float luma3 = dot(sample3, color_primary);
+float luma4 = dot(sample4, color_primary);
+float luma6 = dot(sample6, color_primary);
+float luma7 = dot(sample7, color_primary);
+float luma8 = dot(sample8, color_primary);
+float luma9 = dot(sample9, color_primary);
+float luma10 = dot(sample10, color_primary);
+float luma11 = dot(sample11, color_primary);
+float luma12 = dot(sample12, color_primary);
+float luma13 = dot(sample13, color_primary);
+float luma14 = dot(sample14, color_primary);
+float luma15 = dot(sample15, color_primary);
+float luma16 = dot(sample16, color_primary);
+float luma17 = dot(sample17, color_primary);
+float luma18 = dot(sample18, color_primary);
+float luma19 = dot(sample19, color_primary);
+float luma20 = dot(sample20, color_primary);
+float luma21 = dot(sample21, color_primary);
+float luma22 = dot(sample22, color_primary);
+float luma23 = dot(sample23, color_primary);
+float luma24 = dot(sample24, color_primary);
+float luma25 = dot(sample25, color_primary);
+float luma26 = dot(sample26, color_primary);
+float luma27 = dot(sample27, color_primary);
+float luma28 = dot(sample28, color_primary);
+float luma29 = dot(sample29, color_primary);
+float luma31 = dot(sample31, color_primary);
+float luma32 = dot(sample32, color_primary);
+float luma33 = dot(sample33, color_primary);
+float luma34 = dot(sample34, color_primary);
 vec3 abd = vec3(0.0);
 float gx, gy;
 gx = (luma13-luma1)/2.0;
@@ -219,11 +184,11 @@ float angle = floor(theta * 24.0 / 3.141592653589793);
 float strength = mix(mix(0.0, 1.0, lambda >= 0.004), mix(2.0, 3.0, lambda >= 0.05), lambda >= 0.016);
 float coherence = mix(mix(0.0, 1.0, mu >= 0.25), 2.0, mu >= 0.5);
 float coord_y = ((angle * 4.0 + strength) * 3.0 + coherence) / 288.0;
-vec2 res = vec2(0.0);
+vec3 res = vec3(0.0);
 vec4 w;
-mat4x2 cg, cg1;
-vec2 lo = vec2(0.0), hi = vec2(0.0);
-vec2 lo2 = vec2(0.0), hi2 = vec2(0.0);
+mat4x3 cg, cg1;
+vec3 lo = vec3(0.0), hi = vec3(0.0);
+vec3 lo2 = vec3(0.0), hi2 = vec3(0.0);
 w = texture(ravu_zoom_lut3, vec2(0.0, coord_y) + subpix);
 res += sample0 * w[0];
 res += sample1 * w[1];
@@ -271,7 +236,7 @@ w = texture(ravu_zoom_lut3, vec2(0.8, coord_y) + subpix_inv);
 res += sample19 * w[0];
 res += sample18 * w[1];
 w = texture(ravu_zoom_lut3_ar, vec2(0.0, coord_y) + subpix_ar);
-cg = mat4x2(0.1 + sample7, 1.1 - sample7, 0.1 + sample8, 1.1 - sample8);
+cg = mat4x3(0.1 + sample7, 1.1 - sample7, 0.1 + sample8, 1.1 - sample8);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[0] + cg[2] * w[1];
@@ -279,7 +244,7 @@ lo += cg[1] * w[0] + cg[3] * w[1];
 cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[0] + cg[2] * w[1];
 lo2 += cg[1] * w[0] + cg[3] * w[1];
-cg = mat4x2(0.1 + sample9, 1.1 - sample9, 0.1 + sample10, 1.1 - sample10);
+cg = mat4x3(0.1 + sample9, 1.1 - sample9, 0.1 + sample10, 1.1 - sample10);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[2] + cg[2] * w[3];
@@ -288,7 +253,7 @@ cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[2] + cg[2] * w[3];
 lo2 += cg[1] * w[2] + cg[3] * w[3];
 w = texture(ravu_zoom_lut3_ar, vec2(0.5, coord_y) + subpix_ar);
-cg = mat4x2(0.1 + sample13, 1.1 - sample13, 0.1 + sample14, 1.1 - sample14);
+cg = mat4x3(0.1 + sample13, 1.1 - sample13, 0.1 + sample14, 1.1 - sample14);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[0] + cg[2] * w[1];
@@ -296,7 +261,7 @@ lo += cg[1] * w[0] + cg[3] * w[1];
 cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[0] + cg[2] * w[1];
 lo2 += cg[1] * w[0] + cg[3] * w[1];
-cg = mat4x2(0.1 + sample15, 1.1 - sample15, 0.1 + sample16, 1.1 - sample16);
+cg = mat4x3(0.1 + sample15, 1.1 - sample15, 0.1 + sample16, 1.1 - sample16);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[2] + cg[2] * w[3];
@@ -305,7 +270,7 @@ cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[2] + cg[2] * w[3];
 lo2 += cg[1] * w[2] + cg[3] * w[3];
 w = texture(ravu_zoom_lut3_ar, vec2(0.0, coord_y) + subpix_inv_ar);
-cg = mat4x2(0.1 + sample28, 1.1 - sample28, 0.1 + sample27, 1.1 - sample27);
+cg = mat4x3(0.1 + sample28, 1.1 - sample28, 0.1 + sample27, 1.1 - sample27);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[0] + cg[2] * w[1];
@@ -313,7 +278,7 @@ lo += cg[1] * w[0] + cg[3] * w[1];
 cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[0] + cg[2] * w[1];
 lo2 += cg[1] * w[0] + cg[3] * w[1];
-cg = mat4x2(0.1 + sample26, 1.1 - sample26, 0.1 + sample25, 1.1 - sample25);
+cg = mat4x3(0.1 + sample26, 1.1 - sample26, 0.1 + sample25, 1.1 - sample25);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[2] + cg[2] * w[3];
@@ -322,7 +287,7 @@ cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[2] + cg[2] * w[3];
 lo2 += cg[1] * w[2] + cg[3] * w[3];
 w = texture(ravu_zoom_lut3_ar, vec2(0.5, coord_y) + subpix_inv_ar);
-cg = mat4x2(0.1 + sample22, 1.1 - sample22, 0.1 + sample21, 1.1 - sample21);
+cg = mat4x3(0.1 + sample22, 1.1 - sample22, 0.1 + sample21, 1.1 - sample21);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[0] + cg[2] * w[1];
@@ -330,7 +295,7 @@ lo += cg[1] * w[0] + cg[3] * w[1];
 cg = matrixCompMult(cg, cg1);
 hi2 += cg[0] * w[0] + cg[2] * w[1];
 lo2 += cg[1] * w[0] + cg[3] * w[1];
-cg = mat4x2(0.1 + sample20, 1.1 - sample20, 0.1 + sample19, 1.1 - sample19);
+cg = mat4x3(0.1 + sample20, 1.1 - sample20, 0.1 + sample19, 1.1 - sample19);
 cg1 = cg;
 cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);cg = matrixCompMult(cg, cg);
 hi += cg[0] * w[2] + cg[2] * w[3];
@@ -341,7 +306,7 @@ lo2 += cg[1] * w[2] + cg[3] * w[3];
 hi = hi2 / hi - 0.1;
 lo = 1.1 - lo2 / lo;
 res = mix(res, clamp(res, lo, hi), ravu_antiring);
-return vec4(res, 0.0, 1.0);
+imageStore(out_image, ivec2(gl_GlobalInvocationID), vec4(res, 1.0));
 }
 //!TEXTURE ravu_zoom_lut3
 //!SIZE 45 2592

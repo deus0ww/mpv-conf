@@ -1,14 +1,14 @@
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,7 +19,7 @@
 //!MAXIMUM 1.0
 0.8
 
-//!DESC RAVU-Zoom AR [R3]
+//!DESC RAVU-Zoom-AR [Luma R3 Gather]
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_zoom_lut3
@@ -27,7 +27,7 @@
 //!WIDTH OUTPUT.w
 //!HEIGHT OUTPUT.h
 //!OFFSET ALIGN
-//!WHEN OUTPUT.w HOOKED.w / 1.100 > OUTPUT.h HOOKED.h / 1.100 > *
+//!WHEN HOOKED.w OUTPUT.w < HOOKED.h OUTPUT.h < *
 #define LUTPOS(x, lut_size) mix(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
 vec4 hook() {
 vec2 pos = HOOKED_pos * HOOKED_size;

@@ -323,20 +323,24 @@ local ravu_zoom_path = shaders_path .. 'ravu/zoom/'
 local ravu_lite_path = shaders_path .. 'ravu/lite/'
 local ravu     = {
     lite       = {
-        r3     = ravu_lite_path .. 'ravu-lite-ar-r3.hook',
+        r2c    = ravu_lite_path .. 'ravu-lite-ar-r2.compute',
+        r2     = ravu_lite_path .. 'ravu-lite-ar-r2.gather',
         r3c    = ravu_lite_path .. 'ravu-lite-ar-r3.compute',
-        r4     = ravu_lite_path .. 'ravu-lite-ar-r4.hook',
+        r3     = ravu_lite_path .. 'ravu-lite-ar-r3.gather',
         r4c    = ravu_lite_path .. 'ravu-lite-ar-r4.compute',
+        r4     = ravu_lite_path .. 'ravu-lite-ar-r4.gather',
     },
     zoom       = {
-        r2     = ravu_zoom_path .. 'ravu-zoom-ar-r2.hook',
-        r3     = ravu_zoom_path .. 'ravu-zoom-ar-r3.hook',
-        uv_r2  = ravu_zoom_path .. 'ravu-zoom-ar-r2-chroma.hook',
-        uv_r3  = ravu_zoom_path .. 'ravu-zoom-ar-r3-chroma.hook',
-        uv_r2x = ravu_zoom_path .. 'ravu-zoom-ar-r2x-chroma.hook',
-        uv_r3x = ravu_zoom_path .. 'ravu-zoom-ar-r3x-chroma.hook',
-        rgb_r2 = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.hook',
-        rgb_r3 = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.hook',
+        r2c    = ravu_zoom_path .. 'ravu-zoom-ar-r2.compute',
+        r2     = ravu_zoom_path .. 'ravu-zoom-ar-r2.gather',
+        r3c    = ravu_zoom_path .. 'ravu-zoom-ar-r3.compute',
+        r3     = ravu_zoom_path .. 'ravu-zoom-ar-r3.gather',
+
+        rgb_r2  = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.compute',
+        rgb_r3  = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.compute',
+
+        yuv_r2c = ravu_zoom_path .. 'ravu-zoom-ar-r2-yuv.compute',
+        yuv_r3c = ravu_zoom_path .. 'ravu-zoom-ar-r3-yuv.compute',
     },
 }
 

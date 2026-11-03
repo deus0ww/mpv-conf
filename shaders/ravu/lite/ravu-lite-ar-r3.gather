@@ -1,14 +1,14 @@
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,12 +19,13 @@
 //!MAXIMUM 1.0
 0.8
 
-//!DESC RAVU-Lite AR 1
+
+//!DESC RAVU-Lite-AR 1
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_lut3
 //!SAVE ravu_lite_int
-//!WHEN OUTPUT.w HOOKED.w / 1.41421356 > OUTPUT.h HOOKED.h / 1.41421356 > *
+//!WHEN HOOKED.w OUTPUT.w / 0.707106 < HOOKED.h OUTPUT.h / 0.707106 < *
 //!COMPONENTS 4
 vec4 hook() {
 vec4 gather0 = HOOKED_mul * textureGatherOffset(HOOKED_raw, HOOKED_pos, ivec2(-2, -2), 0);
@@ -173,13 +174,13 @@ hi = hi2 / hi - 0.1;
 res = mix(res, clamp(res, lo, hi), ravu_antiring);
 return res;
 }
-//!DESC RAVU-Lite AR 2 [R3]
+//!DESC RAVU-Lite-AR 2 [Luma R3 Gather]
 //!HOOK LUMA
 //!BIND HOOKED
 //!BIND ravu_lite_int
 //!WIDTH 2 HOOKED.w *
 //!HEIGHT 2 HOOKED.h *
-//!WHEN OUTPUT.w HOOKED.w / 1.41421356 > OUTPUT.h HOOKED.h / 1.41421356 > *
+//!WHEN HOOKED.w OUTPUT.w / 0.707106 < HOOKED.h OUTPUT.h / 0.707106 < *
 //!COMPONENTS 1
 vec4 hook() {
     vec2 dir = fract(HOOKED_pos * HOOKED_size) - 0.5;
