@@ -372,8 +372,10 @@ local cfl      = {
 
     fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
     fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',
-    
+
+    ravu_r2    = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
     ravu_r2x   = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
+    ravu_r3    = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
     ravu_r3x   = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
 
     gsr        = cfl_path .. 'CfL_Prediction_GSR.glsl',
@@ -418,7 +420,7 @@ end
 local function default_params()
     local scale = get_scale()
     return {
-        as_sharpness   = 0.4,
+        as_sharpness   = ({[1]=0.40, [2]=0.35, [3]=0.30, [4]=0.30})[minmax_scale(1, 4)],
 
         blur_radius    = 2,
         blur_sigma     = 0.5,
@@ -451,14 +453,12 @@ end
 
 local function default_shaders()
     local s = {}
-	s[1] = ({[1]='',      [2]=aiu.p2x3s,    [3]=aiu.p3x3s,    [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
-    s[2] = ravu.zoom.r3
-    s[3] = fsr.y_easu
-    s[4] = '' -- get_scale() < 2.0 and as.luma2         or ''
-    s[5] = cfl.fsr
-    s[6] = is_rgb()          and ravu.zoom.rgb_r3 or ''
-    s[7] = get_scale() < 2.0 and as.rgb2          or ''
-    s[8] = is_rgb()          and igv.ssds         or ''
+	s[1] = ({[1]='',      [2]=aiu.p2x3,     [3]=aiu.p3x3,     [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
+    s[2] = ravu.zoom.r3c
+    s[3] = is_high_fps() and cfl.fsr           or cfl.ravu_r3x
+    s[4] = is_rgb()      and ravu.zoom.rgb_r3c or ''
+    s[5] = as.rgb2
+    s[6] = is_rgb()      and igv.ssds          or ''
     return s
 end
 
@@ -472,7 +472,6 @@ end
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
 	s[1] = ({[1]='',      [2]=cunny.ds8x32, [3]=cunny.ds8x32, [4]=ani.sdc,     })[minmax_scale(1, 4)]
-    s[7] = as.rgb2
     return { shaders = s, options = set_params(o, p), label = 'Animated [Denoised & Sharpened]' }
 end
 
