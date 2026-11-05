@@ -467,12 +467,23 @@ end
 
 local function default_shaders()
     local s = {}
+    -- Luma Doubler
 	s[1] = ({[1]='',      [2]=aiu.p2x3,     [3]=aiu.p3x3,     [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
+	-- Luma Scaler
     s[2] = ravu.zoom.r3c
-    s[3] = is_high_fps() and cfl.fsr           or cfl.ravu_r3x
-    s[4] = is_rgb()      and ravu.zoom.rgb_r3c or ''
-    s[5] = as.rgb2
-    s[6] = is_rgb()      and igv.ssds          or ''
+    -- Luma Sharpener
+    s[3] = ''
+	-- Chroma Scaler
+    s[4] = is_high_fps() and cfl.fsr or cfl.ravu_r3x
+
+	-- RGB Doubler
+    s[5] = ''
+	-- RGB Scaler
+    s[6] = ravu.zoom.rgb_r3c
+	-- RGB Sharpener
+    s[7] = as.rgb2
+	-- RGB Downscale
+    s[8] = ssim.ds
     return s
 end
 
@@ -485,8 +496,10 @@ end
 
 sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
-	s[1] = ({[1]='',      [2]=cunny.ds8x32, [3]=cunny.ds8x32, [4]=ani.sdc,     })[minmax_scale(1, 4)]
-    return { shaders = s, options = set_params(o, p), label = 'Animated [Denoised & Sharpened]' }
+    s[1] = ''
+    s[2] = ''
+	s[5] = aj.hd
+    return { shaders = s, options = set_params(o, p), label = 'Animated' }
 end
 
 
