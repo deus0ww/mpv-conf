@@ -215,6 +215,20 @@ local ani = {
 	sd    = ani_path .. 'AniSD_ArtCNN_C4F32_i4.glsl',
 }
 
+-- AnimeJaNai
+-- https://github.com/hooke007/mpv_PlayKit/wiki/4_GLSL
+-- https://github.com/yorkyang2333/mpv-AnimeJaNai/tree/feat/iina-glsl/ports/mpv-glsl
+local aj_path = shaders_path .. 'AnimeJaNai/'
+local aj = {
+	hd   = aj_path .. 'AnimeJaNaiV3L1_HD_x2.glsl',
+	hds  = aj_path .. 'AnimeJaNaiV3L1_sharp_HD_x2.glsl',
+	
+	b    = aj_path .. 'AnimeJaNai_Balanced.glsl',
+	f    = aj_path .. 'AnimeJaNai_Fast.glsl',
+	p    = aj_path .. 'AnimeJaNai_Performance.glsl',
+	s    = aj_path .. 'AnimeJaNai_Sharp.glsl',
+}
+
 -- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
 local art_y_path   = shaders_path .. 'artcnn/Luma/'
 local art_uv_path  = shaders_path .. 'artcnn/Chroma/'
@@ -336,8 +350,8 @@ local ravu     = {
         r3c    = ravu_zoom_path .. 'ravu-zoom-ar-r3.compute',
         r3     = ravu_zoom_path .. 'ravu-zoom-ar-r3.gather',
 
-        rgb_r2  = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.compute',
-        rgb_r3  = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.compute',
+        rgb_r2c = ravu_zoom_path .. 'ravu-zoom-ar-r2-rgb.compute',
+        rgb_r3c = ravu_zoom_path .. 'ravu-zoom-ar-r3-rgb.compute',
 
         yuv_r2c = ravu_zoom_path .. 'ravu-zoom-ar-r2-yuv.compute',
         yuv_r3c = ravu_zoom_path .. 'ravu-zoom-ar-r3-yuv.compute',
