@@ -156,7 +156,20 @@ end
 --------------------
 local shaders_path = '~~/shaders/'
 
--- AviSynthAiUpscale by Alexkral - https://github.com/Alexkral/AviSynthAiUpscale
+-- Adaptive Sharpen
+-- https://gist.github.com/igv
+-- https://github.com/flowreen/Miscellaneous-shaders/
+local as_path = shaders_path .. 'adaptive-sharpen/'
+local as     = {
+    rgb     = as_path .. 'adaptive-sharpen.glsl',
+    luma    = as_path .. 'adaptive-sharpen-luma.glsl',
+    
+    rgb2    = as_path .. 'Adaptive-sharpen-2p.glsl',
+    luma2   = as_path .. 'Adaptive-sharpen-2p-luma.glsl',
+}
+
+-- AviSynthAiUpscale by Alexkral
+-- https://github.com/Alexkral/AviSynthAiUpscale
 local aiu_photo_path = shaders_path .. 'AiUpscale/Photo/'
 local aiu_line_path  = shaders_path .. 'AiUpscale/LineArt/'
 
@@ -204,7 +217,7 @@ local aiu = {
 	l4x2s = aiu_line_path .. '4x/AiUpscale_Medium_Sharp_4x_LineArt.glsl',
 }
 
--- AniSD/4K by Sirosky
+-- Ani4K/SD by Sirosky
 -- https://github.com/Sirosky/Upscale-Hub/releases/tag/Ani4k-v2-ArtCNN
 -- https://github.com/Sirosky/Upscale-Hub/releases/tag/AniSD-ArtCNN
 local ani_path = shaders_path .. 'Ani/'
@@ -213,6 +226,41 @@ local ani = {
 	uhd   = ani_path .. 'Ani4Kv2_ArtCNN_C4F32_i2.glsl',
 	sdc   = ani_path .. 'AniSD_ArtCNN_C4F32_i4_CMP.glsl',
 	sd    = ani_path .. 'AniSD_ArtCNN_C4F32_i4.glsl',
+}
+
+-- Anime4KCPP Implementation by TianZerL
+-- https://github.com/TianZerL/ACNetGLSL
+local a4kcpp_path = shaders_path .. 'Anime4kCPP/'
+local a4kcpp = {
+	ac4bh    = a4kcpp_path .. 'acnet_f8b4_box_hdn.glsl',
+	ac4b     = a4kcpp_path .. 'acnet_f8b4_box.glsl',
+	ac4h     = a4kcpp_path .. 'acnet_f8b4_hdn.glsl',
+	ac4      = a4kcpp_path .. 'acnet_f8b4.glsl',
+	ac8bh    = a4kcpp_path .. 'acnet_f8b8_box_hdn.glsl',
+	ac8b     = a4kcpp_path .. 'acnet_f8b8_box.glsl',
+	ac8h     = a4kcpp_path .. 'acnet_f8b8_hdn.glsl',
+	ac8      = a4kcpp_path .. 'acnet_f8b8.glsl',
+	ac18bh   = a4kcpp_path .. 'acnet_f8b18_box_hdn.glsl',
+	ac18b    = a4kcpp_path .. 'acnet_f8b18_box.glsl',
+	ac18h    = a4kcpp_path .. 'acnet_f8b18_hdn.glsl',
+	ac18     = a4kcpp_path .. 'acnet_f8b18.glsl',
+	
+	ar8bh    = a4kcpp_path .. 'arnet_f8b8_box_hdn.glsl',
+	ar8b     = a4kcpp_path .. 'arnet_f8b8_box.glsl',
+	ar8h     = a4kcpp_path .. 'arnet_f8b8_hdn.glsl',
+	ar8      = a4kcpp_path .. 'arnet_f8b8.glsl',
+	ar16bh   = a4kcpp_path .. 'arnet_f8b16_box_hdn.glsl',
+	ar16b    = a4kcpp_path .. 'arnet_f8b16_box.glsl',
+	ar816h   = a4kcpp_path .. 'arnet_f8b16_hdn.glsl',
+	ar16     = a4kcpp_path .. 'arnet_f8b16.glsl',
+	ar32bh   = a4kcpp_path .. 'arnet_f8b32_box_hdn.glsl',
+	ar32b    = a4kcpp_path .. 'arnet_f8b32_box.glsl',
+	ar32h    = a4kcpp_path .. 'arnet_f8b32_hdn.glsl',
+	ar32     = a4kcpp_path .. 'arnet_f8b32.glsl',
+	ar64bh   = a4kcpp_path .. 'arnet_f8b64_box_hdn.glsl',
+	ar64b    = a4kcpp_path .. 'arnet_f8b64_box.glsl',
+	ar64h    = a4kcpp_path .. 'arnet_f8b64_hdn.glsl',
+	ar64     = a4kcpp_path .. 'arnet_f8b64.glsl',
 }
 
 -- AnimeJaNai
@@ -229,7 +277,8 @@ local aj = {
 	s    = aj_path .. 'AnimeJaNai_Sharp.glsl',
 }
 
--- ArtCNN by Artoriuz - https://github.com/Artoriuz/ArtCNN
+-- ArtCNN by Artoriuz
+-- https://github.com/Artoriuz/ArtCNN
 local art_y_path   = shaders_path .. 'artcnn/Luma/'
 local art_uv_path  = shaders_path .. 'artcnn/Chroma/'
 local art_yuv_path = shaders_path .. 'artcnn/YCbCr/'
@@ -276,7 +325,28 @@ local artcnn   = {
     yuvr32     = art_yuv_path .. 'ArtCNN_R4F32_YCbCr.glsl',
 }
 
--- CuNNy by funnyplanter - https://github.com/funnyplanter/CuNNy
+
+-- CfL by Artoriuz
+-- https://github.com/Artoriuz/glsl-chroma-from-luma-prediction
+local cfl_path = shaders_path .. 'cfl/'
+local cfl      = {
+    b          = cfl_path .. 'CfL_Prediction.glsl',
+    l          = cfl_path .. 'CfL_Prediction_Lite.glsl',
+    s          = cfl_path .. 'CfL_Prediction_Smooth.glsl',
+
+    fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
+    fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',
+
+    ravu_r2    = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
+    ravu_r2x   = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
+    ravu_r3    = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
+    ravu_r3x   = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
+
+    x          = cfl_path .. 'CfL_Prediction_Test.glsl',
+}
+
+-- CuNNy by funnyplanter
+-- https://github.com/funnyplanter/CuNNy
 local cunny_ds_path   = shaders_path .. 'cunny/ds/'
 local cunny_soft_path = shaders_path .. 'cunny/soft/'
 local cunny    = {
@@ -301,7 +371,16 @@ local cunny    = {
     s4x32      = cunny_soft_path .. 'CuNNy-4x32-SOFT.glsl',
 }
 
--- Shaders by Agyild - https://gist.github.com/agyild
+-- FilmGrain by Haasn
+-- https://raw.githubusercontent.com/haasn/gentoo-conf/xor/home/nand/.mpv/shaders/filmgrain.glsl
+local grain_path = shaders_path .. 'filmgrain/'
+local grain    = {
+    g          = grain_path .. 'filmgrain.glsl',
+    s          = grain_path .. 'filmgrain-smooth.glsl',
+}
+
+-- FSR by Agyild
+-- https://gist.github.com/agyild
 local fsr_path = shaders_path .. 'fsr/'
 local fsr      = {
     full       = fsr_path .. 'FSR.glsl',
@@ -312,13 +391,10 @@ local fsr      = {
     rgb_easu   = fsr_path .. 'FSR_EASU_RGB.glsl',
     rgb_rcas   = fsr_path .. 'FSR_RCAS_RGB.glsl',
 }
-local sgsr     = {
-    y  = shaders_path .. 'agyild/' .. 'SGSR.glsl',
-    uv = shaders_path .. 'agyild/' .. 'SGSR_Chroma.glsl',
-}
 
--- FSRCNNX by igv        - https://github.com/igv/FSRCNN-TensorFlow
--- FSRCNNX by HelpSeeker - https://github.com/HelpSeeker/FSRCNN-TensorFlow/
+-- FSRCNNX
+-- https://github.com/igv/FSRCNN-TensorFlow
+-- https://github.com/HelpSeeker/FSRCNN-TensorFlow/
 local fsrcnnx_path = shaders_path .. 'fsrcnnx/'
 local fsrcnnx  = {
     r8         = fsrcnnx_path .. 'FSRCNNX_x2_8-0-4-1.glsl',
@@ -332,7 +408,42 @@ local fsrcnnxd = {
     r16l       = fsrcnnx_path .. 'FSRCNNX_x2_16-0-4-1_anime_distort.glsl',
 }
 
--- RAVU by bjin - https://github.com/bjin/mpv-prescalers
+-- Gaussian Blur by Garamond13
+-- https://github.com/garamond13
+local g13_path = shaders_path .. 'g13/'
+local g13      = {
+    blur       = g13_path .. 'gaussianBlur.glsl',
+}
+
+-- NNEDI3 by Bjin
+-- https://github.com/bjin/mpv-prescalers
+local nnedi_path = shaders_path .. 'nnedi3/'
+local nnedi = {
+	n16_w4c   = nnedi_path .. 'nnedi3-nns16-win8x4.compute',
+	n16_w6c   = nnedi_path .. 'nnedi3-nns16-win8x6.compute',
+	n32_w4c   = nnedi_path .. 'nnedi3-nns32-win8x4.compute',
+	n32_w6c   = nnedi_path .. 'nnedi3-nns32-win8x6.compute',
+	n64_w4c   = nnedi_path .. 'nnedi3-nns64-win8x4.compute',
+	n64_w6c   = nnedi_path .. 'nnedi3-nns64-win8x6.compute',
+	n128_w4c  = nnedi_path .. 'nnedi3-nns128-win8x4.compute',
+	n128_w6c  = nnedi_path .. 'nnedi3-nns128-win8x6.compute',
+	n256_w4c  = nnedi_path .. 'nnedi3-nns256-win8x4.compute',
+	n256_w6c  = nnedi_path .. 'nnedi3-nns256-win8x6.compute',
+	
+	n16_w4    = nnedi_path .. 'nnedi3-nns16-win8x4.gather',
+	n16_w6    = nnedi_path .. 'nnedi3-nns16-win8x6.gather',
+	n32_w4    = nnedi_path .. 'nnedi3-nns32-win8x4.gather',
+	n32_w6    = nnedi_path .. 'nnedi3-nns32-win8x6.gather',
+	n64_w4    = nnedi_path .. 'nnedi3-nns64-win8x4.gather',
+	n64_w6    = nnedi_path .. 'nnedi3-nns64-win8x6.gather',
+	n128_w4   = nnedi_path .. 'nnedi3-nns128-win8x4.gather',
+	n128_w6   = nnedi_path .. 'nnedi3-nns128-win8x6.gather',
+	n256_w4   = nnedi_path .. 'nnedi3-nns256-win8x4.gather',
+	n256_w6   = nnedi_path .. 'nnedi3-nns256-win8x6.gather',
+}
+
+-- RAVU by Bjin
+-- https://github.com/bjin/mpv-prescalers
 local ravu_zoom_path = shaders_path .. 'ravu/zoom/'
 local ravu_lite_path = shaders_path .. 'ravu/lite/'
 local ravu     = {
@@ -358,56 +469,12 @@ local ravu     = {
     },
 }
 
--- SSimSR/DS by igv - https://gist.github.com/igv
+-- SSimSR/DS by igv
+-- https://gist.github.com/igv
 local ssim_path = shaders_path .. 'ssim/'
 local ssim      = {
     sr          = ssim_path .. 'SSimSuperRes.glsl',
     ds          = ssim_path .. 'SSimDownscaler.glsl',
-}
-
--- Adaptive Sharpen
--- igv - https://gist.github.com/igv
--- flowreen - https://github.com/flowreen/Miscellaneous-shaders/
-local as_path = shaders_path .. 'adaptive-sharpen/'
-local as     = {
-    rgb     = as_path .. 'adaptive-sharpen.glsl',
-    luma    = as_path .. 'adaptive-sharpen-luma.glsl',
-    
-    rgb2    = as_path .. 'Adaptive-sharpen-2p.glsl',
-    luma2   = as_path .. 'Adaptive-sharpen-2p-luma.glsl',
-}
-
--- CfL by Artoriuz - https://github.com/Artoriuz/glsl-chroma-from-luma-prediction
-local cfl_path = shaders_path .. 'cfl/'
-local cfl      = {
-    b          = cfl_path .. 'CfL_Prediction.glsl',
-    l          = cfl_path .. 'CfL_Prediction_Lite.glsl',
-    s          = cfl_path .. 'CfL_Prediction_Smooth.glsl',
-
-    fsr        = cfl_path .. 'CfL_Prediction_FSR.glsl',
-    fsr_bi     = cfl_path .. 'CfL_Prediction_FSR_Bilinear.glsl',
-
-    ravu_r2    = cfl_path .. 'CfL_Prediction_Ravu_R2.glsl',
-    ravu_r2x   = cfl_path .. 'CfL_Prediction_Ravu_R2X.glsl',
-    ravu_r3    = cfl_path .. 'CfL_Prediction_Ravu_R3.glsl',
-    ravu_r3x   = cfl_path .. 'CfL_Prediction_Ravu_R3X.glsl',
-
-    gsr        = cfl_path .. 'CfL_Prediction_GSR.glsl',
-
-    x          = cfl_path .. 'CfL_Prediction_Test.glsl',
-}
-
--- FilmGrain by Haasn - https://raw.githubusercontent.com/haasn/gentoo-conf/xor/home/nand/.mpv/shaders/filmgrain.glsl
-local grain_path = shaders_path .. 'filmgrain/'
-local grain    = {
-    g          = grain_path .. 'filmgrain.glsl',
-    s          = grain_path .. 'filmgrain-smooth.glsl',
-}
-
--- Shaders by Garamond13 - https://github.com/garamond13
-local g13_path = shaders_path .. 'g13/'
-local g13      = {
-    blur       = g13_path .. 'gaussianBlur.glsl',
 }
 
 
@@ -467,23 +534,25 @@ end
 
 local function default_shaders()
     local s = {}
+
     -- Luma Doubler
 	s[1] = ({[1]='',      [2]=aiu.p2x3,     [3]=aiu.p3x3,     [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
 	-- Luma Scaler
     s[2] = ravu.zoom.r3c
     -- Luma Sharpener
-    s[3] = ''
+    s[3] = '' -- as.luma2
 	-- Chroma Scaler
     s[4] = is_high_fps() and cfl.fsr or cfl.ravu_r3x
 
 	-- RGB Doubler
-    s[5] = ''
+	s[5] = aj.hds
 	-- RGB Scaler
     s[6] = ravu.zoom.rgb_r3c
 	-- RGB Sharpener
     s[7] = as.rgb2
-	-- RGB Downscale
+	-- RGB Downscaler
     s[8] = ssim.ds
+
     return s
 end
 
@@ -498,7 +567,7 @@ sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1] = ''
     s[2] = ''
-	s[5] = aj.hd
+    s[7] = ''
     return { shaders = s, options = set_params(o, p), label = 'Animated' }
 end
 

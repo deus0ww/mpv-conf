@@ -17,7 +17,7 @@ License inherited from upstream
 //!HOOK MAIN
 //!BIND HOOKED
 //!SAVE conv0
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv0+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv0+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -141,7 +141,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv0
 //!SAVE conv1
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv1+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv1+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -589,7 +589,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv1
 //!SAVE conv2
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv2+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv2+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -1037,7 +1037,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv2
 //!SAVE conv3
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv3+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv3+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -1485,7 +1485,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv3
 //!SAVE conv4
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv4+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv4+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -1933,7 +1933,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv4
 //!SAVE conv5
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv5+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv5+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -2381,7 +2381,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv5
 //!SAVE conv6
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv6+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv6+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -2829,7 +2829,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv6
 //!SAVE conv7
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv7+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv7+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -3277,7 +3277,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv7
 //!SAVE conv8
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv8+PReLU
+//!DESC AnimeJaNaiV3L1_HD_x2 conv8+PReLU
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 2.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -3725,7 +3725,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv8
 //!SAVE conv9
-//!DESC [AnimeJaNaiV3L1_HD_x2] conv9
+//!DESC AnimeJaNaiV3L1_HD_x2 conv9
 //!WIDTH HOOKED.w 3.0 *
 //!HEIGHT HOOKED.h 1.0 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
@@ -3992,7 +3992,7 @@ void hook() {
 //!HOOK MAIN
 //!BIND conv9
 //!BIND HOOKED
-//!DESC [AnimeJaNaiV3L1_HD_x2] PixelShuffle x2 + Residual
+//!DESC AnimeJaNaiV3L1_HD_x2 PixelShuffle x2 + Residual
 //!WIDTH HOOKED.w 2 *
 //!HEIGHT HOOKED.h 2 *
 //!WHEN OUTPUT.w HOOKED.w 1.200 * > OUTPUT.h HOOKED.h 1.200 * > *
