@@ -2041,7 +2041,7 @@ return res;
 //!BIND MODEL11
 //!BIND MODEL12
 //!SAVE SUBCONV1
-//!DESC sub-pixel convolution 1
+//!DESC AiUpscale Sub-pixel Convolution 1
 
 vec4 hook()
 {
@@ -2113,7 +2113,7 @@ return vec4(res, 0);
 //!BIND MODEL11
 //!BIND MODEL12
 //!SAVE SUBCONV2
-//!DESC sub-pixel convolution 2
+//!DESC AiUpscale Sub-pixel Convolution 2
 
 vec4 hook()
 {
@@ -2185,7 +2185,7 @@ return vec4(res, 0);
 //!BIND MODEL11
 //!BIND MODEL12
 //!SAVE SUBCONV3
-//!DESC sub-pixel convolution 3
+//!DESC AiUpscale Sub-pixel Convolution 3
 
 vec4 hook()
 {
