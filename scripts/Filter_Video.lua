@@ -22,8 +22,8 @@ add({
         -- mode: pc, pc_n, pc_u, pc_n_ub, pcn, pcn_ub   (pc_n)
         -- combmatch: none, sc, full        (sc)
     -- https://ffmpeg.org/ffmpeg-filters.html#mpdecimate
-        'bwdif',
         'bwdif=mode=send_frame',
+        'bwdif',
     },
 })
 
