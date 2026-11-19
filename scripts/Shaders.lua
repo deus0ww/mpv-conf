@@ -501,7 +501,7 @@ end
 local function default_params()
     local scale = get_scale()
     return {
-        as_sharpness   = ({[1]=0.40, [2]=0.35, [3]=0.30, [4]=0.30})[minmax_scale(1, 4)],
+        as_sharpness   = ({[1]=0.40, [2]=0.35, [3]=0.30, [4]=0.40})[minmax_scale(1, 4)],
 
         blur_radius    = 2,
         blur_sigma     = 0.5,
@@ -536,7 +536,7 @@ local function default_shaders()
     local s = {}
 
     -- Luma Doubler
-	s[1] = ({[1]='',      [2]=aiu.p2x3,     [3]=aiu.p3x3,     [4]=aiu.p4x3,    })[minmax_scale(1, 4)]
+	s[1] = ({[1]='',      [2]=aiu.p2x3,     [3]=aiu.p3x3,     [4]=(is_high_fps() and nnedi.n64_w4c or nnedi.n128_w4c )})[minmax_scale(1, 4)]
 	-- Luma Scaler
     s[2] = ravu.zoom.r3c
     -- Luma Sharpener
@@ -548,10 +548,12 @@ local function default_shaders()
 	s[5] = aj.hds
 	-- RGB Scaler
     s[6] = ravu.zoom.rgb_r3c
+	-- RGB Upscale Enhancer
+    s[7] = '' -- ssim.sr
+	-- RGB Downscale Enhancer
+    s[8] = '' -- ssim.ds
 	-- RGB Sharpener
-    s[7] = as.rgb2
-	-- RGB Downscaler
-    s[8] = ssim.ds
+    s[9] = as.rgb2
 
     return s
 end
@@ -567,7 +569,7 @@ sets[#sets+1] = function()
     local s, o, p = default_shaders(), default_options(), default_params()
     s[1] = ''
     s[2] = ''
-    s[7] = ''
+    s[9] = ''
     return { shaders = s, options = set_params(o, p), label = 'Animated' }
 end
 
