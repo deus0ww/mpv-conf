@@ -15,8 +15,8 @@
 //!BIND PREKERNEL
 //!BIND HOOKED
 //!SAVE L2
-//!WIDTH NATIVE_CROPPED.w
-//!WHEN NATIVE_CROPPED.h POSTKERNEL.h >
+//!WIDTH MAIN.w
+//!WHEN MAIN.h POSTKERNEL.h >
 //!COMPONENTS 3
 //!DESC SSimDownscaler L2 1 [robidoux]
 
@@ -56,7 +56,7 @@ vec4 hook() {
 //!BIND L2
 //!BIND HOOKED
 //!SAVE L2
-//!WHEN NATIVE_CROPPED.w POSTKERNEL.w >
+//!WHEN MAIN.w POSTKERNEL.w >
 //!COMPONENTS 3
 //!DESC SSimDownscaler L2 2 [robidoux]
 
@@ -93,7 +93,7 @@ vec4 hook() {
 //!BIND HOOKED
 //!BIND L2
 //!SAVE MR
-//!WHEN NATIVE_CROPPED.h POSTKERNEL.h >
+//!WHEN MAIN.h POSTKERNEL.h >
 //!COMPONENTS 4
 //!DESC SSimDownscaler mean & R
 
@@ -157,7 +157,7 @@ vec4 hook() {
 //!HOOK POSTKERNEL
 //!BIND HOOKED
 //!BIND MR
-//!WHEN NATIVE_CROPPED.h POSTKERNEL.h >
+//!WHEN MAIN.h POSTKERNEL.h >
 //!DESC SSimDownscaler Final
 
 #define locality    2.0
